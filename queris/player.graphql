@@ -1,0 +1,10 @@
+query Player {
+    players{
+        country,
+        number,
+        team,
+        name,
+        surname,
+        position
+    }
+}
