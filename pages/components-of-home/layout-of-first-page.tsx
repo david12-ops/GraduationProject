@@ -1,20 +1,18 @@
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import { styled } from '@mui/material/styles';
 import * as React from 'react';
 
 import { useCardDataQuery } from '@/generaze-graph';
 
 import { Cards } from './cards/card';
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
+// const Item = styled(Paper)(({ theme }) => ({
+//   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+//   ...theme.typography.body2,
+//   padding: theme.spacing(1),
+//   textAlign: 'center',
+//   color: theme.palette.text.secondary,
+// }));
 
 export const FullBorderedGridOfHomePage = () => {
   const query = useCardDataQuery();
@@ -44,6 +42,7 @@ export const FullBorderedGridOfHomePage = () => {
       <Grid item xs={12}>
         <Box p={2}></Box>
       </Grid>
+
       {/* Odstavec */}
       {TextBox(
         <div>

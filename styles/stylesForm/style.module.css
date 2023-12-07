@@ -46,6 +46,55 @@
     opacity: 0.9;
 }
 
+.crudbtn {
+    background-color: #04AA6D;
+    color: white;
+    padding: 16px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    opacity: 0.9;
+    border-radius: 10px;
+}
+
+.crudbtn:hover {
+    opacity: 1;
+}
+
+.packbuttons:hover {
+    opacity: 1;
+}
+
+.crudbtnTable {
+    background-color: #5362FC;
+    color: white;
+    padding: 12px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    opacity: 0.9;
+    border-radius: 10px;
+}
+
+.crudbtnTable:hover {
+    opacity: 1;
+}
+
+.crudbtDel {
+    background-color: red;
+    color: white;
+    padding: 12px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    opacity: 0.9;
+    border-radius: 10px;
+}
+
+.crudbtDel:hover {
+    opacity: 1;
+}
+
 .registerbtn:hover {
     opacity: 1;
 }

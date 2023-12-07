@@ -1,0 +1,16 @@
+mutation NewSupplierToFirestore($SupName:String!, $Delivery:String!, $pickUp:String!,
+ $ShippingLabel:String!, $Foil:String!, $Insurance:Int!, $SendCashDelivery: String!, $packInBox:String!){
+    SupplierToFirestore(supplierName:$SupName, delivery:$Delivery, 
+    shippingLabel:$ShippingLabel, pickUp:$pickUp, foil:$Foil, 
+    insurance:$Insurance, sendCashDelivery:$SendCashDelivery, packInBox:$packInBox){
+        sendCashDelivery
+        packInBox
+        packageId
+        suppName
+        pickUp
+        delivery
+        insurance
+        shippingLabel
+        foil
+    }
+}

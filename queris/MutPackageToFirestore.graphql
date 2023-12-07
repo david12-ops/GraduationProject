@@ -1,0 +1,15 @@
+mutation NewPackageToFirestore($Hmotnost:Int!, $Cost:Int!, $Delka:Int!,$Vyska:Int!,$Sirka:Int!,$Odkud:String!, $PSC_odkud:String!,$Kam:String!,$PSC_kam:String!, $Pack_name: String!, $SuppId:String!){
+    PackageToFirestore(weight: $Hmotnost, cost:$Cost, Plength: $Delka, height:$Vyska, width:$Sirka, fromWhere_address:$Odkud, fromWhere_PSC:$PSC_odkud, where_address:$Kam, where_PSC:$PSC_kam, name_package:$Pack_name, supplier_id:$SuppId){
+    weight
+    cost
+    Plength
+    height
+    width
+    fromWhere_address
+    fromWhere_PSC
+    where_address
+    where_PSC
+    name_package
+    supplier_id
+    }
+}

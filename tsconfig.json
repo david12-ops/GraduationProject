@@ -29,7 +29,8 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "./.eslintrc.js"
+    "./.eslintrc.js",
+    "pages/admpage"
   ],
   "exclude": [
     "node_modules"

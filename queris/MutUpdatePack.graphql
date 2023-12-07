@@ -1,0 +1,13 @@
+mutation UpdatePackage($Hmotnost:Int!, $Cost:Int!, $Delka:Int!,$Vyska:Int!,$Sirka:Int!, $Pack_name: String!, $ActPackName:String!, $PackId:String!){
+    updatePack(weight: $Hmotnost, cost:$Cost, Plength: $Delka, height:$Vyska, width:$Sirka, name_package:$Pack_name, packId: $PackId
+    aNamePack:$ActPackName){
+      weight
+      cost
+      Plength
+      height
+      width
+      name_package
+      packId
+      aNamePack
+    }
+}

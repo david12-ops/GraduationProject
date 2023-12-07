@@ -1,0 +1,94 @@
+.form {
+    box-sizing: border-box
+}
+
+/* Add padding to containers */
+.container {
+    padding: 30px;
+    background-color: antiquewhite;
+    border-radius: 20px;
+}
+
+/* Full-width input fields */
+
+.Nadpisy {
+    text-align: center;
+    font-size: x-large;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    color: orangered;
+    font-weight: bold;
+}
+
+.Odstavce {
+    text-align: center;
+    color: #E91E63;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.divinput {
+    display: flex;
+    justify-content: space-around;
+}
+
+.input {
+    width: 95%;
+    height: 50%;
+    appearance: none;
+    border: none;
+    outline: none;
+    border-bottom: .2em solid #E91E63;
+    background: rgba(#E91E63, .2);
+    border-radius: .2em .2em 0 0;
+    padding: .4em;
+    color: #E91E63;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.inputDate {
+    border: .2em solid #E91E63;
+    padding: .8em .9em;
+    border-radius: 2em;
+    color: #E91E63;
+}
+
+.inputForSupp {
+    width: 95%;
+    height: 50%;
+    appearance: none;
+    border: none;
+    outline: none;
+    border-bottom: .2em solid #E91E63;
+    background: rgba(#E91E63, .2);
+    border-radius: .2em .2em 0 0;
+    padding: .4em;
+    color: #E91E63;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.selectInput {
+    padding-bottom: 20px;
+}
+
+.crudbtn {
+    background-color: #E91E63;
+    color: white;
+    padding: 15px 20px;
+    /* margin: 20px; */
+    border: none;
+    cursor: pointer;
+    opacity: 0.9;
+    border-radius: 10px;
+}
+
+.crudbtn:hover {
+    opacity: 1;
+}
+
+/* Add a blue text color to links */
+.reference {
+    color: dodgerblue;
+}

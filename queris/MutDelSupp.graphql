@@ -1,0 +1,3 @@
+mutation DeleteSupp($Id:Int){
+  deleteSupp(id:$Id)
+}

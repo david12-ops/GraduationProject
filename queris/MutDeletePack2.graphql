@@ -1,0 +1,3 @@
+mutation DeletePac2($Id:[String]){
+  deletePack2(id:$Id)
+}

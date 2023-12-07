@@ -1,0 +1,8 @@
+query UserData{
+    userdata{
+        dataUs,
+        email,
+        historyId,
+        supplierId
+    }
+}

@@ -1,0 +1,14 @@
+query SuppData{
+    suplierData{
+        sendCashDelivery
+        packInBox
+        packageId
+        supplierId
+        suppName
+        pickUp
+        delivery
+        insurance
+        shippingLabel
+        foil
+    }
+}

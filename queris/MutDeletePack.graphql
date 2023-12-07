@@ -1,0 +1,3 @@
+mutation DeletePac($Id:Int){
+  deletePack(id:$Id)
+}

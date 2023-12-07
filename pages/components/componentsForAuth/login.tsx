@@ -1,16 +1,18 @@
 'use client';
 
-import { FirebaseError } from 'firebase/app';
+import { FirebaseError } from 'firebase-admin';
 import { useRouter } from 'next/router';
 import React, { FormEvent } from 'react';
 
-import { authUtils } from '../../firebase/auth-utils';
-import styles from '../../styles/stylesForm/style.module.css';
+import { authUtils } from '@/firebase/auth-utils';
+
+import styles from '../../../styles/stylesForm/style.module.css';
 
 export const PageFormLogin = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const router = useRouter();
+  // eslint-disable-next-line consistent-return
   const handleForm = async (event: FormEvent) => {
     try {
       event.preventDefault();
@@ -18,6 +20,7 @@ export const PageFormLogin = () => {
       alert('User login successfully');
       return await router.push('/');
     } catch (error) {
+      // nechyta error
       const err = error as FirebaseError;
       if (err.code === 'auth/user-not-found') {
         alert('Bad password or user name or you do not have account');

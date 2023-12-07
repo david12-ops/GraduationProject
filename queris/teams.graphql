@@ -1,7 +1,0 @@
-query Team($team: String, $season: String, $league: String) {
-   teams(team: $team, season: $season, league:$league){
-      team
-      season
-      league
-   }
-}

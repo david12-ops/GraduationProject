@@ -1,0 +1,16 @@
+query PackageData{
+    packageData{
+        Pkam
+        Podkud
+        costPackage
+        delka
+        hmotnost
+        kam
+        odkud
+        packName
+        packgeId
+        sirka
+        vyska
+        supplierId
+    }
+}   

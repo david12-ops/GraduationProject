@@ -1,7 +1,0 @@
-query Leagues {
-    leagues{
-        name
-        country
-        teams
-    }
-}
