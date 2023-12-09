@@ -19,6 +19,7 @@ type Props = {
   shippingLabel: string;
   insurance: number;
   sendCash: string;
+  suppId: string;
 };
 
 const Odstavec = (
@@ -101,6 +102,7 @@ export const MediaCard: React.FC<Props> = ({
   shippingLabel,
   insurance,
   sendCash,
+  suppId,
 }) => {
   return (
     <Card
@@ -164,7 +166,7 @@ export const MediaCard: React.FC<Props> = ({
         >
           <div style={{ textAlign: 'center' }}>Avg price: {avgPrice}</div>
           <CardActions style={{ justifyContent: 'center' }}>
-            <Link key="packsCard" href={`/packsCard/id_${name}`}>
+            <Link key="packsCard" href={`/packsCard/${suppId}`}>
               <Button className={styles.crudbtnTable}>Packages</Button>
             </Link>
           </CardActions>

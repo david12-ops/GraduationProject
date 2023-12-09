@@ -22,7 +22,7 @@ const typeDefs = gql`
     cardValues: [CardValue]!
     userdata: [UserData!]!
     packageData: [QueryPackD!]!
-    suplierData: [Supplier!]!
+    suplierData: [QuerySuppD!]!
   }
 
   type Mutation {
@@ -38,12 +38,7 @@ const typeDefs = gql`
       Plength: Int
       height: Int
       width: Int
-      fromWhere_address: String!
-      fromWhere_PSC: String!
-      where_address: String!
-      where_PSC: String!
       name_package: String!
-      supplier_id: String!
     ): PackageData
 
     updatePack(
@@ -136,19 +131,29 @@ const typeDefs = gql`
     supplierId: String!
   }
 
+  type QuerySuppD {
+    sendCashDelivery: String!
+    packInBox: String!
+    packageId: String!
+    supplierId: String!
+    suppName: String!
+    pickUp: String!
+    delivery: String!
+    insurance: Int!
+    shippingLabel: String!
+    foil: String!
+  }
+
   type PackageData {
     weight: Int!
     cost: Int!
     Plength: Int!
     height: Int!
     width: Int!
-    fromWhere_address: String!
-    fromWhere_PSC: String!
-    where_address: String!
-    where_PSC: String!
     name_package: String!
-    supplier_id: String!
     packgeId: String!
+    error:String
+    supplier_id:String!
   }
 
   type PackageDataUpdate {
@@ -183,10 +188,11 @@ const NoHtmlSpecialChars = (ustring:any) =>{
   // zakladni - mozne pouziti cheerio or htmlparser2
   // const htmlRegex = /<[^>]*>$/;
   const option = /<[^>]*>/
- 
+ let error ="";
  if(option.test(ustring)){
-  throw new Error('HTML code is not supported');
+  error = 'HTML code is not supported';
  }
+ return error;
 }
 
 // Validace pro package
@@ -198,6 +204,7 @@ const Convert = (
   stringToNum4: any,
   stringToNum5: any,
 ) => {
+  let error = "";
   if (
     !Number.isSafeInteger(stringToNum) ||
     !Number.isSafeInteger(stringToNum2) ||
@@ -205,7 +212,7 @@ const Convert = (
     !Number.isSafeInteger(stringToNum4) ||
     !Number.isSafeInteger(stringToNum5)
   ) {
-    throw new TypeError('Invalid number argument');
+    error = 'Invalid number argument';
   }
 
   if (
@@ -215,8 +222,10 @@ const Convert = (
     stringToNum4 < 0 ||
     stringToNum5 < 0
   ) {
-    throw new TypeError('Invalid number, argument is less then 0');
+    error ='Invalid number, argument is less then 0';
   }
+
+  return error;
 };
 
 // validace psc - je
@@ -416,6 +425,7 @@ const resolvers = {
       console.log('package data', data.values());
       return data;
     },
+    // packages podle id supp
     suplierData: async (_context: Context) => {
       const result = await db.collection('Supplier').get();
       // funguje
@@ -533,7 +543,7 @@ const resolvers = {
         throw error;
       }
     },
-    // mutation for admin/supplier
+    // mutation for admin/supplier, prace se errory + prizpusoben ke create
     PackageToFirestore: async (
       parent_: any,
       args: {
@@ -542,26 +552,26 @@ const resolvers = {
         Plength: number;
         height: number;
         width: number;
-        fromWhere_address: string;
-        fromWhere_PSC: string;
-        where_address: string;
-        where_PSC: string;
+        // fromWhere_address: string;
+        // fromWhere_PSC: string;
+        // where_address: string;
+        // where_PSC: string;
         name_package: string;
-        supplier_id: string;
+        // supplier_id: string;
       },
     ) => {
       const {
         weight: hmotnost,
         Plength: delka,
-        fromWhere_PSC: Podkud,
+        // fromWhere_PSC: Podkud,
         height: vyska,
         cost: costPackage,
-        where_PSC: Pkam,
-        where_address: kam,
-        fromWhere_address: odkud,
+        // where_PSC: Pkam,
+        // where_address: kam,
+        // fromWhere_address: odkud,
         width: sirka,
         name_package: packName,
-        supplier_id: supplierId,
+        // supplier_id: supplierId,
       } = args;
       // prideleni k dodavateli - je
       // pridelovani id_jmeno - je
@@ -581,35 +591,45 @@ const resolvers = {
       // kontrola na mista aby nebyli === - je
 
       try {
-        const newPackageDoc = db.collection('Package').doc();
+        // const newPackageDoc = db.collection('Package').doc();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        const UserDoc = await db
+        .collection('Supplier')
+        .where('supplierId', '==', "id_Trinity").get();
+        const supplierDoc = UserDoc.docs[0];
+        const existingPackages = supplierDoc.data().package || [];
+        // Convert(hmotnost, costPackage, delka, vyska, sirka);
+        // PSCVal(Podkud, Pkam);
+        // AddressVal(kam, odkud);
+        // NoHtmlSpecialChars(packName);
 
-        Convert(hmotnost, costPackage, delka, vyska, sirka);
-        PSCVal(Podkud, Pkam);
-        AddressVal(kam, odkud);
-        NoHtmlSpecialChars(packName);
+        // const Pacd = await db
+        //   .collection('Package')
+        //   .where('name_package', '==', packName)
+        //   .get();
 
-        const Pacd = await db
-          .collection('Package')
-          .where('name_package', '==', packName)
-          .get();
+        // const PackageDuplicate = await db
+        //   .collection('Package')
+        //   .where('height', '==', vyska)
+        //   .where('Plength', '==', delka)
+        //   .where('width', '==', sirka).where('weight', "==", hmotnost)
+        //   .get();
 
-        const PackageDuplicate = await db
-          .collection('Package')
-          .where('height', '==', vyska)
-          .where('Plength', '==', delka)
-          .where('width', '==', sirka).where('weight', "==", hmotnost)
-          .get();
-
-        if (Pacd.size > 0) {
-          throw new Error('Package name is not unique');
-        }
+        // if (Pacd.size > 0) {
+        //   throw new Error('Package name is not unique');
+        // }
 
         // kontrola ne plne funkcni
-        console.log("duplicate?", PackageDuplicate.size);
+        // console.log("duplicate?", PackageDuplicate.size);
 
-        if (PackageDuplicate.size > 1) {
-          throw new Error('Duplicate param of package');
-        }
+        // Není zřízeno
+        // if (PackageDuplicate.size > 1) {
+        //   throw new Error('Duplicate param of package');
+        // }
+
+        // if (existingPackages.hasOwnProperty(packName)) {
+        //   throw new Error('Package name is not unique');
+        // }
 
         const newPackage = {
           weight: hmotnost,
@@ -617,16 +637,55 @@ const resolvers = {
           Plength: delka,
           height: vyska,
           width: sirka,
-          fromWhere_address: odkud,
-          fromWhere_PSC: Podkud,
-          where_address: kam,
-          where_PSC: Pkam,
+          // fromWhere_address: odkud,
+          // fromWhere_PSC: Podkud,
+          // where_address: kam,
+          // where_PSC: Pkam,
           name_package: packName,
-          supplier_id: supplierId,
+          supplier_id: supplierDoc.id,
           packgeId: `id_${packName}`,
+          error: ""
         };
 
-        await newPackageDoc.set(newPackage);
+        if(Convert(hmotnost, costPackage, delka, vyska, sirka) && !NoHtmlSpecialChars(packName)){
+          newPackage.error = "";
+          newPackage.error = Convert(hmotnost, costPackage, delka, vyska, sirka);
+        }
+        else if(NoHtmlSpecialChars(packName) && !Convert(hmotnost, costPackage, delka, vyska, sirka)){
+          newPackage.error = "";
+          newPackage.error = NoHtmlSpecialChars(packName)
+        }
+        else if(NoHtmlSpecialChars(packName) && Convert(hmotnost, costPackage, delka, vyska, sirka)){
+          newPackage.error = "";
+          newPackage.error = (`${NoHtmlSpecialChars(packName)  }\n${  Convert(hmotnost, costPackage, delka, vyska, sirka)}`)
+        }
+        else{
+          const objectPack: { [key: string]: any } = {};
+          objectPack[packName] = {
+            weight: hmotnost,
+            cost: costPackage,
+            Plength: delka,
+            height: vyska,
+            width: sirka,
+            // fromWhere_address: odkud,
+            // fromWhere_PSC: Podkud,
+            // where_address: kam,
+            // where_PSC: Pkam,
+            name_package: packName,
+            supplier_id: supplierDoc.id,
+            packgeId: `id_${packName}`,
+          };
+
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          existingPackages.push(objectPack);
+  
+          console.log(existingPackages)
+          await supplierDoc.ref.update({package:existingPackages});
+
+          return newPackage;
+        }     
+
+        console.log('errors', newPackage.error);
         console.log('ssdsds', JSON.stringify(newPackage));
         return newPackage;
       } catch (error) {
@@ -789,8 +848,8 @@ const resolvers = {
         // fromWhere_PSC: string;
         // where_address: string;
         // where_PSC: string;
-        name_package: string;supplier_id: string;
-        // 
+        name_package: string;
+        // supplier_id: string;
         packId: string
         aNamePack:string,
         // lastSuppId: string
@@ -1034,7 +1093,6 @@ const resolvers = {
             insurance: InsuranceValue,
             shippingLabel: hasShippingLabel,
             foil: hasFoil,
-            packageId:packgId,
           });
         });
 

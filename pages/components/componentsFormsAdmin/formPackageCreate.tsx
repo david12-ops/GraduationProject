@@ -1,4 +1,5 @@
 // eslint-disable-next-line unicorn/filename-case
+import router from 'next/router';
 import * as React from 'react';
 
 import { useNewPackageToFirestoreMutation } from '@/generated/graphql';
@@ -16,9 +17,9 @@ export const FormPackage = () => {
   // const [psc_odkud, SetPSC_odkud] = React.useState(' ');
   // const [kam, Setkam] = React.useState(' ');
   // const [psc_kam, SetPSC_kam] = React.useState(' ');
-  // const [packName, SetPackName] = React.useState(' ');
+  const [packName, SetPackName] = React.useState(' ');
   // const [suppId, SetSuppId] = React.useState(' ');
-  const [newPackage, errors] = useNewPackageToFirestoreMutation();
+  const [newPackage] = useNewPackageToFirestoreMutation();
   // const Supp = useSuppDataQuery();
 
   // validace dat - je
@@ -83,27 +84,32 @@ export const FormPackage = () => {
     // Mutation
     // create zjistit jestli tam id uz nejake je, upravit create resolveru
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    await newPackage({
+    const packd = await newPackage({
       variables: {
         Hmotnost: Convert(kg),
         Cost: Convert(cost),
         Delka: Convert(delka),
         Vyska: Convert(vyska),
         Sirka: Convert(sirka),
-        // Odkud: addressVal(odkud),
-        // PSC_odkud: PSCVal(psc_odkud),
-        // Kam: addressVal(kam),
-        // PSC_kam: PSCVal(psc_kam),
-        // Pack_name: packName,
+        Pack_name: packName,
         // SuppId: Object.values(suppId)
         //   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
         //   .slice(0, Object.values(suppId).lastIndexOf(','))
         //   .toString(),
       },
     });
-    // prace s errory
-    // alert(`${errors} `);
-    alert('Balíček byl vytvořen');
+    if (packd.data?.PackageToFirestore?.error) {
+      // pri vytvareni supp pridelovat id supp = id document
+      // prace s errory
+      const message = packd.data?.PackageToFirestore?.error.toString();
+      alert(`${message} `);
+    } else {
+      const message = 'Balíček byl vytvořen';
+      alert(`${message}`);
+      return router.push(
+        `/../admpage/${packd.data?.PackageToFirestore?.supplier_id}`,
+      );
+    }
   };
 
   return (
@@ -407,7 +413,11 @@ export const FormPackage = () => {
           </div> */}
           <div className={styles.divinput}>
             {' '}
-            <button className={styles.crudbtn} type="submit">
+            <button
+              onClick={handleForm}
+              className={styles.crudbtn}
+              type="submit"
+            >
               Create
             </button>
           </div>

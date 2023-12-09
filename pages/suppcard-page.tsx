@@ -41,6 +41,7 @@ export default function SuppCards() {
             delivery={item.delivery}
             insurance={item.insurance}
             avgPrice={0}
+            suppId={item.supplierId}
           />
         ))}
       </main>

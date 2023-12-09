@@ -118,7 +118,7 @@ export default function Page() {
               style={{
                 textAlign: 'center',
                 color: 'orange',
-                fontSize: '40px',
+                fontSize: '30px',
                 fontWeight: 'bold',
               }}
             >
