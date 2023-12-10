@@ -19,6 +19,7 @@ import { SearchAppBar2 } from '../components/navbar2';
 
 // eslint-disable-next-line import/no-default-export
 // upravit vypis balicku
+// responzivita a sortovani
 export default function PacksCards() {
   const suppD = useSuppDataQuery();
 
@@ -54,34 +55,36 @@ export default function PacksCards() {
         {selectedSupp ? (
           selectedSupp.package ? (
             <div>
-              {selectedSupp?.package.map((item: any) => {
-                const keys = Object.keys(item);
-                return keys.map((key: any) => (
-                  <div
-                    key={key} // Ensure each child in a list has a unique "key" prop
-                    style={{
-                      backgroundColor: '#D67F76',
-                      // display: 'flex',
-                      // flexDirection: 'row',
-                      // gap: '15px',
-                      padding: '10px',
-                      margin: '10px',
-                      // justifyContent: 'space-around',
-                      borderRadius: '10px',
-                    }}
-                  >
-                    <PackCards
-                      key={key}
-                      Name={item[key].name_package}
-                      Cost={item[key].cost}
-                      Weight={item[key].weight}
-                      Width={item[key].width}
-                      Length={item[key].Plength}
-                      Heiht={item[key].height}
-                    />
-                  </div>
-                ));
-              })}
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                {selectedSupp?.package.map((item: any) => {
+                  const keys = Object.keys(item);
+                  return keys.map((key: any) => (
+                    <div
+                      key={key} // Ensure each child in a list has a unique "key" prop
+                      style={{
+                        backgroundColor: '#D67F76',
+                        // display: 'flex',
+                        // flexDirection: 'row',
+                        // gap: '15px',
+                        padding: '10px',
+                        margin: '10px',
+                        // justifyContent: 'space-around',
+                        borderRadius: '10px',
+                      }}
+                    >
+                      <PackCards
+                        key={key}
+                        Name={item[key].name_package}
+                        Cost={item[key].cost}
+                        Weight={item[key].weight}
+                        Width={item[key].width}
+                        Length={item[key].Plength}
+                        Heiht={item[key].height}
+                      />
+                    </div>
+                  ));
+                })}
+              </div>
             </div>
           ) : (
             <div
