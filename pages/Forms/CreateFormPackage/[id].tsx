@@ -1,10 +1,14 @@
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
-import styles from '../../styles/Home.module.css';
-import { FormPackage } from '../components/componentsFormsAdmin/formPackageCreate';
-import { SearchAppBar2 } from '../components/navbar2';
+import styles from '../../../styles/Home.module.css';
+import { FormPackage } from '../../components/componentsFormsAdmin/formPackageCreate';
+import { SearchAppBar2 } from '../../components/navbar2';
 
 export default function CreateForm() {
+  const router = useRouter();
+  const { query } = router;
+  const { id } = query;
   return (
     <div className={styles.container}>
       <Head>
@@ -15,7 +19,7 @@ export default function CreateForm() {
       <SearchAppBar2 />
 
       <main className={styles.main}>
-        <FormPackage />
+        <FormPackage id={id ? String(id) : ''} />
       </main>
 
       <footer className={styles.footer}></footer>

@@ -18,6 +18,7 @@ import { SearchAppBar2 } from '../components/navbar2';
 // };
 
 // eslint-disable-next-line import/no-default-export
+// upravit vypis balicku
 export default function PacksCards() {
   const packD = usePackageDataQuery();
   const suppD = useSuppDataQuery();

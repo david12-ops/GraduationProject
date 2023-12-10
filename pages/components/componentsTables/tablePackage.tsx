@@ -189,8 +189,6 @@ export const DataGridPackage = () => {
           checkboxSelection
           disableRowSelectionOnClick
         />
-        {/* <div>{Idp()}</div>
-        <div>{IdPack()}</div> */}
       </Box>
       <div
         style={{
@@ -214,9 +212,6 @@ export const DataGridPackage = () => {
         <button onClick={DeleteP} className={styles.crudbtDel}>
           Delete
         </button>
-        {/* <Link key="CreateFormPackage" href="/../Forms/CreateFormPackage">
-          <button className={styles.crudbtn}>Create</button>
-        </Link> */}
       </div>
     </Box>
   );

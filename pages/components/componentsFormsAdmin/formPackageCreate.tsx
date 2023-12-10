@@ -6,7 +6,10 @@ import { useNewPackageToFirestoreMutation } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
 
-export const FormPackage = () => {
+type Props = {
+  id: string;
+};
+export const FormPackage: React.FC<Props> = ({ id }) => {
   // vice se v jednom!
   const [kg, SetKg] = React.useState(' ');
   const [cost, SetCost] = React.useState(' ');
@@ -31,7 +34,6 @@ export const FormPackage = () => {
     }
     return Number.parseInt(stringToNum, numberFrString);
   }
-
   // validace psc - neni
   // validace adresy - neni
   // string v resolveru
@@ -96,6 +98,8 @@ export const FormPackage = () => {
         //   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
         //   .slice(0, Object.values(suppId).lastIndexOf(','))
         //   .toString(),
+        // Úprava id potom, error page
+        SuppID: id,
       },
     });
     if (packd.data?.PackageToFirestore?.error) {
@@ -106,9 +110,7 @@ export const FormPackage = () => {
     } else {
       const message = 'Balíček byl vytvořen';
       alert(`${message}`);
-      return router.push(
-        `/../admpage/${packd.data?.PackageToFirestore?.supplier_id}`,
-      );
+      return router.push(`/../admpage/${id}`);
     }
   };
 

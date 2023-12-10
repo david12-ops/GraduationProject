@@ -2,7 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { usePackageDataQuery, useSuppDataQuery } from '@/generated/graphql';
+import { useSuppDataQuery } from '@/generated/graphql';
 
 import styles from '../../styles/Home.module.css';
 import stylesF from '../../styles/stylesForm/style.module.css';
@@ -22,15 +22,12 @@ import { SearchAppBar2 } from '../components/navbar2';
 
 // eslint-disable-next-line import/no-default-export
 export default function Page() {
-  const packD = usePackageDataQuery();
   const suppD = useSuppDataQuery();
 
   const router = useRouter();
   const { query } = router;
   const { id } = query;
-  const selectedPackage = packD.data?.packageData.find(
-    (actPack: any) => actPack.supplierId === id,
-  );
+
   const selectedSupp = suppD.data?.suplierData.find(
     (actPack: any) => actPack.supplierId === id,
   );
@@ -82,32 +79,39 @@ export default function Page() {
         >
           Packages
         </h2>
-        {selectedPackage ? (
+        {selectedSupp?.package ? (
           <div>
-            <div
-              style={{
-                backgroundColor: '#D67F76',
-                display: 'flex',
-                gap: '15px',
-                padding: '10px',
-                margin: '10px',
-                justifyContent: 'space-around',
-                borderRadius: '10px',
-              }}
-            >
-              <PackCard
-                key={selectedPackage?.packgeId}
-                Name={selectedPackage?.packName}
-                Cost={selectedPackage?.costPackage}
-                Weight={selectedPackage?.hmotnost}
-                Width={selectedPackage?.sirka}
-                Length={selectedPackage?.delka}
-                Heiht={selectedPackage?.vyska}
-              />
-            </div>
+            {selectedSupp?.package.map((item: any) => {
+              const keys = Object.keys(item);
+              return keys.map((key: any) => (
+                <div
+                  key={key} // Ensure each child in a list has a unique "key" prop
+                  style={{
+                    backgroundColor: '#D67F76',
+                    // display: 'flex',
+                    // flexDirection: 'row',
+                    // gap: '15px',
+                    padding: '10px',
+                    margin: '10px',
+                    // justifyContent: 'space-around',
+                    borderRadius: '10px',
+                  }}
+                >
+                  <PackCard
+                    key={key}
+                    Name={item[key].name_package}
+                    Cost={item[key].cost}
+                    Weight={item[key].weight}
+                    Width={item[key].width}
+                    Length={item[key].Plength}
+                    Heiht={item[key].height}
+                  />
+                </div>
+              ));
+            })}
             <Link
               key="CreateFormPackage"
-              href={`../../Forms/CreateFormPackage`}
+              href={`../../Forms/CreateFormPackage/${id}`}
             >
               <button className={stylesF.crudbtn}>Create</button>
             </Link>
@@ -125,18 +129,19 @@ export default function Page() {
               Tento dodavatel nemá balíčky
             </div>
             <div>
-              {selectedSupp ? (
-                <Link
-                  key="CreateFormPackage"
-                  href={`../../Forms/CreateFormPackage`}
-                >
-                  <button className={stylesF.crudbtn}>Create</button>
-                </Link>
-              ) : (
-                ' '
-              )}
+              <Link
+                key="CreateFormPackage"
+                href={`../../Forms/CreateFormPackage/${id}`}
+              >
+                <button className={stylesF.crudbtn}>Create</button>
+              </Link>
             </div>
           </div>
+        )}
+        {selectedSupp?.package ? (
+          <div>{JSON.stringify(Object.values(selectedSupp.package))}</div>
+        ) : (
+          ' '
         )}
       </main>
       <footer className={styles.footer}></footer>

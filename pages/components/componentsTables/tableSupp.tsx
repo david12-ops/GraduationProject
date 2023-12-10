@@ -22,14 +22,6 @@ export const DataGridSupplier = () => {
           return {
             id: index,
             supplierName: SuupD.suppName,
-            // packInBox: SuupD.packInBox === 'true' ? 'Ano' : 'Ne',
-            packId: SuupD.packageId,
-            // sendCashDelivery: SuupD.sendCashDelivery === 'true' ? 'Ano' : 'Ne',
-            // pickUp: SuupD.pickUp,
-            // delivery: SuupD.delivery,
-            // insurance: SuupD.insurance,
-            // shippingLabel: SuupD.shippingLabel === 'true' ? 'Ano' : 'Ne',
-            // foil: SuupD.foil === 'true' ? 'Ano' : 'Ne',
             suppId: SuupD.supplierId,
           };
         });
@@ -39,17 +31,6 @@ export const DataGridSupplier = () => {
       (selectedId) => rows.find((item) => item.id === selectedId)?.suppId,
     );
   };
-
-  // const Ids = () => {
-  //   // eslint-disable-next-line sonarjs/no-ignored-return
-  //   return (
-  //     selection
-  //       .map((selectedId) => rows.find((item) => item.id === selectedId))
-  //       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  //       .map(({ suppId }) => ({ ids: suppId }.ids))
-  //       .toString()
-  //   );
-  // };
 
   const Check = () => {
     let errmsg;
@@ -91,81 +72,11 @@ export const DataGridSupplier = () => {
           loading={suppD.loading}
           rows={rows}
           columns={[
-            // {
-            //   field: 'id',
-            //   headerName: 'ID',
-            //   width: 80,
-            //   align: 'center',
-            //   headerAlign: 'center',
-            // },
             {
               field: 'supplierName',
               headerName: 'Supplier name',
               width: 125,
               editable: true,
-            },
-            // {
-            //   field: 'packInBox',
-            //   headerName: 'Zbaleni do krabice',
-            //   width: 110,
-            //   editable: true,
-            //   align: 'center',
-            //   headerAlign: 'center',
-            // },
-            // {
-            //   field: 'sendCashDelivery',
-            //   headerName: 'Na dobírku',
-            //   width: 110,
-            //   editable: true,
-            //   align: 'center',
-            //   headerAlign: 'center',
-            // },
-            // {
-            //   field: 'pickUp',
-            //   headerName: 'Vyzvednutí',
-            //   width: 110,
-            //   editable: true,
-            //   align: 'center',
-            //   headerAlign: 'center',
-            // },
-            // {
-            //   field: 'delivery',
-            //   headerName: 'Doručení',
-            //   width: 110,
-            //   editable: true,
-            //   align: 'center',
-            //   headerAlign: 'center',
-            // },
-            // {
-            //   field: 'insurance',
-            //   headerName: 'Pojištění',
-            //   width: 110,
-            //   editable: true,
-            //   align: 'center',
-            //   headerAlign: 'center',
-            // },
-            // {
-            //   field: 'shippingLabel',
-            //   headerName: 'Přepravní štítek',
-            //   width: 110,
-            //   editable: true,
-            //   align: 'center',
-            //   headerAlign: 'center',
-            // },
-            // {
-            //   field: 'foil',
-            //   headerName: 'Do folie',
-            //   width: 110,
-            //   editable: true,
-            //   align: 'center',
-            //   headerAlign: 'center',
-            // },
-            {
-              field: 'packId',
-              headerName: 'Pack Id',
-              width: 125,
-              align: 'center',
-              headerAlign: 'center',
             },
             {
               field: 'suppId',
@@ -175,21 +86,6 @@ export const DataGridSupplier = () => {
               align: 'center',
               headerAlign: 'center',
             },
-            // {
-            //   field: 'ButtonUpdate',
-            //   headerName: 'Actoins',
-            //   width: 110,
-            //   align: 'center',
-            //   headerAlign: 'center',
-            //   renderCell: () => (
-            //     <Link
-            //       key="UpdateFromSupplier"
-            //       href={`/../Forms/UpdateFromSupplier/${IdSupp()}`}
-            //     >
-            //       <button className={styles.crudbtnTable}>Update</button>
-            //     </Link>
-            //   ),
-            // },
             {
               field: 'ButtonDetail',
               headerName: 'Action',
@@ -197,11 +93,9 @@ export const DataGridSupplier = () => {
               align: 'center',
               headerAlign: 'center',
               renderCell: () => (
-                // <Link key="admpage" href={`/../admpage/${IdSupp()}`}>
                 <button onClick={Check} className={styles.crudbtnTable}>
                   Manage
                 </button>
-                // </Link>
               ),
             },
           ]}
@@ -216,7 +110,6 @@ export const DataGridSupplier = () => {
           checkboxSelection
           disableRowSelectionOnClick
         />
-        {/* <div>{Ids()}</div> */}
       </Box>
       <div
         style={{

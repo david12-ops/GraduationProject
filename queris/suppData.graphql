@@ -2,7 +2,6 @@ query SuppData{
     suplierData{
         sendCashDelivery
         packInBox
-        packageId
         supplierId
         suppName
         pickUp
@@ -10,5 +9,6 @@ query SuppData{
         insurance
         shippingLabel
         foil
+        package 
     }
 }

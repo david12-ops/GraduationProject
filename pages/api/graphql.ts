@@ -39,6 +39,7 @@ const typeDefs = gql`
       height: Int
       width: Int
       name_package: String!
+      supplier_id:String!
     ): PackageData
 
     updatePack(
@@ -131,10 +132,10 @@ const typeDefs = gql`
     supplierId: String!
   }
 
+  scalar JSON
   type QuerySuppD {
     sendCashDelivery: String!
     packInBox: String!
-    packageId: String!
     supplierId: String!
     suppName: String!
     pickUp: String!
@@ -142,6 +143,7 @@ const typeDefs = gql`
     insurance: Int!
     shippingLabel: String!
     foil: String!
+    package:JSON
   }
 
   type PackageData {
@@ -432,7 +434,6 @@ const resolvers = {
       const data: Array<{
         sendCashDelivery: any;
         packInBox: any;
-        packageId: any;
         supplierId: any;
         suppName: any;
         pickUp: any;
@@ -440,6 +441,7 @@ const resolvers = {
         insurance: any;
         shippingLabel: any;
         foil: any;
+        package:[any]
       }> = [];
 
       result.forEach((doc) => {
@@ -448,7 +450,6 @@ const resolvers = {
         data.push({
           sendCashDelivery: docData.sendCashDelivery,
           packInBox: docData.packInBox,
-          packageId: docData.packageId,
           supplierId: docData.supplierId,
           suppName: docData.suppName,
           pickUp: docData.pickUp,
@@ -456,10 +457,11 @@ const resolvers = {
           insurance: docData.insurance,
           shippingLabel: docData.shippingLabel,
           foil: docData.foil,
+          package:docData.package
         });
+        console.log('data supplier package', data.map((item) => JSON.stringify(item.package)));
       });
-      // console.log('suplier data', data);
-      console.log('data supplier', data);
+
       return data;
     },
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -552,81 +554,31 @@ const resolvers = {
         Plength: number;
         height: number;
         width: number;
-        // fromWhere_address: string;
-        // fromWhere_PSC: string;
-        // where_address: string;
-        // where_PSC: string;
         name_package: string;
-        // supplier_id: string;
+        supplier_id: string;
       },
     ) => {
       const {
         weight: hmotnost,
         Plength: delka,
-        // fromWhere_PSC: Podkud,
         height: vyska,
         cost: costPackage,
-        // where_PSC: Pkam,
-        // where_address: kam,
-        // fromWhere_address: odkud,
         width: sirka,
         name_package: packName,
-        // supplier_id: supplierId,
+        supplier_id: supplierId,
       } = args;
       // prideleni k dodavateli - je
       // pridelovani id_jmeno - je
       // validace parametru na duplicitní zaznamy - neni
-      // valiadce na duplicitni balik - je castecně
-      // const PackageDuplicate = await db
-      //   .collection('Package')
-      //   .where('Height', '==', vyska)
-      //   .where('length', '==', delka)
-      //   .where('width', '==', sirka)
-      //   .where('name_package', '==', packName)
-      //   .get();
-      // if (PackageDuplicate) {
-      //   throw new Error('Duplicate package');
-      // }
-
-      // kontrola na mista aby nebyli === - je
+      // valiadce na duplicitni balik - neni
 
       try {
-        // const newPackageDoc = db.collection('Package').doc();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         const UserDoc = await db
         .collection('Supplier')
-        .where('supplierId', '==', "id_Trinity").get();
+        .where('supplierId', '==', supplierId).get();
         const supplierDoc = UserDoc.docs[0];
         const existingPackages = supplierDoc.data().package || [];
-        // Convert(hmotnost, costPackage, delka, vyska, sirka);
-        // PSCVal(Podkud, Pkam);
-        // AddressVal(kam, odkud);
-        // NoHtmlSpecialChars(packName);
-
-        // const Pacd = await db
-        //   .collection('Package')
-        //   .where('name_package', '==', packName)
-        //   .get();
-
-        // const PackageDuplicate = await db
-        //   .collection('Package')
-        //   .where('height', '==', vyska)
-        //   .where('Plength', '==', delka)
-        //   .where('width', '==', sirka).where('weight', "==", hmotnost)
-        //   .get();
-
-        // if (Pacd.size > 0) {
-        //   throw new Error('Package name is not unique');
-        // }
-
-        // kontrola ne plne funkcni
-        // console.log("duplicate?", PackageDuplicate.size);
-
-        // Není zřízeno
-        // if (PackageDuplicate.size > 1) {
-        //   throw new Error('Duplicate param of package');
-        // }
-
+       
         // if (existingPackages.hasOwnProperty(packName)) {
         //   throw new Error('Package name is not unique');
         // }
@@ -637,10 +589,6 @@ const resolvers = {
           Plength: delka,
           height: vyska,
           width: sirka,
-          // fromWhere_address: odkud,
-          // fromWhere_PSC: Podkud,
-          // where_address: kam,
-          // where_PSC: Pkam,
           name_package: packName,
           supplier_id: supplierDoc.id,
           packgeId: `id_${packName}`,
@@ -667,10 +615,6 @@ const resolvers = {
             Plength: delka,
             height: vyska,
             width: sirka,
-            // fromWhere_address: odkud,
-            // fromWhere_PSC: Podkud,
-            // where_address: kam,
-            // where_PSC: Pkam,
             name_package: packName,
             supplier_id: supplierDoc.id,
             packgeId: `id_${packName}`,
@@ -762,7 +706,7 @@ const resolvers = {
           sendCashDelivery: SendCashOnDelivery,
           packInBox: PackageInABox,
           packageId: 'any',
-          supplierId: `id_${SuppName}`,
+          supplierId: newSuppDoc.id,
           suppName: SuppName,
           pickUp: PickupPoint,
           delivery: isDelivered,
