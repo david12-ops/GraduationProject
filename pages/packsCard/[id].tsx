@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { usePackageDataQuery, useSuppDataQuery } from '@/generated/graphql';
+import { useSuppDataQuery } from '@/generated/graphql';
 
 import styles from '../../styles/Home.module.css';
 import { PackCards } from '../components/Cards/packsCards';
@@ -20,15 +20,12 @@ import { SearchAppBar2 } from '../components/navbar2';
 // eslint-disable-next-line import/no-default-export
 // upravit vypis balicku
 export default function PacksCards() {
-  const packD = usePackageDataQuery();
   const suppD = useSuppDataQuery();
 
   const router = useRouter();
   const { query } = router;
   const { id } = query;
-  const selectedPackage = packD.data?.packageData.find(
-    (actPack: any) => actPack.supplierId === id,
-  );
+
   const selectedSupp = suppD.data?.suplierData.find(
     (actPack: any) => actPack.supplierId === id,
   );
@@ -55,27 +52,36 @@ export default function PacksCards() {
           Packages
         </h2>
         {selectedSupp ? (
-          selectedPackage ? (
-            <div
-              style={{
-                backgroundColor: '#D67F76',
-                display: 'flex',
-                gap: '15px',
-                padding: '10px',
-                margin: '10px',
-                justifyContent: 'space-around',
-                borderRadius: '10px',
-              }}
-            >
-              <PackCards
-                key={selectedPackage?.packgeId}
-                Name={selectedPackage?.packName}
-                Cost={selectedPackage?.costPackage}
-                Weight={selectedPackage?.hmotnost}
-                Width={selectedPackage?.sirka}
-                Length={selectedPackage?.delka}
-                Heiht={selectedPackage?.vyska}
-              />
+          selectedSupp.package ? (
+            <div>
+              {selectedSupp?.package.map((item: any) => {
+                const keys = Object.keys(item);
+                return keys.map((key: any) => (
+                  <div
+                    key={key} // Ensure each child in a list has a unique "key" prop
+                    style={{
+                      backgroundColor: '#D67F76',
+                      // display: 'flex',
+                      // flexDirection: 'row',
+                      // gap: '15px',
+                      padding: '10px',
+                      margin: '10px',
+                      // justifyContent: 'space-around',
+                      borderRadius: '10px',
+                    }}
+                  >
+                    <PackCards
+                      key={key}
+                      Name={item[key].name_package}
+                      Cost={item[key].cost}
+                      Weight={item[key].weight}
+                      Width={item[key].width}
+                      Length={item[key].Plength}
+                      Heiht={item[key].height}
+                    />
+                  </div>
+                ));
+              })}
             </div>
           ) : (
             <div
