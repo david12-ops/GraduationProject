@@ -83,7 +83,14 @@ export default function Page() {
         </h2>
         {selectedSupp?.package ? (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                width: '800px',
+              }}
+            >
               {selectedSupp?.package.map((item: any) => {
                 const keys = Object.keys(item);
                 return keys.map((key: any) => (
@@ -98,6 +105,8 @@ export default function Page() {
                       margin: '10px',
                       // justifyContent: 'space-around',
                       borderRadius: '10px',
+                      boxSizing: 'border-box',
+                      // width: 'calc(50% - 20px)', // Each card takes up 50% of the container with some spacing
                     }}
                   >
                     <PackCard

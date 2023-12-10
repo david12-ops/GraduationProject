@@ -55,7 +55,14 @@ export default function PacksCards() {
         {selectedSupp ? (
           selectedSupp.package ? (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  width: '800px',
+                }}
+              >
                 {selectedSupp?.package.map((item: any) => {
                   const keys = Object.keys(item);
                   return keys.map((key: any) => (
