@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-ignored-return */
 // eslint-disable-next-line eslint-comments/disable-enable-pair
 /* eslint-disable prettier/prettier */
 // eslint-disable-next-line eslint-comments/disable-enable-pair
@@ -77,7 +78,7 @@ const typeDefs = gql`
       packId: String
     ):Supplier
 
-    deletePack(id: Int): Boolean
+    deletePack(suppId: String!, key:String!): Delete
     deletePack2(id: [String]): Boolean
     deleteSupp(id: Int): Boolean
     deleteSupp2(id: [String]): Boolean
@@ -85,6 +86,11 @@ const typeDefs = gql`
 
   type User {
     name: String
+  }
+
+  type Delete {
+    error: String
+    deletion:Boolean!
   }
 
   type GithubUser {
@@ -573,10 +579,10 @@ const resolvers = {
       // valiadce na duplicitni balik - neni
 
       try {
-        const UserDoc = await db
+        const SupplierDoc = await db
         .collection('Supplier')
         .where('supplierId', '==', supplierId).get();
-        const supplierDoc = UserDoc.docs[0];
+        const supplierDoc = SupplierDoc.docs[0];
         const existingPackages = supplierDoc.data().package || [];
        
         // if (existingPackages.hasOwnProperty(packName)) {
@@ -1066,30 +1072,47 @@ const resolvers = {
         throw error;
       }
     },
-    // Delete
-    deletePack: async (parent_: any, args: { id: number }) => {
+    deletePack: async (parent_: any, args: { key: string, suppId:string}) => {
       // Mazaní vice pack najednou neni mozne
-      const { id: PackId } = args;
+      const { key: Pack, suppId:Sid} = args;
       let deleted = false;
-      console.log('id', PackId);
-      const collection = db.collection('Package');
-      const snapshot = await collection.where('packgeId', '==', PackId).get();
-      // lepsi kontrola
-      if (
-        !PackId &&
-        Number.isSafeInteger(PackId) &&
-        PackId &&
-        !Number.isSafeInteger(PackId)
-      ) {
-        throw new Error('Nevalidní id balíčku');
+      let err = "";
+      let find = false;
+      let newArray =[];
+      console.log('id', Pack);
+      console.log('id', Sid);
+
+
+      const SupplierDoc = await db
+        .collection('Supplier')
+        .where('supplierId', '==', Sid).get();
+        const supplierDoc = SupplierDoc.docs[0];
+        const existingPackages = supplierDoc.data().package || [];
+
+    
+    if(supplierDoc.exists){
+      if(existingPackages){
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        newArray = existingPackages.filter((item:any)=> !item[Pack]);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        find = Boolean(existingPackages.filter((item:any)=> !item[Pack]));
+        console.log("newARR",newArray)
+        console.log("ffffind", find)
       }
-      if (snapshot.empty) {
-        throw new Error('Balíček v databázi není'); // ?
+      else{
+        err = "Nothing to delete"
       }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      snapshot.docs[0].ref.delete();
-      deleted = true;
-      return deleted;
+       if(find){
+        await supplierDoc.ref.update({ package : newArray });
+        deleted = true
+       }
+       else{
+        err = "Package not found"
+       }
+    }else{
+      err = "Supplier not found"
+    }
+      return {deletion:deleted, error:err}
     },
     deletePack2: async (parent_: any, args: { id: [string] }) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return

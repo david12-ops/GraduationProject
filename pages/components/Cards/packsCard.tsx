@@ -5,6 +5,8 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
 
+import { useDeletePacMutation } from '@/generated/graphql';
+
 import styles from '../../../styles/stylesForm/style.module.css';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -16,9 +18,9 @@ type Props = {
   Length: number;
   Name: string;
   Cost: number;
+  keyPac: string;
+  sId: string;
 };
-
-const Del = () => {};
 
 export const PackCard: React.FC<Props> = ({
   Heiht,
@@ -27,7 +29,27 @@ export const PackCard: React.FC<Props> = ({
   Length,
   Name,
   Cost,
+  keyPac,
+  sId,
 }) => {
+  const [del] = useDeletePacMutation();
+  const Del = async (key: string, suppId: string) => {
+    // jeste errory v resolveru
+    // funguje, ale nekonecný loop
+    const deleted = await del({
+      variables: {
+        Id: suppId,
+        Key: key,
+      },
+    });
+    if (deleted.data?.deletePack?.error) {
+      return alert(`${deleted.data?.deletePack?.error}`);
+    }
+    if (!deleted.data?.deletePack?.deletion) {
+      return alert('Balíček smazán nebyl');
+    }
+    return alert('Balíček byl smazán');
+  };
   return (
     <Card sx={{ maxWidth: 290 }}>
       <CardMedia
@@ -115,7 +137,7 @@ export const PackCard: React.FC<Props> = ({
           flexDirection: 'column',
         }}
       >
-        <button onClick={Del} className={styles.crudbtDel}>
+        <button onClick={() => Del(keyPac, sId)} className={styles.crudbtDel}>
           Delete
         </button>
 

@@ -1,3 +1,7 @@
-mutation DeletePac($Id:Int){
-  deletePack(id:$Id)
+mutation DeletePac($Id:String!, $Key:String!){
+  deletePack(suppId: $Id, key:$Key){
+    deletion
+    error
+  }
 }
+

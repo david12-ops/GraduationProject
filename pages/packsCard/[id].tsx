@@ -60,7 +60,7 @@ export default function PacksCards() {
                   display: 'flex',
                   justifyContent: 'space-between',
                   flexWrap: 'wrap',
-                  width: '800px',
+                  maxWidth: '700px',
                 }}
               >
                 {selectedSupp?.package.map((item: any) => {

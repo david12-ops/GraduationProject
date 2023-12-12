@@ -21,6 +21,9 @@ import { SearchAppBar2 } from '../components/navbar2';
 // };
 
 // responzivitu vyresit a  sortovani
+// id balicku náhodně
+// 12.12 create a delete balicku funguje, update nefunkcni a tez i suppliera
+// klice stejne jako id balicku
 
 // eslint-disable-next-line import/no-default-export
 export default function Page() {
@@ -88,7 +91,7 @@ export default function Page() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 flexWrap: 'wrap',
-                width: '800px',
+                maxWidth: '700px',
               }}
             >
               {selectedSupp?.package.map((item: any) => {
@@ -100,7 +103,7 @@ export default function Page() {
                       backgroundColor: '#D67F76',
                       // display: 'flex',
                       // flexDirection: 'row',
-                      // gap: '15px',
+                      // gap: '5px',
                       padding: '10px',
                       margin: '10px',
                       // justifyContent: 'space-around',
@@ -117,6 +120,8 @@ export default function Page() {
                       Width={item[key].width}
                       Length={item[key].Plength}
                       Heiht={item[key].height}
+                      sId={selectedSupp.supplierId}
+                      keyPac={key}
                     />
                   </div>
                 ));
