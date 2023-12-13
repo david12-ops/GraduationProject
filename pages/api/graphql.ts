@@ -576,7 +576,7 @@ const resolvers = {
       // prideleni k dodavateli - je
       // pridelovani id_jmeno - je
       // validace parametru na duplicitní zaznamy - neni
-      // valiadce na duplicitni balik - neni
+      // valiadce na duplicitni balik - je
 
       try {
         const SupplierDoc = await db
@@ -584,11 +584,9 @@ const resolvers = {
         .where('supplierId', '==', supplierId).get();
         const supplierDoc = SupplierDoc.docs[0];
         const existingPackages = supplierDoc.data().package || [];
-       
-        // if (existingPackages.hasOwnProperty(packName)) {
-        //   throw new Error('Package name is not unique');
-        // }
-
+        const existingPackagesValidation = (supplierDoc.data().package || []) as Array<{height:number, width:number, Plength:number}>;
+        const keyPackdata:any = [];
+      
         const newPackage = {
           weight: hmotnost,
           cost: costPackage,
@@ -597,21 +595,58 @@ const resolvers = {
           width: sirka,
           name_package: packName,
           supplier_id: supplierDoc.id,
-          packgeId: `id_${packName}`,
+          // packgeId: `id_${packName}`,
           error: ""
         };
 
+        // existingPackagesValidation.filter((item)=>item.Plength === newPackage.Plength && item.height === newPackage.height && item.width === newPackage.width)
+       
+       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       const keyPack = existingPackages.map((item:any) => {
+          const keys = Object.keys(item)
+          return keys.includes(packName)
+       })
+
+       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      //  const widths = (existingPackages.forEach((duppack:any) => console.log(duppack)));
+      //  console.log("witgsj",widths)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    //     keyPackdata = existingPackages.map((item:any) => {
+    //     const keys = Object.keys(item)
+    //     const dupitm = item ;
+    //     // eslint-disable-next-line @typescript-eslint/no-for-in-array, guard-for-in
+    //     for(const key in keys){
+    //       console.log(item[key])
+    //     }
+    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    //     return dupitm || null
+    //  })
+
+       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      // for(const item of existingPackagesValidation){
+      //     // eslint-disable-next-line max-depth
+      //     if(newPackage.height === item.height && newPackage.width === item.width && newPackage.Plength === item.Plength){
+      //       keyPackdata = item
+      //     }
+      //  }
+      
+
+     console.log(JSON.stringify("duplicate pack",keyPackdata))
+
         if(Convert(hmotnost, costPackage, delka, vyska, sirka) && !NoHtmlSpecialChars(packName)){
-          newPackage.error = "";
           newPackage.error = Convert(hmotnost, costPackage, delka, vyska, sirka);
         }
         else if(NoHtmlSpecialChars(packName) && !Convert(hmotnost, costPackage, delka, vyska, sirka)){
-          newPackage.error = "";
           newPackage.error = NoHtmlSpecialChars(packName)
         }
         else if(NoHtmlSpecialChars(packName) && Convert(hmotnost, costPackage, delka, vyska, sirka)){
-          newPackage.error = "";
           newPackage.error = (`${NoHtmlSpecialChars(packName)  }\n${  Convert(hmotnost, costPackage, delka, vyska, sirka)}`)
+        }
+        else if(keyPack.includes(true)){
+          newPackage.error = "Name have already another package"
+        }
+        else if(keyPackdata){
+          newPackage.error = "This params have alerady another package"
         }
         else{
           const objectPack: { [key: string]: any } = {};
@@ -623,7 +658,7 @@ const resolvers = {
             width: sirka,
             name_package: packName,
             supplier_id: supplierDoc.id,
-            packgeId: `id_${packName}`,
+            // packgeId: `id_${packName}`,
           };
 
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call
