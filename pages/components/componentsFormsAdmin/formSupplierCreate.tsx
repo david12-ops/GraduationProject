@@ -121,74 +121,6 @@ export const FormSupplier = () => {
   };
 
   return (
-    // <Box>
-    //   <Box
-    //     sx={{
-    //       display: 'flex',
-    //       // flexWrap: 'wrap',
-    //       flexDirection: 'column',
-    //       justifyContent: 'center',
-    //     }}
-    //   >
-    //     <div>
-    //       <TextField
-    //         label="With normal TextField"
-    //         id="filled-start-adornment"
-    //         sx={{ m: 1, width: '25ch' }}
-    //         InputProps={{
-    //           startAdornment: (
-    //             <InputAdornment position="start">Info</InputAdornment>
-    //           ),
-    //         }}
-    //         variant="filled"
-    //         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //           SetInfo(event.target.value);
-    //         }}
-    //       />
-    //       <TextField
-    //         label="With normal TextField"
-    //         id="filled-start-adornment"
-    //         sx={{ m: 1, width: '25ch' }}
-    //         InputProps={{
-    //           startAdornment: (
-    //             <InputAdornment position="start">Supplier name</InputAdornment>
-    //           ),
-    //         }}
-    //         variant="filled"
-    //         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //           SetSupplierName(event.target.value);
-    //         }}
-    //       />
-    //       <TextField
-    //         label="With normal TextField"
-    //         id="filled-start-adornment"
-    //         sx={{ m: 1, width: '25ch' }}
-    //         InputProps={{
-    //           startAdornment: (
-    //             <InputAdornment position="start">Package id</InputAdornment>
-    //           ),
-    //         }}
-    //         variant="filled"
-    //         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //           SetPackageId(event.target.value);
-    //         }}
-    //       />
-    //       {/* <TextField
-    //       label="With normal TextField"
-    //       id="filled-start-adornment"
-    //       sx={{ m: 1, width: '25ch' }}
-    //       InputProps={{
-    //         startAdornment: (
-    //           <InputAdornment position="start">Supplier id</InputAdornment>
-    //         ),
-    //       }}
-    //       variant="filled"
-    //       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //         SetSupplierId(event.target.value);
-    //       }}
-    //     /> */}
-    //     </div>
-    //   </Box>
     <div>
       <div className={styles.container}>
         <h1
@@ -216,28 +148,6 @@ export const FormSupplier = () => {
                 placeholder="Name"
               />
             </label>
-            {/* <label>
-            <p>Supplier id</p>
-            <input
-              className={styles.suppId}
-              onChange={(e) => SetSupplierId(e.target.value)}
-              required
-              type="number"
-              name="suppId"
-              id="suppId"
-              placeholder=""
-            />
-          </label> */}
-            {/* <label>
-              <p className={styles.Odstavce}>Package id</p>
-              <input
-                className={styles.inputForSupp}
-                onChange={(e) => SetPackageId(e.target.value)}
-                required
-                type="number"
-                placeholder=""
-              />
-            </label> */}
           </div>
           <div className={styles.divinput}>
             <label>

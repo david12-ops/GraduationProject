@@ -34,8 +34,6 @@ export const PackCard: React.FC<Props> = ({
 }) => {
   const [del] = useDeletePacMutation();
   const Del = async (key: string, suppId: string) => {
-    // jeste errory v resolveru
-    // funguje, ale nekonecný loop
     const deleted = await del({
       variables: {
         Id: suppId,

@@ -14,6 +14,41 @@ type Props = {
   id: string;
 };
 
+const NoHtmlSpecialChars = (ustring: string) => {
+  // zakladni - mozne pouziti cheerio or htmlparser2
+  // const htmlRegex = /<[^>]*>$/;
+  const option = /<[^>]*>/;
+  if (option.test(ustring)) {
+    alert('HTML code is not supported (<text></text>');
+  }
+};
+
+const ConverDate = (dateU: string) => {
+  // eslint-disable-next-line unicorn/better-regex
+  NoHtmlSpecialChars(dateU);
+  console.log(dateU);
+  // eslint-disable-next-line unicorn/better-regex
+  const option = /^[0-9]{4}[-][0-9]{1,2}[-][0-9]{1,2}$/;
+  if (option.test(dateU)) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, unicorn/prefer-string-slice, @typescript-eslint/restrict-plus-operands
+    const dateParts = dateU.split('-');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const middleNumber = Number.parseInt(dateParts[1], 10);
+    if (middleNumber > 12 || Number.parseInt(dateParts[2], 10) > 32) {
+      alert('Invalid argument of month in date or day');
+    }
+  } else {
+    alert('Invalid argument of date');
+  }
+};
+
+const Convert = (stringToNum: string) => {
+  const numberFrString = 0;
+  if (!Number.parseInt(stringToNum, numberFrString)) {
+    alert('Invalid argument');
+  }
+};
+
 export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const options = [
     { value: true, label: 'Ano' },
@@ -41,14 +76,20 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         (actSupp) => actSupp.supplierId === id,
       );
 
+      const dateString = actualSupp?.pickUp;
+      const parts = dateString.split('.');
+      const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+
       if (actualSupp) {
         SetDelivery(actualSupp.delivery.toString());
         SetsendCashDelivery(actualSupp.sendCashDelivery.toString());
-        SetPackInBox();
-        SetPickUp();
-        SetInsurance();
-        SetShippingLabel();
-        SetSupplierName();
+        // potize s formatem datumu
+        SetPackInBox(actualSupp.packInBox.toString());
+        SetPickUp(actualSupp.pickUp.toString());
+        SetInsurance(actualSupp.insurance.toString());
+        SetShippingLabel(actualSupp.shippingLabel.toString());
+        SetSupplierName(actualSupp.suppName.toString());
+        console.log('bolllele');
       }
     }
   }, [id, supData.data]);
@@ -61,7 +102,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       }
       options={options}
       required
-      // placeholder={}
+      placeholder={SFoil === 'true' ? 'Ano' : 'Ne'}
     />
   );
 
@@ -73,6 +114,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         SetsendCashDelivery(selectedOption.value)
       }
       options={options}
+      placeholder={SSendCashDelivery === 'true' ? 'Ano' : 'Ne'}
       required
     />
   );
@@ -85,6 +127,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         SetPackInBox(selectedOption.value)
       }
       options={options}
+      placeholder={SPackInBox === 'true' ? 'Ano' : 'Ne'}
       required
     />
   );
@@ -97,27 +140,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         SetShippingLabel(selectedOption.value)
       }
       options={options}
+      placeholder={SShippingLabel === 'true' ? 'Ano' : 'Ne'}
       required
     />
   );
-  // validace dat
-  // eslint-disable-next-line unicorn/consistent-function-scoping
-  const Convert = (stringToNum: string) => {
-    const numberFrString = 0;
-    if (!Number.parseInt(stringToNum, numberFrString)) {
-      alert('Invalid number argument');
-    }
-    return Number.parseInt(stringToNum, numberFrString);
-  };
-
-  const ConverDate = (dateU1: any) => {
-    // eslint-disable-next-line no-constant-condition, @typescript-eslint/no-unsafe-argument
-    if (!new Date(dateU1)) {
-      alert('Invalid date argument');
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return dateU1;
-  };
 
   const handleForm = async (event: React.FormEvent) => {
     // lepsi informovani o chybe
@@ -155,7 +181,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
                 onChange={(e) => SetSupplierName(e.target.value)}
                 required
                 type="text"
-                placeholder="Name"
+                placeholder={SupplierName}
               />
             </label>
           </div>
@@ -167,7 +193,8 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
                 onChange={(e) => SetDelivery(e.target.value)}
                 required
                 type="date"
-                placeholder=""
+                // neupravuje se
+                value={PickUp}
               />
             </label>
             <label>
@@ -177,7 +204,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
                 onChange={(e) => SetPickUp(e.target.value)}
                 required
                 type="date"
-                placeholder=""
+                placeholder={SDelivery}
               />
             </label>
           </div>
@@ -190,7 +217,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
                 onChange={(e) => SetInsurance(e.target.value)}
                 required
                 type="number"
-                placeholder=""
+                value={SInsurance}
               />
             </label>
           </div>
@@ -216,9 +243,12 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             </label>
           </div>
           <div className={styles.divinput}>
-            {' '}
-            <button className={styles.crudbtn} type="submit">
-              Create
+            <button
+              // onClick={handleForm}
+              className={styles.crudbtn}
+              type="submit"
+            >
+              Update
             </button>
           </div>
         </form>

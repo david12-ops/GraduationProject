@@ -9,7 +9,7 @@ import styles from '../../../styles/stylesForm/styleForms.module.css';
 type Props = {
   id: string;
 };
-
+// Validovat jako u updat supplier
 const Convert = (stringToNum: string) => {
   const numberFrString = 0;
   if (!Number.parseInt(stringToNum, numberFrString)) {
@@ -119,7 +119,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
                 className={styles.input}
                 onChange={(e) => SetCost(e.target.value)}
                 required
-                type="number"
+                type="text"
                 placeholder="Kč"
               />
             </label>

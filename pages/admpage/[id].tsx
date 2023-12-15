@@ -61,6 +61,7 @@ export default function Page() {
             delivery={selectedSupp.delivery}
             insurance={selectedSupp.insurance}
             avgPrice={0}
+            suppId={selectedSupp.supplierId}
           />
         ) : (
           <div

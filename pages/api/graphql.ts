@@ -195,6 +195,7 @@ const typeDefs = gql`
 const db = firestore();
 
 // validace
+// validave jako uthils
 const NoHtmlSpecialChars = (ustring:any) =>{
   // zakladni - mozne pouziti cheerio or htmlparser2
   // const htmlRegex = /<[^>]*>$/;
@@ -681,7 +682,6 @@ const resolvers = {
         packInBox: string;
       },
     ) => {
-      // parametry v resolveru stejne jako v type mutation
       const {
         supplierName: SuppName,
         delivery: isDelivered,
@@ -693,18 +693,7 @@ const resolvers = {
         packInBox: PackageInABox,
       } = args;
 
-
-      // multi select + kontrola id
-      // console.log('foil', typeof hasFoil);
-      // console.log('foil', hasFoil === 'true' ? 'Ano' : 'Ne');
-      // console.log('foil', hasFoil === 'false' ? 'Ano' : 'Ne');
-      // console.log('has', Boolean(hasFoil));
-
       try {
-        // validace jmena - castecne
-        // validace datumu - je
-        // pridelovani id_jmeno - je
-
         NoHtmlSpecialChars(SuppName);
         ConverNumb(InsuranceValue);
         ConverBool(
@@ -736,7 +725,6 @@ const resolvers = {
         const newSupp = {
           sendCashDelivery: SendCashOnDelivery,
           packInBox: PackageInABox,
-          packageId: 'any',
           supplierId: newSuppDoc.id,
           suppName: SuppName,
           pickUp: PickupPoint,

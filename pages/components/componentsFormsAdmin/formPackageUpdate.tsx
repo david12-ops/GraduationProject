@@ -209,11 +209,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
             </label>
           </div>
           <div className={styles.divinput}>
-            <button
-              onClick={handleForm}
-              className={styles.crudbtn}
-              type="submit"
-            >
+            <button className={styles.crudbtn} type="submit">
               Upadte
             </button>
           </div>
