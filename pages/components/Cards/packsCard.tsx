@@ -143,7 +143,7 @@ export const PackCard: React.FC<Props> = ({
 
         <Link
           key="UpdateFormPackage"
-          href={`../../Forms/UpdateFormPackage/id_${Name}`}
+          href={`../../Forms/UpdateFormPackage/${keyPac}`}
         >
           <button className={styles.crudbtnTable}>Update</button>
         </Link>

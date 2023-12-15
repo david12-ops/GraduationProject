@@ -9,6 +9,15 @@ import styles from '../../../styles/stylesForm/styleForms.module.css';
 type Props = {
   id: string;
 };
+
+const Convert = (stringToNum: string) => {
+  const numberFrString = 0;
+  if (!Number.parseInt(stringToNum, numberFrString)) {
+    alert('Invalid number argument');
+  }
+  return Number.parseInt(stringToNum, numberFrString);
+};
+
 export const FormPackage: React.FC<Props> = ({ id }) => {
   // vice se v jednom!
   const [kg, SetKg] = React.useState(' ');
@@ -22,18 +31,11 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
   // const [psc_kam, SetPSC_kam] = React.useState(' ');
   const [packName, SetPackName] = React.useState(' ');
   // const [suppId, SetSuppId] = React.useState(' ');
-  const [newPackage] = useNewPackageToFirestoreMutation();
+  const [newPackage, error] = useNewPackageToFirestoreMutation();
   // const Supp = useSuppDataQuery();
 
   // validace dat - je
-  // eslint-disable-next-line unicorn/consistent-function-scoping
-  function Convert(stringToNum: string) {
-    const numberFrString = 0;
-    if (!Number.parseInt(stringToNum, numberFrString)) {
-      alert('Invalid number argument');
-    }
-    return Number.parseInt(stringToNum, numberFrString);
-  }
+
   // validace psc - neni
   // validace adresy - neni
   // string v resolveru
@@ -59,32 +61,8 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     return address;
   };
 
-  // const Options = () => {
-  //   const option: Array<{ value: string; label: string }> = [];
-  //   Supp?.data?.suplierData.forEach(function (supval) {
-  //     option.push({ value: supval.supplierId, label: supval.suppName });
-  //   });
-  //   return option;
-  // };
-
-  // const MyComponent = () => (
-  //   <Select
-  //     className={styles.selectInput}
-  //     onChange={(selectedOption: any) =>
-  //       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-  //       SetSuppId(selectedOption.value)
-  //     }
-  //     options={Options()}
-  //     required
-  //   />
-  // );
-
   const handleForm = async (event: React.FormEvent) => {
-    // lepsi informovani o chybe - je
-    // Apolo exepciton/error - bad return of vlaue from field
     event.preventDefault();
-    // Mutation
-    // create zjistit jestli tam id uz nejake je, upravit create resolveru
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const packd = await newPackage({
       variables: {
@@ -94,11 +72,6 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
         Vyska: Convert(vyska),
         Sirka: Convert(sirka),
         Pack_name: packName,
-        // SuppId: Object.values(suppId)
-        //   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-        //   .slice(0, Object.values(suppId).lastIndexOf(','))
-        //   .toString(),
-        // Úprava id potom, error page
         SuppID: id,
       },
     });
@@ -115,175 +88,6 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
   };
 
   return (
-    // <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-    //   <div
-    //     style={{
-    //       display: 'flex',
-    //       flexDirection: 'row',
-    //     }}
-    //   >
-    //     <TextField
-    //       label="With normal TextField"
-    //       id="filled-start-adornment"
-    //       sx={{ m: 1, width: '25ch' }}
-    //       InputProps={{
-    //         startAdornment: (
-    //           <InputAdornment position="start">Package name</InputAdornment>
-    //         ),
-    //       }}
-    //       variant="filled"
-    //       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //         SetPackName(event.target.value);
-    //       }}
-    //     />
-    //     <TextField
-    //       label="With normal TextField"
-    //       id="filled-start-adornment"
-    //       sx={{ m: 1, width: '25ch' }}
-    //       InputProps={{
-    //         startAdornment: (
-    //           <InputAdornment position="start">cost</InputAdornment>
-    //         ),
-    //       }}
-    //       variant="filled"
-    //       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //         SetCost(event.target.value);
-    //       }}
-    //     />
-    //   </div>
-
-    //   <div
-    //     style={{
-    //       display: 'flex',
-    //       flexDirection: 'row',
-    //     }}
-    //   >
-    //     <TextField
-    //       label="With normal TextField"
-    //       id="filled-start-adornment"
-    //       sx={{ m: 1, width: '25ch' }}
-    //       InputProps={{
-    //         startAdornment: (
-    //           <InputAdornment position="start">Delka</InputAdornment>
-    //         ),
-    //       }}
-    //       variant="filled"
-    //       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //         SetDelka(event.target.value);
-    //       }}
-    //     />
-    //     <TextField
-    //       label="With normal TextField"
-    //       id="filled-start-adornment"
-    //       sx={{ m: 1, width: '25ch' }}
-    //       InputProps={{
-    //         startAdornment: (
-    //           <InputAdornment position="start">Vyska</InputAdornment>
-    //         ),
-    //       }}
-    //       variant="filled"
-    //       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //         SetVyska(event.target.value);
-    //       }}
-    //     />
-    //     <TextField
-    //       label="With normal TextField"
-    //       id="filled-start-adornment"
-    //       sx={{ m: 1, width: '25ch' }}
-    //       InputProps={{
-    //         startAdornment: (
-    //           <InputAdornment position="start">Sirka</InputAdornment>
-    //         ),
-    //       }}
-    //       variant="filled"
-    //       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //         SetSirka(event.target.value);
-    //       }}
-    //     />
-    //     <TextField
-    //       label="With normal TextField"
-    //       id="filled-start-adornment"
-    //       sx={{ m: 1, width: '25ch' }}
-    //       InputProps={{
-    //         startAdornment: (
-    //           <InputAdornment position="start">kg</InputAdornment>
-    //         ),
-    //       }}
-    //       variant="filled"
-    //       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //         SetKg(event.target.value);
-    //       }}
-    //     />
-    //   </div>
-
-    //   <div
-    //     style={{
-    //       display: 'flex',
-    //       flexDirection: 'row',
-    //     }}
-    //   >
-    //     <TextField
-    //       label="With normal TextField"
-    //       id="filled-start-adornment"
-    //       sx={{ m: 1, width: '25ch' }}
-    //       InputProps={{
-    //         startAdornment: (
-    //           <InputAdornment position="start">odkud</InputAdornment>
-    //         ),
-    //       }}
-    //       variant="filled"
-    //       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //         Setodkud(event.target.value);
-    //       }}
-    //     />
-    //     <TextField
-    //       label="With normal TextField"
-    //       id="filled-start-adornment"
-    //       sx={{ m: 1, width: '25ch' }}
-    //       InputProps={{
-    //         startAdornment: (
-    //           <InputAdornment position="start">PSČ</InputAdornment>
-    //         ),
-    //       }}
-    //       variant="filled"
-    //       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //         SetPSC_odkud(event.target.value);
-    //       }}
-    //     />
-    //     <TextField
-    //       label="With normal TextField"
-    //       id="filled-start-adornment"
-    //       sx={{ m: 1, width: '25ch' }}
-    //       InputProps={{
-    //         startAdornment: (
-    //           <InputAdornment position="start">kam</InputAdornment>
-    //         ),
-    //       }}
-    //       variant="filled"
-    //       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //         Setkam(event.target.value);
-    //       }}
-    //     />
-    //     <TextField
-    //       label="With normal TextField"
-    //       id="filled-start-adornment"
-    //       sx={{ m: 1, width: '25ch' }}
-    //       InputProps={{
-    //         startAdornment: (
-    //           <InputAdornment position="start">PSČ</InputAdornment>
-    //         ),
-    //       }}
-    //       variant="filled"
-    //       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //         SetPSC_kam(event.target.value);
-    //       }}
-    //     />
-    //   </div>
-    //   <button onClick={handleForm} className={styles.registerbtn} type="submit">
-    //     Submit
-    //   </button>
-    // </Box>
-    // vyber podle jmena udelat i u supplier ?
     <div>
       <div className={styles.container}>
         <h1
@@ -300,7 +104,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
         <form onSubmit={handleForm} className={styles.form}>
           <div className={styles.divinput}>
             <label>
-              <p className={styles.Odstavce}>Package name</p>
+              <p className={styles.Odstavce}>Name</p>
               <input
                 className={styles.input}
                 onChange={(e) => SetPackName(e.target.value)}
@@ -309,10 +113,6 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
                 placeholder="Name"
               />
             </label>
-            {/* <label>
-              <p className={styles.Odstavce}>Dodavatel</p>
-              {MyComponent()}
-            </label> */}
             <label>
               <p className={styles.Odstavce}>Cena</p>
               <input
@@ -369,52 +169,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
               />
             </label>
           </div>
-          {/* </div>
-          <h3 className={styles.Nadpisy}>Adresa dovozci</h3>
           <div className={styles.divinput}>
-            <label>
-              <p className={styles.Odstavce}>Kam</p>
-              <input
-                className={styles.input}
-                onChange={(e) => Setkam(e.target.value)}
-                required
-                type="text"
-                placeholder="Ulice popis. číslo, Město" // format adresy
-              />
-            </label>
-            <label>
-              <p className={styles.Odstavce}>PSČ</p>
-              <input
-                className={styles.input}
-                onChange={(e) => SetPSC_kam(e.target.value)}
-                required
-                type="text"
-                placeholder="92732/927 32" // format psc
-              />
-            </label>
-            <label>
-              <p className={styles.Odstavce}>Odkud</p>
-              <input
-                className={styles.input}
-                onChange={(e) => Setodkud(e.target.value)}
-                required
-                type="text"
-                placeholder="Ulice popis. číslo, Město"
-              />
-            </label>
-            <label>
-              <p className={styles.Odstavce}>PSČ</p>
-              <input
-                className={styles.input}
-                onChange={(e) => SetPSC_odkud(e.target.value)}
-                required
-                type="text"
-                placeholder="92732/927 32" // format psc
-              />
-            </label>
-          </div> */}
-          <div className={styles.divinput}>
-            {' '}
             <button
               onClick={handleForm}
               className={styles.crudbtn}

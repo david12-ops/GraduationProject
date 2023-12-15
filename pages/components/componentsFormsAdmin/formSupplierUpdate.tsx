@@ -1,8 +1,12 @@
 // eslint-disable-next-line unicorn/filename-case
 import * as React from 'react';
+import { useEffect } from 'react';
 import Select from 'react-select';
 
-import { useUpdateSupplierMutation } from '@/generated/graphql';
+import {
+  useSuppDataQuery,
+  useUpdateSupplierMutation,
+} from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
 
@@ -27,9 +31,27 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   // const [PackageId, SetPackageId] = React.useState(' ');
   const [SupplierName, SetSupplierName] = React.useState(' ');
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const supData = useSuppDataQuery();
   const [UpdateSupp] = useUpdateSupplierMutation();
   // validace dat
   // eslint-disable-next-line unicorn/consistent-function-scoping
+  useEffect(() => {
+    if (id && supData.data && supData) {
+      const actualSupp = supData.data?.suplierData.find(
+        (actSupp) => actSupp.supplierId === id,
+      );
+
+      if (actualSupp) {
+        SetDelivery(actualSupp.delivery.toString());
+        SetsendCashDelivery(actualSupp.sendCashDelivery.toString());
+        SetPackInBox();
+        SetPickUp();
+        SetInsurance();
+        SetShippingLabel();
+        SetSupplierName();
+      }
+    }
+  }, [id, supData.data]);
   const MyComponentFoil = () => (
     <Select
       className={styles.selectInput}
@@ -110,74 +132,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   };
 
   return (
-    // <Box>
-    //   <Box
-    //     sx={{
-    //       display: 'flex',
-    //       // flexWrap: 'wrap',
-    //       flexDirection: 'column',
-    //       justifyContent: 'center',
-    //     }}
-    //   >
-    //     <div>
-    //       <TextField
-    //         label="With normal TextField"
-    //         id="filled-start-adornment"
-    //         sx={{ m: 1, width: '25ch' }}
-    //         InputProps={{
-    //           startAdornment: (
-    //             <InputAdornment position="start">Info</InputAdornment>
-    //           ),
-    //         }}
-    //         variant="filled"
-    //         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //           SetInfo(event.target.value);
-    //         }}
-    //       />
-    //       <TextField
-    //         label="With normal TextField"
-    //         id="filled-start-adornment"
-    //         sx={{ m: 1, width: '25ch' }}
-    //         InputProps={{
-    //           startAdornment: (
-    //             <InputAdornment position="start">Supplier name</InputAdornment>
-    //           ),
-    //         }}
-    //         variant="filled"
-    //         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //           SetSupplierName(event.target.value);
-    //         }}
-    //       />
-    //       <TextField
-    //         label="With normal TextField"
-    //         id="filled-start-adornment"
-    //         sx={{ m: 1, width: '25ch' }}
-    //         InputProps={{
-    //           startAdornment: (
-    //             <InputAdornment position="start">Package id</InputAdornment>
-    //           ),
-    //         }}
-    //         variant="filled"
-    //         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //           SetPackageId(event.target.value);
-    //         }}
-    //       />
-    //       {/* <TextField
-    //       label="With normal TextField"
-    //       id="filled-start-adornment"
-    //       sx={{ m: 1, width: '25ch' }}
-    //       InputProps={{
-    //         startAdornment: (
-    //           <InputAdornment position="start">Supplier id</InputAdornment>
-    //         ),
-    //       }}
-    //       variant="filled"
-    //       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-    //         SetSupplierId(event.target.value);
-    //       }}
-    //     /> */}
-    //     </div>
-    //   </Box>
     <div>
       <div className={styles.container}>
         <h1
@@ -204,28 +158,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
                 placeholder="Name"
               />
             </label>
-            {/* <label>
-            <p>Supplier id</p>
-            <input
-              className={styles.suppId}
-              onChange={(e) => SetSupplierId(e.target.value)}
-              required
-              type="number"
-              name="suppId"
-              id="suppId"
-              placeholder=""
-            />
-          </label> */}
-            {/* <label>
-              <p className={styles.Odstavce}>Package id</p>
-              <input
-                className={styles.inputForSupp}
-                onChange={(e) => SetPackageId(e.target.value)}
-                required
-                type="number"
-                placeholder=""
-              />
-            </label> */}
           </div>
           <div className={styles.divinput}>
             <label>
