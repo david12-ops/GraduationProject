@@ -104,14 +104,6 @@ export const PackCards: React.FC<Props> = ({
           {Cost} Kč
         </Typography>
       </CardContent>
-      {/* <CardActions sx={{ justifyContent: 'center' }}>
-        <Button sx={{ background: 'red', color: 'white' }} size="small">
-          Delete
-        </Button>
-        <Button sx={{ background: 'blue', color: 'white' }} size="small">
-          Update
-        </Button>
-      </CardActions> */}
     </Card>
   );
 };

@@ -53,8 +53,8 @@ const typeDefs = gql`
       height: Int!
       width: Int!
       name_package: String!
-      packId: String!
-      aNamePack:String!
+      PackKey: String!
+      supplier_id: String!
     ): PackageDataUpdate
 
     SupplierToFirestore(
@@ -78,7 +78,7 @@ const typeDefs = gql`
       sendCashDelivery: String!
       packInBox: String!
       suppId: String!
-      packId: String
+      actNameSupp:String!
     ):Supplier
 
     deletePack(suppId: String!, key:String!): Delete
@@ -103,15 +103,14 @@ const typeDefs = gql`
   }
 
   type Supplier {
-    sendCashDelivery: String!
-    packInBox: String!
-    packageId: String!
-    supplierId: String!
-    suppName: String!
-    pickUp: String!
-    delivery: String!
-    insurance: Int!
-    shippingLabel: String!
+    sendCashDelivery: String!,
+    packInBox: String!,
+    supplierId: String!,
+    suppName: String!,
+    pickUp: String!,
+    delivery: String!,
+    insurance: Int!,
+    shippingLabel: String!,
     foil: String!
   }
 
@@ -174,8 +173,8 @@ const typeDefs = gql`
     height:Int!
     width:Int!
     name_package:String!
-    packId:String!
-    aNamePack:String!
+    supplier_id:String!
+    error:String!
   }
 
   type CardValue {
@@ -280,29 +279,59 @@ const AddressVal = (address: string, address2: string) => {
 // validace pro supplier
 const ConverBool = (
   stringnU1: string,
-  stringanU2: string,
+  stringnU2: string,
   stringnU3: string,
   stringnU4: string,
 ) => {
-  const mess = 'Invalid argument of boolean';
-  NoHtmlSpecialChars(stringnU1);
-  NoHtmlSpecialChars(stringanU2);
-  NoHtmlSpecialChars(stringnU3);
-  NoHtmlSpecialChars(stringnU4);
+  const mess = 'Invalid argument';
+  // const htmnlErr = NoHtmlSpecialChars(stringnU1) + NoHtmlSpecialChars(stringnU2) +  NoHtmlSpecialChars(stringnU3) + NoHtmlSpecialChars(stringnU4);
+  // console.log("errr", htmnlErr)
+  // NoHtmlSpecialChars(stringnU1);
+  // NoHtmlSpecialChars(stringnU2);
+  // NoHtmlSpecialChars(stringnU3);
+  // NoHtmlSpecialChars(stringnU4);
+  console.log(stringnU1)
+  console.log(stringnU2)
+  console.log(stringnU3)
+  console.log(stringnU4)
+
+
+  // if(htmnlErr.trim() === ""){
+    if (!["Ano", "Ne"].includes(stringnU1)) {
+      // eslint-disable-next-line sonarjs/no-duplicate-string
+      console.log("co kontroliujeme?",stringnU1)
+      throw new Error(mess);
+    }
+    if (!["Ano", "Ne"].includes(stringnU2)) {
+      console.log("co kontroliujeme?",stringnU2)
+      throw new Error(mess);
+    }
+    if (!["Ano", "Ne"].includes(stringnU3)) {
+      console.log("co kontroliujeme?",stringnU3)
+      throw new Error(mess);
+    }
+    if (!["Ano", "Ne"].includes(stringnU4)) {
+      console.log("co kontroliujeme?",stringnU4)
+      throw new Error(mess);
+    } 
+  // }
+  // else{
+  //   throw new Error(htmnlErr.trim())
+  // }
   // eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-constant-condition
   // eslint-disable-next-line no-constant-condition, sonarjs/no-redundant-boolean, @typescript-eslint/no-unsafe-call
-  if (!['true', 'false'].includes(stringnU1.toLowerCase())) {
-    throw new Error(mess);
-  }
-  if (!['true', 'false'].includes(stringanU2.toLowerCase())) {
-    throw new Error(mess);
-  }
-  if (!['true', 'false'].includes(stringnU3.toLowerCase())) {
-    throw new Error(mess);
-  }
-  if (!['true', 'false'].includes(stringnU4.toLowerCase())) {
-    throw new Error(mess);
-  }
+  // if (!['true', 'false'].includes(stringnU1.toLowerCase())) {
+  //   throw new Error(mess);
+  // }
+  // if (!['true', 'false'].includes(stringanU2.toLowerCase())) {
+  //   throw new Error(mess);
+  // }
+  // if (!['true', 'false'].includes(stringnU3.toLowerCase())) {
+  //   throw new Error(mess);
+  // }
+  // if (!['true', 'false'].includes(stringnU4.toLowerCase())) {
+  //   throw new Error(mess);
+  // }
 };
 
 const ConverNumb = (numberU: any) => {
@@ -605,7 +634,7 @@ const resolvers = {
        
        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
        const keyPack = existingPackages.map((item:any) => {
-          const keys = Object.keys(item)
+          const keys = Object.keys(item)[0]
           return keys.includes(packName)
        })
 
@@ -622,7 +651,7 @@ const resolvers = {
           console.log("selected",itm)     
         }
      })
-
+     console.log("keypack",keyPack)
      console.log("duplicate pack",dupPackages)
 
         if(Convert(hmotnost, costPackage, delka, vyska, sirka) && !NoHtmlSpecialChars(packName)){
@@ -634,7 +663,8 @@ const resolvers = {
         else if(NoHtmlSpecialChars(packName) && Convert(hmotnost, costPackage, delka, vyska, sirka)){
           newPackage.error = (`${NoHtmlSpecialChars(packName)  }\n${  Convert(hmotnost, costPackage, delka, vyska, sirka)}`)
         }
-        else if(keyPack){
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        else if(keyPack.includes(true)){
           newPackage.error = "Name have already another package"
         }
         else if(dupPackages.length > 0){
@@ -694,6 +724,7 @@ const resolvers = {
       } = args;
 
       try {
+        // nefunkcni?
         NoHtmlSpecialChars(SuppName);
         ConverNumb(InsuranceValue);
         ConverBool(
@@ -716,7 +747,6 @@ const resolvers = {
         }
 
         if (Supd.size > 0) {
-          // eslint-disable-next-line no-alert
           throw new Error('Supplier name is not unique');
         }
 
@@ -850,12 +880,13 @@ const resolvers = {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         const keyPack = existingPackages.map((item:any) => {
           // Vybrat vsechny,Ignorovat updated
-          const keys = Object.keys(item)
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          const keys = Object.keys(item).filter((keyItem) => (keyItem !== id));
           return keys.includes(packName)
        })
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        existingPackages.forEach((item:{[name:string]:{weight:number, height:number, width:number, Plength:number}}) => {
+        existingPackages.filter((item:any) =>{return !item[id]}).forEach((item:{[name:string]:{weight:number, height:number, width:number, Plength:number}}) => {
         // Vybrat vsechny,Ignorovat updated
         // jmeno balicku
         const nameItm = Object.keys(item)[0];
@@ -875,12 +906,15 @@ const resolvers = {
       UpdatePackage.error = NoHtmlSpecialChars(packName)
     }
     else if(NoHtmlSpecialChars(packName) && Convert(hmotnost, costPackage, delka, vyska, sirka)){
-      UpdatePackage.error = (`${NoHtmlSpecialChars(packName)  }\n${  Convert(hmotnost, costPackage, delka, vyska, sirka)}`)
+      UpdatePackage.error = (`${NoHtmlSpecialChars(packName)  }\n${ Convert(hmotnost, costPackage, delka, vyska, sirka)}`)
     }
-    else if(keyPack){
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    else if(keyPack.includes(true)){
       UpdatePackage.error = "Name have already another package"
     }
+    // nefunkcní
     else if(dupPackages.length > 0){
+      console.log(dupPackages)
       UpdatePackage.error = "This params have alerady another package"
     }
     else{
@@ -895,13 +929,15 @@ const resolvers = {
         supplier_id: supplierDoc.id,
       };
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      existingPackages.push(objectPack);
+      // update udelat jinak
 
-      console.log(existingPackages)
-      await supplierDoc.ref.update({package:existingPackages});
+      // // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      // existingPackages.push(objectPack);
 
-      return UpdatePackage;
+      // console.log(existingPackages)
+      // await supplierDoc.ref.update({package:existingPackages});
+
+      // return UpdatePackage;
     }     
 
     console.log('errors', UpdatePackage.error);
@@ -922,9 +958,8 @@ const resolvers = {
       sendCashDelivery: string;
       packInBox: string;
       suppId:string,
-      packId:string,
+      actNameSupp:string
     },) =>{
-      // Update i u balicků
       const {
         supplierName: SuppName,
         delivery: isDelivered,
@@ -935,19 +970,14 @@ const resolvers = {
         sendCashDelivery: SendCashOnDelivery,
         packInBox: PackageInABox,
         suppId: id,
-        packId: packgId,
+        actNameSupp:ActName
       } = args;
 
-      // console.log('foil', typeof hasFoil);
-      // console.log('foil', hasFoil === 'true' ? 'Ano' : 'Ne');
-      // console.log('foil', hasFoil === 'false' ? 'Ano' : 'Ne');
-      // console.log('has', Boolean(hasFoil));
-
+      // lepsi využití erroru
       try {
+        // kontrola jedinecnych jmen - je
         // validace jmena - castecne
         // validace datumu - je
-        // pridelovani id_jmeno - je
-
         NoHtmlSpecialChars(SuppName);
         ConverNumb(InsuranceValue);
         ConverBool(
@@ -963,40 +993,30 @@ const resolvers = {
           .where('supplierId', '==', id)
           .get();
 
-          const SupdName = await db
-          .collection('Supplier')
-          .where('suppName', '==', SuppName)
-          .get();
+          const SupplierDoc = await db
+          .collection('Supplier').get()
 
-          const Package = await db
-          .collection('Package')
-          .where('packgeId', '==', packgId)
-          .get();
+          const docs = SupplierDoc.docs.map(doc => doc.data());
 
-        console.log('size', Supd.size);
+          const docsWithoutCurrentSupp = docs.filter((doc) => doc.suppName !== ActName);
+
+          const duplicateSupp = docsWithoutCurrentSupp.find((item) => item.suppName === SuppName)
 
         if (Supd.size === 0) {
           throw new Error('Supplier not found');
         }
-
         if (PickupPoint < isDelivered) {
           throw new Error('Pickup cant be longer then delivery');
         }
-
-        if (SupdName.size > 0) {
+        if (duplicateSupp) {
           throw new Error('Supplier name is not unique');
         }
-
-        if(Package.size === 0){
-          throw new Error('Package not found');
-        }
-       
-        Supd.forEach(async (doc) => {
+        else{
+          Supd.forEach(async (doc) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           await doc.ref.update({  
             sendCashDelivery: SendCashOnDelivery,
             packInBox: PackageInABox,
-            supplierId: `id_${SuppName}`,
             suppName: SuppName,
             pickUp: PickupPoint,
             delivery: isDelivered,
@@ -1004,21 +1024,11 @@ const resolvers = {
             shippingLabel: hasShippingLabel,
             foil: hasFoil,
           });
-        });
-
-        Package.forEach(async (doc) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          // zjistit chybu update
-          await doc.ref.update({  
-            supplier_id: id,
-          });
-        });
-
+        })}
+       
         return{
           sendCashDelivery: SendCashOnDelivery,
           packInBox: PackageInABox,
-          packageId: packgId,
-          supplierId: id,
           suppName: SuppName,
           pickUp: PickupPoint,
           delivery: isDelivered,

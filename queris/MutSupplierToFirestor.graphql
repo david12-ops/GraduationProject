@@ -5,12 +5,12 @@ mutation NewSupplierToFirestore($SupName:String!, $Delivery:String!, $pickUp:Str
     insurance:$Insurance, sendCashDelivery:$SendCashDelivery, packInBox:$packInBox){
         sendCashDelivery
         packInBox
-        packageId
         suppName
         pickUp
         delivery
         insurance
         shippingLabel
+        supplierId
         foil
     }
 }

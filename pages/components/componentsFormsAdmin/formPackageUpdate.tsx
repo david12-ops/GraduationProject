@@ -41,6 +41,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   const [sirka, SetSirka] = React.useState(' ');
   const [packName, SetPackName] = React.useState(' ');
   const [ActpackName, SetActPackName] = React.useState(' ');
+  const [suppId, SetSuppId] = React.useState(' ');
 
   const [UpdatePackage] = useUpdatePackageMutation();
   const SuppPackages = useSuppDataQuery();
@@ -52,6 +53,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       // );
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       SuppPackages.data.suplierData.forEach((item) => {
+        // eslint-disable-next-line unicorn/no-negated-condition
         if (item.package) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           item.package.forEach(
@@ -78,11 +80,10 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
                 SetSirka(itm.width.toString());
                 SetActPackName(itm.name_package.toString());
                 SetPackName(itm.name_package.toString());
+                SetSuppId(item.supplierId.toString());
               }
             },
           );
-        } else {
-          alert('Balíček nenalezen');
         }
       });
     }
@@ -103,16 +104,15 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
         Vyska: Convert(vyska),
         Sirka: Convert(sirka),
         Pack_name: NoHtmlSpecialChars(packName),
-        ActPackName: NoHtmlSpecialChars(ActpackName),
         PackKey: id,
-        // SuppId: suppId,
+        SuppId: suppId,
         // lastSuppId: suppIdLast,
       },
     });
     // vracet s resolveru suppid
     // zpetne zjisteni supp id
-    if (updateVal.errors) {
-      alert(`Balíček nebyl změněn, ${updateVal.errors}`);
+    if (updateVal.data?.updatePack?.error) {
+      alert(`Balíček nebyl změněn, ${updateVal.data.updatePack.error}`);
     } else {
       return router.push(
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call

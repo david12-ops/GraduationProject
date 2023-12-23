@@ -1,6 +1,7 @@
 mutation UpdateSupplier($SupName:String!, $Delivery:String!, $pickUp:String!,
- $ShippingLabel:String!, $Foil:String!, $Insurance:Int!, $SendCashDelivery: String!, $packInBox:String!, $SuppId: String!, $PackId:String){
-    updateSup( supplierName: $SupName,
+ $ShippingLabel:String!, $Foil:String!, $Insurance:Int!, $SendCashDelivery: String!, $packInBox:String!, $SuppId: String!, $ActNameSupp:String!){
+    updateSup( 
+      supplierName: $SupName,
       delivery: $Delivery,
       shippingLabel:$ShippingLabel,
       pickUp: $pickUp,
@@ -8,11 +9,12 @@ mutation UpdateSupplier($SupName:String!, $Delivery:String!, $pickUp:String!,
       insurance: $Insurance, 
       sendCashDelivery: $SendCashDelivery, 
       packInBox: $packInBox
-      suppId: $SuppId,
-      packId: $PackId){
+      suppId: $SuppId
+      actNameSupp:$ActNameSupp
+      )
+      {
         sendCashDelivery
         packInBox
-        packageId
         suppName
         pickUp
         delivery

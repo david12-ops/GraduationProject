@@ -14,12 +14,19 @@ type Props = {
   id: string;
 };
 
+// Upravit update ohledne jmena
+// kontrola na ano, ne funguje
+// datum - funkcní
+// insurance - funkcní
+// nefunguje kontrola na regex u jmena
+// udelat kontroly i na frontend - pozivani graphql erroru
+// refetche query!!!
 const NoHtmlSpecialChars = (ustring: string) => {
   // zakladni - mozne pouziti cheerio or htmlparser2
   // const htmlRegex = /<[^>]*>$/;
   const option = /<[^>]*>/;
   if (option.test(ustring)) {
-    alert('HTML code is not supported (<text></text>');
+    return alert('HTML code is not supported (<text></text>');
   }
 };
 
@@ -35,17 +42,17 @@ const ConverDate = (dateU: string) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const middleNumber = Number.parseInt(dateParts[1], 10);
     if (middleNumber > 12 || Number.parseInt(dateParts[2], 10) > 32) {
-      alert('Invalid argument of month in date or day');
+      return alert('Invalid argument of month in date or day');
     }
   } else {
-    alert('Invalid argument of date');
+    return alert('Invalid argument of date');
   }
 };
 
 const Convert = (stringToNum: string) => {
   const numberFrString = 0;
   if (!Number.parseInt(stringToNum, numberFrString)) {
-    alert('Invalid argument');
+    return new Error('Invalid argument');
   }
 };
 
@@ -57,14 +64,16 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   // upravit ! kod z create form
 
   const [SDelivery, SetDelivery] = React.useState(' ');
-  const [SSendCashDelivery, SetsendCashDelivery] = React.useState(' ');
+  const [SSendCashDelivery, SetsendCashDelivery] = React.useState('');
   const [SPackInBox, SetPackInBox] = React.useState('');
   const [PickUp, SetPickUp] = React.useState('');
   const [SInsurance, SetInsurance] = React.useState('');
   const [SShippingLabel, SetShippingLabel] = React.useState('');
   const [SFoil, SetFoil] = React.useState('');
-  // const [PackageId, SetPackageId] = React.useState(' ');
-  const [SupplierName, SetSupplierName] = React.useState(' ');
+  const [SsuppId, SetSsuppId] = React.useState('');
+  const [SupplierName, SetSupplierName] = React.useState('');
+  const [ActualSupplierName, SetASupplierName] = React.useState('');
+
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const supData = useSuppDataQuery();
   const [UpdateSupp] = useUpdateSupplierMutation();
@@ -76,11 +85,12 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         (actSupp) => actSupp.supplierId === id,
       );
 
-      const dateString = actualSupp?.pickUp;
-      const parts = dateString.split('.');
-      const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      // const dateString = actualSupp?.pickUp;
+      // const parts = dateString.split('.');
+      // const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
 
       if (actualSupp) {
+        SetSsuppId(actualSupp.supplierId.toString());
         SetDelivery(actualSupp.delivery.toString());
         SetsendCashDelivery(actualSupp.sendCashDelivery.toString());
         // potize s formatem datumu
@@ -89,7 +99,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         SetInsurance(actualSupp.insurance.toString());
         SetShippingLabel(actualSupp.shippingLabel.toString());
         SetSupplierName(actualSupp.suppName.toString());
-        console.log('bolllele');
+        SetASupplierName(actualSupp.suppName.toString());
       }
     }
   }, [id, supData.data]);
@@ -98,11 +108,11 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       className={styles.selectInput}
       onChange={(selectedOption: any) =>
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-        SetFoil(selectedOption.value)
+        SetFoil(selectedOption.value === true ? 'Ano' : 'Ne')
       }
       options={options}
       required
-      placeholder={SFoil === 'true' ? 'Ano' : 'Ne'}
+      placeholder={SFoil === 'Ano' ? 'Ano' : 'Ne'}
     />
   );
 
@@ -111,10 +121,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       className={styles.selectInput}
       onChange={(selectedOption: any) =>
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-        SetsendCashDelivery(selectedOption.value)
+        SetsendCashDelivery(selectedOption.value === true ? 'Ano' : 'Ne')
       }
       options={options}
-      placeholder={SSendCashDelivery === 'true' ? 'Ano' : 'Ne'}
+      placeholder={SSendCashDelivery === 'Ano' ? 'Ano' : 'Ne'}
       required
     />
   );
@@ -124,10 +134,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       className={styles.selectInput}
       onChange={(selectedOption: any) =>
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-        SetPackInBox(selectedOption.value)
+        SetPackInBox(selectedOption.value === true ? 'Ano' : 'Ne')
       }
       options={options}
-      placeholder={SPackInBox === 'true' ? 'Ano' : 'Ne'}
+      placeholder={SPackInBox === 'Ano' ? 'Ano' : 'Ne'}
       required
     />
   );
@@ -137,10 +147,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       className={styles.selectInput}
       onChange={(selectedOption: any) =>
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-        SetShippingLabel(selectedOption.value)
+        SetShippingLabel(selectedOption.value === true ? 'Ano' : 'Ne')
       }
       options={options}
-      placeholder={SShippingLabel === 'true' ? 'Ano' : 'Ne'}
+      placeholder={SShippingLabel === 'Ano' ? 'Ano' : 'Ne'}
       required
     />
   );
@@ -151,10 +161,31 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     // prirazeni id
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     event.preventDefault();
+    try {
+      <div>{Convert(SupplierName)?.message}</div>;
+      await UpdateSupp({
+        variables: {
+          SupName: SupplierName,
+          Delivery: SDelivery,
+          pickUp: PickUp,
+          ShippingLabel: SShippingLabel,
+          Foil: SFoil,
+          Insurance: Number(SInsurance) ?? 0,
+          SendCashDelivery: SSendCashDelivery,
+          packInBox: SPackInBox,
+          SuppId: SsuppId,
+          ActNameSupp: ActualSupplierName,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
     // Mutation
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-
-    alert('Dodavatel byl změněn');
+    // return router.push(
+    //   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    //   `/../../admpage/${SsuppId}`,
+    // );
   };
 
   return (
@@ -172,7 +203,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           Update supplier
         </h1>
         <form onSubmit={handleForm} className={styles.form}>
-          {/* <hr> */}
           <div className={styles.divinput}>
             <label>
               <p className={styles.Odstavce}>Supplier name</p>
@@ -194,7 +224,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
                 required
                 type="date"
                 // neupravuje se
-                value={PickUp}
+                placeholder={PickUp}
               />
             </label>
             <label>
@@ -216,7 +246,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
                 className={styles.inputForSupp}
                 onChange={(e) => SetInsurance(e.target.value)}
                 required
-                type="number"
+                type="text"
                 value={SInsurance}
               />
             </label>
@@ -232,7 +262,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             </label>
           </div>
           <div className={styles.divinput}>
-            {' '}
             <label>
               <p className={styles.Odstavce}>Folie</p>
               {MyComponentFoil()}
@@ -243,11 +272,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             </label>
           </div>
           <div className={styles.divinput}>
-            <button
-              // onClick={handleForm}
-              className={styles.crudbtn}
-              type="submit"
-            >
+            <button className={styles.crudbtn} type="submit">
               Update
             </button>
           </div>

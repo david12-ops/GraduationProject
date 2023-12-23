@@ -108,22 +108,22 @@ export type MutationDeleteSupp2Args = {
 
 
 export type MutationUpdatePackArgs = {
+  PackKey: Scalars['String'];
   Plength: Scalars['Int'];
-  aNamePack: Scalars['String'];
   cost: Scalars['Int'];
   height: Scalars['Int'];
   name_package: Scalars['String'];
-  packId: Scalars['String'];
+  supplier_id: Scalars['String'];
   weight: Scalars['Int'];
   width: Scalars['Int'];
 };
 
 
 export type MutationUpdateSupArgs = {
+  actNameSupp: Scalars['String'];
   delivery: Scalars['String'];
   foil: Scalars['String'];
   insurance: Scalars['Int'];
-  packId?: InputMaybe<Scalars['String']>;
   packInBox: Scalars['String'];
   pickUp: Scalars['String'];
   sendCashDelivery: Scalars['String'];
@@ -148,11 +148,11 @@ export type PackageData = {
 export type PackageDataUpdate = {
   __typename?: 'PackageDataUpdate';
   Plength: Scalars['Int'];
-  aNamePack: Scalars['String'];
   cost: Scalars['Int'];
+  error: Scalars['String'];
   height: Scalars['Int'];
   name_package: Scalars['String'];
-  packId: Scalars['String'];
+  supplier_id: Scalars['String'];
   weight: Scalars['Int'];
   width: Scalars['Int'];
 };
@@ -203,7 +203,6 @@ export type Supplier = {
   foil: Scalars['String'];
   insurance: Scalars['Int'];
   packInBox: Scalars['String'];
-  packageId: Scalars['String'];
   pickUp: Scalars['String'];
   sendCashDelivery: Scalars['String'];
   shippingLabel: Scalars['String'];
@@ -298,7 +297,7 @@ export type NewSupplierToFirestoreMutationVariables = Exact<{
 }>;
 
 
-export type NewSupplierToFirestoreMutation = { __typename?: 'Mutation', SupplierToFirestore?: { __typename?: 'Supplier', sendCashDelivery: string, packInBox: string, packageId: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } | null };
+export type NewSupplierToFirestoreMutation = { __typename?: 'Mutation', SupplierToFirestore?: { __typename?: 'Supplier', sendCashDelivery: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, supplierId: string, foil: string } | null };
 
 export type UpdatePackageMutationVariables = Exact<{
   Hmotnost: Scalars['Int'];
@@ -307,12 +306,12 @@ export type UpdatePackageMutationVariables = Exact<{
   Vyska: Scalars['Int'];
   Sirka: Scalars['Int'];
   Pack_name: Scalars['String'];
-  ActPackName: Scalars['String'];
-  PackId: Scalars['String'];
+  PackKey: Scalars['String'];
+  SuppId: Scalars['String'];
 }>;
 
 
-export type UpdatePackageMutation = { __typename?: 'Mutation', updatePack?: { __typename?: 'PackageDataUpdate', weight: number, cost: number, Plength: number, height: number, width: number, name_package: string, packId: string, aNamePack: string } | null };
+export type UpdatePackageMutation = { __typename?: 'Mutation', updatePack?: { __typename?: 'PackageDataUpdate', weight: number, cost: number, Plength: number, height: number, width: number, name_package: string, supplier_id: string, error: string } | null };
 
 export type UpdateSupplierMutationVariables = Exact<{
   SupName: Scalars['String'];
@@ -324,11 +323,11 @@ export type UpdateSupplierMutationVariables = Exact<{
   SendCashDelivery: Scalars['String'];
   packInBox: Scalars['String'];
   SuppId: Scalars['String'];
-  PackId?: InputMaybe<Scalars['String']>;
+  ActNameSupp: Scalars['String'];
 }>;
 
 
-export type UpdateSupplierMutation = { __typename?: 'Mutation', updateSup?: { __typename?: 'Supplier', sendCashDelivery: string, packInBox: string, packageId: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } | null };
+export type UpdateSupplierMutation = { __typename?: 'Mutation', updateSup?: { __typename?: 'Supplier', sendCashDelivery: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } | null };
 
 export type PackageDataQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -619,12 +618,12 @@ export const NewSupplierToFirestoreDocument = gql`
   ) {
     sendCashDelivery
     packInBox
-    packageId
     suppName
     pickUp
     delivery
     insurance
     shippingLabel
+    supplierId
     foil
   }
 }
@@ -663,16 +662,16 @@ export type NewSupplierToFirestoreMutationHookResult = ReturnType<typeof useNewS
 export type NewSupplierToFirestoreMutationResult = Apollo.MutationResult<NewSupplierToFirestoreMutation>;
 export type NewSupplierToFirestoreMutationOptions = Apollo.BaseMutationOptions<NewSupplierToFirestoreMutation, NewSupplierToFirestoreMutationVariables>;
 export const UpdatePackageDocument = gql`
-    mutation UpdatePackage($Hmotnost: Int!, $Cost: Int!, $Delka: Int!, $Vyska: Int!, $Sirka: Int!, $Pack_name: String!, $ActPackName: String!, $PackId: String!) {
+    mutation UpdatePackage($Hmotnost: Int!, $Cost: Int!, $Delka: Int!, $Vyska: Int!, $Sirka: Int!, $Pack_name: String!, $PackKey: String!, $SuppId: String!) {
   updatePack(
+    PackKey: $PackKey
     weight: $Hmotnost
     cost: $Cost
     Plength: $Delka
     height: $Vyska
     width: $Sirka
     name_package: $Pack_name
-    packId: $PackId
-    aNamePack: $ActPackName
+    supplier_id: $SuppId
   ) {
     weight
     cost
@@ -680,8 +679,8 @@ export const UpdatePackageDocument = gql`
     height
     width
     name_package
-    packId
-    aNamePack
+    supplier_id
+    error
   }
 }
     `;
@@ -706,8 +705,8 @@ export type UpdatePackageMutationFn = Apollo.MutationFunction<UpdatePackageMutat
  *      Vyska: // value for 'Vyska'
  *      Sirka: // value for 'Sirka'
  *      Pack_name: // value for 'Pack_name'
- *      ActPackName: // value for 'ActPackName'
- *      PackId: // value for 'PackId'
+ *      PackKey: // value for 'PackKey'
+ *      SuppId: // value for 'SuppId'
  *   },
  * });
  */
@@ -719,7 +718,7 @@ export type UpdatePackageMutationHookResult = ReturnType<typeof useUpdatePackage
 export type UpdatePackageMutationResult = Apollo.MutationResult<UpdatePackageMutation>;
 export type UpdatePackageMutationOptions = Apollo.BaseMutationOptions<UpdatePackageMutation, UpdatePackageMutationVariables>;
 export const UpdateSupplierDocument = gql`
-    mutation UpdateSupplier($SupName: String!, $Delivery: String!, $pickUp: String!, $ShippingLabel: String!, $Foil: String!, $Insurance: Int!, $SendCashDelivery: String!, $packInBox: String!, $SuppId: String!, $PackId: String) {
+    mutation UpdateSupplier($SupName: String!, $Delivery: String!, $pickUp: String!, $ShippingLabel: String!, $Foil: String!, $Insurance: Int!, $SendCashDelivery: String!, $packInBox: String!, $SuppId: String!, $ActNameSupp: String!) {
   updateSup(
     supplierName: $SupName
     delivery: $Delivery
@@ -730,11 +729,10 @@ export const UpdateSupplierDocument = gql`
     sendCashDelivery: $SendCashDelivery
     packInBox: $packInBox
     suppId: $SuppId
-    packId: $PackId
+    actNameSupp: $ActNameSupp
   ) {
     sendCashDelivery
     packInBox
-    packageId
     suppName
     pickUp
     delivery
@@ -768,7 +766,7 @@ export type UpdateSupplierMutationFn = Apollo.MutationFunction<UpdateSupplierMut
  *      SendCashDelivery: // value for 'SendCashDelivery'
  *      packInBox: // value for 'packInBox'
  *      SuppId: // value for 'SuppId'
- *      PackId: // value for 'PackId'
+ *      ActNameSupp: // value for 'ActNameSupp'
  *   },
  * });
  */
