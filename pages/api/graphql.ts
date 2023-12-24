@@ -44,6 +44,7 @@ const typeDefs = gql`
       width: Int
       name_package: String!
       supplier_id:String!
+      packId:String!
     ): PackageData
 
     updatePack(
@@ -595,6 +596,7 @@ const resolvers = {
         width: number;
         name_package: string;
         supplier_id: string;
+        packId:string
       },
       context:MyContext
     ) => {
@@ -606,7 +608,11 @@ const resolvers = {
         width: sirka,
         name_package: packName,
         supplier_id: supplierId,
+        packId:ID
       } = args;
+      // mozné rekurzivní volaní kvuli kontrole duplicitnich id - není
+      // Kontrola jmén - je
+      // udelat unikatnéí id misto packname - je
       // prideleni k dodavateli - je
       // validace parametru na duplicitní zaznamy - je
       // valiadce na duplicitni balik - je
@@ -620,6 +626,7 @@ const resolvers = {
         const supplierDoc = SupplierDoc.docs[0];
         const existingPackages = supplierDoc.data().package || [];
         const dupPackages:any = [];
+        let dupName = ""
       
         const newPackage = {
           weight: hmotnost,
@@ -635,15 +642,21 @@ const resolvers = {
        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
        const keyPack = existingPackages.map((item:any) => {
           const keys = Object.keys(item)[0]
-          return keys.includes(packName)
+          console.log(keys)
+          console.log("repeat",ID)
+          return keys.includes(ID)
        })
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        existingPackages.forEach((item:{[name:string]:{weight:number, height:number, width:number, Plength:number}}) => {
+        existingPackages.forEach((item:{[name:string]:{weight:number, height:number, width:number, Plength:number, name_package:string}}) => {
           // jmeno balicku
         const nameItm = Object.keys(item)[0];
         const itm = item[nameItm] ;
         console.log("itm",itm)
+        // kontrola jmén
+        if(itm.name_package === packName){
+          dupName = itm.name_package
+        }
         // eslint-disable-next-line @typescript-eslint/no-for-in-array, guard-for-in
         if(itm.weight === newPackage.weight && itm.height === newPackage.height && itm.width === newPackage.width && itm.Plength === newPackage.Plength){
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -663,16 +676,22 @@ const resolvers = {
         else if(NoHtmlSpecialChars(packName) && Convert(hmotnost, costPackage, delka, vyska, sirka)){
           newPackage.error = (`${NoHtmlSpecialChars(packName)  }\n${  Convert(hmotnost, costPackage, delka, vyska, sirka)}`)
         }
+        // Úprava
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         else if(keyPack.includes(true)){
+          // ID.repeat(1)
           newPackage.error = "Name have already another package"
+        }
+        else if(dupName.length > 0){
+          newPackage.error ="This name is already in use";
         }
         else if(dupPackages.length > 0){
           newPackage.error = "This params have alerady another package"
         }
         else{
           const objectPack: { [key: string]: any } = {};
-          objectPack[packName] = {
+          // eslint-disable-next-line react-hooks/rules-of-hooks
+          objectPack[ID] = {
             weight: hmotnost,
             cost: costPackage,
             Plength: delka,
@@ -918,24 +937,48 @@ const resolvers = {
       UpdatePackage.error = "This params have alerady another package"
     }
     else{
-      const objectPack: { [key: string]: any } = {};
-      objectPack[packName] = {
-        weight: hmotnost,
-        cost: costPackage,
-        Plength: delka,
-        height: vyska,
-        width: sirka,
-        name_package: packName,
-        supplier_id: supplierDoc.id,
-      };
+      // const objectOldPack: { [key: string]: any } = {};
+      // objectOldPack[actNamePack] = {
+      //   weight: hmotnost,
+      //   cost: costPackage,
+      //   Plength: delka,
+      //   height: vyska,
+      //   width: sirka,
+      //   name_package: packName,
+      //   supplier_id: supplierDoc.id,
+      // };
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      existingPackages.forEach((item:{[name:string]:{weight:number, height:number, width:number, Plength:number, cost:number, name_package:string}}) =>{
+        //  const nameItm = Object.keys(item)[0];
+         // najdi update item 
+         const updatetedItem = item;
+         // eslint-disable-next-line sonarjs/no-collapsible-if
+        
+          // eslint-disable-next-line sonarjs/no-collapsible-if, unicorn/no-lonely-if
+         if(updatetedItem[id]) {
+          // eslint-disable-next-line unicorn/no-lonely-if, max-depth
+         
+            console.log("name itm",id)
+            updatetedItem[id].weight = hmotnost
+            updatetedItem[id].cost = costPackage
+            updatetedItem[id].Plength = delka
+            updatetedItem[id].height = vyska
+            updatetedItem[id].width = sirka
+            updatetedItem[id].name_package = packName
+            console.log("update with same name",updatetedItem[id])         
+        }
+    })
       // update udelat jinak
 
-      // // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      // existingPackages.push(objectPack);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      // existingPackages.filter((item:any) => !item[actNamePack]);
+
+      console.log(existingPackages)
 
       // console.log(existingPackages)
-      // await supplierDoc.ref.update({package:existingPackages});
+      await supplierDoc.ref.update({package:existingPackages});
+      // console.log("updated",existingPackages)
 
       // return UpdatePackage;
     }     

@@ -2352,6 +2352,11 @@
     "@types/mime" "*"
     "@types/node" "*"
 
+"@types/uuid@^9.0.7":
+  "integrity" "sha512-WUtIVRUZ9i5dYXefDEAI7sh9/O7jGvHg7Df/5O/gtH3Yabe5odI3UWopVR1qbPXQtvOxWu3mM4XxlYeZtMWF4g=="
+  "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@types/uuid/-/uuid-9.0.7.tgz"
+  "version" "9.0.7"
+
 "@types/ws@^8.0.0":
   "integrity" "sha512-6UrLjiDUvn40CMrAubXuIVtj2PEfKDffJS7ychvnPU44j+KVeXmdHHTgqcM/dxLUTHxlXHiFM8Skmb8ozGdTnQ=="
   "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@types/ws/-/ws-8.5.7.tgz"

@@ -1,5 +1,5 @@
-mutation NewPackageToFirestore($SuppID:String!, $Hmotnost:Int!, $Cost:Int!, $Delka:Int!,$Vyska:Int!,$Sirka:Int!, $Pack_name: String!){
-    PackageToFirestore(supplier_id:$SuppID, weight: $Hmotnost, cost:$Cost, Plength: $Delka, height:$Vyska, width:$Sirka, name_package:$Pack_name){
+mutation NewPackageToFirestore($SuppID:String!, $Hmotnost:Int!, $Cost:Int!, $Delka:Int!,$Vyska:Int!,$Sirka:Int!, $Pack_name: String!, $PackId:String!){
+    PackageToFirestore(supplier_id:$SuppID, weight: $Hmotnost, cost:$Cost, Plength: $Delka, height:$Vyska, width:$Sirka, name_package:$Pack_name, packId: $PackId){
     weight
     cost
     Plength

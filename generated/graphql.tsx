@@ -68,6 +68,7 @@ export type MutationPackageToFirestoreArgs = {
   cost?: InputMaybe<Scalars['Int']>;
   height?: InputMaybe<Scalars['Int']>;
   name_package: Scalars['String'];
+  packId: Scalars['String'];
   supplier_id: Scalars['String'];
   weight?: InputMaybe<Scalars['Int']>;
   width?: InputMaybe<Scalars['Int']>;
@@ -280,6 +281,7 @@ export type NewPackageToFirestoreMutationVariables = Exact<{
   Vyska: Scalars['Int'];
   Sirka: Scalars['Int'];
   Pack_name: Scalars['String'];
+  PackId: Scalars['String'];
 }>;
 
 
@@ -551,7 +553,7 @@ export type DeleteSupp2MutationHookResult = ReturnType<typeof useDeleteSupp2Muta
 export type DeleteSupp2MutationResult = Apollo.MutationResult<DeleteSupp2Mutation>;
 export type DeleteSupp2MutationOptions = Apollo.BaseMutationOptions<DeleteSupp2Mutation, DeleteSupp2MutationVariables>;
 export const NewPackageToFirestoreDocument = gql`
-    mutation NewPackageToFirestore($SuppID: String!, $Hmotnost: Int!, $Cost: Int!, $Delka: Int!, $Vyska: Int!, $Sirka: Int!, $Pack_name: String!) {
+    mutation NewPackageToFirestore($SuppID: String!, $Hmotnost: Int!, $Cost: Int!, $Delka: Int!, $Vyska: Int!, $Sirka: Int!, $Pack_name: String!, $PackId: String!) {
   PackageToFirestore(
     supplier_id: $SuppID
     weight: $Hmotnost
@@ -560,6 +562,7 @@ export const NewPackageToFirestoreDocument = gql`
     height: $Vyska
     width: $Sirka
     name_package: $Pack_name
+    packId: $PackId
   ) {
     weight
     cost
@@ -594,6 +597,7 @@ export type NewPackageToFirestoreMutationFn = Apollo.MutationFunction<NewPackage
  *      Vyska: // value for 'Vyska'
  *      Sirka: // value for 'Sirka'
  *      Pack_name: // value for 'Pack_name'
+ *      PackId: // value for 'PackId'
  *   },
  * });
  */

@@ -40,7 +40,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   const [vyska, SetVyska] = React.useState(' ');
   const [sirka, SetSirka] = React.useState(' ');
   const [packName, SetPackName] = React.useState(' ');
-  const [ActpackName, SetActPackName] = React.useState(' ');
   const [suppId, SetSuppId] = React.useState(' ');
 
   const [UpdatePackage] = useUpdatePackageMutation();
@@ -78,7 +77,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
                 SetDelka(itm.Plength.toString());
                 SetVyska(itm.height.toString());
                 SetSirka(itm.width.toString());
-                SetActPackName(itm.name_package.toString());
                 SetPackName(itm.name_package.toString());
                 SetSuppId(item.supplierId.toString());
               }
@@ -93,6 +91,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     // lepsi informovani o chybe
     // route push po formu
     // kontrola zda oznaci nez klikne
+    let routerToPage;
     event.preventDefault();
     // Mutation
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -106,7 +105,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
         Pack_name: NoHtmlSpecialChars(packName),
         PackKey: id,
         SuppId: suppId,
-        // lastSuppId: suppIdLast,
       },
     });
     // vracet s resolveru suppid
@@ -114,11 +112,12 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     if (updateVal.data?.updatePack?.error) {
       alert(`Balíček nebyl změněn, ${updateVal.data.updatePack.error}`);
     } else {
-      return router.push(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        `/../../admpage/${suppId}`,
-      );
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      routerToPage = `/../../admpage/${suppId}`;
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return router.push(routerToPage || '/');
   };
 
   return (
@@ -144,7 +143,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
                 onChange={(e) => SetPackName(e.target.value)}
                 required
                 type="text"
-                placeholder={ActpackName}
+                placeholder={packName}
               />
             </label>
             <label>

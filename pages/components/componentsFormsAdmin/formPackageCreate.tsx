@@ -1,6 +1,7 @@
 // eslint-disable-next-line unicorn/filename-case
 import router from 'next/router';
 import * as React from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 import { useNewPackageToFirestoreMutation } from '@/generated/graphql';
 
@@ -19,6 +20,8 @@ const Convert = (stringToNum: string) => {
 };
 
 export const FormPackage: React.FC<Props> = ({ id }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const pID = uuidv4();
   // vice se v jednom!
   const [kg, SetKg] = React.useState(' ');
   const [cost, SetCost] = React.useState(' ');
@@ -73,6 +76,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
         Sirka: Convert(sirka),
         Pack_name: packName,
         SuppID: id,
+        PackId: pID,
       },
     });
     if (packd.data?.PackageToFirestore?.error) {
