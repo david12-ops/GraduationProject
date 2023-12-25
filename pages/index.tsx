@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import React, { useState } from 'react';
 
 import {
   useMutSuitableSuppMutation,
@@ -11,6 +12,8 @@ import { SearchAppBar2 } from './components/navbar2';
 
 export default function Home() {
   const userD = useUserDataQuery();
+  const [suppID, SetSupId] = useState('');
+  const [cost, SetCost] = useState(-1);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [suitableSupp] = useMutSuitableSuppMutation();
   const { user, loading } = useAuthContext();
@@ -26,9 +29,17 @@ export default function Home() {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     return <div>{user?.email}</div>;
   };
+  const Res = (costP: number, mess: string) => {
+    return (
+      <div>
+        <p>{costP}</p>
+        <p>{mess}</p>
+      </div>
+    );
+  };
   const HandleForm = async () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    await suitableSupp({
+    const res = await suitableSupp({
       variables: {
         Width: 7,
         Weight: 15,
@@ -36,6 +47,9 @@ export default function Home() {
         Length: 7,
       },
     });
+
+    SetCost(res.data?.BingoSupPac?.cost ?? 0);
+    SetSupId(res.data?.BingoSupPac?.suppId ?? 'není');
   };
   return (
     <div className={styles.container}>
@@ -49,6 +63,7 @@ export default function Home() {
       <main className={styles.main}>
         <div>{EmUS()}</div>
         <div>{P()}</div>
+        {Res(cost, suppID)}
         <button onClick={HandleForm}>odeslat</button>
       </main>
 

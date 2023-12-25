@@ -596,7 +596,7 @@ const resolvers = {
         console.log(item.weight,item.width,item.height,item.Plength)
 
         if(item.Plength.integerValue >= pLength && item.height.integerValue >= Height && item.weight.integerValue >= Weight && item.width.integerValue >= Width){
-          return [item.supplier_id.stringValue, item.cost.integerValue, item.name_package.stringValue]
+          return {supplierId:item.supplier_id.stringValue, Cost: item.cost.integerValue, Name: item.name_package.stringValue}
         }
       })
 
@@ -608,8 +608,9 @@ const resolvers = {
       // Filtrace nevyhovujících dat
 
       // vratit supp a cenu balicku která tomu vyhovuje
-      
-      return { suppId: "není", cost: 0 };
+
+      return { suppId: "itmsupplierId", cost: 35 };
+   
     },
     // web mutation
     ActualUsToFirestore: async (parent_: any, args: { emailUS: string }) => {
