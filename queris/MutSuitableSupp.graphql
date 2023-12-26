@@ -1,7 +1,5 @@
 mutation MutSuitableSupp($Width:Int!, $Weight:Int!, $Height:Int!, $Length:Int!){
     BingoSupPac(width:$Width, weight:$Weight, height:$Height, Plength:$Length){
-    cost
-    suppId
+        suitable
     }
-
 } 

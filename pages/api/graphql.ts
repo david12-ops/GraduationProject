@@ -30,8 +30,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    BingoSupPac(width:Int!, weight:Int!, height:Int!, Plength:Int!):SuitableSupp
-
+    BingoSupPac(width:Int!, weight:Int!, height:Int!, Plength:Int!):Suitable
     ActualUsToFirestore(emailUS: String!): UserData
     ChangeActualUsEmToFirestore(
       ActualemailUser: String!
@@ -90,9 +89,8 @@ const typeDefs = gql`
     deleteSupp2(id: [String]): Boolean
   }
 
-  type SuitableSupp{
-    suppId:String
-    cost:Int
+  type Suitable{
+    suitable: String!
   }
 
   type User {
@@ -568,8 +566,9 @@ const resolvers = {
     BingoSupPac: async (parent_: any, args: { width: number, weight: number, height: number, Plength: number }) => {
       const { width: Width, weight: Weight, height: Height, Plength: pLength } = args
       // Natahnout data
-      const packages = [];
-      const packData = [];
+      const packages:any = [];
+      const packData:[] = [];
+      const rtrnItem:any = [];
       const SupplierDoc = await db
         .collection('Supplier').get();
       // const supplierDoc = SupplierDoc.docs[0];
@@ -609,7 +608,20 @@ const resolvers = {
 
       // vratit supp a cenu balicku která tomu vyhovuje
 
-      return { suppId: "itmsupplierId", cost: 35 };
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      sorted.forEach((item:any) =>{
+        // let itms = item;
+        if(item){
+          // console.log("jeeeeeeee",item.supplierId)
+          // console.log("jeeeeeeee",item.Cost)
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          rtrnItem.push({suppId:item.supplierId,cost:item.Cost,name:item.Name})
+        }
+        // console.log(itms)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      })
+       console.log(rtrnItem)
+      return {suitable:JSON.stringify(rtrnItem)};
    
     },
     // web mutation

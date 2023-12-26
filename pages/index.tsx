@@ -12,8 +12,7 @@ import { SearchAppBar2 } from './components/navbar2';
 
 export default function Home() {
   const userD = useUserDataQuery();
-  const [suppID, SetSupId] = useState('');
-  const [cost, SetCost] = useState(-1);
+  const [dataS, SetData] = useState([]);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [suitableSupp] = useMutSuitableSuppMutation();
   const { user, loading } = useAuthContext();
@@ -29,28 +28,36 @@ export default function Home() {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     return <div>{user?.email}</div>;
   };
-  const Res = (costP: number, mess: string) => {
-    return (
-      <div>
-        <p>{costP}</p>
-        <p>{mess}</p>
-      </div>
-    );
-  };
-  const HandleForm = async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const res = await suitableSupp({
-      variables: {
-        Width: 7,
-        Weight: 15,
-        Height: 6,
-        Length: 7,
-      },
-    });
-
-    SetCost(res.data?.BingoSupPac?.cost ?? 0);
-    SetSupId(res.data?.BingoSupPac?.suppId ?? 'není');
-  };
+  // const Res = (dataSui: any) => {
+  //   return (
+  //     <div>
+  //       <p>{dataSui.length}</p>
+  //       {dataSui.map((itm: any, index: number) => (
+  //         <div key={index}>
+  //           {Object.values(itm).map((value: any, idx: number) => (
+  //             <p key={idx}>{value}</p>
+  //           ))}
+  //         </div>
+  //       ))}
+  //     </div>
+  //   );
+  // };
+  // const HandleForm = async () => {
+  //   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  //   const res = await suitableSupp({
+  //     variables: {
+  //       Width: 7,
+  //       Weight: 15,
+  //       Height: 6,
+  //       Length: 7,
+  //     },
+  //   });
+  //   console.log('ssss', res.data?.BingoSupPac?.suitable);
+  //   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  //   const data = JSON.parse(res.data?.BingoSupPac?.suitable ?? 'NIC');
+  //   console.log('dddddddddddddddddddddata', data);
+  //   SetData(data);
+  // };
   return (
     <div className={styles.container}>
       <Head>
@@ -63,8 +70,8 @@ export default function Home() {
       <main className={styles.main}>
         <div>{EmUS()}</div>
         <div>{P()}</div>
-        {Res(cost, suppID)}
-        <button onClick={HandleForm}>odeslat</button>
+        {/* {Res(dataS)} */}
+        {/* <button onClick={HandleForm}>odeslat</button> */}
       </main>
 
       <footer className={styles.footer}></footer>
