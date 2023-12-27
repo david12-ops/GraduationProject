@@ -1,5 +1,5 @@
 // eslint-disable-next-line unicorn/filename-case
-import { Button, Link } from '@mui/material';
+import { Button } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -15,11 +15,10 @@ type Props = {
   delivery: string;
   packInBox: string;
   folie: string;
-  avgPrice: number;
+  price: number;
   shippingLabel: string;
   insurance: number;
   sendCash: string;
-  suppId: string;
 };
 
 const Odstavec = (
@@ -92,17 +91,16 @@ const Odstavec = (
   );
 };
 
-export const MediaCard: React.FC<Props> = ({
+export const ResSuppCard: React.FC<Props> = ({
   name,
   pickUp,
   delivery,
   packInBox,
   folie,
-  avgPrice,
+  price,
   shippingLabel,
   insurance,
   sendCash,
-  suppId,
 }) => {
   return (
     <Card
@@ -164,11 +162,9 @@ export const MediaCard: React.FC<Props> = ({
           variant="body2"
           color="text.secondary"
         >
-          <div style={{ textAlign: 'center' }}>Avg price: {avgPrice}</div>
+          <div style={{ textAlign: 'center' }}>Price: {price}</div>
           <CardActions style={{ justifyContent: 'center' }}>
-            <Link key="packsCard" href={`/packsCard/${suppId}`}>
-              <Button className={styles.crudbtnTable}>Packages</Button>
-            </Link>
+            <Button className={styles.crudbtnTable}>Objednat</Button>
           </CardActions>
         </Typography>
       </CardContent>

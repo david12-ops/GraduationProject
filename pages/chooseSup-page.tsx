@@ -1,30 +1,72 @@
 import Head from 'next/head';
 import React, { useState } from 'react';
 
-import { useMutSuitableSuppMutation } from '@/generated/graphql';
+import {
+  useMutSuitableSuppMutation,
+  useSuppDataQuery,
+} from '@/generated/graphql';
 
 import styles from '../styles/Home.module.css';
+import { ResSuppCard } from './components/Cards/resSupp';
 import { SearchAppBar2 } from './components/navbar2';
+
+const Res = (dataSui: any, allSupp: any) => {
+  const SuitableSupps: Array<any> = [];
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const sortedValues = dataSui.map((item: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return item;
+  });
+  console.log(Object.values(sortedValues));
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return
+  sortedValues.forEach((itm: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    SuitableSupps.push({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      dataS: allSupp.data?.suplierData.find((item: any) => {
+        return item.supplierId === itm.suppId;
+      }),
+      cost: itm.cost,
+    });
+    console.log('sorted val', itm.suppId);
+    console.log('supplier', allSupp.data?.suplierData);
+  });
+  console.log('ssuitabel', SuitableSupps);
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return SuitableSupps ?? [];
+};
+
+// eslint-disable-next-line consistent-return
+const RenderSupp = (dataFromResover: any, QueryData: any) => {
+  // alert(JSON.stringify(Res(dataFromResover, QueryData)));
+  if (!QueryData.loading && !QueryData.error) {
+    // eslint-disable-next-line array-callback-return
+    return Res(dataFromResover, QueryData).map((itm: any) => (
+      <div key={itm.dataS.supplierId}>
+        <ResSuppCard
+          price={itm.cost}
+          delivery={itm.dataS.delivery}
+          folie={itm.dataS.foil}
+          insurance={itm.dataS.insurance}
+          packInBox={itm.dataS.packInBox}
+          pickUp={itm.dataS.pickUp}
+          sendCash={itm.dataS.sendCashDelivery}
+          shippingLabel={itm.dataS.shippingLabel}
+          name={itm.dataS.suppName}
+        />
+      </div>
+    ));
+  }
+  return <div>Please Wait</div>;
+};
 
 export default function Home() {
   const [dataS, SetData] = useState([]);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [suitableSupp] = useMutSuitableSuppMutation();
+  const suppData = useSuppDataQuery();
 
-  const Res = (dataSui: any) => {
-    return (
-      <div>
-        <p>{dataSui.length}</p>
-        {dataSui.map((itm: any, index: number) => (
-          <div key={index}>
-            {Object.values(itm).map((value: any, idx: number) => (
-              <p key={idx}>{value}</p>
-            ))}
-          </div>
-        ))}
-      </div>
-    );
-  };
   const HandleForm = async () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const res = await suitableSupp({
@@ -36,9 +78,8 @@ export default function Home() {
       },
     });
     console.log('ssss', res.data?.BingoSupPac?.suitable);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const data = JSON.parse(res.data?.BingoSupPac?.suitable ?? 'NIC');
-    console.log('dddddddddddddddddddddata', data);
+    // console.log('dddddddddddddddddddddata', data);
     SetData(data);
   };
   return (
@@ -51,7 +92,7 @@ export default function Home() {
       <SearchAppBar2 />
 
       <main className={styles.main}>
-        {Res(dataS)}
+        {RenderSupp(dataS, suppData) ?? 'Nic'}
         <button onClick={HandleForm}>odeslat</button>
       </main>
 

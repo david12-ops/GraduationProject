@@ -34,18 +34,18 @@ const Odstavec = (
 ) => {
   // FontSize ?
   const odstavec =
-    packInBox === 'true' ? (
+    packInBox === 'Ano' ? (
       <p style={{ fontSize: FontSize }}>
         Zásilku je nutné zabalit <strong>do krabice</strong>
       </p>
     ) : (
       <p>
-        Zásilku je můžete zabalit <strong>do krabice</strong>
+        Zásilku můžete zabalit <strong>do krabice</strong>
       </p>
     );
 
   const odstavec2 =
-    folie === 'true' ? (
+    folie === 'Ano' ? (
       <p>
         Může být zabaleno <strong>ve fólii</strong>
       </p>
@@ -56,14 +56,14 @@ const Odstavec = (
     );
 
   const odstavec3 =
-    shippingLabel === 'true' ? (
+    shippingLabel === 'Ano' ? (
       <p> Přepravní štítek přiveze kurýr</p>
     ) : (
       <p> Přepravní štítek nepřiveze kurýr</p>
     );
 
   const odstavec4 =
-    sendCash === 'true' ? (
+    sendCash === 'Ano' ? (
       <p>
         Možnost poslat <strong>na dobírku</strong>
       </p>
