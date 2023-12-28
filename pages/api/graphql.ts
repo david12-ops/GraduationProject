@@ -30,6 +30,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
+    Predict(value:String!):Value
     BingoSupPac(width:Int!, weight:Int!, height:Int!, Plength:Int!):Suitable
     ActualUsToFirestore(emailUS: String!): UserData
     ChangeActualUsEmToFirestore(
@@ -88,6 +89,16 @@ const typeDefs = gql`
     deleteSupp(id: Int): Boolean
     deleteSupp2(id: [String]): Boolean
   }
+
+  type Val{
+    value:String!
+  }
+
+  type ValError{
+    message:String!
+  }
+
+  union Value = Val | ValError
 
   type Suitable{
     suitable: String!
@@ -562,6 +573,19 @@ const resolvers = {
     },
   },
   Mutation: {
+     Predict: async (parent_:any, args:{value:string}) => {
+      const {value:val} = args
+       if(val === "value"){
+        return {
+          __typename: "Val",
+          value: "Bing!!!!!",
+        };
+      }
+      return {
+          __typename: "ValError",
+          message: "Error! Bad prediction",
+      };
+    },
     // vhodny balik resolver
     BingoSupPac: async (parent_: any, args: { width: number, weight: number, height: number, Plength: number }) => {
       const { width: Width, weight: Weight, height: Height, Plength: pLength } = args

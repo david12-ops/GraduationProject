@@ -1,0 +1,10 @@
+mutation ResSupplier ($Value:String!){
+  Predict(value:$Value) {
+    ... on Val {
+      value
+    }
+    ... on ValError {
+      message
+    }
+  }
+}

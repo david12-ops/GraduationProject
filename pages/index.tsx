@@ -1,10 +1,7 @@
 import Head from 'next/head';
 import React, { useState } from 'react';
 
-import {
-  useMutSuitableSuppMutation,
-  useUserDataQuery,
-} from '@/generated/graphql';
+import { useResSupplierMutation, useUserDataQuery } from '@/generated/graphql';
 
 import styles from '../styles/Home.module.css';
 import { useAuthContext } from './components/auth-context-provider';
@@ -12,9 +9,9 @@ import { SearchAppBar2 } from './components/navbar2';
 
 export default function Home() {
   const userD = useUserDataQuery();
-  const [dataS, SetData] = useState([]);
+  const [err, SetErrMsg] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const [suitableSupp] = useMutSuitableSuppMutation();
+  const [suitableSupp] = useResSupplierMutation();
   const { user, loading } = useAuthContext();
   const s = userD.data?.userdata;
   const EmUS = () => {
@@ -42,22 +39,16 @@ export default function Home() {
   //     </div>
   //   );
   // };
-  // const HandleForm = async () => {
-  //   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  //   const res = await suitableSupp({
-  //     variables: {
-  //       Width: 7,
-  //       Weight: 15,
-  //       Height: 6,
-  //       Length: 7,
-  //     },
-  //   });
-  //   console.log('ssss', res.data?.BingoSupPac?.suitable);
-  //   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  //   const data = JSON.parse(res.data?.BingoSupPac?.suitable ?? 'NIC');
-  //   console.log('dddddddddddddddddddddata', data);
-  //   SetData(data);
-  // };
+  const HandleForm = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const res = await suitableSupp({
+      variables: {
+        Value: 'valuen',
+      },
+    });
+    SetErrMsg(res.data?.Predict.message ?? 'vse ok');
+    alert(err);
+  };
   return (
     <div className={styles.container}>
       <Head>
@@ -70,8 +61,7 @@ export default function Home() {
       <main className={styles.main}>
         <div>{EmUS()}</div>
         <div>{P()}</div>
-        {/* {Res(dataS)} */}
-        {/* <button onClick={HandleForm}>odeslat</button> */}
+        <button onClick={HandleForm}>odeslat</button>
       </main>
 
       <footer className={styles.footer}></footer>
