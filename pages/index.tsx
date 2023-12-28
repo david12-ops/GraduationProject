@@ -9,7 +9,9 @@ import { SearchAppBar2 } from './components/navbar2';
 
 export default function Home() {
   const userD = useUserDataQuery();
-  const [err, SetErrMsg] = useState('');
+  const [val, SetVal] = useState('');
+  const [intV, SetintVal] = useState('');
+
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [suitableSupp] = useResSupplierMutation();
   const { user, loading } = useAuthContext();
@@ -41,13 +43,27 @@ export default function Home() {
   // };
   const HandleForm = async () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const res = await suitableSupp({
+    await suitableSupp({
       variables: {
-        Value: 'valuen',
+        Value: val,
+        valInt: Number(intV),
       },
-    });
-    SetErrMsg(res.data?.Predict.message ?? 'vse ok');
-    alert(err);
+    })
+      .then((result) => {
+        alert(
+          `${result.data?.Predict.value ?? result.data?.Predict.message} ${
+            result.data?.Predict.intVal ?? 0
+          }`,
+        );
+      })
+      .catch((error) => {
+        console.log('jjjerr', error.message);
+        alert(error);
+      });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    // SetErrMsg(res.data?.Predict.message ?? 'vse ok');
+    // alert(res.errors.message);
+    // alert(err);
   };
   return (
     <div className={styles.container}>
@@ -59,6 +75,21 @@ export default function Home() {
       <SearchAppBar2 />
 
       <main className={styles.main}>
+        <div>
+          <input
+            type="text"
+            onChange={() => SetintVal(event.target.value)}
+            placeholder="Enter num here..."
+          />
+        </div>
+        <div>
+          <input
+            type="text"
+            onChange={() => SetVal(event.target.value)}
+            placeholder="Enter text here..."
+          />
+        </div>
+
         <div>{EmUS()}</div>
         <div>{P()}</div>
         <button onClick={HandleForm}>odeslat</button>

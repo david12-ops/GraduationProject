@@ -30,7 +30,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    Predict(value:String!):Value
+    Predict(value:String!, intVal:Int!):Value
     BingoSupPac(width:Int!, weight:Int!, height:Int!, Plength:Int!):Suitable
     ActualUsToFirestore(emailUS: String!): UserData
     ChangeActualUsEmToFirestore(
@@ -92,6 +92,7 @@ const typeDefs = gql`
 
   type Val{
     value:String!
+    intVal:Int!
   }
 
   type ValError{
@@ -573,12 +574,13 @@ const resolvers = {
     },
   },
   Mutation: {
-     Predict: async (parent_:any, args:{value:string}) => {
-      const {value:val} = args
+     Predict: async (parent_:any, args:{value:string, intVal:number}) => {
+      const {value:val, intVal:Num} = args
        if(val === "value"){
         return {
           __typename: "Val",
-          value: "Bing!!!!!",
+          value: "Bingoooo!!!!!",
+          intVal:Num
         };
       }
       return {

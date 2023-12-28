@@ -1,7 +1,8 @@
-mutation ResSupplier ($Value:String!){
-  Predict(value:$Value) {
+mutation ResSupplier ($Value:String!, $valInt:Int!){
+  Predict(value:$Value, intVal:$valInt) {
     ... on Val {
       value
+      intVal
     }
     ... on ValError {
       message

@@ -86,6 +86,7 @@ export type MutationPackageToFirestoreArgs = {
 
 
 export type MutationPredictArgs = {
+  intVal: Scalars['Int'];
   value: Scalars['String'];
 };
 
@@ -251,6 +252,7 @@ export type UserData = {
 
 export type Val = {
   __typename?: 'Val';
+  intVal: Scalars['Int'];
   value: Scalars['String'];
 };
 
@@ -380,10 +382,11 @@ export type PackageDataQuery = { __typename?: 'Query', packageData: Array<{ __ty
 
 export type ResSupplierMutationVariables = Exact<{
   Value: Scalars['String'];
+  valInt: Scalars['Int'];
 }>;
 
 
-export type ResSupplierMutation = { __typename?: 'Mutation', Predict?: { __typename?: 'Val', value: string } | { __typename?: 'ValError', message: string } | null };
+export type ResSupplierMutation = { __typename?: 'Mutation', Predict?: { __typename?: 'Val', value: string, intVal: number } | { __typename?: 'ValError', message: string } | null };
 
 export type CardDataQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -912,10 +915,11 @@ export type PackageDataQueryHookResult = ReturnType<typeof usePackageDataQuery>;
 export type PackageDataLazyQueryHookResult = ReturnType<typeof usePackageDataLazyQuery>;
 export type PackageDataQueryResult = Apollo.QueryResult<PackageDataQuery, PackageDataQueryVariables>;
 export const ResSupplierDocument = gql`
-    mutation ResSupplier($Value: String!) {
-  Predict(value: $Value) {
+    mutation ResSupplier($Value: String!, $valInt: Int!) {
+  Predict(value: $Value, intVal: $valInt) {
     ... on Val {
       value
+      intVal
     }
     ... on ValError {
       message
@@ -939,6 +943,7 @@ export type ResSupplierMutationFn = Apollo.MutationFunction<ResSupplierMutation,
  * const [resSupplierMutation, { data, loading, error }] = useResSupplierMutation({
  *   variables: {
  *      Value: // value for 'Value'
+ *      valInt: // value for 'valInt'
  *   },
  * });
  */
