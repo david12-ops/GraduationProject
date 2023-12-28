@@ -57,7 +57,7 @@ export default function Home() {
         );
       })
       .catch((error) => {
-        console.log('jjjerr', error.message);
+        // console.log('jjjerr', error.message);
         alert(error);
       });
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -91,7 +91,7 @@ export default function Home() {
         </div>
 
         <div>{EmUS()}</div>
-        <div>{P()}</div>
+        {/* <div>{P()}</div> */}
         <button onClick={HandleForm}>odeslat</button>
       </main>
 
