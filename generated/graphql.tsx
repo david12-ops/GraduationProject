@@ -30,6 +30,11 @@ export type Delete = {
   error?: Maybe<Scalars['String']>;
 };
 
+export type ErrorMessage = {
+  __typename?: 'ErrorMessage';
+  message: Scalars['String'];
+};
+
 export type GithubUser = {
   __typename?: 'GithubUser';
   avatarUrl: Scalars['String'];
@@ -40,7 +45,7 @@ export type GithubUser = {
 export type Mutation = {
   __typename?: 'Mutation';
   ActualUsToFirestore?: Maybe<UserData>;
-  BingoSupPac?: Maybe<Suitable>;
+  BingoSupPac?: Maybe<SuitValue>;
   ChangeActualUsEmToFirestore?: Maybe<UserChangeEmData>;
   PackageToFirestore?: Maybe<PackageData>;
   Predict?: Maybe<Value>;
@@ -214,6 +219,8 @@ export type QuerySuppD = {
   supplierId: Scalars['String'];
 };
 
+export type SuitValue = ErrorMessage | Suitable;
+
 export type Suitable = {
   __typename?: 'Suitable';
   suitable: Scalars['String'];
@@ -329,7 +336,7 @@ export type MutSuitableSuppMutationVariables = Exact<{
 }>;
 
 
-export type MutSuitableSuppMutation = { __typename?: 'Mutation', BingoSupPac?: { __typename?: 'Suitable', suitable: string } | null };
+export type MutSuitableSuppMutation = { __typename?: 'Mutation', BingoSupPac?: { __typename?: 'ErrorMessage', message: string } | { __typename?: 'Suitable', suitable: string } | null };
 
 export type NewSupplierToFirestoreMutationVariables = Exact<{
   SupName: Scalars['String'];
@@ -663,7 +670,12 @@ export type NewPackageToFirestoreMutationOptions = Apollo.BaseMutationOptions<Ne
 export const MutSuitableSuppDocument = gql`
     mutation MutSuitableSupp($Width: Int!, $Weight: Int!, $Height: Int!, $Length: Int!) {
   BingoSupPac(width: $Width, weight: $Weight, height: $Height, Plength: $Length) {
-    suitable
+    ... on Suitable {
+      suitable
+    }
+    ... on ErrorMessage {
+      message
+    }
   }
 }
     `;

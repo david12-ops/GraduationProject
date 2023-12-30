@@ -63,24 +63,77 @@ const RenderSupp = (dataFromResover: any, QueryData: any) => {
 
 export default function Home() {
   const [dataS, SetData] = useState([]);
+  const [width, SetWidth] = useState('');
+  const [height, SetHeight] = useState('');
+  const [weight, SetWeight] = useState('');
+  const [plength, SetLength] = useState('');
+
+  const Inputs = () => {
+    return (
+      <div>
+        <div>
+          <input
+            type="text"
+            onChange={() => SetWeight(event.target.value)}
+            placeholder="Enter num here..."
+          />
+        </div>
+        <div>
+          <input
+            type="text"
+            onChange={() => SetHeight(event.target.value)}
+            placeholder="Enter num here..."
+          />
+        </div>
+        <div>
+          <input
+            type="text"
+            onChange={() => SetWidth(event.target.value)}
+            placeholder="Enter num here..."
+          />
+        </div>
+        <div>
+          <input
+            type="text"
+            onChange={() => SetLength(event.target.value)}
+            placeholder="Enter num here..."
+          />
+        </div>
+      </div>
+    );
+  };
+
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [suitableSupp] = useMutSuitableSuppMutation();
   const suppData = useSuppDataQuery();
 
   const HandleForm = async () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const res = await suitableSupp({
+    await suitableSupp({
       variables: {
-        Width: 7,
-        Weight: 15,
-        Height: 6,
-        Length: 7,
+        Width: Number(width) ?? plength,
+        Weight: Number(weight) ?? plength,
+        Height: Number(height) ?? plength,
+        Length: Number(plength) ?? plength,
       },
-    });
-    console.log('ssss', res.data?.BingoSupPac?.suitable);
-    const data = JSON.parse(res.data?.BingoSupPac?.suitable ?? 'NIC');
-    // console.log('dddddddddddddddddddddata', data);
-    SetData(data);
+    })
+      .then((res) => {
+        // eslint-disable-next-line promise/always-return
+        if (res.data?.BingoSupPac.suitable) {
+          console.log('ssss', res.data?.BingoSupPac?.suitable);
+          const data = JSON.parse(res.data?.BingoSupPac?.suitable);
+          // console.log('dddddddddddddddddddddata', data);
+          SetData(data);
+        } else {
+          // eslint-disable-next-line no-alert
+          alert(res.data?.BingoSupPac?.message);
+        }
+      })
+      .catch((error) => {
+        alert(error);
+      });
+
+    // eslint-disable-next-line promise/always-return
   };
   return (
     <div className={styles.container}>
@@ -92,8 +145,9 @@ export default function Home() {
       <SearchAppBar2 />
 
       <main className={styles.main}>
-        {RenderSupp(dataS, suppData) ?? 'Nic'}
+        {Inputs()}
         <button onClick={HandleForm}>odeslat</button>
+        {RenderSupp(dataS, suppData)}
       </main>
 
       <footer className={styles.footer}></footer>

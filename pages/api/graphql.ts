@@ -31,7 +31,7 @@ const typeDefs = gql`
 
   type Mutation {
     Predict(value:String!, intVal:Int!):Value
-    BingoSupPac(width:Int!, weight:Int!, height:Int!, Plength:Int!):Suitable
+    BingoSupPac(width:Int!, weight:Int!, height:Int!, Plength:Int!):SuitValue
     ActualUsToFirestore(emailUS: String!): UserData
     ChangeActualUsEmToFirestore(
       ActualemailUser: String!
@@ -104,6 +104,12 @@ const typeDefs = gql`
   type Suitable{
     suitable: String!
   }
+
+  type ErrorMessage{
+    message:String!
+  }
+
+  union SuitValue = Suitable | ErrorMessage
 
   type User {
     name: String
@@ -627,12 +633,7 @@ const resolvers = {
 
       console.log("sorted",JSON.stringify(sorted))
 
-
-      // const existingPackages = supplierDoc.data().package || [];
-      // console.log("packages", existingPackages)
       // Filtrace nevyhovujících dat
-
-      // vratit supp a cenu balicku která tomu vyhovuje
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       sorted.forEach((item:any) =>{
@@ -646,8 +647,18 @@ const resolvers = {
         // console.log(itms)
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       })
-       console.log(rtrnItem)
-      return {suitable:JSON.stringify(rtrnItem)};
+      
+      if(rtrnItem.length > 0){
+        console.log("suitable item",rtrnItem); 
+        return {       
+        __typename: "Suitable",
+        suitable:JSON.stringify(rtrnItem)
+        }
+      }
+      return {
+        __typename: "ErrorMessage",
+        message:"Any suitable supplier"
+      };
    
     },
     // web mutation
