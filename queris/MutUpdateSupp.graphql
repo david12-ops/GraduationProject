@@ -13,14 +13,22 @@ mutation UpdateSupplier($SupName:String!, $Delivery:String!, $pickUp:String!,
       actNameSupp:$ActNameSupp
       )
       {
-        sendCashDelivery
-        packInBox
-        suppName
-        pickUp
-        delivery
-        insurance
-        shippingLabel
-        foil
-    }
+        ... on Supp {
+          data{
+            sendCashDelivery,
+            supplierId
+            packInBox,
+            suppName,
+            pickUp,
+            delivery,
+            insurance,
+            shippingLabel,
+            foil,
+          }
+        }
+        ... on SupplierError {
+          message
+        }
+     }
 }
 

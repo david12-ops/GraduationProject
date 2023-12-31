@@ -90,6 +90,8 @@ const typeDefs = gql`
     deleteSupp2(id: [String]): Boolean
   }
 
+  scalar JSON
+
   type Val{
     value:String!
     intVal:Int!
@@ -126,17 +128,27 @@ const typeDefs = gql`
     avatarUrl: String!
   }
 
-  type Supplier {
-    sendCashDelivery: String!,
-    packInBox: String!,
-    supplierId: String!,
-    suppName: String!,
-    pickUp: String!,
-    delivery: String!,
-    insurance: Int!,
-    shippingLabel: String!,
-    foil: String!
+  type SupplierData {
+    sendCashDelivery:String!,
+    packInBox:String!,
+    supplierId:String!,
+    suppName:String!,
+    pickUp:String!,
+    delivery:String!,
+    insurance:Int!,
+    shippingLabel:String!,
+    foil:String!
   }
+
+  type SupplierError{
+    message:String!
+  }
+
+  type Supp {
+    data: SupplierData
+  }
+
+  union Supplier = Supp | SupplierError
 
   type UserData {
     dataUs: String!
@@ -163,8 +175,6 @@ const typeDefs = gql`
     vyska: Int!
     supplierId: String!
   }
-
-  scalar JSON
 
   type QuerySuppD {
     sendCashDelivery: String!
@@ -220,16 +230,16 @@ const db = firestore();
 
 // validace
 // validave jako uthils
-const NoHtmlSpecialChars = (ustring: any) => {
-  // zakladni - mozne pouziti cheerio or htmlparser2
-  // const htmlRegex = /<[^>]*>$/;
-  const option = /<[^>]*>/
-  let error = "";
-  if (option.test(ustring)) {
-    error = 'HTML code is not supported';
-  }
-  return error;
-}
+// const NoHtmlSpecialChars = (ustring: any) => {
+//   // zakladni - mozne pouziti cheerio or htmlparser2
+//   // const htmlRegex = /<[^>]*>$/;
+//   const option = /<[^>]*>/
+//   let error = "";
+//   if (option.test(ustring)) {
+//     error = 'HTML code is not supported';
+//   }
+//   return error;
+// }
 
 // Validace pro package
 const Convert = (
@@ -308,55 +318,29 @@ const ConverBool = (
   stringnU3: string,
   stringnU4: string,
 ) => {
-  const mess = 'Invalid argument';
-  // const htmnlErr = NoHtmlSpecialChars(stringnU1) + NoHtmlSpecialChars(stringnU2) +  NoHtmlSpecialChars(stringnU3) + NoHtmlSpecialChars(stringnU4);
-  // console.log("errr", htmnlErr)
-  // NoHtmlSpecialChars(stringnU1);
-  // NoHtmlSpecialChars(stringnU2);
-  // NoHtmlSpecialChars(stringnU3);
-  // NoHtmlSpecialChars(stringnU4);
   console.log(stringnU1)
   console.log(stringnU2)
   console.log(stringnU3)
   console.log(stringnU4)
 
-
-  // if(htmnlErr.trim() === ""){
   if (!["Ano", "Ne"].includes(stringnU1)) {
     // eslint-disable-next-line sonarjs/no-duplicate-string
     console.log("co kontroliujeme?", stringnU1)
-    throw new Error(mess);
+    return true;
   }
   if (!["Ano", "Ne"].includes(stringnU2)) {
     console.log("co kontroliujeme?", stringnU2)
-    throw new Error(mess);
+    return true;
   }
   if (!["Ano", "Ne"].includes(stringnU3)) {
     console.log("co kontroliujeme?", stringnU3)
-    throw new Error(mess);
+    return true;
   }
   if (!["Ano", "Ne"].includes(stringnU4)) {
     console.log("co kontroliujeme?", stringnU4)
-    throw new Error(mess);
+    return true;
   }
-  // }
-  // else{
-  //   throw new Error(htmnlErr.trim())
-  // }
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-constant-condition
-  // eslint-disable-next-line no-constant-condition, sonarjs/no-redundant-boolean, @typescript-eslint/no-unsafe-call
-  // if (!['true', 'false'].includes(stringnU1.toLowerCase())) {
-  //   throw new Error(mess);
-  // }
-  // if (!['true', 'false'].includes(stringanU2.toLowerCase())) {
-  //   throw new Error(mess);
-  // }
-  // if (!['true', 'false'].includes(stringnU3.toLowerCase())) {
-  //   throw new Error(mess);
-  // }
-  // if (!['true', 'false'].includes(stringnU4.toLowerCase())) {
-  //   throw new Error(mess);
-  // }
+  return false
 };
 
 const ConverNumb = (numberU: any) => {
@@ -368,17 +352,14 @@ const ConverNumb = (numberU: any) => {
 
 // funkcni
 const ConverDate = (dateU1: any, dateU2: any) => {
-  // eslint-disable-next-line unicorn/better-regex
-  NoHtmlSpecialChars(dateU1);
-  NoHtmlSpecialChars(dateU2);
   console.log(dateU1)
   // eslint-disable-next-line unicorn/better-regex
   const option = /^[0-9]{4}[-][0-9]{1,2}[-][0-9]{1,2}$/
   if (!option.test(dateU1) || !option.test(dateU2)
   ) {
-    throw new TypeError('Invalid argument of date');
+    return new Error('Invalid argument of date');
   }
-  else {
+  
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, unicorn/prefer-string-slice, @typescript-eslint/restrict-plus-operands
     const dateParts = dateU1.split('-');
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -386,9 +367,9 @@ const ConverDate = (dateU1: any, dateU2: any) => {
     const middleNumber = Number.parseInt(dateParts[1], 10);
     const middleNumber2 = Number.parseInt(DateParts2[1], 10);
     if (middleNumber > 12 || middleNumber2 > 12 || Number.parseInt(dateParts[2], 10) > 32 || Number.parseInt(DateParts2[2], 10) > 32) {
-      throw new TypeError('Invalid argument of month in date or day');
+      return new Error('Invalid argument of month in date or day');
     }
-  }
+  
 };
 
 const resolvers = {
@@ -603,7 +584,23 @@ const resolvers = {
       const rtrnItem:any = [];
       const SupplierDoc = await db
         .collection('Supplier').get();
-      // const supplierDoc = SupplierDoc.docs[0];
+      
+        console.log("id?",Width,Weight,Height,pLength)
+
+      if(Width === 0 || Weight === 0 || Height === 0 || pLength === 0){
+        return {
+          __typename: "ErrorMessage",
+          message:"Ivalid argument, any argument cant be 0"
+        }
+      }
+
+      if(Width < 0 || Weight < 0 || Height < 0 || pLength < 0 ){
+        return {
+          __typename: "ErrorMessage",
+          message:"Ivalid argument, any argument cant be less then 0"
+        }
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       console.log("suppDoc",JSON.stringify(SupplierDoc.docs.map((item:any)=>{
         if(item._fieldsProto && item._fieldsProto.package && item._fieldsProto.package.arrayValue)
@@ -620,8 +617,6 @@ const resolvers = {
         packData.push(packageDetails.mapValue.fields)
       })))
 
-      console.log(Weight,Width,Height,pLength)
-
       const sorted = packData.map((item:{Plength:number, width:number, weight:number, height:number, supplier_id:string, cost:number, name_package:string})=>{
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         console.log(item.weight,item.width,item.height,item.Plength)
@@ -637,15 +632,10 @@ const resolvers = {
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       sorted.forEach((item:any) =>{
-        // let itms = item;
         if(item){
-          // console.log("jeeeeeeee",item.supplierId)
-          // console.log("jeeeeeeee",item.Cost)
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           rtrnItem.push({suppId:item.supplierId,cost:item.Cost,name:item.Name})
         }
-        // console.log(itms)
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       })
       
       if(rtrnItem.length > 0){
@@ -847,18 +837,41 @@ const resolvers = {
         packInBox: PackageInABox,
       } = args;
 
-      try {
-        // nefunkcni?
-        NoHtmlSpecialChars(SuppName);
-        ConverNumb(InsuranceValue);
-        ConverBool(
+      // try catch u vsech resolveru
+      // try {
+        if(ConverDate(PickupPoint, isDelivered)?.message){
+          return {
+            __typename: "SupplierError",
+            message: "Provided date is not valid"
+          }
+        }
+
+        if(ConverBool(
           hasFoil,
           hasShippingLabel,
           SendCashOnDelivery,
           PackageInABox,
-        );
-        ConverDate(PickupPoint, isDelivered);
+        ) === true){
+            return{
+              __typename: "SupplierError",
+              message: "Provided data is not in valid format (Ano/Ne)"
+            }
+        }
 
+        if(InsuranceValue < 0){
+          return{
+            __typename: "SupplierError",
+            message: "Insurance cant be less then zero"
+          }
+        }
+
+        if (PickupPoint < isDelivered) {
+          return{
+            __typename: "SupplierError",
+            message: "Pickup cant be longer then delivery"
+          }
+        }
+        
         const Supd = await db
           .collection('Supplier')
           .where('suppName', '==', SuppName)
@@ -866,12 +879,11 @@ const resolvers = {
 
         console.log('size', Supd.size);
 
-        if (PickupPoint < isDelivered) {
-          throw new Error('Pickup cant be longer then delivery');
-        }
-
         if (Supd.size > 0) {
-          throw new Error('Supplier name is not unique');
+          return {
+            __typename: "SupplierError",
+            message: "Supplier name is already in use"
+          }
         }
 
         const newSuppDoc = db.collection('Supplier').doc();
@@ -889,11 +901,15 @@ const resolvers = {
         };
 
         await newSuppDoc.set(newSupp);
-        return newSupp;
-      } catch (error) {
-        console.error('Chyba při vytváření dovozce', error);
-        throw error;
-      }
+
+        return {
+          __typename: "Supp",
+          data:newSupp
+        };
+      // } catch (error) {
+      //   console.error('Chyba při vytváření dovozce', error);
+      //   throw error;
+      // }
     },
     // update
     ChangeActualUsEmToFirestore: async (
@@ -1122,24 +1138,42 @@ const resolvers = {
       } = args;
 
       // lepsi využití erroru
-      try {
+     // predelani erroru
+      // try {
         // kontrola jedinecnych jmen - je
         // validace jmena - castecne
         // validace datumu - je
-        NoHtmlSpecialChars(SuppName);
-        ConverNumb(InsuranceValue);
-        ConverBool(
+        if(ConverDate(PickupPoint, isDelivered)?.message){
+          return {
+            __typename: "SupplierError",
+            message: "Provided date is not valid"
+          }
+        }
+
+        if(ConverBool(
           hasFoil,
           hasShippingLabel,
           SendCashOnDelivery,
           PackageInABox,
-        );
-        ConverDate(PickupPoint, isDelivered);
+        ) === true){
+            return{
+              __typename: "SupplierError",
+              message: "Provided data is not in valid format (Ano/Ne)"
+            }
+        }
 
         const Supd = await db
           .collection('Supplier')
           .where('supplierId', '==', id)
           .get();
+
+          
+        if (Supd.size === 0) {
+          return {
+          __typename: "SupplierError",
+          message: "Supplier not found"
+        }
+      }
 
         const SupplierDoc = await db
           .collection('Supplier').get()
@@ -1150,16 +1184,27 @@ const resolvers = {
 
         const duplicateSupp = docsWithoutCurrentSupp.find((item) => item.suppName === SuppName)
 
-        if (Supd.size === 0) {
-          throw new Error('Supplier not found');
-        }
-        if (PickupPoint < isDelivered) {
-          throw new Error('Pickup cant be longer then delivery');
-        }
         if (duplicateSupp) {
-          throw new Error('Supplier name is not unique');
+          return {
+            __typename: "SupplierError",
+            message: "Supplier name is already in use"
+          }
         }
-        else {
+
+        if (PickupPoint < isDelivered) {
+          return {
+            __typename: "SupplierError",
+            message: "Pickup cant be longer then delivery"
+          }
+        }
+
+        if(InsuranceValue < 0){
+          return{
+            __typename: "SupplierError",
+            message: "Insurance cant be less then zero"
+          }
+        }
+        
           Supd.forEach(async (doc) => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             await doc.ref.update({
@@ -1173,9 +1218,9 @@ const resolvers = {
               foil: hasFoil,
             });
           })
-        }
+        
 
-        return {
+        const newSupp = {
           sendCashDelivery: SendCashOnDelivery,
           packInBox: PackageInABox,
           suppName: SuppName,
@@ -1183,13 +1228,19 @@ const resolvers = {
           delivery: isDelivered,
           insurance: InsuranceValue,
           shippingLabel: hasShippingLabel,
-          foil: hasFoil
+          foil: hasFoil,
+          supplierId:id
         }
 
-      } catch (error) {
-        console.error('Chyba při update dovozce', error);
-        throw error;
-      }
+        return {
+          __typename: "Supp",
+          data:newSupp
+        };
+
+      // } catch (error) {
+      //   console.error('Chyba při update dovozce', error);
+      //   throw error;
+      // }
     },
     deletePack: async (parent_: any, args: { key: string, suppId: string }) => {
       // Mazaní vice pack najednou neni mozne

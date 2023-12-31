@@ -85,7 +85,9 @@ const Odstavec = (
       {odstavec2}
       {odstavec3}
       <p>
-        Pojištění <strong>do {insurance} Kč v ceně</strong>
+        {insurance > 0
+          ? `Pojištění do ${insurance} Kč v ceně`
+          : 'Bez pojištění'}
       </p>
       {odstavec4}
     </div>

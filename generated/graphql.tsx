@@ -226,8 +226,15 @@ export type Suitable = {
   suitable: Scalars['String'];
 };
 
-export type Supplier = {
-  __typename?: 'Supplier';
+export type Supp = {
+  __typename?: 'Supp';
+  data?: Maybe<SupplierData>;
+};
+
+export type Supplier = Supp | SupplierError;
+
+export type SupplierData = {
+  __typename?: 'SupplierData';
   delivery: Scalars['String'];
   foil: Scalars['String'];
   insurance: Scalars['Int'];
@@ -237,6 +244,11 @@ export type Supplier = {
   shippingLabel: Scalars['String'];
   suppName: Scalars['String'];
   supplierId: Scalars['String'];
+};
+
+export type SupplierError = {
+  __typename?: 'SupplierError';
+  message: Scalars['String'];
 };
 
 export type User = {
@@ -350,7 +362,7 @@ export type NewSupplierToFirestoreMutationVariables = Exact<{
 }>;
 
 
-export type NewSupplierToFirestoreMutation = { __typename?: 'Mutation', SupplierToFirestore?: { __typename?: 'Supplier', sendCashDelivery: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, supplierId: string, foil: string } | null };
+export type NewSupplierToFirestoreMutation = { __typename?: 'Mutation', SupplierToFirestore?: { __typename?: 'Supp', data?: { __typename?: 'SupplierData', sendCashDelivery: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } | null } | { __typename?: 'SupplierError', message: string } | null };
 
 export type UpdatePackageMutationVariables = Exact<{
   Hmotnost: Scalars['Int'];
@@ -380,7 +392,7 @@ export type UpdateSupplierMutationVariables = Exact<{
 }>;
 
 
-export type UpdateSupplierMutation = { __typename?: 'Mutation', updateSup?: { __typename?: 'Supplier', sendCashDelivery: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } | null };
+export type UpdateSupplierMutation = { __typename?: 'Mutation', updateSup?: { __typename?: 'Supp', data?: { __typename?: 'SupplierData', sendCashDelivery: string, supplierId: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } | null } | { __typename?: 'SupplierError', message: string } | null };
 
 export type PackageDataQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -720,15 +732,21 @@ export const NewSupplierToFirestoreDocument = gql`
     sendCashDelivery: $SendCashDelivery
     packInBox: $packInBox
   ) {
-    sendCashDelivery
-    packInBox
-    suppName
-    pickUp
-    delivery
-    insurance
-    shippingLabel
-    supplierId
-    foil
+    ... on Supp {
+      data {
+        sendCashDelivery
+        packInBox
+        suppName
+        pickUp
+        delivery
+        insurance
+        shippingLabel
+        foil
+      }
+    }
+    ... on SupplierError {
+      message
+    }
   }
 }
     `;
@@ -835,14 +853,22 @@ export const UpdateSupplierDocument = gql`
     suppId: $SuppId
     actNameSupp: $ActNameSupp
   ) {
-    sendCashDelivery
-    packInBox
-    suppName
-    pickUp
-    delivery
-    insurance
-    shippingLabel
-    foil
+    ... on Supp {
+      data {
+        sendCashDelivery
+        supplierId
+        packInBox
+        suppName
+        pickUp
+        delivery
+        insurance
+        shippingLabel
+        foil
+      }
+    }
+    ... on SupplierError {
+      message
+    }
   }
 }
     `;

@@ -1,4 +1,4 @@
-// eslint-disable-next-line unicorn/filename-case
+import router from 'next/router';
 import * as React from 'react';
 import Select from 'react-select';
 
@@ -6,10 +6,61 @@ import { useNewSupplierToFirestoreMutation } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
 
+const IsYesOrNo = (
+  stringnU1: string,
+  stringnU2: string,
+  stringnU3: string,
+  stringnU4: string,
+) => {
+  console.log(stringnU1);
+  console.log(stringnU2);
+  console.log(stringnU3);
+  console.log(stringnU4);
+
+  if (!['Ano', 'Ne'].includes(stringnU1)) {
+    // eslint-disable-next-line sonarjs/no-duplicate-string
+    console.log('co kontroliujeme?', stringnU1);
+    return true;
+  }
+  if (!['Ano', 'Ne'].includes(stringnU2)) {
+    console.log('co kontroliujeme?', stringnU2);
+    return true;
+  }
+  if (!['Ano', 'Ne'].includes(stringnU3)) {
+    console.log('co kontroliujeme?', stringnU3);
+    return true;
+  }
+  if (!['Ano', 'Ne'].includes(stringnU4)) {
+    console.log('co kontroliujeme?', stringnU4);
+    return true;
+  }
+  return false;
+};
+
+const IsNumber = (
+  // kontrola na zaporne hodnoty - je
+  stringToNum: string,
+) => {
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return, prettier/prettier
+  if(Number.isSafeInteger(stringToNum) || Number(stringToNum) >= 0 && Number(stringToNum) <= Number.MAX_SAFE_INTEGER) {return true}
+  return false;
+};
+
+const ValidDateForm = (dateU1: any) => {
+  // eslint-disable-next-line no-constant-condition, @typescript-eslint/no-unsafe-argument
+  const option = /^\d{4}(?:-\d{1,2}){2}$/;
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+  if (!option.test(dateU1)) {
+    return false;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return true;
+};
+
 export const FormSupplier = () => {
   const options = [
-    { value: 'true', label: 'Ano' },
-    { value: 'false', label: 'Ne' },
+    { value: 'Ano', label: 'Ano' },
+    { value: 'Ne', label: 'Ne' },
   ];
 
   const [SDelivery, SetDelivery] = React.useState(' ');
@@ -24,6 +75,33 @@ export const FormSupplier = () => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [newSupp] = useNewSupplierToFirestoreMutation();
 
+  const Valid = (
+    pickUparg: string,
+    Deliveryarg: string,
+    Insurancearg: string,
+    SendCashDeliveryarg: string,
+    Foilarg: string,
+    ShippingLabelarg: string,
+    packInBoxarg: string,
+    // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
+  ) => {
+    if (!IsNumber(Insurancearg)) {
+      return new Error('Invalid argument, expext number');
+    }
+
+    // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+    if (
+      IsYesOrNo(SendCashDeliveryarg, Foilarg, ShippingLabelarg, packInBoxarg)
+    ) {
+      return new Error('Provided data is not in valid format (Ano/Ne)');
+    }
+
+    // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+    if (!ValidDateForm(Deliveryarg) || !ValidDateForm(pickUparg)) {
+      return new Error('Date is not valid');
+    }
+  };
+
   // const MyComponent = (onChangeS: any) => (
   //   <Select
   //     className={styles.selectInput}
@@ -33,13 +111,11 @@ export const FormSupplier = () => {
   //     required
   //   />
   // );
+
   const MyComponentFoil = () => (
     <Select
       className={styles.selectInput}
-      onChange={(selectedOption: any) =>
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-        SetFoil(selectedOption.value)
-      }
+      onChange={(selectedOption: any) => SetFoil(selectedOption.value)}
       options={options}
       required
     />
@@ -49,7 +125,6 @@ export const FormSupplier = () => {
     <Select
       className={styles.selectInput}
       onChange={(selectedOption: any) =>
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
         SetsendCashDelivery(selectedOption.value)
       }
       options={options}
@@ -60,10 +135,7 @@ export const FormSupplier = () => {
   const MyComponentPackInB = () => (
     <Select
       className={styles.selectInput}
-      onChange={(selectedOption: any) =>
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-        SetPackInBox(selectedOption.value)
-      }
+      onChange={(selectedOption: any) => SetPackInBox(selectedOption.value)}
       options={options}
       required
     />
@@ -72,52 +144,64 @@ export const FormSupplier = () => {
   const MyComponentShippingL = () => (
     <Select
       className={styles.selectInput}
-      onChange={(selectedOption: any) =>
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-        SetShippingLabel(selectedOption.value)
-      }
+      onChange={(selectedOption: any) => SetShippingLabel(selectedOption.value)}
       options={options}
       required
     />
   );
-  // validace dat
-  // eslint-disable-next-line unicorn/consistent-function-scoping
-  const Convert = (stringToNum: string) => {
-    const numberFrString = 0;
-    if (!Number.parseInt(stringToNum, numberFrString)) {
-      alert('Invalid number argument');
-    }
-    return Number.parseInt(stringToNum, numberFrString);
-  };
-
-  const ConverDate = (dateU1: any) => {
-    // eslint-disable-next-line no-constant-condition, @typescript-eslint/no-unsafe-argument
-    if (!new Date(dateU1)) {
-      alert('Invalid date argument');
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return dateU1;
-  };
 
   const handleForm = async (event: React.FormEvent) => {
-    // lepsi informovani o chybe
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     event.preventDefault();
-    // Mutation
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    await newSupp({
-      variables: {
-        SupName: SupplierName,
-        pickUp: ConverDate(PickUp),
-        Delivery: ConverDate(SDelivery),
-        Insurance: Convert(SInsurance),
-        SendCashDelivery: SSendCashDelivery,
-        Foil: SFoil,
-        ShippingLabel: SShippingLabel,
-        packInBox: SPackInBox,
-      },
-    });
-    alert('Dodavatel byl vytvořen');
+    const valid = Valid(
+      PickUp,
+      SDelivery,
+      SInsurance.toString(),
+      SSendCashDelivery,
+      SFoil,
+      SShippingLabel,
+      SPackInBox,
+    )?.message;
+    if (valid) {
+      alert(valid);
+    } else {
+      await newSupp({
+        variables: {
+          SupName: SupplierName,
+          pickUp: PickUp,
+          Delivery: SDelivery,
+          Insurance: Number(SInsurance),
+          SendCashDelivery: SSendCashDelivery,
+          Foil: SFoil,
+          ShippingLabel: SShippingLabel,
+          packInBox: SPackInBox,
+        },
+      })
+        // eslint-disable-next-line consistent-return
+        .then((result) => {
+          const err = result.data?.SupplierToFirestore?.message;
+          const data = result.data?.SupplierToFirestore?.data;
+
+          console.log(data);
+          // eslint-disable-next-line promise/always-return
+          if (data) {
+            alert(`Dodavatel byl vytvořen s parametry: Doručení: ${
+              data.delivery
+            },
+              Zabalení do folie: ${data.foil},
+              Pojištění: ${data.insurance > 0 ?? 'bez pojištění'},
+              Balíček do krabice: ${data.packInBox},
+              Vyzvednutí: ${data.pickUp},
+              Na dobírku: ${data.sendCashDelivery},
+              Štítek přiveze kurýr: ${data.shippingLabel},
+              Jméno dopravce: ${data.suppName}`);
+            return router.push(`/../../admin-page`);
+          }
+          alert(err);
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    }
   };
 
   return (
@@ -135,9 +219,7 @@ export const FormSupplier = () => {
           Create supplier
         </h1>
         <form onSubmit={handleForm} className={styles.form}>
-          {/* <hr> */}
           <div className={styles.divinput}>
-            {' '}
             <label>
               <p className={styles.Odstavce}>Supplier name</p>
               <input
@@ -195,7 +277,6 @@ export const FormSupplier = () => {
             </label>
           </div>
           <div className={styles.divinput}>
-            {' '}
             <label>
               <p className={styles.Odstavce}>Folie</p>
               {MyComponentFoil()}
@@ -213,7 +294,5 @@ export const FormSupplier = () => {
         </form>
       </div>
     </div>
-
-    // </Box>
   );
 };

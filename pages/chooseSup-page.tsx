@@ -111,18 +111,17 @@ export default function Home() {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await suitableSupp({
       variables: {
-        Width: Number(width) ?? plength,
-        Weight: Number(weight) ?? plength,
-        Height: Number(height) ?? plength,
+        Width: Number(width) ?? width,
+        Weight: Number(weight) ?? weight,
+        Height: Number(height) ?? height,
         Length: Number(plength) ?? plength,
       },
     })
       .then((res) => {
         // eslint-disable-next-line promise/always-return
-        if (res.data?.BingoSupPac.suitable) {
+        if (res.data?.BingoSupPac?.suitable) {
           console.log('ssss', res.data?.BingoSupPac?.suitable);
           const data = JSON.parse(res.data?.BingoSupPac?.suitable);
-          // console.log('dddddddddddddddddddddata', data);
           SetData(data);
         } else {
           // eslint-disable-next-line no-alert

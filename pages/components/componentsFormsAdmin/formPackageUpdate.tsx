@@ -116,6 +116,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       routerToPage = `/../../admpage/${suppId}`;
     }
 
+    // mozný dementní reseni
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return router.push(routerToPage || '/');
   };

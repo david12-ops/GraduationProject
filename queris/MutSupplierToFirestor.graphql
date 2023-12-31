@@ -3,14 +3,20 @@ mutation NewSupplierToFirestore($SupName:String!, $Delivery:String!, $pickUp:Str
     SupplierToFirestore(supplierName:$SupName, delivery:$Delivery, 
     shippingLabel:$ShippingLabel, pickUp:$pickUp, foil:$Foil, 
     insurance:$Insurance, sendCashDelivery:$SendCashDelivery, packInBox:$packInBox){
-        sendCashDelivery
-        packInBox
-        suppName
-        pickUp
-        delivery
-        insurance
-        shippingLabel
-        supplierId
-        foil
+        ... on Supp {
+            data{
+                sendCashDelivery,
+                packInBox,
+                suppName,
+                pickUp,
+                delivery,
+                insurance,
+                shippingLabel,
+                foil,
+            }
+        }
+        ... on SupplierError {
+            message
+        }
     }
 }

@@ -1,4 +1,6 @@
+/* eslint-disable prettier/prettier */
 // eslint-disable-next-line unicorn/filename-case
+import router from 'next/router';
 import * as React from 'react';
 import { useEffect } from 'react';
 import Select from 'react-select';
@@ -21,53 +23,69 @@ type Props = {
 // nefunguje kontrola na regex u jmena
 // udelat kontroly i na frontend - pozivani graphql erroru
 // refetche query!!!
-const NoHtmlSpecialChars = (ustring: string) => {
-  // zakladni - mozne pouziti cheerio or htmlparser2
-  // const htmlRegex = /<[^>]*>$/;
-  const option = /<[^>]*>/;
-  if (option.test(ustring)) {
-    return alert('HTML code is not supported (<text></text>');
+
+const IsYesOrNo = (
+  stringnU1: string,
+  stringnU2: string,
+  stringnU3: string,
+  stringnU4: string,
+) => {
+  console.log(stringnU1);
+  console.log(stringnU2);
+  console.log(stringnU3);
+  console.log(stringnU4);
+
+  if (!['Ano', 'Ne'].includes(stringnU1)) {
+    // eslint-disable-next-line sonarjs/no-duplicate-string
+    console.log('co kontroliujeme?', stringnU1);
+    return true;
   }
+  if (!['Ano', 'Ne'].includes(stringnU2)) {
+    console.log('co kontroliujeme?', stringnU2);
+    return true;
+  }
+  if (!['Ano', 'Ne'].includes(stringnU3)) {
+    console.log('co kontroliujeme?', stringnU3);
+    return true;
+  }
+  if (!['Ano', 'Ne'].includes(stringnU4)) {
+    console.log('co kontroliujeme?', stringnU4);
+    return true;
+  }
+  return false;
 };
 
-const ConverDate = (dateU: string) => {
-  // eslint-disable-next-line unicorn/better-regex
-  NoHtmlSpecialChars(dateU);
-  console.log(dateU);
-  // eslint-disable-next-line unicorn/better-regex
-  const option = /^[0-9]{4}[-][0-9]{1,2}[-][0-9]{1,2}$/;
-  if (option.test(dateU)) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, unicorn/prefer-string-slice, @typescript-eslint/restrict-plus-operands
-    const dateParts = dateU.split('-');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const middleNumber = Number.parseInt(dateParts[1], 10);
-    if (middleNumber > 12 || Number.parseInt(dateParts[2], 10) > 32) {
-      return alert('Invalid argument of month in date or day');
-    }
-  } else {
-    return alert('Invalid argument of date');
-  }
+const IsNumber = (
+  // kontrola na zaporne hodnoty - je
+  stringToNum: string,
+) => {
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+  if(Number.isSafeInteger(stringToNum) || Number(stringToNum) >= 0 && Number(stringToNum) <= Number.MAX_SAFE_INTEGER) {return true}
+  return false
 };
 
-const Convert = (stringToNum: string) => {
-  const numberFrString = 0;
-  if (!Number.parseInt(stringToNum, numberFrString)) {
-    return new Error('Invalid argument');
+const ValidDateForm = (dateU1: any) => {
+  // eslint-disable-next-line no-constant-condition, @typescript-eslint/no-unsafe-argument
+  const option = /^\d{4}(?:-\d{1,2}){2}$/;
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+  if (!option.test(dateU1)) {
+    return false;
   }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return true;
 };
 
 export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const options = [
-    { value: true, label: 'Ano' },
-    { value: false, label: 'Ne' },
+    { value: 'Ano', label: 'Ano' },
+    { value: 'Ne', label: 'Ne' },
   ];
-  // upravit ! kod z create form
 
   const [SDelivery, SetDelivery] = React.useState(' ');
   const [SSendCashDelivery, SetsendCashDelivery] = React.useState('');
   const [SPackInBox, SetPackInBox] = React.useState('');
   const [PickUp, SetPickUp] = React.useState('');
-  const [SInsurance, SetInsurance] = React.useState('');
+  const [SInsurance, SetInsurance] = React.useState("");
   const [SShippingLabel, SetShippingLabel] = React.useState('');
   const [SFoil, SetFoil] = React.useState('');
   const [SsuppId, SetSsuppId] = React.useState('');
@@ -103,13 +121,38 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       }
     }
   }, [id, supData.data]);
+
+  const Valid = (
+    pickUparg: string,
+    Deliveryarg: string,
+    Insurancearg: string,
+    SendCashDeliveryarg: string,
+    Foilarg: string,
+    ShippingLabelarg: string,
+    packInBoxarg: string,
+    // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
+  ) => {
+    if (!IsNumber(Insurancearg)) {
+      return new Error('Invalid argument, expext number');
+    }
+
+    // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+    if (
+      IsYesOrNo(SendCashDeliveryarg, Foilarg, ShippingLabelarg, packInBoxarg)
+    ) {
+      return new Error('Provided data is not in valid format (Ano/Ne)');
+    }
+
+    // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+    if (!ValidDateForm(Deliveryarg) || !ValidDateForm(pickUparg)) {
+      return new Error('Date is not valid');
+    }
+  };
+
   const MyComponentFoil = () => (
     <Select
       className={styles.selectInput}
-      onChange={(selectedOption: any) =>
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-        SetFoil(selectedOption.value === true ? 'Ano' : 'Ne')
-      }
+      onChange={(selectedOption: any) => SetFoil(selectedOption.value)}
       options={options}
       required
       placeholder={SFoil === 'Ano' ? 'Ano' : 'Ne'}
@@ -120,8 +163,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     <Select
       className={styles.selectInput}
       onChange={(selectedOption: any) =>
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-        SetsendCashDelivery(selectedOption.value === true ? 'Ano' : 'Ne')
+        SetsendCashDelivery(selectedOption.value)
       }
       options={options}
       placeholder={SSendCashDelivery === 'Ano' ? 'Ano' : 'Ne'}
@@ -132,10 +174,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const MyComponentPackInB = () => (
     <Select
       className={styles.selectInput}
-      onChange={(selectedOption: any) =>
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-        SetPackInBox(selectedOption.value === true ? 'Ano' : 'Ne')
-      }
+      onChange={(selectedOption: any) => SetPackInBox(selectedOption.value)}
       options={options}
       placeholder={SPackInBox === 'Ano' ? 'Ano' : 'Ne'}
       required
@@ -145,10 +184,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const MyComponentShippingL = () => (
     <Select
       className={styles.selectInput}
-      onChange={(selectedOption: any) =>
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-        SetShippingLabel(selectedOption.value === true ? 'Ano' : 'Ne')
-      }
+      onChange={(selectedOption: any) => SetShippingLabel(selectedOption.value)}
       options={options}
       placeholder={SShippingLabel === 'Ano' ? 'Ano' : 'Ne'}
       required
@@ -156,13 +192,21 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   );
 
   const handleForm = async (event: React.FormEvent) => {
-    // lepsi informovani o chybe
     // Apolo exepciton/error - bad return of vlaue from field
-    // prirazeni id
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     event.preventDefault();
-    try {
-      <div>{Convert(SupplierName)?.message}</div>;
+
+    const valid = Valid(
+      PickUp,
+      SDelivery,
+      SInsurance.toString(),
+      SSendCashDelivery,
+      SFoil,
+      SShippingLabel,
+      SPackInBox,
+    )?.message;
+    if (valid) {
+      alert(valid);
+    } else {
       await UpdateSupp({
         variables: {
           SupName: SupplierName,
@@ -170,22 +214,39 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           pickUp: PickUp,
           ShippingLabel: SShippingLabel,
           Foil: SFoil,
-          Insurance: Number(SInsurance) ?? 0,
+          Insurance: Number(SInsurance),
           SendCashDelivery: SSendCashDelivery,
           packInBox: SPackInBox,
           SuppId: SsuppId,
           ActNameSupp: ActualSupplierName,
         },
-      });
-    } catch (error) {
-      console.log(error);
+      })
+        // eslint-disable-next-line consistent-return
+        .then((result) => {
+          const err = result.data?.updateSup?.message;
+          const data = result.data?.updateSup?.data;
+
+          console.log(data);
+          // eslint-disable-next-line promise/always-return
+          if (data) {
+            alert(`Dodavatel byl vytvořen s parametry: Doručení: ${
+              data.delivery
+            },
+              Zabalení do folie: ${data.foil},
+              Pojištění: ${data.insurance > 0 ?? 'bez pojištění'},
+              Balíček do krabice: ${data.packInBox},
+              Vyzvednutí: ${data.pickUp},
+              Na dobírku: ${data.sendCashDelivery},
+              Štítek přiveze kurýr: ${data.shippingLabel},
+              Jméno dopravce: ${data.suppName}`);
+            return router.push(`/../../admpage/${data.supplierId}`);
+          }
+          alert(err);
+        })
+        .catch((error) => {
+          alert(error);
+        });
     }
-    // Mutation
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    // return router.push(
-    //   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    //   `/../../admpage/${SsuppId}`,
-    // );
   };
 
   return (
@@ -246,7 +307,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
                 className={styles.inputForSupp}
                 onChange={(e) => SetInsurance(e.target.value)}
                 required
-                type="text"
+                type="number"
                 value={SInsurance}
               />
             </label>
@@ -279,7 +340,5 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         </form>
       </div>
     </div>
-
-    // </Box>
   );
 };
