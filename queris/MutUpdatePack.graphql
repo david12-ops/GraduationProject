@@ -1,12 +1,18 @@
 mutation UpdatePackage($Hmotnost:Int!, $Cost:Int!, $Delka:Int!,$Vyska:Int!,$Sirka:Int!, $Pack_name: String!, $PackKey:String!, $SuppId:String!){
     updatePack(PackKey:$PackKey, weight: $Hmotnost, cost:$Cost, Plength: $Delka, height:$Vyska, width:$Sirka, name_package:$Pack_name, supplier_id:$SuppId){
-      weight
-      cost
-      Plength
-      height
-      width
-      name_package
-      supplier_id
-      error
+      ... on UPack {
+          data{
+            weight
+            cost
+            Plength
+            height
+            width
+            name_package
+            supplier_id
+          }
+        }
+      ... on PackageUpdateError {
+        message
+      }
     }
 }

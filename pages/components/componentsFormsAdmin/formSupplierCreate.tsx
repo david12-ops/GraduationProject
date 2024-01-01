@@ -70,7 +70,6 @@ export const FormSupplier = () => {
   const [SInsurance, SetInsurance] = React.useState('');
   const [SShippingLabel, SetShippingLabel] = React.useState('');
   const [SFoil, SetFoil] = React.useState('');
-  // const [PackageId, SetPackageId] = React.useState(' ');
   const [SupplierName, SetSupplierName] = React.useState(' ');
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [newSupp] = useNewSupplierToFirestoreMutation();
@@ -86,7 +85,9 @@ export const FormSupplier = () => {
     // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
   ) => {
     if (!IsNumber(Insurancearg)) {
-      return new Error('Invalid argument, expext number');
+      return new Error(
+        'Invalid argument, provided argument is not number or negative number',
+      );
     }
 
     // eslint-disable-next-line sonarjs/prefer-single-boolean-return
@@ -150,6 +151,7 @@ export const FormSupplier = () => {
     />
   );
 
+  // eslint-disable-next-line consistent-return
   const handleForm = async (event: React.FormEvent) => {
     event.preventDefault();
     const valid = Valid(
@@ -164,7 +166,7 @@ export const FormSupplier = () => {
     if (valid) {
       alert(valid);
     } else {
-      await newSupp({
+      const result = await newSupp({
         variables: {
           SupName: SupplierName,
           pickUp: PickUp,
@@ -177,30 +179,37 @@ export const FormSupplier = () => {
         },
       })
         // eslint-disable-next-line consistent-return
-        .then((result) => {
-          const err = result.data?.SupplierToFirestore?.message;
-          const data = result.data?.SupplierToFirestore?.data;
+        .then((res) => {
+          return res;
+        })
+        .catch((error) => {
+          return { err: error };
+        });
 
-          console.log(data);
-          // eslint-disable-next-line promise/always-return
-          if (data) {
-            alert(`Dodavatel byl vytvořen s parametry: Doručení: ${
-              data.delivery
-            },
+      const err = result.data?.SupplierToFirestore?.message;
+      const data = result.data?.SupplierToFirestore?.data;
+
+      if (result.err) {
+        return alert(result.err);
+      }
+
+      // eslint-disable-next-line promise/always-return
+      if (data) {
+        alert(`Dodavatel byl vytvořen s parametry: Doručení: ${data.delivery},
               Zabalení do folie: ${data.foil},
-              Pojištění: ${data.insurance > 0 ?? 'bez pojištění'},
+              Pojištění: ${
+                data.insurance > 0 ? data.insurance : 'bez pojištění'
+              },
               Balíček do krabice: ${data.packInBox},
               Vyzvednutí: ${data.pickUp},
               Na dobírku: ${data.sendCashDelivery},
               Štítek přiveze kurýr: ${data.shippingLabel},
               Jméno dopravce: ${data.suppName}`);
-            return router.push(`/../../admin-page`);
-          }
-          alert(err);
-        })
-        .catch((error) => {
-          alert(error);
-        });
+        return router.push(`/../../admin-page`);
+        // eslint-disable-next-line no-else-return
+      } else {
+        return alert(err);
+      }
     }
   };
 

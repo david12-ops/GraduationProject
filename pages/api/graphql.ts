@@ -47,7 +47,7 @@ const typeDefs = gql`
       name_package: String!
       supplier_id:String!
       packId:String!
-    ): PackageData
+    ): CreatedPack
 
     updatePack(
       weight: Int!
@@ -58,7 +58,7 @@ const typeDefs = gql`
       name_package: String!
       PackKey: String!
       supplier_id: String!
-    ): PackageDataUpdate
+    ): UpdatedPack
 
     SupplierToFirestore(
       supplierName: String!
@@ -113,19 +113,9 @@ const typeDefs = gql`
 
   union SuitValue = Suitable | ErrorMessage
 
-  type User {
-    name: String
-  }
-
   type Delete {
     error: String
     deletion:Boolean!
-  }
-
-  type GithubUser {
-    id: ID!
-    login: String!
-    avatarUrl: String!
   }
 
   type SupplierData {
@@ -145,21 +135,10 @@ const typeDefs = gql`
   }
 
   type Supp {
-    data: SupplierData
+    data: SupplierData!
   }
 
   union Supplier = Supp | SupplierError
-
-  type UserData {
-    dataUs: String!
-    email: String!
-    historyId: Int!
-    supplierId: Int!
-  }
-
-  type UserChangeEmData {
-    email: String!
-  }
 
   type QueryPackD {
     Pkam: String!
@@ -189,7 +168,11 @@ const typeDefs = gql`
     package:JSON
   }
 
-  type PackageData {
+  type PackageError{
+    message:String!
+  }
+
+  type PackageDataCreate {
     weight: Int!
     cost: Int!
     Plength: Int!
@@ -197,9 +180,14 @@ const typeDefs = gql`
     width: Int!
     name_package: String!
     packgeId: String!
-    error:String
     supplier_id:String!
   }
+
+  type Pack{
+    data:PackageDataCreate!
+  }
+
+  union CreatedPack = Pack | PackageError
 
   type PackageDataUpdate {
     weight:Int!
@@ -209,7 +197,37 @@ const typeDefs = gql`
     width:Int!
     name_package:String!
     supplier_id:String!
-    error:String!
+  }
+
+  type UPack{
+    data: PackageDataUpdate!
+  }
+
+  type PackageUpdateError{
+    message:String!
+  }
+
+  union UpdatedPack = UPack | PackageUpdateError
+
+  type User {
+    name: String
+  }
+
+  type GithubUser {
+    id: ID!
+    login: String!
+    avatarUrl: String!
+  }
+
+  type UserData {
+    dataUs: String!
+    email: String!
+    historyId: Int!
+    supplierId: Int!
+  }
+
+  type UserChangeEmData {
+    email: String!
   }
 
   type CardValue {
@@ -242,74 +260,73 @@ const db = firestore();
 // }
 
 // Validace pro package
-const Convert = (
-  // kontrola na zaporne hodnoty - je
-  stringToNum: any,
-  stringToNum2: any,
-  stringToNum3: any,
-  stringToNum4: any,
-  stringToNum5: any,
-) => {
-  let error = "";
-  if (
-    !Number.isSafeInteger(stringToNum) ||
-    !Number.isSafeInteger(stringToNum2) ||
-    !Number.isSafeInteger(stringToNum3) ||
-    !Number.isSafeInteger(stringToNum4) ||
-    !Number.isSafeInteger(stringToNum5)
-  ) {
-    error = 'Invalid number argument';
-  }
+// const Convert = (
+//   // kontrola na zaporne hodnoty - je
+//   stringToNum: any,
+//   stringToNum2: any,
+//   stringToNum3: any,
+//   stringToNum4: any,
+//   stringToNum5: any,
+// ) => {
+//   let error = "";
+//   if (
+//     !Number.isSafeInteger(stringToNum) ||
+//     !Number.isSafeInteger(stringToNum2) ||
+//     !Number.isSafeInteger(stringToNum3) ||
+//     !Number.isSafeInteger(stringToNum4) ||
+//     !Number.isSafeInteger(stringToNum5)
+//   ) {
+//     error = 'Invalid number argument';
+//   }
 
-  if (
-    stringToNum < 0 ||
-    stringToNum2 < 0 ||
-    stringToNum3 < 0 ||
-    stringToNum4 < 0 ||
-    stringToNum5 < 0
-  ) {
-    error = 'Invalid number, argument is less then 0';
-  }
+//   if (
+//     stringToNum < 0 ||
+//     stringToNum2 < 0 ||
+//     stringToNum3 < 0 ||
+//     stringToNum4 < 0 ||
+//     stringToNum5 < 0
+//   ) {
+//     error = 'Invalid number, argument is less then 0';
+//   }
 
-  return error;
-};
+//   return error;
+// };
 
 // validace psc - je
 // validace adresy - neni
-// string v resolveru
-const PSCVal = (psc: string, psc2: string) => {
-  NoHtmlSpecialChars(psc);
-  NoHtmlSpecialChars(psc2);
-  // kontrola psc aby nebyli === - je
-  // eslint-disable-next-line unicorn/better-regex
-  const option = /^[0-9]{3} ?[0-9]{2}$/;
-  if (!option.test(psc) || !option.test(psc2)) {
-    throw new Error('Invalid psc argument');
-  }
-  if (psc === psc2) {
-    throw new Error(
-      'Invalid psc, argument of first psc doesnt be same like second',
-    );
-  }
-};
+// const PSCVal = (psc: string, psc2: string) => {
+//   NoHtmlSpecialChars(psc);
+//   NoHtmlSpecialChars(psc2);
+//   // kontrola psc aby nebyli === - je
+//   // eslint-disable-next-line unicorn/better-regex
+//   const option = /^[0-9]{3} ?[0-9]{2}$/;
+//   if (!option.test(psc) || !option.test(psc2)) {
+//     throw new Error('Invalid psc argument');
+//   }
+//   if (psc === psc2) {
+//     throw new Error(
+//       'Invalid psc, argument of first psc doesnt be same like second',
+//     );
+//   }
+// };
 
 // funkcni
-const AddressVal = (address: string, address2: string) => {
-  NoHtmlSpecialChars(address);
-  NoHtmlSpecialChars(address2);
-  // nepodporuje diakritiku!!
-  // nemetchuje Mechov 521, Hradec Kralove
-  // eslint-disable-next-line unicorn/better-regex
-  const option = /^[A-Z][a-z]+ [0-9]{1,3}, [A-Z][a-z]+$/;
-  if (!option.test(address) || !option.test(address2)) {
-    throw new Error('Invalid address argument');
-  }
-  if (address === address2) {
-    throw new Error(
-      'Invalid address, argument of first address doesnt be same like second',
-    );
-  }
-};
+// const AddressVal = (address: string, address2: string) => {
+//   NoHtmlSpecialChars(address);
+//   NoHtmlSpecialChars(address2);
+//   // nepodporuje diakritiku!!
+//   // nemetchuje Mechov 521, Hradec Kralove
+//   // eslint-disable-next-line unicorn/better-regex
+//   const option = /^[A-Z][a-z]+ [0-9]{1,3}, [A-Z][a-z]+$/;
+//   if (!option.test(address) || !option.test(address2)) {
+//     throw new Error('Invalid address argument');
+//   }
+//   if (address === address2) {
+//     throw new Error(
+//       'Invalid address, argument of first address doesnt be same like second',
+//     );
+//   }
+// };
 
 // validace pro supplier
 const ConverBool = (
@@ -343,12 +360,12 @@ const ConverBool = (
   return false
 };
 
-const ConverNumb = (numberU: any) => {
-  if (!Number.isSafeInteger(numberU) || numberU < 0) {
-    // eslint-disable-next-line unicorn/prefer-type-error
-    throw new Error('Invalid argument of number');
-  }
-};
+// const ConverNumb = (numberU: any) => {
+//   if (!Number.isSafeInteger(numberU) || numberU < 0) {
+//     // eslint-disable-next-line unicorn/prefer-type-error
+//     throw new Error('Invalid argument of number');
+//   }
+// };
 
 // funkcni
 const ConverDate = (dateU1: any, dateU2: any) => {
@@ -706,18 +723,36 @@ const resolvers = {
         packId: ID
       } = args;
       // mozné rekurzivní volaní kvuli kontrole duplicitnich id - není
-      // Kontrola jmén - je
-      // udelat unikatnéí id misto packname - je
-      // prideleni k dodavateli - je
-      // validace parametru na duplicitní zaznamy - je
-      // valiadce na duplicitni balik - je
       // Refactorizace kodu, mozne if zbytecné
+
       const { user } = context
-      try {
+      // jeste kontrola admina
+      if (hmotnost < 0 || delka < 0 || vyska < 0 || costPackage < 0 || sirka < 0) {
+        return {
+          __typename: "PackageError",
+          message: "Any of parameter that expect number dont support negative number"
+        }
+      }
+
+      if (hmotnost === 0 || delka === 0 || vyska === 0 || costPackage === 0 || sirka === 0) {
+        return {
+          __typename: "PackageError",
+          message: "Any of parameter that expect number dont support 0"
+        }
+      }
+      // try {
         // vyresit graphql error
         const SupplierDoc = await db
           .collection('Supplier')
           .where('supplierId', '==', supplierId).get();
+
+          if (SupplierDoc.size === 0) {
+            return {
+              __typename: "PackageError",
+              message: "Supplier not found"
+            }
+          }
+
         const supplierDoc = SupplierDoc.docs[0];
         const existingPackages = supplierDoc.data().package || [];
         const dupPackages: any = [];
@@ -731,7 +766,6 @@ const resolvers = {
           width: sirka,
           name_package: packName,
           supplier_id: supplierDoc.id,
-          error: ""
         };
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -762,28 +796,28 @@ const resolvers = {
         console.log("keypack", keyPack)
         console.log("duplicate pack", dupPackages)
 
-        if (Convert(hmotnost, costPackage, delka, vyska, sirka) && !NoHtmlSpecialChars(packName)) {
-          newPackage.error = Convert(hmotnost, costPackage, delka, vyska, sirka);
-        }
-        else if (NoHtmlSpecialChars(packName) && !Convert(hmotnost, costPackage, delka, vyska, sirka)) {
-          newPackage.error = NoHtmlSpecialChars(packName)
-        }
-        else if (NoHtmlSpecialChars(packName) && Convert(hmotnost, costPackage, delka, vyska, sirka)) {
-          newPackage.error = (`${NoHtmlSpecialChars(packName)}\n${Convert(hmotnost, costPackage, delka, vyska, sirka)}`)
-        }
-        // Úprava
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        else if (keyPack.includes(true)) {
-          // ID.repeat(1)
-          newPackage.error = "Name have already another package"
+        if (keyPack.includes(true)) {
+          return {
+            __typename: "PackageError",
+            message: "Duplicate id"
+          }
         }
-        else if (dupName.length > 0) {
-          newPackage.error = "This name is already in use";
+       
+        if (dupName.length > 0) {
+          return {
+            __typename: "PackageError",
+            message: "Name is already in use"
+          }
         }
-        else if (dupPackages.length > 0) {
-          newPackage.error = "This params have alerady another package"
+
+        if (dupPackages.length > 0) {
+          return {
+            __typename: "PackageError",
+            message: "This params have alerady another package"
+          }     
         }
-        else {
+
           const objectPack: { [key: string]: any } = {};
           // eslint-disable-next-line react-hooks/rules-of-hooks
           objectPack[ID] = {
@@ -796,22 +830,22 @@ const resolvers = {
             supplier_id: supplierDoc.id,
           };
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          existingPackages.push(objectPack);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        existingPackages.push(objectPack);
 
-          console.log(existingPackages)
-          await supplierDoc.ref.update({ package: existingPackages });
+        console.log(existingPackages)
+        await supplierDoc.ref.update({ package: existingPackages });        
 
-          return newPackage;
-        }
-
-        console.log('errors', newPackage.error);
         console.log('ssdsds', JSON.stringify(newPackage));
-        return newPackage;
-      } catch (error) {
-        console.error('Chyba při vytváření balíčku:', error);
-        throw error;
-      }
+
+        return {
+          __typename: "Pack",
+          data: newPackage
+        }      
+      // } catch (error) {
+      //   console.error('Chyba při vytváření balíčku:', error);
+      //   throw error;
+      // }
     },
     SupplierToFirestore: async (
       parent_: any,
@@ -997,14 +1031,37 @@ const resolvers = {
         name_package: packName,
         supplier_id: supplierId,
       } = args;
-      try {
+      // try { UPack | PackageError
+
+      if (hmotnost < 0 || delka < 0 || vyska < 0 || costPackage < 0 || sirka < 0) {
+        return {
+          __typename: "PackageUpdateError",
+          message: "Any of parameter that expect number dont support negative number"
+        }
+      }
+
+      if (hmotnost === 0 || delka === 0 || vyska === 0 || costPackage === 0 || sirka === 0) {
+        return {
+          __typename: "PackageUpdateError",
+          message: "Any of parameter that expect number dont support 0"
+        }
+      }
 
         const SupplierDoc = await db
           .collection('Supplier')
           .where('supplierId', '==', supplierId).get();
+
+          if (SupplierDoc.size === 0) {
+            return {
+              __typename: "PackageUpdateError",
+              message: "Supplier not found"
+            }
+          }
+
         const supplierDoc = SupplierDoc.docs[0];
         const existingPackages = supplierDoc.data().package || [];
         const dupPackages: any = [];
+        let dupName = ""
 
         const UpdatePackage = {
           weight: hmotnost,
@@ -1014,24 +1071,27 @@ const resolvers = {
           width: sirka,
           name_package: packName,
           supplier_id: supplierDoc.id,
-          error: ""
         };
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        const keyPack = existingPackages.map((item: any) => {
-          // Vybrat vsechny,Ignorovat updated
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          const keys = Object.keys(item).filter((keyItem) => (keyItem !== id));
-          return keys.includes(packName)
-        })
+        // const keyPack = existingPackages.map((item: any) => {
+        //   // Vybrat vsechny,Ignorovat updated
+        //   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        //   const keys = Object.keys(item).filter((keyItem) => (keyItem !== id));
+        //   return keys.includes(packName)
+        // })
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        existingPackages.filter((item: any) => { return !item[id] }).forEach((item: { [name: string]: { weight: number, height: number, width: number, Plength: number } }) => {
+        existingPackages.filter((item: any) => { return !item[id] }).forEach((item: { [name: string]: { weight: number, height: number, width: number, Plength: number, name_package:string } }) => {
           // Vybrat vsechny,Ignorovat updated
           // jmeno balicku
           const nameItm = Object.keys(item)[0];
           const itm = item[nameItm];
           console.log("itm", itm)
+          // kontrola jmén
+          if (itm.name_package === packName) {
+            dupName = itm.name_package
+          }
           // eslint-disable-next-line @typescript-eslint/no-for-in-array, guard-for-in
           if (itm.weight === UpdatePackage.weight && itm.height === UpdatePackage.height && itm.width === UpdatePackage.width && itm.Plength === UpdatePackage.Plength) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -1039,47 +1099,29 @@ const resolvers = {
             console.log("selected", itm)
           }
         })
-        if (Convert(hmotnost, costPackage, delka, vyska, sirka) && !NoHtmlSpecialChars(packName)) {
-          UpdatePackage.error = Convert(hmotnost, costPackage, delka, vyska, sirka);
+       
+        if (dupName.length > 0) {
+          return {
+            __typename: "PackageUpdateError",
+            message: "Name is already in use"
+          }
         }
-        else if (NoHtmlSpecialChars(packName) && !Convert(hmotnost, costPackage, delka, vyska, sirka)) {
-          UpdatePackage.error = NoHtmlSpecialChars(packName)
-        }
-        else if (NoHtmlSpecialChars(packName) && Convert(hmotnost, costPackage, delka, vyska, sirka)) {
-          UpdatePackage.error = (`${NoHtmlSpecialChars(packName)}\n${Convert(hmotnost, costPackage, delka, vyska, sirka)}`)
-        }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        else if (keyPack.includes(true)) {
-          UpdatePackage.error = "Name have already another package"
-        }
-        // nefunkcní
-        else if (dupPackages.length > 0) {
-          console.log(dupPackages)
-          UpdatePackage.error = "This params have alerady another package"
-        }
-        else {
-          // const objectOldPack: { [key: string]: any } = {};
-          // objectOldPack[actNamePack] = {
-          //   weight: hmotnost,
-          //   cost: costPackage,
-          //   Plength: delka,
-          //   height: vyska,
-          //   width: sirka,
-          //   name_package: packName,
-          //   supplier_id: supplierDoc.id,
-          // };
 
+        if (dupPackages.length > 0) {
+          return {
+            __typename: "PackageUpdateError",
+            message: "This params have alerady another package"
+          }     
+        }
+          
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           existingPackages.forEach((item: { [name: string]: { weight: number, height: number, width: number, Plength: number, cost: number, name_package: string } }) => {
-            //  const nameItm = Object.keys(item)[0];
             // najdi update item 
             const updatetedItem = item;
-            // eslint-disable-next-line sonarjs/no-collapsible-if
 
             // eslint-disable-next-line sonarjs/no-collapsible-if, unicorn/no-lonely-if
             if (updatetedItem[id]) {
               // eslint-disable-next-line unicorn/no-lonely-if, max-depth
-
               console.log("name itm", id)
               updatetedItem[id].weight = hmotnost
               updatetedItem[id].cost = costPackage
@@ -1090,27 +1132,19 @@ const resolvers = {
               console.log("update with same name", updatetedItem[id])
             }
           })
-          // update udelat jinak
-
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          // existingPackages.filter((item:any) => !item[actNamePack]);
 
           console.log(existingPackages)
 
-          // console.log(existingPackages)
-          await supplierDoc.ref.update({ package: existingPackages });
-          // console.log("updated",existingPackages)
-
-          // return UpdatePackage;
-        }
-
-        console.log('errors', UpdatePackage.error);
+        await supplierDoc.ref.update({ package: existingPackages });
         console.log('ssdsds', JSON.stringify(UpdatePackage));
-        return UpdatePackage;
-      } catch (error) {
-        console.error('Chyba při update balíčku', error);
-        throw error;
-      }
+        return {
+          __typename: "UPack",
+          data: UpdatePackage
+        }
+      // } catch (error) {
+      //   console.error('Chyba při update balíčku', error);
+      //   throw error;
+      // }
     },
     updateSup: async (parent_: any, args: {
       supplierName: string;

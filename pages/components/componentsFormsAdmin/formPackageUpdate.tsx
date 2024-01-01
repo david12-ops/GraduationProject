@@ -14,22 +14,13 @@ type Props = {
   id: string;
 };
 
-const NoHtmlSpecialChars = (ustring: string) => {
-  // zakladni - mozne pouziti cheerio or htmlparser2
-  // const htmlRegex = /<[^>]*>$/;
-  const option = /<[^>]*>/;
-  if (option.test(ustring)) {
-    alert('HTML code is not supported (<text></text>');
-  }
-  return ustring;
-};
-
-const Convert = (stringToNum: string) => {
+const IsNumber = (stringToNum: string) => {
   const numberFrString = 0;
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
   if (!Number.parseInt(stringToNum, numberFrString)) {
-    alert('Invalid argument');
+    return false;
   }
-  return Number.parseInt(stringToNum, numberFrString);
+  return numberFrString;
 };
 
 export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
@@ -47,9 +38,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
 
   useEffect(() => {
     if (id && SuppPackages.data && SuppPackages) {
-      // const actualPack = SuppPackages.data?.suplierData.find(
-      //   (actPack) => actPack.package === id,
-      // );
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       SuppPackages.data.suplierData.forEach((item) => {
         // eslint-disable-next-line unicorn/no-negated-condition
@@ -67,7 +55,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
               };
             }) => {
               // jmeno balicku
-              // const nameItm = Object.keys(pack)[0];
               const itm = pack[id];
               console.log('itm', itm);
               // eslint-disable-next-line @typescript-eslint/no-for-in-array, guard-for-in
@@ -87,38 +74,54 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     }
   }, [id, SuppPackages.data]);
 
-  const handleForm = async (event: React.FormEvent) => {
+  const handleForm = async (event?: React.FormEvent) => {
     // lepsi informovani o chybe
-    // route push po formu
     // kontrola zda oznaci nez klikne
-    let routerToPage;
-    event.preventDefault();
+    event?.preventDefault();
     // Mutation
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const updateVal = await UpdatePackage({
+    const result = await UpdatePackage({
       variables: {
-        Hmotnost: Convert(kg),
-        Cost: Convert(cost),
-        Delka: Convert(delka),
-        Vyska: Convert(vyska),
-        Sirka: Convert(sirka),
-        Pack_name: NoHtmlSpecialChars(packName),
+        Hmotnost: Number(kg),
+        Cost: Number(cost),
+        Delka: Number(delka),
+        Vyska: Number(vyska),
+        Sirka: Number(sirka),
+        Pack_name: packName,
         PackKey: id,
         SuppId: suppId,
       },
-    });
-    // vracet s resolveru suppid
-    // zpetne zjisteni supp id
-    if (updateVal.data?.updatePack?.error) {
-      alert(`Balíček nebyl změněn, ${updateVal.data.updatePack.error}`);
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      routerToPage = `/../../admpage/${suppId}`;
-    }
+    })
+      .then((res) => {
+        return res;
+      })
+      .catch((error: string) => {
+        return { err: error };
+      });
 
-    // mozný dementní reseni
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return router.push(routerToPage || '/');
+    const err = result.data.updatePack?.message;
+    const data = result.data.updatePack?.data;
+    console.log(err);
+    if (result.err) {
+      return alert(result.err);
+    }
+    // eslint-disable-next-line no-lonely-if, max-depth
+    if (data) {
+      alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
+            Délka: ${data.Plength},
+            Šířka: ${data.width},
+            Výška: ${data.height},
+            Označení: ${data.name_package}`);
+      return router.push(`/../../admpage/${data.supplier_id}`);
+      // eslint-disable-next-line no-else-return
+    } else {
+      // eslint-disable-next-line max-depth, no-lonely-if
+      if (err === 'Duplicate id') {
+        await handleForm();
+      } else {
+        return alert(err);
+      }
+    }
   };
 
   return (

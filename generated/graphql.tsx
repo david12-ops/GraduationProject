@@ -24,6 +24,8 @@ export type CardValue = {
   title: Scalars['String'];
 };
 
+export type CreatedPack = Pack | PackageError;
+
 export type Delete = {
   __typename?: 'Delete';
   deletion: Scalars['Boolean'];
@@ -47,14 +49,14 @@ export type Mutation = {
   ActualUsToFirestore?: Maybe<UserData>;
   BingoSupPac?: Maybe<SuitValue>;
   ChangeActualUsEmToFirestore?: Maybe<UserChangeEmData>;
-  PackageToFirestore?: Maybe<PackageData>;
+  PackageToFirestore?: Maybe<CreatedPack>;
   Predict?: Maybe<Value>;
   SupplierToFirestore?: Maybe<Supplier>;
   deletePack?: Maybe<Delete>;
   deletePack2?: Maybe<Scalars['Boolean']>;
   deleteSupp?: Maybe<Scalars['Boolean']>;
   deleteSupp2?: Maybe<Scalars['Boolean']>;
-  updatePack?: Maybe<PackageDataUpdate>;
+  updatePack?: Maybe<UpdatedPack>;
   updateSup?: Maybe<Supplier>;
 };
 
@@ -154,11 +156,15 @@ export type MutationUpdateSupArgs = {
   supplierName: Scalars['String'];
 };
 
-export type PackageData = {
-  __typename?: 'PackageData';
+export type Pack = {
+  __typename?: 'Pack';
+  data: PackageDataCreate;
+};
+
+export type PackageDataCreate = {
+  __typename?: 'PackageDataCreate';
   Plength: Scalars['Int'];
   cost: Scalars['Int'];
-  error?: Maybe<Scalars['String']>;
   height: Scalars['Int'];
   name_package: Scalars['String'];
   packgeId: Scalars['String'];
@@ -171,12 +177,21 @@ export type PackageDataUpdate = {
   __typename?: 'PackageDataUpdate';
   Plength: Scalars['Int'];
   cost: Scalars['Int'];
-  error: Scalars['String'];
   height: Scalars['Int'];
   name_package: Scalars['String'];
   supplier_id: Scalars['String'];
   weight: Scalars['Int'];
   width: Scalars['Int'];
+};
+
+export type PackageError = {
+  __typename?: 'PackageError';
+  message: Scalars['String'];
+};
+
+export type PackageUpdateError = {
+  __typename?: 'PackageUpdateError';
+  message: Scalars['String'];
 };
 
 export type Query = {
@@ -228,7 +243,7 @@ export type Suitable = {
 
 export type Supp = {
   __typename?: 'Supp';
-  data?: Maybe<SupplierData>;
+  data: SupplierData;
 };
 
 export type Supplier = Supp | SupplierError;
@@ -250,6 +265,13 @@ export type SupplierError = {
   __typename?: 'SupplierError';
   message: Scalars['String'];
 };
+
+export type UPack = {
+  __typename?: 'UPack';
+  data: PackageDataUpdate;
+};
+
+export type UpdatedPack = PackageUpdateError | UPack;
 
 export type User = {
   __typename?: 'User';
@@ -338,7 +360,7 @@ export type NewPackageToFirestoreMutationVariables = Exact<{
 }>;
 
 
-export type NewPackageToFirestoreMutation = { __typename?: 'Mutation', PackageToFirestore?: { __typename?: 'PackageData', weight: number, cost: number, Plength: number, height: number, width: number, name_package: string, error?: string | null, supplier_id: string } | null };
+export type NewPackageToFirestoreMutation = { __typename?: 'Mutation', PackageToFirestore?: { __typename?: 'Pack', data: { __typename?: 'PackageDataCreate', weight: number, cost: number, Plength: number, height: number, width: number, name_package: string, supplier_id: string } } | { __typename?: 'PackageError', message: string } | null };
 
 export type MutSuitableSuppMutationVariables = Exact<{
   Width: Scalars['Int'];
@@ -362,7 +384,7 @@ export type NewSupplierToFirestoreMutationVariables = Exact<{
 }>;
 
 
-export type NewSupplierToFirestoreMutation = { __typename?: 'Mutation', SupplierToFirestore?: { __typename?: 'Supp', data?: { __typename?: 'SupplierData', sendCashDelivery: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } | null } | { __typename?: 'SupplierError', message: string } | null };
+export type NewSupplierToFirestoreMutation = { __typename?: 'Mutation', SupplierToFirestore?: { __typename?: 'Supp', data: { __typename?: 'SupplierData', sendCashDelivery: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } } | { __typename?: 'SupplierError', message: string } | null };
 
 export type UpdatePackageMutationVariables = Exact<{
   Hmotnost: Scalars['Int'];
@@ -376,7 +398,7 @@ export type UpdatePackageMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePackageMutation = { __typename?: 'Mutation', updatePack?: { __typename?: 'PackageDataUpdate', weight: number, cost: number, Plength: number, height: number, width: number, name_package: string, supplier_id: string, error: string } | null };
+export type UpdatePackageMutation = { __typename?: 'Mutation', updatePack?: { __typename?: 'PackageUpdateError', message: string } | { __typename?: 'UPack', data: { __typename?: 'PackageDataUpdate', weight: number, cost: number, Plength: number, height: number, width: number, name_package: string, supplier_id: string } } | null };
 
 export type UpdateSupplierMutationVariables = Exact<{
   SupName: Scalars['String'];
@@ -392,7 +414,7 @@ export type UpdateSupplierMutationVariables = Exact<{
 }>;
 
 
-export type UpdateSupplierMutation = { __typename?: 'Mutation', updateSup?: { __typename?: 'Supp', data?: { __typename?: 'SupplierData', sendCashDelivery: string, supplierId: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } | null } | { __typename?: 'SupplierError', message: string } | null };
+export type UpdateSupplierMutation = { __typename?: 'Mutation', updateSup?: { __typename?: 'Supp', data: { __typename?: 'SupplierData', sendCashDelivery: string, supplierId: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } } | { __typename?: 'SupplierError', message: string } | null };
 
 export type PackageDataQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -635,14 +657,20 @@ export const NewPackageToFirestoreDocument = gql`
     name_package: $Pack_name
     packId: $PackId
   ) {
-    weight
-    cost
-    Plength
-    height
-    width
-    name_package
-    error
-    supplier_id
+    ... on Pack {
+      data {
+        weight
+        cost
+        Plength
+        height
+        width
+        name_package
+        supplier_id
+      }
+    }
+    ... on PackageError {
+      message
+    }
   }
 }
     `;
@@ -795,14 +823,20 @@ export const UpdatePackageDocument = gql`
     name_package: $Pack_name
     supplier_id: $SuppId
   ) {
-    weight
-    cost
-    Plength
-    height
-    width
-    name_package
-    supplier_id
-    error
+    ... on UPack {
+      data {
+        weight
+        cost
+        Plength
+        height
+        width
+        name_package
+        supplier_id
+      }
+    }
+    ... on PackageUpdateError {
+      message
+    }
   }
 }
     `;

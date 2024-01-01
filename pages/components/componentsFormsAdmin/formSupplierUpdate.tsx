@@ -85,7 +85,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const [SSendCashDelivery, SetsendCashDelivery] = React.useState('');
   const [SPackInBox, SetPackInBox] = React.useState('');
   const [PickUp, SetPickUp] = React.useState('');
-  const [SInsurance, SetInsurance] = React.useState("");
+  const [SInsurance, SetInsurance] = React.useState('');
   const [SShippingLabel, SetShippingLabel] = React.useState('');
   const [SFoil, SetFoil] = React.useState('');
   const [SsuppId, SetSsuppId] = React.useState('');
@@ -207,7 +207,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     if (valid) {
       alert(valid);
     } else {
-      await UpdateSupp({
+      const result = await UpdateSupp({
         variables: {
           SupName: SupplierName,
           Delivery: SDelivery,
@@ -222,30 +222,37 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         },
       })
         // eslint-disable-next-line consistent-return
-        .then((result) => {
-          const err = result.data?.updateSup?.message;
-          const data = result.data?.updateSup?.data;
-
-          console.log(data);
-          // eslint-disable-next-line promise/always-return
-          if (data) {
-            alert(`Dodavatel byl vytvořen s parametry: Doručení: ${
-              data.delivery
-            },
-              Zabalení do folie: ${data.foil},
-              Pojištění: ${data.insurance > 0 ?? 'bez pojištění'},
-              Balíček do krabice: ${data.packInBox},
-              Vyzvednutí: ${data.pickUp},
-              Na dobírku: ${data.sendCashDelivery},
-              Štítek přiveze kurýr: ${data.shippingLabel},
-              Jméno dopravce: ${data.suppName}`);
-            return router.push(`/../../admpage/${data.supplierId}`);
-          }
-          alert(err);
+        .then((res) => {
+         return res
         })
         .catch((error) => {
-          alert(error);
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+          return {err:error};
         });
+
+        const err = result.data?.updateSup?.message;
+        const data = result.data?.updateSup?.data;
+
+        if(result.err){
+          return alert(result.err)
+        }
+
+        if (data) {
+          alert(`Dodavatel byl upraven s parametry: Doručení: ${
+            data.delivery
+          },
+            Zabalení do folie: ${data.foil},
+            Pojištění: ${data.insurance > 0 ?? 'bez pojištění'},
+            Balíček do krabice: ${data.packInBox},
+            Vyzvednutí: ${data.pickUp},
+            Na dobírku: ${data.sendCashDelivery},
+            Štítek přiveze kurýr: ${data.shippingLabel},
+            Jméno dopravce: ${data.suppName}`);
+          return router.push(`/../../admpage/${data.supplierId}`);
+        // eslint-disable-next-line no-else-return
+        } else {
+          return alert(err);
+        }
     }
   };
 

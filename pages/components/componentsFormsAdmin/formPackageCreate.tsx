@@ -7,87 +7,67 @@ import { useNewPackageToFirestoreMutation } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
 
+// není validace cisel na frontendu
+
 type Props = {
   id: string;
 };
-// Validovat jako u updat supplier
-const Convert = (stringToNum: string) => {
-  const numberFrString = 0;
-  if (!Number.parseInt(stringToNum, numberFrString)) {
-    alert('Invalid number argument');
-  }
-  return Number.parseInt(stringToNum, numberFrString);
-};
 
 export const FormPackage: React.FC<Props> = ({ id }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const pID = uuidv4();
-  // vice se v jednom!
   const [kg, SetKg] = React.useState(' ');
   const [cost, SetCost] = React.useState(' ');
   const [delka, SetDelka] = React.useState(' ');
   const [vyska, SetVyska] = React.useState(' ');
   const [sirka, SetSirka] = React.useState(' ');
-  // const [odkud, Setodkud] = React.useState(' ');
-  // const [psc_odkud, SetPSC_odkud] = React.useState(' ');
-  // const [kam, Setkam] = React.useState(' ');
-  // const [psc_kam, SetPSC_kam] = React.useState(' ');
   const [packName, SetPackName] = React.useState(' ');
-  // const [suppId, SetSuppId] = React.useState(' ');
-  const [newPackage, error] = useNewPackageToFirestoreMutation();
-  // const Supp = useSuppDataQuery();
+  const [newPackage] = useNewPackageToFirestoreMutation();
 
-  // validace dat - je
+  // eslint-disable-next-line consistent-return
+  const handleForm = async (event?: React.FormEvent) => {
+    const pID = uuidv4();
 
-  // validace psc - neni
-  // validace adresy - neni
-  // string v resolveru
-  // eslint-disable-next-line unicorn/consistent-function-scoping
-  const PSCVal = (psc: string) => {
-    // eslint-disable-next-line unicorn/better-regex
-    const option = /^[0-9]{3} ?[0-9]{2}/;
-    if (!option.test(psc)) {
-      alert('Invalid psc argument');
-    }
-    return psc;
-  };
-
-  // Nefunkcni
-  // eslint-disable-next-line unicorn/consistent-function-scoping
-  const addressVal = (address: string) => {
-    // nepodporuje diakritiku!!
-    // eslint-disable-next-line unicorn/better-regex
-    const option = /^[A-Z][a-z]+ [0-9]{1,3}, [A-Z][a-z]+$/;
-    if (!option.test(address)) {
-      alert('Invalid adress argument');
-    }
-    return address;
-  };
-
-  const handleForm = async (event: React.FormEvent) => {
-    event.preventDefault();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const packd = await newPackage({
+    event?.preventDefault();
+    const result: any = await newPackage({
       variables: {
-        Hmotnost: Convert(kg),
-        Cost: Convert(cost),
-        Delka: Convert(delka),
-        Vyska: Convert(vyska),
-        Sirka: Convert(sirka),
+        Hmotnost: Number(kg),
+        Cost: Number(cost),
+        Delka: Number(delka),
+        Vyska: Number(vyska),
+        Sirka: Number(sirka),
         Pack_name: packName,
         SuppID: id,
         PackId: pID,
       },
-    });
-    if (packd.data?.PackageToFirestore?.error) {
-      // pri vytvareni supp pridelovat id supp = id document
-      // prace s errory
-      const message = packd.data?.PackageToFirestore?.error.toString();
-      alert(`${message} `);
+    })
+      .then((res) => {
+        return res;
+      })
+      .catch((error: string) => {
+        return { err: error };
+      });
+
+    const err = result.data?.PackageToFirestore?.message;
+    const data = result.data?.PackageToFirestore?.data;
+
+    if (result.err) {
+      return alert(result.err);
+    }
+    // eslint-disable-next-line no-lonely-if, max-depth
+    if (data) {
+      alert(`Balíček byl vytvořen s parametry: Váha: ${data.weight},
+            Délka: ${data.Plength},
+            Šířka: ${data.width},
+            Výška: ${data.height},
+            Označení: ${data.name_package}`);
+      return router.push(`/../../admpage/${data.supplier_id}`);
+      // eslint-disable-next-line no-else-return
     } else {
-      const message = 'Balíček byl vytvořen';
-      alert(`${message}`);
-      return router.push(`/../admpage/${id}`);
+      // eslint-disable-next-line max-depth, no-lonely-if
+      if (err === 'Duplicate id') {
+        await handleForm();
+      } else {
+        return alert(err);
+      }
     }
   };
 
