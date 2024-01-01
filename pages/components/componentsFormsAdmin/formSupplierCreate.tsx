@@ -37,10 +37,7 @@ const IsYesOrNo = (
   return false;
 };
 
-const IsNumber = (
-  // kontrola na zaporne hodnoty - je
-  stringToNum: string,
-) => {
+const IsNumber = (stringToNum: string) => {
   // eslint-disable-next-line sonarjs/prefer-single-boolean-return, prettier/prettier
   if(Number.isSafeInteger(stringToNum) || Number(stringToNum) >= 0 && Number(stringToNum) <= Number.MAX_SAFE_INTEGER) {return true}
   return false;
@@ -71,7 +68,6 @@ export const FormSupplier = () => {
   const [SShippingLabel, SetShippingLabel] = React.useState('');
   const [SFoil, SetFoil] = React.useState('');
   const [SupplierName, SetSupplierName] = React.useState(' ');
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [newSupp] = useNewSupplierToFirestoreMutation();
 
   const Valid = (

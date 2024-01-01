@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 
 import styles from '../styles/Home.module.css';
 import { useAuthContext } from './components/auth-context-provider';
-import { DataGridPackage } from './components/componentsTables/tablePackage';
 import { DataGridSupplier } from './components/componentsTables/tableSupp';
 import { SearchAppBar2 } from './components/navbar2';
 
@@ -37,7 +36,7 @@ export default function AdmPage() {
       <main className={styles.main}>
         <h1>Welocome to admin interface</h1>
         <h2>{P()}</h2>
-        <h2
+        {/* <h2
           style={{
             marginTop: '40px',
             color: '#D67F76',
@@ -46,7 +45,7 @@ export default function AdmPage() {
         >
           Table of packeges
         </h2>
-        <DataGridPackage />
+        <DataGridPackage /> */}
         <h2
           style={{
             marginTop: '70px',

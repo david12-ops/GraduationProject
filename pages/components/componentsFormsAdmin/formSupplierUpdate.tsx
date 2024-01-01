@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 // eslint-disable-next-line unicorn/filename-case
 import router from 'next/router';
 import * as React from 'react';
@@ -16,12 +15,6 @@ type Props = {
   id: string;
 };
 
-// Upravit update ohledne jmena
-// kontrola na ano, ne funguje
-// datum - funkcní
-// insurance - funkcní
-// nefunguje kontrola na regex u jmena
-// udelat kontroly i na frontend - pozivani graphql erroru
 // refetche query!!!
 
 const IsYesOrNo = (
@@ -55,13 +48,15 @@ const IsYesOrNo = (
   return false;
 };
 
-const IsNumber = (
-  // kontrola na zaporne hodnoty - je
-  stringToNum: string,
-) => {
+const IsNumber = (stringToNum: string) => {
   // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-  if(Number.isSafeInteger(stringToNum) || Number(stringToNum) >= 0 && Number(stringToNum) <= Number.MAX_SAFE_INTEGER) {return true}
-  return false
+  if (
+    Number.isSafeInteger(stringToNum) ||
+    (Number(stringToNum) >= 0 && Number(stringToNum) <= Number.MAX_SAFE_INTEGER)
+  ) {
+    return true;
+  }
+  return false;
 };
 
 const ValidDateForm = (dateU1: any) => {
@@ -95,8 +90,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const supData = useSuppDataQuery();
   const [UpdateSupp] = useUpdateSupplierMutation();
-  // validace dat
-  // eslint-disable-next-line unicorn/consistent-function-scoping
+
   useEffect(() => {
     if (id && supData.data && supData) {
       const actualSupp = supData.data?.suplierData.find(
@@ -191,8 +185,8 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     />
   );
 
+  // eslint-disable-next-line consistent-return
   const handleForm = async (event: React.FormEvent) => {
-    // Apolo exepciton/error - bad return of vlaue from field
     event.preventDefault();
 
     const valid = Valid(
@@ -223,24 +217,22 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       })
         // eslint-disable-next-line consistent-return
         .then((res) => {
-         return res
+          return res;
         })
         .catch((error) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-          return {err:error};
+          return { err: error };
         });
 
-        const err = result.data?.updateSup?.message;
-        const data = result.data?.updateSup?.data;
+      const err = result.data?.updateSup?.message;
+      const data = result.data?.updateSup?.data;
 
-        if(result.err){
-          return alert(result.err)
-        }
+      if (result.err) {
+        return alert(result.err);
+      }
 
-        if (data) {
-          alert(`Dodavatel byl upraven s parametry: Doručení: ${
-            data.delivery
-          },
+      if (data) {
+        alert(`Dodavatel byl upraven s parametry: Doručení: ${data.delivery},
             Zabalení do folie: ${data.foil},
             Pojištění: ${data.insurance > 0 ?? 'bez pojištění'},
             Balíček do krabice: ${data.packInBox},
@@ -248,11 +240,11 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             Na dobírku: ${data.sendCashDelivery},
             Štítek přiveze kurýr: ${data.shippingLabel},
             Jméno dopravce: ${data.suppName}`);
-          return router.push(`/../../admpage/${data.supplierId}`);
+        return router.push(`/../../admpage/${data.supplierId}`);
         // eslint-disable-next-line no-else-return
-        } else {
-          return alert(err);
-        }
+      } else {
+        return alert(err);
+      }
     }
   };
 

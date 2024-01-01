@@ -1,4 +1,3 @@
-// eslint-disable-next-line unicorn/filename-case
 import router from 'next/router';
 import * as React from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -103,7 +102,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
                 className={styles.input}
                 onChange={(e) => SetCost(e.target.value)}
                 required
-                type="text"
+                type="number"
                 placeholder="Kč"
               />
             </label>

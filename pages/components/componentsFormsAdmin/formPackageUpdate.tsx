@@ -1,4 +1,3 @@
-// eslint-disable-next-line unicorn/filename-case
 import router from 'next/router';
 import * as React from 'react';
 import { useEffect } from 'react';
@@ -12,15 +11,6 @@ import styles from '../../../styles/stylesForm/styleForms.module.css';
 
 type Props = {
   id: string;
-};
-
-const IsNumber = (stringToNum: string) => {
-  const numberFrString = 0;
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-  if (!Number.parseInt(stringToNum, numberFrString)) {
-    return false;
-  }
-  return numberFrString;
 };
 
 export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
@@ -74,12 +64,9 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     }
   }, [id, SuppPackages.data]);
 
+  // eslint-disable-next-line consistent-return
   const handleForm = async (event?: React.FormEvent) => {
-    // lepsi informovani o chybe
-    // kontrola zda oznaci nez klikne
     event?.preventDefault();
-    // Mutation
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const result = await UpdatePackage({
       variables: {
         Hmotnost: Number(kg),
@@ -108,10 +95,10 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     // eslint-disable-next-line no-lonely-if, max-depth
     if (data) {
       alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
-            Délka: ${data.Plength},
-            Šířka: ${data.width},
-            Výška: ${data.height},
-            Označení: ${data.name_package}`);
+              Délka: ${data.Plength},
+              Šířka: ${data.width},
+              Výška: ${data.height},
+              Označení: ${data.name_package}`);
       return router.push(`/../../admpage/${data.supplier_id}`);
       // eslint-disable-next-line no-else-return
     } else {
