@@ -109,7 +109,7 @@ export default function SuitableSupp() {
 
   const HandleForm = async () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    await suitableSupp({
+    const result = await suitableSupp({
       variables: {
         Width: Number(width) ?? width,
         Weight: Number(weight) ?? weight,
@@ -119,20 +119,23 @@ export default function SuitableSupp() {
     })
       .then((res) => {
         // eslint-disable-next-line promise/always-return
-        if (res.data?.BingoSupPac?.suitable) {
-          console.log('ssss', res.data?.BingoSupPac?.suitable);
-          const data = JSON.parse(res.data?.BingoSupPac?.suitable);
-          SetData(data);
-        } else {
-          // eslint-disable-next-line no-alert
-          alert(res.data?.BingoSupPac?.message);
-        }
+        return res;
       })
-      .catch((error) => {
-        alert(error);
+      .catch((error: string) => {
+        return { err: error };
       });
 
-    // eslint-disable-next-line promise/always-return
+    if (result.err) {
+      return alert(result.err);
+    }
+
+    if (result.data?.BingoSupPac?.suitable) {
+      const data = JSON.parse(result.data?.BingoSupPac?.suitable);
+      SetData(data);
+    } else {
+      // eslint-disable-next-line no-alert
+      return alert(result.data?.BingoSupPac?.message);
+    }
   };
   return (
     <div className={styles.container}>
