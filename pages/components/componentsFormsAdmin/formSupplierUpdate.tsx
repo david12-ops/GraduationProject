@@ -114,7 +114,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         SetASupplierName(actualSupp.suppName.toString());
       }
     }
-  }, [id, supData.data]);
+  }, [id, supData.data, supData]);
 
   const Valid = (
     pickUparg: string,

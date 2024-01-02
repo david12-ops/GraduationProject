@@ -6,6 +6,8 @@ import styles from '../styles/Home.module.css';
 import { MediaCard } from './components/Cards/SuppCards';
 import { SearchAppBar2 } from './components/navbar2';
 
+// pouziti useEffect a sorting
+
 // eslint-disable-next-line import/no-default-export
 export default function SuppCards() {
   const suppData = useSuppDataQuery();

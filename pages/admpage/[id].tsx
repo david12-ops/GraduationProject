@@ -190,7 +190,14 @@ export default function Page() {
         ),
       });
     }
-  }, [suppD.data?.suplierData, id, error, warning, selectedSuppData.data]);
+  }, [
+    suppD.data?.suplierData,
+    id,
+    error,
+    warning,
+    selectedSuppData.data,
+    suppD.loading,
+  ]);
 
   return (
     <div className={styles.container}>

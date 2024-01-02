@@ -62,7 +62,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
         }
       });
     }
-  }, [id, SuppPackages.data]);
+  }, [id, SuppPackages.data, SuppPackages]);
 
   // eslint-disable-next-line consistent-return
   const handleForm = async (event?: React.FormEvent) => {
