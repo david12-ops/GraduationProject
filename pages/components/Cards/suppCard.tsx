@@ -93,7 +93,7 @@ const Odstavec = (
   );
 };
 
-export const MediaCard: React.FC<Props> = ({
+export const AdmPageSuppCard: React.FC<Props> = ({
   name,
   pickUp,
   delivery,
