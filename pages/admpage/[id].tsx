@@ -1,41 +1,82 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
 import { useSuppDataQuery } from '@/generated/graphql';
 
 import styles from '../../styles/Home.module.css';
 import stylesF from '../../styles/stylesForm/style.module.css';
 import { PackCard } from '../components/Cards/packsCard';
-import { MediaCard } from '../components/Cards/suppCard';
+import { MediaCard } from '../components/Cards/SuppCards';
 import { SearchAppBar2 } from '../components/navbar2';
 
-// const AvgPrice = (id) => {
-//   // prumerna cena z baliku co ma
-//   // const packD = usePackageDataQuery();
-
-//   // const avgPrice = packD.data?.packageData.find(
-//   //   (actPack) => actPack.supplierId === id,
-//   // );
-//   // return AvgPrice;
-// };
-
 // responzivitu vyresit a  sortovani
-// id balicku náhodně
-// 12.12 create a delete balicku funguje, update nefunkcni a tez i suppliera
-// klice stejne jako id balicku
+
+const IsTherePackage = (data: any) => {
+  if (data?.length === 0) {
+    return (
+      <div
+        style={{
+          textAlign: 'center',
+          color: 'orange',
+          fontSize: '30px',
+          fontWeight: 'bold',
+        }}
+      >
+        Tento dodavatel nemá balíčky
+      </div>
+    );
+  }
+};
+
+const IsThereSupp = (data: any) => {
+  if (!data?.supplierId) {
+    return (
+      <div
+        style={{
+          textAlign: 'center',
+          color: 'red',
+          fontSize: '40px',
+          fontWeight: 'bold',
+        }}
+      >
+        Dodavatel nenalazen!!
+      </div>
+    );
+  }
+};
 
 // eslint-disable-next-line import/no-default-export
 export default function Page() {
   const suppD = useSuppDataQuery();
+  const [selectedSuppData, SetSelectedSuppData] = useState({});
 
   const router = useRouter();
   const { query } = router;
   const { id } = query;
 
-  const selectedSupp = suppD.data?.suplierData.find(
-    (actPack: any) => actPack.supplierId === id,
-  );
+  useEffect(() => {
+    const selectedSupp = suppD.data?.suplierData.find(
+      (actPack: any) => actPack.supplierId === id,
+    );
+
+    const errSup = IsThereSupp(selectedSupp);
+    const errPack = IsTherePackage(selectedSupp?.package);
+
+    if (errSup) {
+      SetSelectedSuppData({
+        errorSup: errSup,
+      });
+    } else {
+      // odelit errory od data
+      SetSelectedSuppData({ data: selectedSupp });
+      console.log(selectedSupp);
+      SetSelectedSuppData({
+        errorPack: errPack,
+      });
+    }
+  }, [suppD.data?.suplierData, id]);
 
   return (
     <div className={styles.container}>
@@ -49,31 +90,19 @@ export default function Page() {
         <h1 style={{ textAlign: 'center' }}>
           Welocome to package detail of supplier
         </h1>
-        {selectedSupp ? (
+        {selectedSuppData.errorSup ?? (
           <MediaCard
-            key={selectedSupp.supplierId}
-            packInBox={selectedSupp.packInBox}
-            name={selectedSupp.suppName}
-            sendCash={selectedSupp.sendCashDelivery}
-            folie={selectedSupp.foil}
-            shippingLabel={selectedSupp.shippingLabel}
-            pickUp={selectedSupp.pickUp}
-            delivery={selectedSupp.delivery}
-            insurance={selectedSupp.insurance}
-            avgPrice={0}
-            suppId={selectedSupp.supplierId}
+            key={selectedSuppData.data?.supplierId}
+            packInBox={selectedSuppData.data?.packInBox}
+            name={selectedSuppData.data?.suppName}
+            sendCash={selectedSuppData.data?.sendCashDelivery}
+            folie={selectedSuppData.data?.foil}
+            shippingLabel={selectedSuppData.data?.shippingLabel}
+            pickUp={selectedSuppData.data?.pickUp}
+            delivery={selectedSuppData.data?.delivery}
+            insurance={selectedSuppData.data?.insurance}
+            suppId={selectedSuppData.data?.supplierId}
           />
-        ) : (
-          <div
-            style={{
-              textAlign: 'center',
-              color: 'red',
-              fontSize: '40px',
-              fontWeight: 'bold',
-            }}
-          >
-            Dodavatel nenalazen!!
-          </div>
         )}
         <h2
           style={{
@@ -85,7 +114,19 @@ export default function Page() {
         >
           Packages
         </h2>
-        {selectedSupp?.package ? (
+        {selectedSuppData.errorPack ? (
+          <div>
+            {selectedSuppData.errorPack}
+            <div>
+              <Link
+                key="CreateFormPackage"
+                href={`../../Forms/CreateFormPackage/${id}`}
+              >
+                <button className={stylesF.crudbtn}>Create</button>
+              </Link>
+            </div>
+          </div>
+        ) : (
           <div>
             <div
               style={{
@@ -95,22 +136,17 @@ export default function Page() {
                 maxWidth: '700px',
               }}
             >
-              {selectedSupp?.package.map((item: any) => {
+              {selectedSuppData.data?.package.map((item: any) => {
                 const keys = Object.keys(item);
                 return keys.map((key: any) => (
                   <div
-                    key={key} // Ensure each child in a list has a unique "key" prop
+                    key={key}
                     style={{
                       backgroundColor: '#D67F76',
-                      // display: 'flex',
-                      // flexDirection: 'row',
-                      // gap: '5px',
                       padding: '10px',
                       margin: '10px',
-                      // justifyContent: 'space-around',
                       borderRadius: '10px',
                       boxSizing: 'border-box',
-                      // width: 'calc(50% - 20px)', // Each card takes up 50% of the container with some spacing
                     }}
                   >
                     <PackCard
@@ -121,7 +157,7 @@ export default function Page() {
                       Width={item[key].width}
                       Length={item[key].Plength}
                       Heiht={item[key].height}
-                      sId={selectedSupp.supplierId}
+                      sId={selectedSuppData.data.supplierId}
                       keyPac={key}
                     />
                   </div>
@@ -135,30 +171,11 @@ export default function Page() {
               <button className={stylesF.crudbtn}>Create</button>
             </Link>
           </div>
-        ) : (
-          <div>
-            <div
-              style={{
-                textAlign: 'center',
-                color: 'orange',
-                fontSize: '30px',
-                fontWeight: 'bold',
-              }}
-            >
-              Tento dodavatel nemá balíčky
-            </div>
-            <div>
-              <Link
-                key="CreateFormPackage"
-                href={`../../Forms/CreateFormPackage/${id}`}
-              >
-                <button className={stylesF.crudbtn}>Create</button>
-              </Link>
-            </div>
-          </div>
         )}
-        {selectedSupp?.package ? (
-          <div>{JSON.stringify(Object.values(selectedSupp.package))}</div>
+        {selectedSuppData.data?.package ? (
+          <div>
+            {JSON.stringify(Object.values(selectedSuppData.data.package))}
+          </div>
         ) : (
           ' '
         )}

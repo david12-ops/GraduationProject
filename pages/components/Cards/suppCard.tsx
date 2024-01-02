@@ -15,7 +15,6 @@ type Props = {
   delivery: string;
   packInBox: string;
   folie: string;
-  avgPrice: number;
   shippingLabel: string;
   insurance: number;
   sendCash: string;
@@ -100,7 +99,6 @@ export const MediaCard: React.FC<Props> = ({
   delivery,
   packInBox,
   folie,
-  avgPrice,
   shippingLabel,
   insurance,
   sendCash,
@@ -166,7 +164,6 @@ export const MediaCard: React.FC<Props> = ({
           variant="body2"
           color="text.secondary"
         >
-          <div style={{ textAlign: 'center' }}>Avg price: {avgPrice}</div>
           <CardActions style={{ justifyContent: 'center' }}>
             <Link
               key="UpdateFromSupplier"

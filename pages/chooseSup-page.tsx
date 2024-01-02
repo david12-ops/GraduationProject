@@ -61,7 +61,7 @@ const RenderSupp = (dataFromResover: any, QueryData: any) => {
   return <div>Please Wait</div>;
 };
 
-export default function Home() {
+export default function SuitableSupp() {
   const [dataS, SetData] = useState([]);
   const [width, SetWidth] = useState('');
   const [height, SetHeight] = useState('');

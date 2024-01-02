@@ -360,13 +360,6 @@ const ConverBool = (
   return false
 };
 
-// const ConverNumb = (numberU: any) => {
-//   if (!Number.isSafeInteger(numberU) || numberU < 0) {
-//     // eslint-disable-next-line unicorn/prefer-type-error
-//     throw new Error('Invalid argument of number');
-//   }
-// };
-
 // funkcni
 const ConverDate = (dateU1: any, dateU2: any) => {
   console.log(dateU1)

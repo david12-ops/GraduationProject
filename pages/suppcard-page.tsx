@@ -6,16 +6,6 @@ import styles from '../styles/Home.module.css';
 import { MediaCard } from './components/Cards/SuppCards';
 import { SearchAppBar2 } from './components/navbar2';
 
-// const AvgPrice = (id) => {
-//   // prumerna cena z baliku co ma
-//   // const packD = usePackageDataQuery();
-
-//   // const avgPrice = packD.data?.packageData.find(
-//   //   (actPack) => actPack.supplierId === id,
-//   // );
-//   // return AvgPrice;
-// };
-
 // eslint-disable-next-line import/no-default-export
 export default function SuppCards() {
   const suppData = useSuppDataQuery();
@@ -40,7 +30,6 @@ export default function SuppCards() {
             pickUp={item.pickUp}
             delivery={item.delivery}
             insurance={item.insurance}
-            avgPrice={0}
             suppId={item.supplierId}
           />
         ))}
