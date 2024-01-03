@@ -58,8 +58,7 @@ const RenderSupp = (dataFromResover: any, QueryData: any) => {
       </div>
     ));
   }
-  // otazka hledam vhodnýho a zarove + pocitam cenu?
-  return <div>Please Wait</div>;
+  // otazka hledam vhodnýho a zaroven + pocitam cenu?
 };
 
 export default function SuitableSupp() {
