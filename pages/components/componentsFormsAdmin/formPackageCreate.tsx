@@ -32,8 +32,6 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
 
   // eslint-disable-next-line consistent-return
   const handleForm = async (event?: React.FormEvent) => {
-    const call = 1;
-    console.log(call + 1);
     const pID = uuidv4();
 
     event?.preventDefault();
