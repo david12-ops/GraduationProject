@@ -8,6 +8,12 @@ import { useDeleteSupp2Mutation, useSuppDataQuery } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/style.module.css';
 
+// Mozna kontrola na id
+// const Refetch = (data: any) => {
+//   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+//   data.refetch();
+// };
+
 export const DataGridSupplier = () => {
   // refresh tabulky
   const suppD = useSuppDataQuery();
@@ -58,6 +64,7 @@ export const DataGridSupplier = () => {
           Id: DeletedId,
         },
       });
+      // Refetch(suppD);
       alert('Deletion secusfull');
     }
   };

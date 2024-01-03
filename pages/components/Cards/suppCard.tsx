@@ -34,7 +34,7 @@ const Odstavec = (
   // FontSize ?
   const odstavec =
     packInBox === 'Ano' ? (
-      <p style={{ fontSize: FontSize }}>
+      <p>
         Zásilku je nutné zabalit <strong>do krabice</strong>
       </p>
     ) : (

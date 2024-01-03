@@ -157,9 +157,6 @@ const PageBody = (error: any, warning: any, dataSupp: any, id: string) => {
 // eslint-disable-next-line import/no-default-export
 export default function Page() {
   const suppD = useSuppDataQuery();
-  const [selectedSuppData, SetSelectedSuppData] = useState({});
-  const [error, SetError] = useState(false);
-  const [warning, SetWarning] = useState(false);
   const [body, SetBody] = useState({});
 
   const router = useRouter();
@@ -176,27 +173,11 @@ export default function Page() {
       const errSup = IsThereSupp(selectedSupp);
       const errPack = IsTherePackage(selectedSupp?.package);
 
-      SetError(errSup);
-      SetSelectedSuppData({ data: selectedSupp });
-      SetWarning(errPack);
-
       SetBody({
-        data: PageBody(
-          error,
-          warning,
-          selectedSuppData.data,
-          id ? String(id) : '',
-        ),
+        data: PageBody(errSup, errPack, selectedSupp, id ? String(id) : ''),
       });
     }
-  }, [
-    suppD.data?.suplierData,
-    id,
-    error,
-    warning,
-    selectedSuppData.data,
-    suppD.loading,
-  ]);
+  }, [suppD.data?.suplierData, suppD.loading, id]);
 
   return (
     <div className={styles.container}>

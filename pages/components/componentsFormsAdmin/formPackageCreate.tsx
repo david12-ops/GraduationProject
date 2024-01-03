@@ -32,6 +32,8 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
 
   // eslint-disable-next-line consistent-return
   const handleForm = async (event?: React.FormEvent) => {
+    const call = 1;
+    console.log(call + 1);
     const pID = uuidv4();
 
     event?.preventDefault();
@@ -73,6 +75,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     } else {
       // eslint-disable-next-line max-depth, no-lonely-if
       if (err === 'Duplicate id') {
+        // je moudrý ??
         await handleForm();
       } else {
         return alert(err);

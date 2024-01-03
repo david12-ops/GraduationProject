@@ -8,18 +8,65 @@ import { MediaCard } from './components/Cards/SuppCards';
 import { SearchAppBar2 } from './components/navbar2';
 
 // pouziti sorting
+const IsThereSupp = (data: any) => {
+  console.log('co kontrolujeme', data);
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+  if (data) {
+    return true;
+  }
+  return false;
+};
+
+const PageBody = (warning: any, dataSupp: any) => {
+  if (!warning) {
+    return (
+      <div
+        style={{
+          textAlign: 'center',
+          color: 'orange',
+          fontSize: '30px',
+          fontWeight: 'bold',
+        }}
+      >
+        Nejsou dodavatelé
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {dataSupp?.suplierData?.map((item: any) => (
+        <MediaCard
+          key={item.supplierId}
+          packInBox={item.packInBox}
+          name={item.suppName}
+          sendCash={item.sendCashDelivery}
+          folie={item.foil}
+          shippingLabel={item.shippingLabel}
+          pickUp={item.pickUp}
+          delivery={item.delivery}
+          insurance={item.insurance}
+          suppId={item.supplierId}
+        />
+      ))}
+    </div>
+  );
+};
 
 // eslint-disable-next-line import/no-default-export
 export default function SuppCards() {
   const suppData = useSuppDataQuery();
-
-  const [dataSup, SetData] = useState({});
+  const [body, SetBody] = useState({});
 
   useEffect(() => {
-    if (!suppData.loading && suppData) {
-      SetData({ data: suppData.data });
+    if (!suppData.loading) {
+      const errSup = IsThereSupp(suppData);
+
+      SetBody({
+        data: PageBody(errSup, suppData.data),
+      });
     }
-  });
+  }, [suppData]);
 
   return (
     <div className={styles.container}>
@@ -31,20 +78,7 @@ export default function SuppCards() {
       <SearchAppBar2 />
       <main className={styles.main}>
         <h1 style={{ textAlign: 'center' }}>Welcome to detail of suppliers</h1>
-        {dataSup.data?.suplierData.map((item) => (
-          <MediaCard
-            key={item.supplierId}
-            packInBox={item.packInBox}
-            name={item.suppName}
-            sendCash={item.sendCashDelivery}
-            folie={item.foil}
-            shippingLabel={item.shippingLabel}
-            pickUp={item.pickUp}
-            delivery={item.delivery}
-            insurance={item.insurance}
-            suppId={item.supplierId}
-          />
-        ))}
+        {body.data}
       </main>
 
       <footer className={styles.footer}></footer>

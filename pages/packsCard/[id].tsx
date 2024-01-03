@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
 import { useSuppDataQuery } from '@/generated/graphql';
 
@@ -9,19 +10,120 @@ import { SearchAppBar2 } from '../components/navbar2';
 
 // Přepsat!!
 
+const IsTherePackage = (data: any) => {
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+  console.log('how much', data?.length > 0);
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+  if (data?.length > 0) {
+    return true;
+  }
+  return false;
+};
+
+const IsThereSupp = (data: any) => {
+  console.log('co kontrolujeme', data);
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+  if (data) {
+    return true;
+  }
+  return false;
+};
+
+const PageBody = (error: any, warning: any, dataSupp: any) => {
+  if (!error) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return (
+      <div
+        style={{
+          textAlign: 'center',
+          color: 'red',
+          fontSize: '40px',
+          fontWeight: 'bold',
+        }}
+      >
+        <p>Dodavatel nenalazen!!</p>
+      </div>
+    );
+  }
+
+  if (!warning) {
+    return (
+      <div
+        style={{
+          textAlign: 'center',
+          color: 'orange',
+          fontSize: '30px',
+          fontWeight: 'bold',
+        }}
+      >
+        Tento dodavatel nemá balíčky
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          maxWidth: '800px',
+        }}
+      >
+        {dataSupp?.package.map((item: any) => {
+          const keys = Object.keys(item);
+          return keys.map((key: any) => (
+            <div
+              key={key}
+              style={{
+                backgroundColor: '#D67F76',
+                padding: '10px',
+                margin: '10px',
+                borderRadius: '10px',
+              }}
+            >
+              <PackCards
+                key={key}
+                Name={item[key].name_package}
+                Cost={item[key].cost}
+                Weight={item[key].weight}
+                Width={item[key].width}
+                Length={item[key].Plength}
+                Heiht={item[key].height}
+              />
+            </div>
+          ));
+        })}
+      </div>
+    </div>
+  );
+};
+
 // eslint-disable-next-line import/no-default-export
-// upravit vypis balicku
 // responzivita a sortovani
 export default function PacksCards() {
   const suppD = useSuppDataQuery();
-
+  const [body, SetBody] = useState({});
   const router = useRouter();
   const { query } = router;
   const { id } = query;
 
-  const selectedSupp = suppD.data?.suplierData.find(
-    (actPack: any) => actPack.supplierId === id,
-  );
+  useEffect(() => {
+    if (!suppD.loading) {
+      const selectedSupp = suppD.data?.suplierData.find(
+        (actPack: any) => actPack.supplierId === id,
+      );
+
+      const errSup = IsThereSupp(selectedSupp);
+      const errPack = IsTherePackage(selectedSupp?.package);
+
+      SetBody({
+        data: PageBody(errSup, errPack, selectedSupp),
+      });
+    }
+  }, [suppD.loading, id, suppD.data?.suplierData]);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -44,67 +146,7 @@ export default function PacksCards() {
         >
           Packages
         </h2>
-        {selectedSupp ? (
-          selectedSupp.package ? (
-            <div>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  maxWidth: '800px',
-                }}
-              >
-                {selectedSupp?.package.map((item: any) => {
-                  const keys = Object.keys(item);
-                  return keys.map((key: any) => (
-                    <div
-                      key={key}
-                      style={{
-                        backgroundColor: '#D67F76',
-                        padding: '10px',
-                        margin: '10px',
-                        borderRadius: '10px',
-                      }}
-                    >
-                      <PackCards
-                        key={key}
-                        Name={item[key].name_package}
-                        Cost={item[key].cost}
-                        Weight={item[key].weight}
-                        Width={item[key].width}
-                        Length={item[key].Plength}
-                        Heiht={item[key].height}
-                      />
-                    </div>
-                  ));
-                })}
-              </div>
-            </div>
-          ) : (
-            <div
-              style={{
-                textAlign: 'center',
-                color: 'orange',
-                fontSize: '40px',
-                fontWeight: 'bold',
-              }}
-            >
-              Tento dodavatel nemá balíčky
-            </div>
-          )
-        ) : (
-          <div
-            style={{
-              textAlign: 'center',
-              color: 'red',
-              fontSize: '40px',
-              fontWeight: 'bold',
-            }}
-          >
-            Dodavatel nebyl nalezen!!
-          </div>
-        )}
+        {body.data}
       </main>
       <footer className={styles.footer}></footer>
     </div>

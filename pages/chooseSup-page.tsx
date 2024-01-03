@@ -40,7 +40,7 @@ const Res = (dataSui: any, allSupp: any) => {
 // eslint-disable-next-line consistent-return
 const RenderSupp = (dataFromResover: any, QueryData: any) => {
   // alert(JSON.stringify(Res(dataFromResover, QueryData)));
-  if (!QueryData.loading && !QueryData.error) {
+  if (!QueryData.loading && !QueryData.error && QueryData.data) {
     // eslint-disable-next-line array-callback-return
     return Res(dataFromResover, QueryData).map((itm: any) => (
       <div key={itm.dataS.supplierId}>
@@ -58,6 +58,7 @@ const RenderSupp = (dataFromResover: any, QueryData: any) => {
       </div>
     ));
   }
+  // otazka hledam vhodnýho a zarove + pocitam cenu?
   return <div>Please Wait</div>;
 };
 
