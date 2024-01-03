@@ -619,6 +619,10 @@ const resolvers = {
         }
       })))
 
+      // scalar Date - je ten typ!!!!!
+      // scalar DateTime - je ten typ!!!!!
+
+
       console.log("packages", JSON.stringify(packages.map(packageObj => {
         // Extracting the values from each package object
         const [packageDetails] = Object.values(packageObj);

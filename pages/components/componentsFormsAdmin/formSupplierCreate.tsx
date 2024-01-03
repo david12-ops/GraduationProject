@@ -2,7 +2,10 @@ import router from 'next/router';
 import * as React from 'react';
 import Select from 'react-select';
 
-import { useNewSupplierToFirestoreMutation } from '@/generated/graphql';
+import {
+  useNewSupplierToFirestoreMutation,
+  useSuppDataQuery,
+} from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
 
@@ -54,6 +57,11 @@ const ValidDateForm = (dateU1: any) => {
   return true;
 };
 
+const Refetch = (data: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  data.refetch();
+};
+
 export const FormSupplier = () => {
   const options = [
     { value: 'Ano', label: 'Ano' },
@@ -69,6 +77,7 @@ export const FormSupplier = () => {
   const [SFoil, SetFoil] = React.useState('');
   const [SupplierName, SetSupplierName] = React.useState(' ');
   const [newSupp] = useNewSupplierToFirestoreMutation();
+  const supData = useSuppDataQuery();
 
   const Valid = (
     pickUparg: string,
@@ -109,11 +118,14 @@ export const FormSupplier = () => {
   //   />
   // );
 
+  // match-sorter
+
   const MyComponentFoil = () => (
     <Select
       className={styles.selectInput}
       onChange={(selectedOption: any) => SetFoil(selectedOption.value)}
       options={options}
+      placeholder={'Ano/Ne'}
       required
     />
   );
@@ -125,6 +137,7 @@ export const FormSupplier = () => {
         SetsendCashDelivery(selectedOption.value)
       }
       options={options}
+      placeholder={'Ano/Ne'}
       required
     />
   );
@@ -134,6 +147,7 @@ export const FormSupplier = () => {
       className={styles.selectInput}
       onChange={(selectedOption: any) => SetPackInBox(selectedOption.value)}
       options={options}
+      placeholder={'Ano/Ne'}
       required
     />
   );
@@ -143,6 +157,7 @@ export const FormSupplier = () => {
       className={styles.selectInput}
       onChange={(selectedOption: any) => SetShippingLabel(selectedOption.value)}
       options={options}
+      placeholder={'Ano/Ne'}
       required
     />
   );
@@ -191,6 +206,7 @@ export const FormSupplier = () => {
 
       // eslint-disable-next-line promise/always-return
       if (data) {
+        Refetch(supData);
         alert(`Dodavatel byl vytvořen s parametry: Doručení: ${data.delivery},
               Zabalení do folie: ${data.foil},
               Pojištění: ${
@@ -244,7 +260,6 @@ export const FormSupplier = () => {
                 onChange={(e) => SetDelivery(e.target.value)}
                 required
                 type="date"
-                placeholder=""
               />
             </label>
             <label>
@@ -254,7 +269,6 @@ export const FormSupplier = () => {
                 onChange={(e) => SetPickUp(e.target.value)}
                 required
                 type="date"
-                placeholder=""
               />
             </label>
           </div>
@@ -267,7 +281,6 @@ export const FormSupplier = () => {
                 onChange={(e) => SetInsurance(e.target.value)}
                 required
                 type="number"
-                placeholder=""
               />
             </label>
           </div>

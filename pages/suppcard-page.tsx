@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import { useEffect, useState } from 'react';
 
 import { useSuppDataQuery } from '@/generated/graphql';
 
@@ -6,11 +7,20 @@ import styles from '../styles/Home.module.css';
 import { MediaCard } from './components/Cards/SuppCards';
 import { SearchAppBar2 } from './components/navbar2';
 
-// pouziti useEffect a sorting
+// pouziti sorting
 
 // eslint-disable-next-line import/no-default-export
 export default function SuppCards() {
   const suppData = useSuppDataQuery();
+
+  const [dataSup, SetData] = useState({});
+
+  useEffect(() => {
+    if (!suppData.loading && suppData) {
+      SetData({ data: suppData.data });
+    }
+  });
+
   return (
     <div className={styles.container}>
       <Head>
@@ -21,7 +31,7 @@ export default function SuppCards() {
       <SearchAppBar2 />
       <main className={styles.main}>
         <h1 style={{ textAlign: 'center' }}>Welcome to detail of suppliers</h1>
-        {suppData.data?.suplierData.map((item) => (
+        {dataSup.data?.suplierData.map((item) => (
           <MediaCard
             key={item.supplierId}
             packInBox={item.packInBox}

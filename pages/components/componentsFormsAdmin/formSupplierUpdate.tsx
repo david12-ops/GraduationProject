@@ -15,8 +15,6 @@ type Props = {
   id: string;
 };
 
-// refetche query!!!
-
 const IsYesOrNo = (
   stringnU1: string,
   stringnU2: string,
@@ -46,6 +44,11 @@ const IsYesOrNo = (
     return true;
   }
   return false;
+};
+
+const Refetch = (data: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  data.refetch();
 };
 
 const IsNumber = (stringToNum: string) => {
@@ -97,21 +100,17 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         (actSupp) => actSupp.supplierId === id,
       );
 
-      // const dateString = actualSupp?.pickUp;
-      // const parts = dateString.split('.');
-      // const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-
       if (actualSupp) {
-        SetSsuppId(actualSupp.supplierId.toString());
-        SetDelivery(actualSupp.delivery.toString());
-        SetsendCashDelivery(actualSupp.sendCashDelivery.toString());
-        // potize s formatem datumu
-        SetPackInBox(actualSupp.packInBox.toString());
-        SetPickUp(actualSupp.pickUp.toString());
+        SetSsuppId(actualSupp.supplierId);
+        SetDelivery(actualSupp.delivery);
+        SetsendCashDelivery(actualSupp.sendCashDelivery);
+        SetPackInBox(actualSupp.packInBox);
+        SetPickUp(actualSupp.pickUp);
         SetInsurance(actualSupp.insurance.toString());
-        SetShippingLabel(actualSupp.shippingLabel.toString());
-        SetSupplierName(actualSupp.suppName.toString());
-        SetASupplierName(actualSupp.suppName.toString());
+        SetShippingLabel(actualSupp.shippingLabel);
+        SetSupplierName(actualSupp.suppName);
+        SetASupplierName(actualSupp.suppName);
+        SetFoil(actualSupp.foil);
       }
     }
   }, [id, supData.data, supData]);
@@ -148,8 +147,8 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       className={styles.selectInput}
       onChange={(selectedOption: any) => SetFoil(selectedOption.value)}
       options={options}
+      value={options.find((opt) => opt.value === SFoil)}
       required
-      placeholder={SFoil === 'Ano' ? 'Ano' : 'Ne'}
     />
   );
 
@@ -160,7 +159,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         SetsendCashDelivery(selectedOption.value)
       }
       options={options}
-      placeholder={SSendCashDelivery === 'Ano' ? 'Ano' : 'Ne'}
+      value={options.find((opt) => opt.value === SSendCashDelivery)}
       required
     />
   );
@@ -170,7 +169,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       className={styles.selectInput}
       onChange={(selectedOption: any) => SetPackInBox(selectedOption.value)}
       options={options}
-      placeholder={SPackInBox === 'Ano' ? 'Ano' : 'Ne'}
+      value={options.find((opt) => opt.value === SPackInBox)}
       required
     />
   );
@@ -180,7 +179,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       className={styles.selectInput}
       onChange={(selectedOption: any) => SetShippingLabel(selectedOption.value)}
       options={options}
-      placeholder={SShippingLabel === 'Ano' ? 'Ano' : 'Ne'}
+      value={options.find((opt) => opt.value === SShippingLabel)}
       required
     />
   );
@@ -232,6 +231,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       }
 
       if (data) {
+        Refetch(supData);
         alert(`Dodavatel byl upraven s parametry: Doručení: ${data.delivery},
             Zabalení do folie: ${data.foil},
             Pojištění: ${data.insurance > 0 ?? 'bez pojištění'},
@@ -271,7 +271,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
                 onChange={(e) => SetSupplierName(e.target.value)}
                 required
                 type="text"
-                placeholder={SupplierName}
+                value={SupplierName}
               />
             </label>
           </div>
@@ -283,8 +283,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
                 onChange={(e) => SetDelivery(e.target.value)}
                 required
                 type="date"
-                // neupravuje se
-                placeholder={PickUp}
+                value={SDelivery}
               />
             </label>
             <label>
@@ -294,7 +293,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
                 onChange={(e) => SetPickUp(e.target.value)}
                 required
                 type="date"
-                placeholder={SDelivery}
+                value={PickUp}
               />
             </label>
           </div>

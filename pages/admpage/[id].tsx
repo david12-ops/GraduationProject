@@ -123,7 +123,6 @@ const PageBody = (error: any, warning: any, dataSupp: any, id: string) => {
                   padding: '10px',
                   margin: '10px',
                   borderRadius: '10px',
-                  boxSizing: 'border-box',
                 }}
               >
                 <PackCard

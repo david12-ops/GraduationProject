@@ -13,6 +13,11 @@ type Props = {
   id: string;
 };
 
+const Refetch = (data: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  data.refetch();
+};
+
 export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   // pouziti loadingu u mutation
   const [kg, SetKg] = React.useState(' ');
@@ -94,6 +99,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     }
     // eslint-disable-next-line no-lonely-if, max-depth
     if (data) {
+      Refetch(SuppPackages);
       alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
               Délka: ${data.Plength},
               Šířka: ${data.width},
@@ -134,7 +140,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
                 onChange={(e) => SetPackName(e.target.value)}
                 required
                 type="text"
-                placeholder={packName}
+                value={packName}
               />
             </label>
             <label>

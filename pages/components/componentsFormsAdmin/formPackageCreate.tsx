@@ -2,7 +2,10 @@ import router from 'next/router';
 import * as React from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-import { useNewPackageToFirestoreMutation } from '@/generated/graphql';
+import {
+  useNewPackageToFirestoreMutation,
+  useSuppDataQuery,
+} from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
 
@@ -10,6 +13,11 @@ import styles from '../../../styles/stylesForm/styleForms.module.css';
 
 type Props = {
   id: string;
+};
+
+const Refetch = (data: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  data.refetch();
 };
 
 export const FormPackage: React.FC<Props> = ({ id }) => {
@@ -20,6 +28,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
   const [sirka, SetSirka] = React.useState(' ');
   const [packName, SetPackName] = React.useState(' ');
   const [newPackage] = useNewPackageToFirestoreMutation();
+  const SuppPackages = useSuppDataQuery();
 
   // eslint-disable-next-line consistent-return
   const handleForm = async (event?: React.FormEvent) => {
@@ -53,6 +62,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     }
     // eslint-disable-next-line no-lonely-if, max-depth
     if (data) {
+      Refetch(SuppPackages);
       alert(`Balíček byl vytvořen s parametry: Váha: ${data.weight},
             Délka: ${data.Plength},
             Šířka: ${data.width},

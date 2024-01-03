@@ -7,15 +7,7 @@ import styles from '../../styles/Home.module.css';
 import { PackCards } from '../components/Cards/packsCards';
 import { SearchAppBar2 } from '../components/navbar2';
 
-// const AvgPrice = (id) => {
-//   // prumerna cena z baliku co ma
-//   // const packD = usePackageDataQuery();
-
-//   // const avgPrice = packD.data?.packageData.find(
-//   //   (actPack) => actPack.supplierId === id,
-//   // );
-//   // return AvgPrice;
-// };
+// Přepsat!!
 
 // eslint-disable-next-line import/no-default-export
 // upravit vypis balicku
@@ -60,22 +52,18 @@ export default function PacksCards() {
                   display: 'flex',
                   justifyContent: 'space-between',
                   flexWrap: 'wrap',
-                  maxWidth: '700px',
+                  maxWidth: '800px',
                 }}
               >
                 {selectedSupp?.package.map((item: any) => {
                   const keys = Object.keys(item);
                   return keys.map((key: any) => (
                     <div
-                      key={key} // Ensure each child in a list has a unique "key" prop
+                      key={key}
                       style={{
                         backgroundColor: '#D67F76',
-                        // display: 'flex',
-                        // flexDirection: 'row',
-                        // gap: '15px',
                         padding: '10px',
                         margin: '10px',
-                        // justifyContent: 'space-around',
                         borderRadius: '10px',
                       }}
                     >
