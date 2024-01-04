@@ -91,7 +91,6 @@ export default function Home() {
         </div>
 
         <div>{EmUS()}</div>
-        {/* <div>{P()}</div> */}
         <button onClick={HandleForm}>odeslat</button>
       </main>
 

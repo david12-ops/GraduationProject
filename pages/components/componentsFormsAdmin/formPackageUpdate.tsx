@@ -1,6 +1,7 @@
+import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   useSuppDataQuery,
@@ -30,8 +31,18 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
 
   const [UpdatePackage] = useUpdatePackageMutation();
   const SuppPackages = useSuppDataQuery();
+  const [admin, SetAdmin] = useState(false);
+  const [logged, SetLogin] = useState(false);
 
   useEffect(() => {
+    const Admin = process.env.NEXT_PUBLIC_AdminEm;
+    const auth = getAuth();
+    if (auth.currentUser) {
+      SetLogin(true);
+    }
+    if (auth.currentUser?.email === Admin) {
+      SetAdmin(true);
+    }
     if (id && SuppPackages.data && SuppPackages) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       SuppPackages.data.suplierData.forEach((item) => {
@@ -67,9 +78,8 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
         }
       });
     }
-  }, [id, SuppPackages.data, SuppPackages]);
+  }, [id, SuppPackages.data, SuppPackages, logged, admin]);
 
-  // eslint-disable-next-line consistent-return
   const handleForm = async (event?: React.FormEvent) => {
     event?.preventDefault();
     const result = await UpdatePackage({
@@ -93,11 +103,15 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
 
     const err = result.data.updatePack?.message;
     const data = result.data.updatePack?.data;
-    console.log(err);
+
     if (result.err) {
-      return alert(result.err);
+      alert(result.err);
     }
-    // eslint-disable-next-line no-lonely-if, max-depth
+
+    if (err) {
+      alert(err);
+    }
+
     if (data) {
       Refetch(SuppPackages);
       alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
@@ -106,17 +120,23 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
               Výška: ${data.height},
               Označení: ${data.name_package}`);
       return router.push(`/../../admpage/${data.supplier_id}`);
-      // eslint-disable-next-line no-else-return
-    } else {
-      // eslint-disable-next-line max-depth, no-lonely-if
-      if (err === 'Duplicate id') {
-        await handleForm();
-      } else {
-        return alert(err);
-      }
     }
   };
 
+  if (!logged || !admin) {
+    return (
+      <div
+        style={{
+          textAlign: 'center',
+          color: 'red',
+          fontSize: '30px',
+          fontWeight: 'bold',
+        }}
+      >
+        Nejsi admin!!!!
+      </div>
+    );
+  }
   return (
     <div>
       <div className={styles.container}>

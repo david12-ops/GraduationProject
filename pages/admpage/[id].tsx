@@ -1,3 +1,4 @@
+import { getAuth } from 'firebase/auth';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -32,7 +33,29 @@ const IsThereSupp = (data: any) => {
   return false;
 };
 
-const PageBody = (error: any, warning: any, dataSupp: any, id: string) => {
+const PageBody = (
+  error: any,
+  warning: any,
+  dataSupp: any,
+  id: string,
+  logged: boolean,
+  admin: boolean,
+) => {
+  if (!logged || !admin) {
+    return (
+      <div
+        style={{
+          textAlign: 'center',
+          color: 'red',
+          fontSize: '30px',
+          fontWeight: 'bold',
+        }}
+      >
+        Nejsi admin!!!!
+      </div>
+    );
+  }
+
   if (!error) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return (
@@ -158,12 +181,22 @@ const PageBody = (error: any, warning: any, dataSupp: any, id: string) => {
 export default function Page() {
   const suppD = useSuppDataQuery();
   const [body, SetBody] = useState({});
+  const [admin, SetAdmin] = useState(false);
+  const [logged, SetLogin] = useState(false);
 
   const router = useRouter();
   const { query } = router;
   const { id } = query;
 
   useEffect(() => {
+    const Admin = process.env.NEXT_PUBLIC_AdminEm;
+    const auth = getAuth();
+    if (auth.currentUser) {
+      SetLogin(true);
+    }
+    if (auth.currentUser?.email === Admin) {
+      SetAdmin(true);
+    }
     if (!suppD.loading) {
       const selectedSupp = suppD.data?.suplierData.find(
         (actPack: any) => actPack.supplierId === id,
@@ -174,10 +207,17 @@ export default function Page() {
       const errPack = IsTherePackage(selectedSupp?.package);
 
       SetBody({
-        data: PageBody(errSup, errPack, selectedSupp, id ? String(id) : ''),
+        data: PageBody(
+          errSup,
+          errPack,
+          selectedSupp,
+          id ? String(id) : '',
+          logged,
+          admin,
+        ),
       });
     }
-  }, [suppD.data?.suplierData, suppD.loading, id]);
+  }, [suppD.data?.suplierData, suppD.loading, id, logged, admin]);
 
   return (
     <div className={styles.container}>

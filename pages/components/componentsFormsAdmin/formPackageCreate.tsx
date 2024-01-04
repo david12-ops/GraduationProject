@@ -1,5 +1,7 @@
+import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -29,6 +31,19 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
   const [packName, SetPackName] = React.useState(' ');
   const [newPackage] = useNewPackageToFirestoreMutation();
   const SuppPackages = useSuppDataQuery();
+  const [admin, SetAdmin] = useState(false);
+  const [logged, SetLogin] = useState(false);
+
+  useEffect(() => {
+    const Admin = process.env.NEXT_PUBLIC_AdminEm;
+    const auth = getAuth();
+    if (auth.currentUser) {
+      SetLogin(true);
+    }
+    if (auth.currentUser?.email === Admin) {
+      SetAdmin(true);
+    }
+  }, [logged, admin]);
 
   // eslint-disable-next-line consistent-return
   const handleForm = async (event?: React.FormEvent) => {
@@ -58,9 +73,13 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     const data = result.data?.PackageToFirestore?.data;
 
     if (result.err) {
-      return alert(result.err);
+      alert(result.err);
     }
-    // eslint-disable-next-line no-lonely-if, max-depth
+
+    if (err) {
+      alert(err);
+    }
+
     if (data) {
       Refetch(SuppPackages);
       alert(`Balíček byl vytvořen s parametry: Váha: ${data.weight},
@@ -69,18 +88,23 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
             Výška: ${data.height},
             Označení: ${data.name_package}`);
       return router.push(`/../../admpage/${data.supplier_id}`);
-      // eslint-disable-next-line no-else-return
-    } else {
-      // eslint-disable-next-line max-depth, no-lonely-if
-      if (err === 'Duplicate id') {
-        // je moudrý ??
-        await handleForm();
-      } else {
-        return alert(err);
-      }
     }
   };
 
+  if (!logged || !admin) {
+    return (
+      <div
+        style={{
+          textAlign: 'center',
+          color: 'red',
+          fontSize: '30px',
+          fontWeight: 'bold',
+        }}
+      >
+        Nejsi admin!!!!
+      </div>
+    );
+  }
   return (
     <div>
       <div className={styles.container}>

@@ -1,5 +1,7 @@
+import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import Select from 'react-select';
 
 import {
@@ -78,6 +80,19 @@ export const FormSupplier = () => {
   const [SupplierName, SetSupplierName] = React.useState(' ');
   const [newSupp] = useNewSupplierToFirestoreMutation();
   const supData = useSuppDataQuery();
+  const [admin, SetAdmin] = useState(false);
+  const [logged, SetLogin] = useState(false);
+
+  useEffect(() => {
+    const Admin = process.env.NEXT_PUBLIC_AdminEm;
+    const auth = getAuth();
+    if (auth.currentUser) {
+      SetLogin(true);
+    }
+    if (auth.currentUser?.email === Admin) {
+      SetAdmin(true);
+    }
+  }, [logged, admin]);
 
   const Valid = (
     pickUparg: string,
@@ -162,7 +177,6 @@ export const FormSupplier = () => {
     />
   );
 
-  // eslint-disable-next-line consistent-return
   const handleForm = async (event: React.FormEvent) => {
     event.preventDefault();
     const valid = Valid(
@@ -189,7 +203,6 @@ export const FormSupplier = () => {
           packInBox: SPackInBox,
         },
       })
-        // eslint-disable-next-line consistent-return
         .then((res) => {
           return res;
         })
@@ -201,10 +214,13 @@ export const FormSupplier = () => {
       const data = result.data?.SupplierToFirestore?.data;
 
       if (result.err) {
-        return alert(result.err);
+        alert(result.err);
       }
 
-      // eslint-disable-next-line promise/always-return
+      if (err) {
+        alert(err);
+      }
+
       if (data) {
         Refetch(supData);
         alert(`Dodavatel byl vytvořen s parametry: Doručení: ${data.delivery},
@@ -218,13 +234,24 @@ export const FormSupplier = () => {
               Štítek přiveze kurýr: ${data.shippingLabel},
               Jméno dopravce: ${data.suppName}`);
         return router.push(`/../../admin-page`);
-        // eslint-disable-next-line no-else-return
-      } else {
-        return alert(err);
       }
     }
   };
 
+  if (!logged || !admin) {
+    return (
+      <div
+        style={{
+          textAlign: 'center',
+          color: 'red',
+          fontSize: '30px',
+          fontWeight: 'bold',
+        }}
+      >
+        Nejsi admin!!!!
+      </div>
+    );
+  }
   return (
     <div>
       <div className={styles.container}>

@@ -1,15 +1,51 @@
 import { getAuth } from 'firebase/auth';
 import Head from 'next/head';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import styles from '../styles/Home.module.css';
 import { useAuthContext } from './components/auth-context-provider';
 import { DataGridSupplier } from './components/componentsTables/tableSupp';
 import { SearchAppBar2 } from './components/navbar2';
 
+const Page = (logged: boolean, admin: boolean) => {
+  if (!logged || !admin) {
+    // componentu misto div
+    // funguje pro jednoho usera
+    return (
+      <div
+        style={{
+          textAlign: 'center',
+          color: 'red',
+          fontSize: '30px',
+          fontWeight: 'bold',
+        }}
+      >
+        Nejsi admin!!!!
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <h2
+        style={{
+          marginTop: '70px',
+          color: '#D67F76',
+          fontSize: '30px',
+        }}
+      >
+        Table of suppliers
+      </h2>
+      <DataGridSupplier />
+    </div>
+  );
+};
+
 // eslint-disable-next-line import/no-default-export
 export default function AdmPage() {
   const { user, loading } = useAuthContext();
+  const [admin, SetAdmin] = useState(false);
+  const [logged, SetLogin] = useState(false);
   const P = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     return <div>{user?.email}</div>;
@@ -17,13 +53,13 @@ export default function AdmPage() {
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
     const auth = getAuth();
-    if (!auth.currentUser) {
-      throw new Error('You must be logged!');
+    if (auth.currentUser) {
+      SetLogin(true);
     }
-    if (auth.currentUser.email !== Admin) {
-      throw new Error('You must be admin for this page!');
+    if (auth.currentUser?.email === Admin) {
+      SetAdmin(true);
     }
-  });
+  }, [logged, admin]);
   return (
     <div className={styles.container}>
       <Head>
@@ -36,26 +72,7 @@ export default function AdmPage() {
       <main className={styles.main}>
         <h1>Welocome to admin interface</h1>
         <h2>{P()}</h2>
-        {/* <h2
-          style={{
-            marginTop: '40px',
-            color: '#D67F76',
-            fontSize: '30px',
-          }}
-        >
-          Table of packeges
-        </h2>
-        <DataGridPackage /> */}
-        <h2
-          style={{
-            marginTop: '70px',
-            color: '#D67F76',
-            fontSize: '30px',
-          }}
-        >
-          Table of suppliers
-        </h2>
-        <DataGridSupplier />
+        {Page(logged, admin)}
       </main>
 
       <footer className={styles.footer}></footer>

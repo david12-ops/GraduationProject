@@ -1,7 +1,8 @@
 // eslint-disable-next-line unicorn/filename-case
+import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Select from 'react-select';
 
 import {
@@ -93,8 +94,19 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const supData = useSuppDataQuery();
   const [UpdateSupp] = useUpdateSupplierMutation();
+  const [admin, SetAdmin] = useState(false);
+  const [logged, SetLogin] = useState(false);
 
   useEffect(() => {
+    const Admin = process.env.NEXT_PUBLIC_AdminEm;
+    const auth = getAuth();
+    if (auth.currentUser) {
+      SetLogin(true);
+    }
+    if (auth.currentUser?.email === Admin) {
+      SetAdmin(true);
+    }
+
     if (id && supData.data && supData) {
       const actualSupp = supData.data?.suplierData.find(
         (actSupp) => actSupp.supplierId === id,
@@ -113,7 +125,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         SetFoil(actualSupp.foil);
       }
     }
-  }, [id, supData.data, supData]);
+  }, [id, supData.data, supData, logged, admin]);
 
   const Valid = (
     pickUparg: string,
@@ -184,7 +196,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     />
   );
 
-  // eslint-disable-next-line consistent-return
   const handleForm = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -227,7 +238,11 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       const data = result.data?.updateSup?.data;
 
       if (result.err) {
-        return alert(result.err);
+        alert(result.err);
+      }
+
+      if (err) {
+        alert(err);
       }
 
       if (data) {
@@ -241,13 +256,24 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             Štítek přiveze kurýr: ${data.shippingLabel},
             Jméno dopravce: ${data.suppName}`);
         return router.push(`/../../admpage/${data.supplierId}`);
-        // eslint-disable-next-line no-else-return
-      } else {
-        return alert(err);
       }
     }
   };
 
+  if (!logged || !admin) {
+    return (
+      <div
+        style={{
+          textAlign: 'center',
+          color: 'red',
+          fontSize: '30px',
+          fontWeight: 'bold',
+        }}
+      >
+        Nejsi admin!!!!
+      </div>
+    );
+  }
   return (
     <div>
       <div className={styles.container}>
