@@ -48,7 +48,7 @@ export default function AdmPage() {
   const [logged, SetLogin] = useState(false);
   const P = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    return <div>{user?.email}</div>;
+    return <div>{loading ?? user?.email}</div>;
   };
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;

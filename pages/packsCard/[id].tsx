@@ -8,8 +8,6 @@ import styles from '../../styles/Home.module.css';
 import { PackCards } from '../components/Cards/packsCards';
 import { SearchAppBar2 } from '../components/navbar2';
 
-// Přepsat!!
-
 const IsTherePackage = (data: any) => {
   // eslint-disable-next-line sonarjs/prefer-single-boolean-return
   console.log('how much', data?.length > 0);
@@ -35,13 +33,14 @@ const PageBody = (error: any, warning: any, dataSupp: any) => {
     return (
       <div
         style={{
-          textAlign: 'center',
-          color: 'red',
-          fontSize: '40px',
-          fontWeight: 'bold',
+          border: 'solid red',
+          borderRadius: '10px',
+          color: 'lightblue',
         }}
       >
-        <p>Dodavatel nenalazen!!</p>
+        <div>
+          <img src="/sorry-item-not-found-3328225-2809510.webp" alt="?" />
+        </div>
       </div>
     );
   }
@@ -133,9 +132,6 @@ export default function PacksCards() {
       </Head>
       <SearchAppBar2 />
       <main className={styles.main}>
-        <h1 style={{ textAlign: 'center' }}>
-          Welocome to package detail of supplier
-        </h1>
         <h2
           style={{
             marginTop: '20px',
