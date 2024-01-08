@@ -22,15 +22,14 @@
         grid-row: 2;
     }
 
-    /* .body2 {
-        align-items: center;
-        padding: 3rem;
-        min-height: 100vh;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(2, 1fr);
+    .body2 {
         background-color: whitesmoke;
-    } */
+        display: flex;
+        padding: 3rem;
+        align-items: center;
+        flex-direction: column;
+        gap: 25px;
+    }
 
     .body4 {
         align-items: center;
@@ -57,8 +56,8 @@
 
 
     .itmImg2 {
-        width: 375px;
-        height: 275px;
+        width: 275px;
+        height: 175px;
     }
 
     .itemBtn {
@@ -108,13 +107,53 @@
     }
 
     .itemImg {
-        width: 250px;
-        height: 250px;
+        width: 200px;
+        height: 200px;
     }
 
     .suppImg {
         width: 250px;
         height: 250px;
+    }
+
+    /* font styling */
+    .body1Napis {
+        font-size: 35px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .body1Odstavec {
+        font-size: 30px;
+        color: white;
+        font-weight: bold;
+    }
+
+    .body2Nadpis {
+        font-size: 35px;
+        font-weight: bold;
+        color: black;
+    }
+
+    .body4Napis {
+        font-size: 35px;
+        text-align: center;
+    }
+
+    .body4Odstavec {
+        font-size: 30px;
+        text-align: center;
+    }
+
+    .body5Napis {
+        font-size: 35px;
+        text-align: center;
+    }
+
+    .body5Odstavec {
+        font-size: 30px;
+        text-align: center;
+        color: gray;
     }
 
 }
@@ -143,15 +182,14 @@
         grid-row: 2;
     }
 
-    /* .body2 {
-        align-items: center;
-        padding: 3rem;
-        min-height: 100vh;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(2, 1fr);
+    .body2 {
         background-color: whitesmoke;
-    } */
+        display: flex;
+        padding: 3rem;
+        align-items: center;
+        flex-direction: column;
+        gap: 25px;
+    }
 
     .body4 {
         align-items: center;
@@ -237,6 +275,46 @@
         height: 600px;
     }
 
+    /* font styling */
+    .body1Napis {
+        font-size: 35px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .body1Odstavec {
+        font-size: 30px;
+        color: white;
+        font-weight: bold;
+    }
+
+    .body2Nadpis {
+        font-size: 35px;
+        font-weight: bold;
+        color: black;
+    }
+
+    .body4Napis {
+        font-size: 35px;
+        text-align: center;
+    }
+
+    .body4Odstavec {
+        font-size: 30px;
+        text-align: center;
+    }
+
+    .body5Napis {
+        font-size: 35px;
+        text-align: center;
+    }
+
+    .body5Odstavec {
+        font-size: 30px;
+        text-align: center;
+        color: gray;
+    }
+
 }
 
 @media (min-width: 1024px) {
@@ -250,24 +328,13 @@
         background-color: #72E66E;
     }
 
-    /* .body2 {
-        align-items: center;
-        padding: 3rem;
-        min-height: 100vh;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(2, 1fr);
+    .body2 {
         background-color: whitesmoke;
-    } */
-
-    .body3 {
-        min-height: 100vh;
         display: flex;
+        padding: 3rem;
         align-items: center;
-        justify-content: space-around;
-        width: 100%;
-        flex-wrap: wrap;
-        background-color: whitesmoke;
+        flex-direction: column;
+        gap: 25px;
     }
 
     .body5 {
@@ -392,6 +459,46 @@
         width: 700px;
         height: 700px;
     }
+
+    /* font styling */
+    .body1Napis {
+        font-size: 40px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .body1Odstavec {
+        font-size: 35px;
+        color: white;
+        font-weight: bold;
+    }
+
+    .body2Nadpis {
+        font-size: 40px;
+        font-weight: bold;
+        color: black;
+    }
+
+    .body4Napis {
+        font-size: 40px;
+        text-align: center;
+    }
+
+    .body4Odstavec {
+        font-size: 35px;
+        text-align: center;
+    }
+
+    .body5Napis {
+        font-size: 40px;
+        text-align: center;
+    }
+
+    .body5Odstavec {
+        font-size: 35px;
+        text-align: center;
+        color: gray;
+    }
 }
 
 @media (min-width: 1200px) {
@@ -405,22 +512,10 @@
         background-color: #72E66E;
     }
 
-    /* .body2 {
-        align-items: center;
-        padding: 3rem;
-        min-height: 100vh;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(2, 1fr);
-        background-color: whitesmoke;
-    } */
-
-    .body3 {
+    .body2 {
         min-height: 100vh;
         display: flex;
-        justify-content: space-between;
-        width: 100%;
-        flex-wrap: wrap;
+        flex-direction: row;
         background-color: whitesmoke;
     }
 
@@ -545,5 +640,45 @@
     .suppImg {
         width: 700px;
         height: 700px;
+    }
+
+    /* font styling */
+    .body1Napis {
+        font-size: 40px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .body1Odstavec {
+        font-size: 35px;
+        color: white;
+        font-weight: bold;
+    }
+
+    .body2Nadpis {
+        font-size: 40px;
+        font-weight: bold;
+        color: black;
+    }
+
+    .body4Napis {
+        font-size: 40px;
+        text-align: center;
+    }
+
+    .body4Odstavec {
+        font-size: 35px;
+        text-align: center;
+    }
+
+    .body5Napis {
+        font-size: 40px;
+        text-align: center;
+    }
+
+    .body5Odstavec {
+        font-size: 35px;
+        text-align: center;
+        color: gray;
     }
 }

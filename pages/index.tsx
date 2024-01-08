@@ -84,22 +84,8 @@ export default function Home() {
 
           <div className={stylesM.item2}>
             <div>
-              <h1
-                style={{
-                  fontSize: '50px',
-                  fontWeight: 'bold',
-                  color: 'white',
-                }}
-              >
-                BingoBalík
-              </h1>
-              <p
-                style={{
-                  fontSize: '40px',
-                  color: 'white',
-                  fontWeight: 'bold',
-                }}
-              >
+              <h1 className={stylesM.body1Napis}>BingoBalík</h1>
+              <p className={stylesM.body1Odstavec}>
                 Stánka, která pomáha najít vaše Bingo balíky podle vaších
                 představ s nejvhodnějším dodavatelem
               </p>
@@ -107,47 +93,25 @@ export default function Home() {
           </div>
         </div>
 
-        <div
-          style={{
-            backgroundColor: 'whitesmoke',
-            display: 'flex',
-            padding: '3rem',
-            alignItems: 'center',
-            flexDirection: 'column',
-          }}
-        >
-          <div>
-            <h1
-              style={{
-                fontSize: '40px',
-                fontWeight: 'bold',
-                color: 'black',
-                textAlign: 'center',
-              }}
-            >
-              Co vám nabízíme?
-            </h1>
-          </div>
+        <div className={stylesM.body2}>
+          <h1 className={stylesM.body2Napis}>Co vám nabízíme?</h1>
+          <CardOffer
+            img="lupa2.png"
+            label="Nejvhodnější balíky"
+            description="Zde si podle vašich parametrů můžete objednat svůj vhodný balík dle výšky, šířky, délky hmostnosti toho, co tam dáte a lokace "
+          />
 
-          <div className={stylesM.body3}>
-            <CardOffer
-              img="lupa2.png"
-              label="Nejvhodnější balíky"
-              description="Zde si podle vašich parametrů můžete objednat svůj vhodný balík dle výšky, šířky, délky hmostnosti toho, co tam dáte a lokace "
-            />
+          <CardOffer
+            img="history2.jpg"
+            label="Historie"
+            description="Historie objednávek, které si uživatel může prohlédnout i s nimi manipulovat. Lze je zpětně dokončit i smazat"
+          />
 
-            <CardOffer
-              img="history2.jpg"
-              label="Historie"
-              description="Historie objednávek, které si uživatel může prohlédnout i s nimi manipulovat. Lze je zpětně dokončit i smazat"
-            />
-
-            <CardOffer
-              img="kopie.jpg"
-              label="Objednání"
-              description="Zde si lze i objednat balík u dopravce, který vám nejvíce vyhovuje "
-            />
-          </div>
+          <CardOffer
+            img="kopie.jpg"
+            label="Objednání"
+            description="Zde si lze i objednat balík u dopravce, který vám nejvíce vyhovuje "
+          />
         </div>
 
         <div className={stylesM.body4}>
@@ -155,10 +119,8 @@ export default function Home() {
             <img src="/confused.webp" alt="" className={stylesM.itmImg2} />
           </div>
           <div className={stylesM.item8}>
-            <h1 style={{ fontSize: '40px', textAlign: 'center' }}>
-              Jak zde najdete svůj balík?
-            </h1>
-            <p style={{ fontSize: '30px', textAlign: 'center' }}>
+            <h1 className={stylesM.body4Napis}>Jak zde najdete svůj balík?</h1>
+            <p className={stylesM.body4Odstavec}>
               Stačí kliknout na taličítko
               <Link key="chooseSup-page" href={'/chooseSup-page'}>
                 <button className={stylesM.itemBtn}>Nejvhodnější balík</button>
@@ -170,16 +132,8 @@ export default function Home() {
 
         <div className={stylesM.body5}>
           <div className={stylesM.item9}>
-            <h1 style={{ fontSize: '40px', textAlign: 'center' }}>
-              Sparáva účtu a informace
-            </h1>
-            <p
-              style={{
-                fontSize: '30px',
-                color: 'gray',
-                textAlign: 'center',
-              }}
-            >
+            <h1 className={stylesM.body5Napis}>Sparáva účtu a informace</h1>
+            <p className={stylesM.body5Odstavec}>
               Spravovat účet lze tu též a na stránce k tomu určené najdete i
               vaši historii objednávek, lze i změnit heslo a email. Kliknutím na
               tlačítko po obrázkama se dostanete na stránku vašeho účtu
@@ -196,7 +150,6 @@ export default function Home() {
             <button className={stylesM.itemBtn}>Spravovat účet</button>
           </div>
         </div>
-        <div></div>
       </main>
     </div>
   );
