@@ -79,14 +79,7 @@ export default function Home() {
       <main>
         <div className={stylesM.body1}>
           <div className={stylesM.item1}>
-            <img
-              style={{
-                width: '700px',
-                height: '700px',
-              }}
-              src="/ImgSupp.png"
-              alt="5"
-            />
+            <img className={stylesM.suppImg} src="/ImgSupp.png" alt="" />
           </div>
 
           <div className={stylesM.item2}>
@@ -117,17 +110,19 @@ export default function Home() {
         <div
           style={{
             backgroundColor: 'whitesmoke',
-            alignItems: 'center',
+            display: 'flex',
             padding: '3rem',
-            minHeight: '100vh',
+            alignItems: 'center',
+            flexDirection: 'column',
           }}
         >
-          <div className={stylesM.item3}>
+          <div>
             <h1
               style={{
                 fontSize: '40px',
                 fontWeight: 'bold',
                 color: 'black',
+                textAlign: 'center',
               }}
             >
               Co vám nabízíme?
@@ -135,35 +130,29 @@ export default function Home() {
           </div>
 
           <div className={stylesM.body3}>
-            <div>
-              <CardOffer
-                img="lupa2.png"
-                label="Nejvhodnější balíky"
-                description="Zde si podle vašich parametrů můžete objednat svůj vhodný balík dle výšky, šířky, délky hmostnosti toho, co tam dáte a lokace "
-              />
-            </div>
+            <CardOffer
+              img="lupa2.png"
+              label="Nejvhodnější balíky"
+              description="Zde si podle vašich parametrů můžete objednat svůj vhodný balík dle výšky, šířky, délky hmostnosti toho, co tam dáte a lokace "
+            />
 
-            <div>
-              <CardOffer
-                img="history2.jpg"
-                label="Historie"
-                description="Historie objednávek, které si uživatel může prohlédnout i s nimi manipulovat. Lze je zpětně dokončit i smazat"
-              />
-            </div>
+            <CardOffer
+              img="history2.jpg"
+              label="Historie"
+              description="Historie objednávek, které si uživatel může prohlédnout i s nimi manipulovat. Lze je zpětně dokončit i smazat"
+            />
 
-            <div>
-              <CardOffer
-                img="kopie.jpg"
-                label="Objednání"
-                description="Zde si lze i objednat balík u dopravce, který vám nejvíce vyhovuje "
-              />
-            </div>
+            <CardOffer
+              img="kopie.jpg"
+              label="Objednání"
+              description="Zde si lze i objednat balík u dopravce, který vám nejvíce vyhovuje "
+            />
           </div>
         </div>
 
         <div className={stylesM.body4}>
           <div className={stylesM.item7}>
-            <img src="/confused.webp" alt="" />
+            <img src="/confused.webp" alt="" className={stylesM.itmImg2} />
           </div>
           <div className={stylesM.item8}>
             <h1 style={{ fontSize: '40px', textAlign: 'center' }}>
@@ -172,23 +161,9 @@ export default function Home() {
             <p style={{ fontSize: '30px', textAlign: 'center' }}>
               Stačí kliknout na taličítko
               <Link key="chooseSup-page" href={'/chooseSup-page'}>
-                <button
-                  style={{
-                    backgroundColor: 'green',
-                    color: 'white',
-                    padding: '12px 20px',
-                    margin: '8px 0',
-                    border: 'none',
-                    cursor: 'pointer',
-                    opacity: 0.9,
-                    borderRadius: '10px',
-                    fontSize: '20px',
-                  }}
-                >
-                  Nejvhodnější balík
-                </button>
+                <button className={stylesM.itemBtn}>Nejvhodnější balík</button>
               </Link>
-              a najdete svůj vysněný balík
+              , se kterým najdete svůj vysněný balík
             </p>
           </div>
         </div>
@@ -212,27 +187,13 @@ export default function Home() {
           </div>
 
           <div className={stylesM.item10}>
-            <img src="/s2.png" alt="" width={250} height={250} />
+            <img src="/s2.png" alt="" className={stylesM.itemImg} />
           </div>
           <div className={stylesM.item11}>
-            <img src="/pngegg.png" alt="" width={250} height={250} />
+            <img src="/pngegg.png" alt="" className={stylesM.itemImg} />
           </div>
           <div className={stylesM.item12}>
-            <button
-              style={{
-                backgroundColor: 'green',
-                color: 'white',
-                padding: '12px 20px',
-                margin: '8px 0',
-                border: 'none',
-                cursor: 'pointer',
-                opacity: 0.9,
-                borderRadius: '10px',
-                fontSize: '20px',
-              }}
-            >
-              Spravovat účet
-            </button>
+            <button className={stylesM.itemBtn}>Spravovat účet</button>
           </div>
         </div>
         <div></div>
