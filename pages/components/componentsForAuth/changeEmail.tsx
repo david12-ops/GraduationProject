@@ -61,7 +61,6 @@ export const PageFormChangeEm = () => {
       <div className={styles.container}>
         <h1>Change email account</h1>
         <form onSubmit={handleForm} className={styles.form}>
-          {/* <hr> */}
           <label htmlFor="email">
             <p>New email</p>
             <input

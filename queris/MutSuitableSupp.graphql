@@ -1,5 +1,5 @@
-mutation MutSuitableSupp($Width:Int!, $Weight:Int!, $Height:Int!, $Length:Int!){
-    BingoSupPac(width:$Width, weight:$Weight, height:$Height, Plength:$Length){
+mutation MutSuitableSupp($Width:Int!, $Weight:Int!, $Height:Int!, $Length:Int!, $Mz:String!, $Mdo:String!, $Cost:Int!){
+    BingoSupPac(width:$Width, weight:$Weight, height:$Height, Plength:$Length, mistoZ:$Mz, mistoDo:$Mdo, cost:$Cost){
         ... on Suitable {
             suitable
         }

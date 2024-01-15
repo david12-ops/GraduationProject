@@ -23,6 +23,7 @@ const Refetch = (data: any) => {
 };
 
 export const FormPackage: React.FC<Props> = ({ id }) => {
+  // const { user } = useAuthContext();
   const [kg, SetKg] = React.useState(' ');
   const [cost, SetCost] = React.useState(' ');
   const [delka, SetDelka] = React.useState(' ');

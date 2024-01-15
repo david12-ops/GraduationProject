@@ -1,5 +1,5 @@
 // eslint-disable-next-line unicorn/filename-case
-import { Button } from '@mui/material';
+import { Button, Link } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -164,7 +164,9 @@ export const ResSuppCard: React.FC<Props> = ({
         >
           <div style={{ textAlign: 'center' }}>Price: {price}</div>
           <CardActions style={{ justifyContent: 'center' }}>
-            <Button className={styles.crudbtnTable}>Objednat</Button>
+            <Link key="orderPage" href={`../../orderPage`}>
+              <Button className={styles.crudbtnTable}>Order</Button>
+            </Link>
           </CardActions>
         </Typography>
       </CardContent>

@@ -5,9 +5,8 @@
 'use client';
 
 import { getAuth } from 'firebase/auth';
-import { FirebaseError } from 'firebase-admin';
 import { useRouter } from 'next/router';
-import React, { FormEvent } from 'react';
+import React from 'react';
 
 import { authUtils } from '@/firebase/auth-utils';
 
@@ -32,47 +31,56 @@ export const PageFormChangePass = () => {
   //   return false;
   // };
   const auth = getAuth();
+
+  console.log(auth.currentUser);
+
   const router = useRouter();
   // eslint-disable-next-line consistent-return
-  const handleForm = async (event: FormEvent) => {
-    try {
-      if (!auth.currentUser) {
-        throw new Error('Not logged!');
-      }
-
-      // const valid = ValidPass(newPassword);
-      // alert(valid);
-      // validace hesla, minimalni pozadavky
-      if (ConfirmPass !== newPassword) {
-        throw new Error('Passwords are not same!');
-      }
-
-      // if (valid) {
-      //   event.preventDefault();
-      //   await authUtils.changeUsPass(auth.currentUser, newPassword);
-      //   // eslint-disable-next-line no-alert
-      //   alert('User password update successfull');
-      //   return await router.push('/');
-      // }
-
-      event.preventDefault();
-      // nefunkcni
-      await authUtils.changeUsPass(auth.currentUser, newPassword);
-      // eslint-disable-next-line no-alert
-      alert('User password update successfull');
-      return await router.push('/');
-    } catch (error) {
-      const err = error as FirebaseError;
-      if (err.code === 'auth/user-not-found') {
-        alert('Bad password or user name or you do not have account');
-      }
+  const handleForm = async () => {
+    // try {
+    if (!auth.currentUser) {
+      throw new Error('Not logged!');
     }
+
+    // const valid = ValidPass(newPassword);
+    // alert(valid);
+    // validace hesla, minimalni pozadavky
+    if (ConfirmPass !== newPassword) {
+      throw new Error('Passwords are not same!');
+    }
+
+    // if (valid) {
+    //   event.preventDefault();
+    //   await authUtils.changeUsPass(auth.currentUser, newPassword);
+    //   // eslint-disable-next-line no-alert
+    //   alert('User password update successfull');
+    //   return await router.push('/');
+    // }
+    alert('jooo');
+    // event.preventDefault();
+    // nefunkcni
+    alert('noooo');
+    console.log(auth.currentUser);
+    // const changePass = authUtils.changeUsPass(auth.currentUser, newPassword);
+    console.log(authUtils.changeUsPass(auth.currentUser, newPassword));
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    await authUtils.changeUsPass(auth.currentUser, newPassword);
+    // eslint-disable-next-line no-alert
+    alert('User password update successfull');
+    return router.push('/');
+    // } catch (error) {
+    //   const err = error as FirebaseError;
+    //   if (err.code === 'auth/user-not-found') {
+    //     alert('Bad password or user name or you do not have account');
+    //   }
+    // }
   };
   return (
     <div>
       <div className={styles.container}>
         <h1>Change password acount</h1>
-        <form onSubmit={handleForm} className={styles.form}>
+        {/* <form onSubmit={handleForm} className={styles.form}> */}
+        <form>
           <label htmlFor="newPassword">
             <p>New password</p>
             <input
@@ -97,7 +105,11 @@ export const PageFormChangePass = () => {
               placeholder="Confirm new password"
             />
           </label>
-          <button className={styles.registerbtn} type="submit">
+          <button
+            onClick={handleForm}
+            className={styles.registerbtn}
+            // type="submit"
+          >
             Change password
           </button>
         </form>

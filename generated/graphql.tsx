@@ -68,7 +68,10 @@ export type MutationActualUsToFirestoreArgs = {
 
 export type MutationBingoSupPacArgs = {
   Plength: Scalars['Int'];
+  cost: Scalars['Int'];
   height: Scalars['Int'];
+  mistoDo: Scalars['String'];
+  mistoZ: Scalars['String'];
   weight: Scalars['Int'];
   width: Scalars['Int'];
 };
@@ -367,6 +370,9 @@ export type MutSuitableSuppMutationVariables = Exact<{
   Weight: Scalars['Int'];
   Height: Scalars['Int'];
   Length: Scalars['Int'];
+  Mz: Scalars['String'];
+  Mdo: Scalars['String'];
+  Cost: Scalars['Int'];
 }>;
 
 
@@ -708,8 +714,16 @@ export type NewPackageToFirestoreMutationHookResult = ReturnType<typeof useNewPa
 export type NewPackageToFirestoreMutationResult = Apollo.MutationResult<NewPackageToFirestoreMutation>;
 export type NewPackageToFirestoreMutationOptions = Apollo.BaseMutationOptions<NewPackageToFirestoreMutation, NewPackageToFirestoreMutationVariables>;
 export const MutSuitableSuppDocument = gql`
-    mutation MutSuitableSupp($Width: Int!, $Weight: Int!, $Height: Int!, $Length: Int!) {
-  BingoSupPac(width: $Width, weight: $Weight, height: $Height, Plength: $Length) {
+    mutation MutSuitableSupp($Width: Int!, $Weight: Int!, $Height: Int!, $Length: Int!, $Mz: String!, $Mdo: String!, $Cost: Int!) {
+  BingoSupPac(
+    width: $Width
+    weight: $Weight
+    height: $Height
+    Plength: $Length
+    mistoZ: $Mz
+    mistoDo: $Mdo
+    cost: $Cost
+  ) {
     ... on Suitable {
       suitable
     }
@@ -738,6 +752,9 @@ export type MutSuitableSuppMutationFn = Apollo.MutationFunction<MutSuitableSuppM
  *      Weight: // value for 'Weight'
  *      Height: // value for 'Height'
  *      Length: // value for 'Length'
+ *      Mz: // value for 'Mz'
+ *      Mdo: // value for 'Mdo'
+ *      Cost: // value for 'Cost'
  *   },
  * });
  */

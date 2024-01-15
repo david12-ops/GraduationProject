@@ -1,3 +1,5 @@
+/* eslint-disable max-depth */
+/* eslint-disable complexity */
 /* eslint-disable sonarjs/no-ignored-return */
 // eslint-disable-next-line eslint-comments/disable-enable-pair
 /* eslint-disable prettier/prettier */
@@ -9,7 +11,7 @@ import 'firebase/compat/storage';
 
 import { Context } from '@apollo/client';
 import axios from 'axios';
-import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
+import { DecodedIdToken } from 'firebase-admin/auth';
 import { gql } from 'graphql-tag';
 import { createSchema, createYoga } from 'graphql-yoga';
 
@@ -31,7 +33,7 @@ const typeDefs = gql`
 
   type Mutation {
     Predict(value:String!, intVal:Int!):Value
-    BingoSupPac(width:Int!, weight:Int!, height:Int!, Plength:Int!):SuitValue
+    BingoSupPac(width:Int!, weight:Int!, height:Int!, Plength:Int!,  mistoZ:String!, mistoDo:String!, cost:Int!):SuitValue
     ActualUsToFirestore(emailUS: String!): UserData
     ChangeActualUsEmToFirestore(
       ActualemailUser: String!
@@ -586,12 +588,14 @@ const resolvers = {
       };
     },
     // vhodny balik resolver
-    BingoSupPac: async (parent_: any, args: { width: number, weight: number, height: number, Plength: number }) => {
-      const { width: Width, weight: Weight, height: Height, Plength: pLength } = args
+    BingoSupPac: async (parent_: any, args: { width: number, weight: number, height: number, Plength: number, mistoZ:string, mistoDo:string, cost:number }) => {
+      const { width: Width, weight: Weight, height: Height, Plength: pLength, mistoZ: Z, mistoDo:Do, cost: Pcost } = args
       // Natahnout data
       const packages:any = [];
       const packData:[] = [];
       const rtrnItem:any = [];
+      let location:any;
+      const suppWithLocationFiled:any = []
       const SupplierDoc = await db
         .collection('Supplier').get();
       
@@ -604,7 +608,7 @@ const resolvers = {
         }
       }
 
-      if(Width < 0 || Weight < 0 || Height < 0 || pLength < 0 ){
+      if(Width < 0 || Weight < 0 || Height < 0 || pLength < 0 || Pcost < 0){
         return {
           __typename: "ErrorMessage",
           message:"Ivalid argument, any argument cant be less then 0"
@@ -612,40 +616,84 @@ const resolvers = {
       }
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      console.log("suppDoc",JSON.stringify(SupplierDoc.docs.map((item:any)=>{
+      SupplierDoc.docs.map((item:any)=>{
+        console.log("iiitm",item)
         if(item._fieldsProto && item._fieldsProto.package && item._fieldsProto.package.arrayValue)
         {// eslint-disable-next-line @typescript-eslint/no-unsafe-return
           console.log(item._fieldsProto.package.arrayValue.values.map((packItem:any) => packages.push(packItem.mapValue.fields)));
         }
-      })))
+        if(item._fieldsProto.location){
+          location = item._fieldsProto.location.mapValue.fields
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, no-underscore-dangle
+          suppWithLocationFiled.push({loc:location, suppId: item._fieldsProto.supplierId.stringValue})
+          console.log("itm with location", suppWithLocationFiled)
+        }
+      })
 
       // scalar Date - je ten typ!!!!!
       // scalar DateTime - je ten typ!!!!!
 
 
-      console.log("packages", JSON.stringify(packages.map(packageObj => {
+      packages.map(packageObj => {
         // Extracting the values from each package object
         const [packageDetails] = Object.values(packageObj);
-        console.log(packageDetails.mapValue.fields)
-
         packData.push(packageDetails.mapValue.fields)
-      })))
-
-      const sorted = packData.map((item:{Plength:number, width:number, weight:number, height:number, supplier_id:string, cost:number, name_package:string})=>{
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        console.log(item.weight,item.width,item.height,item.Plength)
-
-        if(item.Plength.integerValue >= pLength && item.height.integerValue >= Height && item.weight.integerValue >= Weight && item.width.integerValue >= Width){
-          return {supplierId:item.supplier_id.stringValue, Cost: item.cost.integerValue, Name: item.name_package.stringValue}
-        }
       })
 
-      console.log("sorted",JSON.stringify(sorted))
+      const IsItSuppWithLoc = (loc:[], sId:string) =>{
+        console.log("loc",loc)
+        console.log("true", loc.find((itm:any) => {return itm.suppId === sId}))
+        return loc.find((itm:any) => {return itm.suppId === sId})
+      }
 
-      // Filtrace nevyhovujících dat
+      const Cost = (pack:any, mZ:string, mDo:string, suppWithLoc:any) => {
+        // console.log(mZ, mDo)
+        // console.log("ppppppp",pack.cost.integerValue)
+        // console.log(suppWithLoc)
+       const cost = Number(suppWithLoc[0].loc.zpusob.stringValue === mZ ? suppWithLoc[0].loc.cena.integerValue : 0) + Number(suppWithLoc[0].loc.zpusob.stringValue === mDo ? suppWithLoc[0].loc.cena.integerValue : 0)
+        console.log("CelovaCena", Number(pack.cost.integerValue) + cost)
+        return cost
+      }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      sorted.forEach((item:any) =>{
+      // console.log("dataaaaaaaaaa", packData.filter((item:any) =>{return item.cost.integerValue < Pcost}))
+      // prilepim cenu
+      const packCost = packData.map((item:{Plength:number, width:number, weight:number, height:number, supplier_id:string, cost:number, name_package:string})=>{
+        if(IsItSuppWithLoc(suppWithLocationFiled, item.supplier_id.stringValue)) {
+          const cost = Cost(item,Z,Do, suppWithLocationFiled)
+          console.log("Cenaaaaaaa",cost)
+          return {supplierId:item.supplier_id.stringValue, Cost: Number(item.cost.integerValue) + cost, Name: item.name_package.stringValue,param:{width:Number(item.weight.integerValue), length: Number(item.Plength.integerValue), weight: Number(item.weight.integerValue), height:Number(item.height.integerValue)}}
+        }        
+        return {supplierId:item.supplier_id.stringValue, Cost:Number(item.cost.integerValue), Name: item.name_package.stringValue, param:{width:Number(item.weight.integerValue), length: Number(item.Plength.integerValue), weight: Number(item.weight.integerValue), height:Number(item.height.integerValue)}}
+      })
+
+      console.log("sorted",JSON.stringify(packCost))
+
+      
+      // Filtrace nevyhovujících dat dle ceny     
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, array-callback-return, consistent-return
+      const suitableByCost = packCost.map((item: any) => { if(Pcost >= Number(item.Cost)) {return item}});
+      console.log("filter by cost",JSON.stringify(suitableByCost))
+
+      // Filtrace dle parametru
+    const suitableByParam = suitableByCost.map((itm: {Cost:number, supplierId:string, Name:string,param:{width:number,length:number,weight:number,height:number}}) =>{
+        // width: Width, weight: Weight, height: Height, Plength: pLength
+       // obraceně
+      //  console.log(itm.param)
+      // eslint-disable-next-line sonarjs/no-collapsible-if
+      if(itm){
+        // eslint-disable-next-line unicorn/no-lonely-if
+        if(itm.param?.width >= Width && itm.param?.weight >= Weight && itm.param?.length >= pLength && itm.param?.height >= Height){
+          console.log(itm)         
+          return itm
+        }
+      }
+        
+    })
+
+    console.log("filter by param",suitableByParam)
+
+      suitableByParam.forEach((item:any) =>{
+        console.log("ssssssss",item)
         if(item){
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           rtrnItem.push({suppId:item.supplierId,cost:item.Cost,name:item.Name})
@@ -722,8 +770,16 @@ const resolvers = {
       // mozné rekurzivní volaní kvuli kontrole duplicitnich id - není
       // Refactorizace kodu, mozne if zbytecné
 
-      const { user } = context
-      // jeste kontrola admina
+      const Admin = process.env.NEXT_PUBLIC_AdminEm;
+      // admin divny
+      console.log("databaze user",context.user)
+      if(context.user?.email !== Admin){
+        return {
+          __typename: "PackageError",
+          message: "Only admin can use this function"
+        }
+      }
+
       if (hmotnost < 0 || delka < 0 || vyska < 0 || costPackage < 0 || sirka < 0) {
         return {
           __typename: "PackageError",
@@ -856,6 +912,7 @@ const resolvers = {
         sendCashDelivery: string;
         packInBox: string;
       },
+      context: MyContext
     ) => {
       const {
         supplierName: SuppName,
@@ -870,6 +927,14 @@ const resolvers = {
 
       // try catch u vsech resolveru
       // try {
+        const Admin = process.env.NEXT_PUBLIC_AdminEm;
+        if(context.user?.email !== Admin){
+          return {
+            __typename: "PackageError",
+            message: "Only admin can use this function"
+          }
+        }
+
         if(ConverDate(PickupPoint, isDelivered)?.message){
           return {
             __typename: "SupplierError",
@@ -959,7 +1024,6 @@ const resolvers = {
 
       const ValidEmail = (email: string) => {
         // zakladni validace
-        NoHtmlSpecialChars(email);
         // eslint-disable-next-line unicorn/better-regex
         const option = /^[a-z0-9-]+@[a-z]+\.[a-z]+$/
         if (!option.test(email)) {
@@ -1012,6 +1076,7 @@ const resolvers = {
         supplier_id: string;
         PackKey: string
       },
+      context: MyContext
     ) => {
       // update nedokoncen!!!
       // update i u supplier - nebude potřeba
@@ -1030,6 +1095,13 @@ const resolvers = {
       } = args;
       // try { UPack | PackageError
 
+      const Admin = process.env.NEXT_PUBLIC_AdminEm;
+      if(context.user?.email !== Admin){
+        return {
+          __typename: "PackageError",
+          message: "Only admin can use this function"
+        }
+      }
       if (hmotnost < 0 || delka < 0 || vyska < 0 || costPackage < 0 || sirka < 0) {
         return {
           __typename: "PackageUpdateError",
@@ -1154,7 +1226,9 @@ const resolvers = {
       packInBox: string;
       suppId: string,
       actNameSupp: string
-    },) => {
+    },     
+    context: MyContext
+    ) => {
       const {
         supplierName: SuppName,
         delivery: isDelivered,
@@ -1174,6 +1248,13 @@ const resolvers = {
         // kontrola jedinecnych jmen - je
         // validace jmena - castecne
         // validace datumu - je
+        const Admin = process.env.NEXT_PUBLIC_AdminEm;
+        if(context.user?.email !== Admin){
+          return {
+            __typename: "PackageError",
+            message: "Only admin can use this function"
+          }
+        }
         if(ConverDate(PickupPoint, isDelivered)?.message){
           return {
             __typename: "SupplierError",
@@ -1273,7 +1354,9 @@ const resolvers = {
       //   throw error;
       // }
     },
-    deletePack: async (parent_: any, args: { key: string, suppId: string }) => {
+    deletePack: async (parent_: any, args: { key: string, suppId: string }
+      ) => {
+      // kontrola admina
       // Mazaní vice pack najednou neni mozne
       const { key: Pack, suppId: Sid } = args;
       let deleted = false;
@@ -1316,6 +1399,7 @@ const resolvers = {
       return { deletion: deleted, error: err }
     },
     deletePack2: async (parent_: any, args: { id: [string] }) => {
+      // kontrola admin
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       // Mazaní vice supp najednou mozne
       const { id: PackIdar } = args;
@@ -1336,6 +1420,7 @@ const resolvers = {
       return deleted;
     },
     deleteSupp: async (parent_: any, args: { id: number }) => {
+      // kontrola admina
       // Mazaní vice supp najednou neni mozne
       const { id: PackId } = args;
       let deleted = false;
@@ -1359,6 +1444,7 @@ const resolvers = {
       return deleted;
     },
     deleteSupp2: async (parent_: any, args: { id: [string] }) => {
+      // kontrola admina
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       const { id: SupIdar } = args;
       console.log('pole', SupIdar);

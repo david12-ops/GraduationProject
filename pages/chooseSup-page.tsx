@@ -7,7 +7,9 @@ import {
 } from '@/generated/graphql';
 
 import styles from '../styles/Home.module.css';
+import stylesF from '../styles/stylesForm/styleForms.module.css';
 import { ResSuppCard } from './components/Cards/resSupp';
+import { FormChooseSup } from './components/formChooseSupp';
 import { SearchAppBar2 } from './components/navbar2';
 
 const Res = (dataSui: any, allSupp: any) => {
@@ -67,41 +69,9 @@ export default function SuitableSupp() {
   const [height, SetHeight] = useState('');
   const [weight, SetWeight] = useState('');
   const [plength, SetLength] = useState('');
-
-  const Inputs = () => {
-    return (
-      <div>
-        <div>
-          <input
-            type="text"
-            onChange={() => SetWeight(event.target.value)}
-            placeholder="Enter num here..."
-          />
-        </div>
-        <div>
-          <input
-            type="text"
-            onChange={() => SetHeight(event.target.value)}
-            placeholder="Enter num here..."
-          />
-        </div>
-        <div>
-          <input
-            type="text"
-            onChange={() => SetWidth(event.target.value)}
-            placeholder="Enter num here..."
-          />
-        </div>
-        <div>
-          <input
-            type="text"
-            onChange={() => SetLength(event.target.value)}
-            placeholder="Enter num here..."
-          />
-        </div>
-      </div>
-    );
-  };
+  const [placeFrom, SetPlceForm] = useState('');
+  const [placeTo, SetPlceTo] = useState('');
+  const [cost, SetCost] = useState('');
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [suitableSupp] = useMutSuitableSuppMutation();
@@ -111,10 +81,13 @@ export default function SuitableSupp() {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const result = await suitableSupp({
       variables: {
-        Width: Number(width) ?? width,
-        Weight: Number(weight) ?? weight,
-        Height: Number(height) ?? height,
-        Length: Number(plength) ?? plength,
+        Width: Number(width),
+        Weight: Number(weight),
+        Height: Number(height),
+        Length: Number(plength),
+        Mz: placeFrom,
+        Mdo: placeTo,
+        Cost: Number(cost),
       },
     })
       .then((res) => {
@@ -126,7 +99,7 @@ export default function SuitableSupp() {
       });
 
     if (result.err) {
-      return alert(result.err);
+      alert(result.err);
     }
 
     if (result.data?.BingoSupPac?.suitable) {
@@ -134,7 +107,7 @@ export default function SuitableSupp() {
       SetData(data);
     } else {
       // eslint-disable-next-line no-alert
-      return alert(result.data?.BingoSupPac?.message);
+      alert(result.data?.BingoSupPac?.message);
     }
   };
   return (
@@ -145,10 +118,26 @@ export default function SuitableSupp() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <SearchAppBar2 />
-
       <main className={styles.main}>
-        {Inputs()}
-        <button onClick={HandleForm}>odeslat</button>
+        <FormChooseSup
+          onChangeSirka={(e) => SetWidth(e.toString())}
+          onChangeVyska={(e) => SetHeight(e.toString())}
+          onChangeHmotnost={(e) => SetWeight(e.toString())}
+          onChangeDelka={(e) => SetLength(e.toString())}
+          onChangeCena={(e) => SetCost(e.toString())}
+          // onChangeCityFromWhere={(e) => e}
+          // onChangePscFromWhere={(e) => e}
+          // onChangeCityWhere={(e) => e}
+          // onChangePscWhere={(e) => e}
+          // Kontrola!!!
+          onChangeDo={(e) => SetPlceTo(e.toString())}
+          onChangeZ={(e) => SetPlceForm(e.toString())}
+          buttonEl={
+            <button className={stylesF.crudbtn} onClick={HandleForm}>
+              odeslat
+            </button>
+          }
+        />
         {RenderSupp(dataS, suppData)}
       </main>
 
