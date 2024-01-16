@@ -34,7 +34,7 @@ const Odstavec = (
   // FontSize ?
   const odstavec =
     packInBox === 'Ano' ? (
-      <p style={{ fontSize: FontSize }}>
+      <p>
         Zásilku je nutné zabalit <strong>do krabice</strong>
       </p>
     ) : (
@@ -164,9 +164,18 @@ export const ResSuppCard: React.FC<Props> = ({
         >
           <div style={{ textAlign: 'center' }}>Price: {price}</div>
           <CardActions style={{ justifyContent: 'center' }}>
-            <Link key="orderPage" href={`../../orderPage`}>
+            {name === 'dpd' ? (
+              <Link href="https://zrukydoruky.dpd.cz/">
+                <Button className={styles.crudbtnTable}>Order</Button>
+              </Link>
+            ) : (
+              <Link key="orderPage" href={`../../orderPage`}>
+                <Button className={styles.crudbtnTable}>Order</Button>
+              </Link>
+            )}
+            {/* <Link key="orderPage" href={`../../orderPage`}>
               <Button className={styles.crudbtnTable}>Order</Button>
-            </Link>
+            </Link> */}
           </CardActions>
         </Typography>
       </CardContent>

@@ -51,21 +51,30 @@ export const DataGridSupplier = () => {
     return alert(errmsg);
   };
 
-  const DeleteS = async (event: React.FormEvent) => {
-    // alert(IdSupp());
+  const DeleteS = async () => {
     if (IdSupp().length === 0) {
       alert('Nebyl vybrán dodavatel pro mazání');
     } else {
       const DeletedId: any = IdSupp();
-      event.preventDefault();
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      await deleteSuppD({
+      const result = await deleteSuppD({
         variables: {
           Id: DeletedId,
         },
-      });
-      // Refetch(suppD);
-      alert('Deletion secusfull');
+      })
+        .then((res) => {
+          return res;
+        })
+        .catch((error) => alert(error));
+
+      const err = result.data?.deleteSupp2?.error;
+      const deleted = result.data?.deleteSupp2?.deletion;
+      if (deleted) {
+        alert('Deletion secusfull');
+      }
+      if (err) {
+        alert(err);
+      }
     }
   };
 

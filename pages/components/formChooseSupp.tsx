@@ -47,7 +47,7 @@ export const FormChooseSup: React.FC<Props> = ({
 }) => {
   const MyComponentPicker = () => {
     const options = [
-      { value: 'adresa', label: 'ruky' },
+      { value: 'personal', label: 'ruky' },
       { value: 'depo', label: 'depa' },
     ];
 

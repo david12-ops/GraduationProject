@@ -1,3 +1,6 @@
 mutation DeleteSupp($Id:Int){
-  deleteSupp(id:$Id)
+  deleteSupp(id:$Id){
+    deletion
+    error
+  }
 }

@@ -53,9 +53,9 @@ export type Mutation = {
   Predict?: Maybe<Value>;
   SupplierToFirestore?: Maybe<Supplier>;
   deletePack?: Maybe<Delete>;
-  deletePack2?: Maybe<Scalars['Boolean']>;
-  deleteSupp?: Maybe<Scalars['Boolean']>;
-  deleteSupp2?: Maybe<Scalars['Boolean']>;
+  deletePack2?: Maybe<Delete>;
+  deleteSupp?: Maybe<Delete>;
+  deleteSupp2?: Maybe<Delete>;
   updatePack?: Maybe<UpdatedPack>;
   updateSup?: Maybe<Supplier>;
 };
@@ -327,7 +327,7 @@ export type DeleteSuppMutationVariables = Exact<{
 }>;
 
 
-export type DeleteSuppMutation = { __typename?: 'Mutation', deleteSupp?: boolean | null };
+export type DeleteSuppMutation = { __typename?: 'Mutation', deleteSupp?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
 
 export type DeletePacMutationVariables = Exact<{
   Id: Scalars['String'];
@@ -342,14 +342,14 @@ export type DeletePac2MutationVariables = Exact<{
 }>;
 
 
-export type DeletePac2Mutation = { __typename?: 'Mutation', deletePack2?: boolean | null };
+export type DeletePac2Mutation = { __typename?: 'Mutation', deletePack2?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
 
 export type DeleteSupp2MutationVariables = Exact<{
   Id?: InputMaybe<Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>>;
 }>;
 
 
-export type DeleteSupp2Mutation = { __typename?: 'Mutation', deleteSupp2?: boolean | null };
+export type DeleteSupp2Mutation = { __typename?: 'Mutation', deleteSupp2?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
 
 export type NewPackageToFirestoreMutationVariables = Exact<{
   SuppID: Scalars['String'];
@@ -525,7 +525,10 @@ export type ActualUsToFirestoreMutationResult = Apollo.MutationResult<ActualUsTo
 export type ActualUsToFirestoreMutationOptions = Apollo.BaseMutationOptions<ActualUsToFirestoreMutation, ActualUsToFirestoreMutationVariables>;
 export const DeleteSuppDocument = gql`
     mutation DeleteSupp($Id: Int) {
-  deleteSupp(id: $Id)
+  deleteSupp(id: $Id) {
+    deletion
+    error
+  }
 }
     `;
 export type DeleteSuppMutationFn = Apollo.MutationFunction<DeleteSuppMutation, DeleteSuppMutationVariables>;
@@ -591,7 +594,10 @@ export type DeletePacMutationResult = Apollo.MutationResult<DeletePacMutation>;
 export type DeletePacMutationOptions = Apollo.BaseMutationOptions<DeletePacMutation, DeletePacMutationVariables>;
 export const DeletePac2Document = gql`
     mutation DeletePac2($Id: [String]) {
-  deletePack2(id: $Id)
+  deletePack2(id: $Id) {
+    deletion
+    error
+  }
 }
     `;
 export type DeletePac2MutationFn = Apollo.MutationFunction<DeletePac2Mutation, DeletePac2MutationVariables>;
@@ -622,7 +628,10 @@ export type DeletePac2MutationResult = Apollo.MutationResult<DeletePac2Mutation>
 export type DeletePac2MutationOptions = Apollo.BaseMutationOptions<DeletePac2Mutation, DeletePac2MutationVariables>;
 export const DeleteSupp2Document = gql`
     mutation DeleteSupp2($Id: [String]) {
-  deleteSupp2(id: $Id)
+  deleteSupp2(id: $Id) {
+    deletion
+    error
+  }
 }
     `;
 export type DeleteSupp2MutationFn = Apollo.MutationFunction<DeleteSupp2Mutation, DeleteSupp2MutationVariables>;
