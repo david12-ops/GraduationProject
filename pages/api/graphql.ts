@@ -670,33 +670,31 @@ const resolvers = {
           return {idS:i.suppId, cost: Number(depo.cost.integerValue) + Number(personal.cost.integerValue)}
         }
         // pp
-        console.log("cislooooo",depo, personal)
        return {idS:i.suppId, cost: 2 * Number(personal.cost.integerValue)}
       })
-      console.log("xxxxxxxxxxxc",costSupp)
 
-      
-
-      const IsItSuppWithLoc = (loc:[], sId:string) =>{
+      const IsItSuppWithLoc = (loc:[], sId:string) => {
         // console.log("loc",loc)
         // console.log("true", loc.find((itm:any) => {return itm.suppId === sId}))
         return loc.find((itm:any) => {return itm.suppId === sId})
       }
 
       const CostOfPack = (costSup:any, pack:any) =>{
-        console.log("cost of pack",costSup[0].cost, costSup[0].idS, pack.cost.integerValue)
         let sumCost = 0;
-        if(pack.supplier_id.stringValue === costSup[0].idS){
-          sumCost = Number(costSup[0].cost) + Number(pack.cost.integerValue)
+        for (const e of costSup) {
+          if(pack.supplier_id.stringValue === e.idS){
+            sumCost = Number(e.cost) + Number(pack.cost.integerValue)
+            console.log("tak cooo tam je",sumCost, e.idS)
+            return sumCost
+          }        
         }
-        console.log("summmmaaa", sumCost, pack.supplier_id.stringValue)
-        return sumCost
       }
 
       // prilepim cenu
       const packCost = packData.map((item:{Plength:number, width:number, weight:number, height:number, supplier_id:string, cost:number, name_package:string})=>{
         if(IsItSuppWithLoc(suppWithLocationFiled, item.supplier_id.stringValue)) {
-          return {supplierId:item.supplier_id.stringValue, Cost: CostOfPack(costSupp, item), Name: item.name_package.stringValue,param:{width:Number(item.weight.integerValue), length: Number(item.Plength.integerValue), weight: Number(item.weight.integerValue), height:Number(item.height.integerValue)}}
+          const cost =  CostOfPack(costSupp, item);
+          return {supplierId:item.supplier_id.stringValue, Cost:cost, Name: item.name_package.stringValue,param:{width:Number(item.weight.integerValue), length: Number(item.Plength.integerValue), weight: Number(item.weight.integerValue), height:Number(item.height.integerValue)}}
         }        
         return {supplierId:item.supplier_id.stringValue, Cost:Number(item.cost.integerValue), Name: item.name_package.stringValue, param:{width:Number(item.weight.integerValue), length: Number(item.Plength.integerValue), weight: Number(item.weight.integerValue), height:Number(item.height.integerValue)}}
       })
@@ -710,8 +708,10 @@ const resolvers = {
       console.log("filter by cost",JSON.stringify(suitableByCost))
 
       // Filtrace dle parametru
+      // nebrat i moc velké
     const suitableByParam = suitableByCost.map((itm: {Cost:number, supplierId:string, Name:string,param:{width:number,length:number,weight:number,height:number}}) =>{
       // eslint-disable-next-line sonarjs/no-collapsible-if
+      // hmotnost
       if(itm){
         // eslint-disable-next-line unicorn/no-lonely-if
         if(itm.param?.width >= Width && itm.param?.weight >= Weight && itm.param?.length >= pLength && itm.param?.height >= Height){
