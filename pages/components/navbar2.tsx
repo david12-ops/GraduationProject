@@ -1,22 +1,21 @@
-import AccountCircle from '@mui/icons-material/AccountCircle';
+import { AccountCircle } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
 import MoreIcon from '@mui/icons-material/MoreVert';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import AppBar from '@mui/material/AppBar';
-import Badge from '@mui/material/Badge';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
+import {
+  AppBar,
+  Box,
+  IconButton,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Typography,
+} from '@mui/material';
 import Link from 'next/link';
-import * as React from 'react';
-import { FC } from 'react';
+import React, { FC } from 'react';
 
 import { authUtils } from '@/firebase/auth-utils';
 
-export const SearchAppBar2: FC = () => {
+export const Navbar: FC = () => {
   // betterMenuCmp - komponenta jako Menu
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
@@ -103,18 +102,6 @@ export const SearchAppBar2: FC = () => {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
-        <IconButton
-          size="large"
-          aria-label="show 17 new notifications"
-          color="inherit"
-        >
-          <Badge badgeContent={17} color="error">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
           size="large"
@@ -147,19 +134,16 @@ export const SearchAppBar2: FC = () => {
       open={isBurgerMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Home</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Germany leagues</MenuItem>
-      <MenuItem onClick={handleMenuClose}>England leagues</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Spain Leagues</MenuItem>
-      <MenuItem onClick={handleMenuClose}>France leagues</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Italy leagues</MenuItem>
+      <Link key="index" href="/">
+        <MenuItem onClick={handleMenuClose}>Home</MenuItem>{' '}
+      </Link>
     </Menu>
   );
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box>
       <AppBar position="static">
-        <Toolbar>
+        <Toolbar className="appBar">
           <IconButton
             size="large"
             edge="start"
@@ -182,15 +166,6 @@ export const SearchAppBar2: FC = () => {
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-            <IconButton
-              size="large"
-              aria-label="show 17 new notifications"
-              color="inherit"
-            >
-              <Badge badgeContent={17} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
             <IconButton
               size="large"
               edge="end"

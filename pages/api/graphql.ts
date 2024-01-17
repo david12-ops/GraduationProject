@@ -713,6 +713,7 @@ const resolvers = {
       // eslint-disable-next-line sonarjs/no-collapsible-if
       // hmotnost
       if(itm){
+        if(itm.param.width > Width) { console.log("nejvetší sirka", itm.param, itm.Name) }
         // eslint-disable-next-line unicorn/no-lonely-if
         if(itm.param?.width >= Width && itm.param?.weight >= Weight && itm.param?.length >= pLength && itm.param?.height >= Height){
           console.log(itm)         
