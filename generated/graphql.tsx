@@ -47,6 +47,7 @@ export type GithubUser = {
 export type Mutation = {
   __typename?: 'Mutation';
   ActualUsToFirestore?: Maybe<UserData>;
+  AddHistory?: Maybe<Scalars['Boolean']>;
   BingoSupPac?: Maybe<SuitValue>;
   ChangeActualUsEmToFirestore?: Maybe<UserChangeEmData>;
   PackageToFirestore?: Maybe<CreatedPack>;
@@ -63,6 +64,12 @@ export type Mutation = {
 
 export type MutationActualUsToFirestoreArgs = {
   emailUS: Scalars['String'];
+};
+
+
+export type MutationAddHistoryArgs = {
+  data: Scalars['String'];
+  userEmail: Scalars['String'];
 };
 
 
@@ -350,6 +357,14 @@ export type DeleteSupp2MutationVariables = Exact<{
 
 
 export type DeleteSupp2Mutation = { __typename?: 'Mutation', deleteSupp2?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
+
+export type AddHistoryToFirestoreMutationVariables = Exact<{
+  Email: Scalars['String'];
+  Data: Scalars['String'];
+}>;
+
+
+export type AddHistoryToFirestoreMutation = { __typename?: 'Mutation', AddHistory?: boolean | null };
 
 export type NewPackageToFirestoreMutationVariables = Exact<{
   SuppID: Scalars['String'];
@@ -660,6 +675,38 @@ export function useDeleteSupp2Mutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteSupp2MutationHookResult = ReturnType<typeof useDeleteSupp2Mutation>;
 export type DeleteSupp2MutationResult = Apollo.MutationResult<DeleteSupp2Mutation>;
 export type DeleteSupp2MutationOptions = Apollo.BaseMutationOptions<DeleteSupp2Mutation, DeleteSupp2MutationVariables>;
+export const AddHistoryToFirestoreDocument = gql`
+    mutation AddHistoryToFirestore($Email: String!, $Data: String!) {
+  AddHistory(userEmail: $Email, data: $Data)
+}
+    `;
+export type AddHistoryToFirestoreMutationFn = Apollo.MutationFunction<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>;
+
+/**
+ * __useAddHistoryToFirestoreMutation__
+ *
+ * To run a mutation, you first call `useAddHistoryToFirestoreMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddHistoryToFirestoreMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addHistoryToFirestoreMutation, { data, loading, error }] = useAddHistoryToFirestoreMutation({
+ *   variables: {
+ *      Email: // value for 'Email'
+ *      Data: // value for 'Data'
+ *   },
+ * });
+ */
+export function useAddHistoryToFirestoreMutation(baseOptions?: Apollo.MutationHookOptions<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>(AddHistoryToFirestoreDocument, options);
+      }
+export type AddHistoryToFirestoreMutationHookResult = ReturnType<typeof useAddHistoryToFirestoreMutation>;
+export type AddHistoryToFirestoreMutationResult = Apollo.MutationResult<AddHistoryToFirestoreMutation>;
+export type AddHistoryToFirestoreMutationOptions = Apollo.BaseMutationOptions<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>;
 export const NewPackageToFirestoreDocument = gql`
     mutation NewPackageToFirestore($SuppID: String!, $Hmotnost: Int!, $Cost: Int!, $Delka: Int!, $Vyska: Int!, $Sirka: Int!, $Pack_name: String!, $PackId: String!) {
   PackageToFirestore(

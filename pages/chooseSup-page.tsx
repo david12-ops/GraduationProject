@@ -40,7 +40,11 @@ const Res = (dataSui: any, allSupp: any) => {
 };
 
 // eslint-disable-next-line consistent-return
-const RenderSupp = (dataFromResover: any, QueryData: any) => {
+const RenderSupp = (
+  dataFromResover: any,
+  QueryData: any,
+  dataFromForm: object,
+) => {
   // alert(JSON.stringify(Res(dataFromResover, QueryData)));
   if (!QueryData.loading && !QueryData.error && QueryData.data) {
     // eslint-disable-next-line array-callback-return
@@ -56,6 +60,8 @@ const RenderSupp = (dataFromResover: any, QueryData: any) => {
           sendCash={itm.dataS.sendCashDelivery}
           shippingLabel={itm.dataS.shippingLabel}
           name={itm.dataS.suppName}
+          sId={itm.dataS.supplierId}
+          dataFrPage={dataFromForm}
         />
       </div>
     ));
@@ -138,7 +144,16 @@ export default function SuitableSupp() {
             </button>
           }
         />
-        {RenderSupp(dataS, suppData)}
+        {RenderSupp(dataS, suppData, {
+          dataFrForm: {
+            width,
+            height,
+            weight,
+            plength,
+            placeFrom,
+            placeTo,
+          },
+        })}
       </main>
 
       <footer className={styles.footer}></footer>

@@ -1,0 +1,3 @@
+mutation AddHistoryToFirestore($Email:String!, $Data:String!){
+    AddHistory(userEmail:$Email, data:$Data)
+}

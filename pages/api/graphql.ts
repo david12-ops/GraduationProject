@@ -35,6 +35,7 @@ const typeDefs = gql`
     Predict(value:String!, intVal:Int!):Value
     BingoSupPac(width:Int!, weight:Int!, height:Int!, Plength:Int!,  mistoZ:String!, mistoDo:String!, cost:Int!):SuitValue
     ActualUsToFirestore(emailUS: String!): UserData
+    AddHistory(userEmail:String!, data:String!):Boolean
     ChangeActualUsEmToFirestore(
       ActualemailUser: String!
       Email: String!
@@ -770,6 +771,45 @@ const resolvers = {
         await newUserDoc.set(newUser);
 
         return newUser;
+      } catch (error) {
+        console.error('Chyba při vytváření uživatele:', error);
+        throw error;
+      }
+    },
+    AddHistory: async (parent_, args: { userEmail: string, data:string}) =>{
+      const {userEmail:usEm, data:dataS} = args
+      // pridat err msg
+      // kdyz se cena zmeni a udela save na tom samém změni se cena, kdyz ne tak se neprida
+      try {
+        const newHistoryDoc = db.collection('History').doc();
+        const data = JSON.parse(dataS)
+
+        const sData = data.data.suppData;
+        const sPrice = data.data.priceS;
+        const toFirestore = {id:sData.supplierId, name:sData.suppName, pickup:sData.pickUp, delivery:sData.delivery, insurance:sData.insurance, shippingLabel:sData.shippingLabel, sendCashDelivery:sData.sendCashDelivery, packInBox:sData.packInBox, foil:sData.foil, cost:sPrice}
+        
+        const newHistory = {
+          email:usEm,
+          dataForm: data.formData.dataFrForm,
+          historyId: newHistoryDoc.id,
+          suppData:toFirestore
+        };
+
+        const dataInColl = await db.collection('History').get()
+
+        const duplicateByParam = dataInColl.docs.map((item:any)=>{
+          console.log("iiiiiiiiiiiiiiiiiiiii", item._fieldsProto.suppData.mapValue.fields)
+          const byForm = item._fieldsProto.dataForm.mapValue.fields;
+          const byCost = item._fieldsProto.suppData.mapValue.fields.cost.integerValue;
+          if(item._fieldsProto.suppData.mapValue.fields.id.stringValue === sData.supplierId){
+            return byForm.width.stringValue === data.formData.dataFrForm.width && byForm.height.stringValue === data.formData.dataFrForm.height && byForm.weight.stringValue === data.formData.dataFrForm.weight && byForm.plength.stringValue === data.formData.dataFrForm.plength && byForm.placeTo.stringValue === data.formData.dataFrForm.placeTo && byForm.placeFrom.stringValue === data.formData.dataFrForm.placeFrom &&  Number(byCost) === Number(data.data.priceS) ? item : undefined
+          }
+        })
+
+        if(!duplicateByParam.map((e) =>{return !!e}).includes(true)){
+          await newHistoryDoc.set(newHistory);
+        }
+        
       } catch (error) {
         console.error('Chyba při vytváření uživatele:', error);
         throw error;
