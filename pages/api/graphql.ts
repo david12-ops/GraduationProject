@@ -1,6 +1,4 @@
-/* eslint-disable max-depth */
 /* eslint-disable complexity */
-/* eslint-disable sonarjs/no-ignored-return */
 // eslint-disable-next-line eslint-comments/disable-enable-pair
 /* eslint-disable prettier/prettier */
 // eslint-disable-next-line eslint-comments/disable-enable-pair
@@ -17,7 +15,7 @@ import { createSchema, createYoga } from 'graphql-yoga';
 
 import { firestore } from '../../firebase/firebase-admin-config';
 // import { UserCreate } from '../components/types-user';
-import { IndexItem } from '../components-of-home/cards/types';
+import { verifyToken } from './verify_token';
 
 type MyContext = { user?: DecodedIdToken };
 
@@ -35,7 +33,7 @@ const typeDefs = gql`
     Predict(value:String!, intVal:Int!):Value
     BingoSupPac(width:Int!, weight:Int!, height:Int!, Plength:Int!,  mistoZ:String!, mistoDo:String!, cost:Int!):SuitValue
     ActualUsToFirestore(emailUS: String!): UserData
-    AddHistory(userEmail:String!, data:String!):Boolean
+    AddHistory(uId:String!, data:String!):Boolean
     ChangeActualUsEmToFirestore(
       ActualemailUser: String!
       Email: String!
@@ -88,9 +86,7 @@ const typeDefs = gql`
     ):Supplier
 
     deletePack(suppId: String!, key:String!): Delete
-    deletePack2(id: [String]): Delete
-    deleteSupp(id: Int): Delete
-    deleteSupp2(id: [String]): Delete
+    deleteSupp(id: [String]): Delete
   }
 
   scalar JSON
@@ -387,27 +383,11 @@ const ConverDate = (dateU1: any, dateU2: any) => {
 
 const resolvers = {
   Query: {
-    // eslint-disable-next-line @typescript-eslint/require-await
     users: async () => {
       // vybrat users
       // z db postgres
       return [{ name: 'Nextjs' }];
     },
-    // stejne par v v type jako mutation
-    // usDb: async () => {
-    //   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    //   const usersRef = db.collection(
-    //     'dataOfUS',
-    //   ) as FirebaseFirestore.CollectionReference<DbUser>;
-    //   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    //   const docsRefs = await usersRef.listDocuments();
-    //   // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return
-    //   const docsSnapshotPromises = docsRefs.map((doc) => doc.get());
-    //   const docsSnapshots = await Promise.all(docsSnapshotPromises);
-    //   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-    //   const docs = docsSnapshots.map((doc) => doc.data()!);
-    //   console.log(docs);
-    // },
     githubUsers: async () => {
       // eslint-disable-next-line no-useless-catch
       try {
@@ -522,56 +502,6 @@ const resolvers = {
 
       return data;
     },
-    // eslint-disable-next-line @typescript-eslint/require-await
-    cardValues: async () => {
-      // eslint-disable-next-line no-useless-catch
-      try {
-        const indexItems: Array<IndexItem> = [
-          {
-            id: 1,
-            image:
-              'https://cdnuploads.aa.com.tr/uploads/Contents/2021/11/06/thumbs_b_c_c0f3083541183d22ac6e9ff1e20963bf.jpg?v=023244',
-            title: 'Živé zápasy',
-            description:
-              'Nabízíme přehled odehrávajících se zápasu jako např. týmy, které spolu hrají, skore zápasu a čas hrací doby.',
-          },
-          {
-            id: 2,
-            image:
-              'https://www.sportszion.com/wp-content/uploads/2020/08/Messi-Camp-Nou-compressed.jpg',
-            title: 'Info o hráčích',
-            description:
-              'Nabízíme informace o hráčích jako jejich počet golu a assistencí v zápasech, které odehrály a za celou sezonu, v jakém týmu hrají, kolik jim je let, jméno a kde působili.',
-          },
-          {
-            id: 3,
-            image:
-              'https://i2-prod.manchestereveningnews.co.uk/incoming/article18829527.ece/ALTERNATES/s615b/0_false-9PNG.png',
-            title: 'Info o zápasu',
-            description:
-              'Nabízíme informace, které obsahahují držení míče hrajících týmů, počet střel mimo a na bránu, počet ne/úspěšných nahrávek, počet golu, hráči, ktteří hrají v základní sestavě i na lavičce i v rezervách a zraněné.',
-          },
-          {
-            id: 4,
-            image: 'https://pbs.twimg.com/media/FmcHmGlWYAIk9V0.jpg',
-            title: 'Info o týmech',
-            description:
-              'Naleznete zde tabulku týmů hrajících v dané soutěži. Budou tam informace typu počet vítězství, remíz a proher, počet bodů a celkový součet podle, kterého se týmy umisťují na daných příčkách.',
-          },
-        ];
-
-        const values = indexItems; // get(odkaz na api)
-        return values.map(({ id, image, title, description }) => ({
-          id,
-          image,
-          title,
-          description,
-        }));
-        // eslint-disable-next-line sonarjs/no-useless-catch
-      } catch (error) {
-        throw error;
-      }
-    },
   },
   Mutation: {
      Predict: async (parent_:any, args:{value:string, intVal:number}) => {
@@ -629,11 +559,10 @@ const resolvers = {
       }
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      SupplierDoc.docs.map((item:any)=>{
-        console.log("iiitm",item)
+      SupplierDoc.docs.forEach((item:any)=>{
         if(item._fieldsProto && item._fieldsProto.package && item._fieldsProto.package.arrayValue)
         {// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-          console.log(item._fieldsProto.package.arrayValue.values.map((packItem:any) => packages.push(packItem.mapValue.fields)));
+          item._fieldsProto.package.arrayValue.values.map((packItem:any) => packages.push(packItem.mapValue.fields));
         }
         if(item._fieldsProto.location){
           location = item._fieldsProto.location.mapValue.fields
@@ -647,7 +576,7 @@ const resolvers = {
       // scalar DateTime - je ten typ!!!!!
 
 
-      packages.map(packageObj => {
+      packages.forEach(packageObj => {
         // Extracting the values from each package object
         const [packageDetails] = Object.values(packageObj);
         packData.push(packageDetails.mapValue.fields)
@@ -675,8 +604,6 @@ const resolvers = {
       })
 
       const IsItSuppWithLoc = (loc:[], sId:string) => {
-        // console.log("loc",loc)
-        // console.log("true", loc.find((itm:any) => {return itm.suppId === sId}))
         return loc.find((itm:any) => {return itm.suppId === sId})
       }
 
@@ -701,7 +628,6 @@ const resolvers = {
       })
 
       console.log("sorted",JSON.stringify(packCost))
-
       
       // Filtrace nevyhovujících dat dle ceny     
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return, array-callback-return, consistent-return
@@ -710,11 +636,10 @@ const resolvers = {
 
       // Filtrace dle parametru
       // nebrat i moc velké
-    const suitableByParam = suitableByCost.map((itm: {Cost:number, supplierId:string, Name:string,param:{width:number,length:number,weight:number,height:number}}) =>{
+      const suitableByParam = suitableByCost.map((itm: {Cost:number, supplierId:string, Name:string,param:{width:number,length:number,weight:number,height:number}}) =>{
       // eslint-disable-next-line sonarjs/no-collapsible-if
       // hmotnost
       if(itm){
-        if(itm.param.width > Width) { console.log("nejvetší sirka", itm.param, itm.Name) }
         // eslint-disable-next-line unicorn/no-lonely-if
         if(itm.param?.width >= Width && itm.param?.weight >= Weight && itm.param?.length >= pLength && itm.param?.height >= Height){
           console.log(itm)         
@@ -748,6 +673,7 @@ const resolvers = {
    
     },
     // web mutation
+    // create
     ActualUsToFirestore: async (parent_: any, args: { emailUS: string }) => {
       // console.log(`abcd`, args.emailUS);
       const { emailUS: email } = args;
@@ -776,9 +702,8 @@ const resolvers = {
         throw error;
       }
     },
-    AddHistory: async (parent_, args: { userEmail: string, data:string}) =>{
-      const {userEmail:usEm, data:dataS} = args
-      // pridat err msg
+    AddHistory: async (parent_:any, args: { uId: string, data:string}) =>{
+      const {uId:id, data:dataS} = args
       // kdyz se cena zmeni a udela save na tom samém změni se cena, kdyz ne tak se neprida
       try {
         const newHistoryDoc = db.collection('History').doc();
@@ -789,7 +714,7 @@ const resolvers = {
         const toFirestore = {id:sData.supplierId, name:sData.suppName, pickup:sData.pickUp, delivery:sData.delivery, insurance:sData.insurance, shippingLabel:sData.shippingLabel, sendCashDelivery:sData.sendCashDelivery, packInBox:sData.packInBox, foil:sData.foil, cost:sPrice}
         
         const newHistory = {
-          email:usEm,
+          uId:id,
           dataForm: data.formData.dataFrForm,
           historyId: newHistoryDoc.id,
           suppData:toFirestore
@@ -798,24 +723,25 @@ const resolvers = {
         const dataInColl = await db.collection('History').get()
 
         const duplicateByParam = dataInColl.docs.map((item:any)=>{
-          console.log("iiiiiiiiiiiiiiiiiiiii", item._fieldsProto.suppData.mapValue.fields)
           const byForm = item._fieldsProto.dataForm.mapValue.fields;
           const byCost = item._fieldsProto.suppData.mapValue.fields.cost.integerValue;
           if(item._fieldsProto.suppData.mapValue.fields.id.stringValue === sData.supplierId){
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return byForm.width.stringValue === data.formData.dataFrForm.width && byForm.height.stringValue === data.formData.dataFrForm.height && byForm.weight.stringValue === data.formData.dataFrForm.weight && byForm.plength.stringValue === data.formData.dataFrForm.plength && byForm.placeTo.stringValue === data.formData.dataFrForm.placeTo && byForm.placeFrom.stringValue === data.formData.dataFrForm.placeFrom &&  Number(byCost) === Number(data.data.priceS) ? item : undefined
           }
         })
+
+        // Pri zmene ceny u balicku tomu prizpusobit i historii
 
         if(!duplicateByParam.map((e) =>{return !!e}).includes(true)){
           await newHistoryDoc.set(newHistory);
         }
         
       } catch (error) {
-        console.error('Chyba při vytváření uživatele:', error);
+        console.error('Chyba při vytváření historie:', error);
         throw error;
       }
     },
-    // mutation for admin/supplier, prace se errory + prizpusoben ke create
     PackageToFirestore: async (
       parent_: any,
       args: {
@@ -840,18 +766,16 @@ const resolvers = {
         supplier_id: supplierId,
         packId: ID
       } = args;
-      // mozné rekurzivní volaní kvuli kontrole duplicitnich id - není
       // Refactorizace kodu, mozne if zbytecné
 
       const Admin = process.env.NEXT_PUBLIC_AdminEm;
-      // admin divny
       console.log("databaze user",context.user)
-      // if(context.user?.email !== Admin){
-      //   return {
-      //     __typename: "PackageError",
-      //     message: "Only admin can use this function"
-      //   }
-      // }
+      if(context.user?.email !== Admin){
+        return {
+          __typename: "PackageError",
+          message: "Only admin can use this function"
+        }
+      }
 
       if (hmotnost < 0 || delka < 0 || vyska < 0 || costPackage < 0 || sirka < 0) {
         return {
@@ -866,8 +790,7 @@ const resolvers = {
           message: "Any of parameter that expect number dont support 0"
         }
       }
-      // try {
-        // vyresit graphql error
+      try {
         const SupplierDoc = await db
           .collection('Supplier')
           .where('supplierId', '==', supplierId).get();
@@ -967,10 +890,10 @@ const resolvers = {
           __typename: "Pack",
           data: newPackage
         }      
-      // } catch (error) {
-      //   console.error('Chyba při vytváření balíčku:', error);
-      //   throw error;
-      // }
+      } catch (error) {
+        console.error('Chyba při vytváření balíčku:', error);
+        throw error;
+      }
     },
     SupplierToFirestore: async (
       parent_: any,
@@ -997,15 +920,14 @@ const resolvers = {
         packInBox: PackageInABox,
       } = args;
 
-      // try catch u vsech resolveru
-      // try {
+      try {
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
-        // if(context.user?.email !== Admin){
-        //   return {
-        //     __typename: "SupplierError",
-        //     message: "Only admin can use this function"
-        //   }
-        // }
+        if(context.user?.email !== Admin){
+          return {
+            __typename: "SupplierError",
+            message: "Only admin can use this function"
+          }
+        }
 
         if(ConverDate(PickupPoint, isDelivered)?.message){
           return {
@@ -1078,10 +1000,10 @@ const resolvers = {
           __typename: "Supp",
           data:newSupp
         };
-      // } catch (error) {
-      //   console.error('Chyba při vytváření dovozce', error);
-      //   throw error;
-      // }
+      } catch (error) {
+        console.error('Chyba při vytváření dovozce', error);
+        throw error;
+      }
     },
     // update
     ChangeActualUsEmToFirestore: async (
@@ -1154,11 +1076,6 @@ const resolvers = {
       },
       context: MyContext
     ) => {
-      // update nedokoncen!!!
-      // update i u supplier - nebude potřeba
-      // refres musi byt i u tabulky po dalsim update
-      // kdyz upravim package a jeho supplier je třeba to upravit i u toho starého ? - nebude potřeba
-      // porovantavat stare supp id kvuli moznemu update u jineho - nebude potřeba
       const {
         PackKey: id,
         weight: hmotnost,
@@ -1169,15 +1086,14 @@ const resolvers = {
         name_package: packName,
         supplier_id: supplierId,
       } = args;
-      // try { UPack | PackageError
-
+      try { 
       const Admin = process.env.NEXT_PUBLIC_AdminEm;
-      // if(context.user?.email !== Admin){
-      //   return {
-      //     __typename: "PackageUpdateError",
-      //     message: "Only admin can use this function"
-      //   }
-      // }
+      if(context.user?.email !== Admin){
+        return {
+          __typename: "PackageUpdateError",
+          message: "Only admin can use this function"
+        }
+      }
       if (hmotnost < 0 || delka < 0 || vyska < 0 || costPackage < 0 || sirka < 0) {
         return {
           __typename: "PackageUpdateError",
@@ -1217,14 +1133,6 @@ const resolvers = {
           name_package: packName,
           supplier_id: supplierDoc.id,
         };
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        // const keyPack = existingPackages.map((item: any) => {
-        //   // Vybrat vsechny,Ignorovat updated
-        //   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        //   const keys = Object.keys(item).filter((keyItem) => (keyItem !== id));
-        //   return keys.includes(packName)
-        // })
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         existingPackages.filter((item: any) => { return !item[id] }).forEach((item: { [name: string]: { weight: number, height: number, width: number, Plength: number, name_package:string } }) => {
@@ -1286,10 +1194,10 @@ const resolvers = {
           __typename: "UPack",
           data: UpdatePackage
         }
-      // } catch (error) {
-      //   console.error('Chyba při update balíčku', error);
-      //   throw error;
-      // }
+      } catch (error) {
+        console.error('Chyba při update balíčku', error);
+        throw error;
+      }
     },
     updateSup: async (parent_: any, args: {
       supplierName: string;
@@ -1318,19 +1226,14 @@ const resolvers = {
         actNameSupp: ActName
       } = args;
 
-      // lepsi využití erroru
-     // predelani erroru
-      // try {
-        // kontrola jedinecnych jmen - je
-        // validace jmena - castecne
-        // validace datumu - je
+      try {
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
-        // if(context.user?.email !== Admin){
-        //   return {
-        //     __typename: "SupplierError",
-        //     message: "Only admin can use this function"
-        //   }
-        // }
+        if(context.user?.email !== Admin){
+          return {
+            __typename: "SupplierError",
+            message: "Only admin can use this function"
+          }
+        }
         if(ConverDate(PickupPoint, isDelivered)?.message){
           return {
             __typename: "SupplierError",
@@ -1428,22 +1331,13 @@ const resolvers = {
           data:newSupp
         };
 
-      // } catch (error) {
-      //   console.error('Chyba při update dovozce', error);
-      //   throw error;
-      // }
+      } catch (error) {
+        console.error('Chyba při update dovozce', error);
+        throw error;
+      }
     },
-    deletePack: async (parent_: any, args: { key: string, suppId: string }
-      ) => {
-      // kontrola admina
-      const Admin = process.env.NEXT_PUBLIC_AdminEm;
-      // if(context.user?.email !== Admin){
-      //   return {
-      //     __typename: "SupplierError",
-      //     message: "Only admin can use this function"
-      //   }
-      // }
-        
+    // delete
+    deletePack: async (parent_: any, args: { key: string, suppId: string }, context:MyContext) => {     
       const { key: Pack, suppId: Sid } = args;
       let deleted = false;
       let err = "";
@@ -1452,15 +1346,23 @@ const resolvers = {
       console.log('id', Pack);
       console.log('id', Sid);
 
+      const Admin = process.env.NEXT_PUBLIC_AdminEm;
+      if(context.user?.email !== Admin){
+        err = "Only admin can use this function"
+        deleted = false
+        return { deletion: deleted, error: err }
+      }
 
+      try{   
+        
       const SupplierDoc = await db
         .collection('Supplier')
         .where('supplierId', '==', Sid).get();
       const supplierDoc = SupplierDoc.docs[0];
       const existingPackages = supplierDoc.data().package || [];
 
-
       if (supplierDoc.exists) {
+        // eslint-disable-next-line max-depth
         if (existingPackages) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           newArray = existingPackages.filter((item: any) => !item[Pack]);
@@ -1472,6 +1374,7 @@ const resolvers = {
         else {
           err = "Nothing to delete"
         }
+        // eslint-disable-next-line max-depth
         if (find) {
           await supplierDoc.ref.update({ package: newArray });
           deleted = true
@@ -1482,96 +1385,46 @@ const resolvers = {
       } else {
         err = "Supplier not found"
       }
-      return { deletion: deleted, error: err }
-    },
-    deletePack2: async (parent_: any, args: { id: [string] }) => {
-      // nepouziva se v projektu
-      let err = "";
-      // kontrola admin
-      const Admin = process.env.NEXT_PUBLIC_AdminEm;
-      // if(context.user?.email !== Admin){
-      //   return {
-      //     __typename: "SupplierError",
-      //     message: "Only admin can use this function"
-      //   }
-      // }
-      const { id: PackIdar } = args;
-      console.log('pole', PackIdar);
-      const collection = db.collection('Package');
-      let deleted = false;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      PackIdar.forEach(async function (IdPac) {
-        const snapshot = await collection.where('packgeId', '==', IdPac).get();
-        // lepsi kontrola
-        if (snapshot.empty) {
-          err = 'Balíček není v databázi';
-        }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        snapshot.docs[0].ref.delete();
-      });
-      deleted = true;
-      return { deletion: deleted, error: err }
-    },
-    deleteSupp: async (parent_: any, args: { id: number }) => {
-      // nepouziva se
-      let deleted = false;
-      let err = "";
-      // kontrola admina
-      const Admin = process.env.NEXT_PUBLIC_AdminEm;
-      // if(context.user?.email !== Admin){
-      //   return {
-      //     __typename: "SupplierError",
-      //     message: "Only admin can use this function"
-      //   }
-      // }
-      const { id: PackId } = args;
-      const collection = db.collection('Supplier');
-      const snapshot = await collection.where('supplierId', '==', PackId).get();
-      if (
-        !PackId &&
-        Number.isSafeInteger(PackId) &&
-        PackId &&
-        !Number.isSafeInteger(PackId)
-      ) {
-        err = 'Nevalidní id dodavatele';
+      return { deletion: deleted, error: err }}catch(error){
+        console.error('Chyba při mazání emailu uživatele', error);
+        throw error;
       }
-      if (snapshot.empty) {
-        err = 'Dodavatel není v databázi';
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      snapshot.docs[0].ref.delete();
-      deleted = true;
-      return { deletion: deleted, error: err };
     },
-    deleteSupp2: async (parent_: any, args: { id: [string] }) => {
+    deleteSupp: async (parent_: any, args: { id: [string] }, context:MyContext) => {
       let deleted = false;
       let err = "";
-      // kontrola admina
       const Admin = process.env.NEXT_PUBLIC_AdminEm;
-      // if(context.user?.email !== Admin){
-      //   return {
-      //     __typename: "SupplierError",
-      //     message: "Only admin can use this function"
-      //   }
-      // }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      if(context.user?.email !== Admin){
+        err = "Only admin can use this function"
+        deleted = false
+        return { deletion: deleted, error: err }      
+      }
       const { id: SupIdar } = args;
-      console.log('pole', SupIdar);
-      const collection = db.collection('Supplier');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      SupIdar.forEach(async function (Idsup) {
-        const snapshot = await collection
-          .where('supplierId', '==', Idsup)
-          .get();
-        if (snapshot.empty) {
-          err = 'Dodavatel není v databázi';
-        }
+
+      try{
+        console.log('pole', SupIdar);
+        const collection = db.collection('Supplier');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        snapshot.docs[0].ref.delete();
-      });
-      deleted = true;
-      return { deletion: deleted, error: err };
+        SupIdar.forEach(async function (Idsup) {
+          const snapshot = await collection
+            .where('supplierId', '==', Idsup)
+            .get();
+          if (snapshot.empty) {
+            err = 'Dodavatel není v databázi';
+          }
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          snapshot.docs[0].ref.delete();
+        });
+        deleted = true;
+        return { deletion: deleted, error: err };
+      }
+      catch (error) {
+        console.error('Chyba při mazání emailu uživatele', error);
+        throw error;
+      }
+     
     },
+    deleteHistoryItem: async (parent_:any, args:{}, context:MyContext) =>{},
   },
 };
 
@@ -1600,7 +1453,5 @@ export default createYoga({
     } as Context;
   },
 });
-function verifyToken(_auth: string) {
-  throw new Error('Function not implemented.');
-}
+
 

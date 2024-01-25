@@ -189,11 +189,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
             </label>
           </div>
           <div className={styles.divinput}>
-            <button
-              onClick={handleForm}
-              className={styles.crudbtn}
-              type="submit"
-            >
+            <button className={styles.crudbtn} type="submit">
               Create
             </button>
           </div>

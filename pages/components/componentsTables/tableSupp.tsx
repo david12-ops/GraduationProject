@@ -4,7 +4,7 @@ import Link from 'next/link';
 import router from 'next/router';
 import * as React from 'react';
 
-import { useDeleteSupp2Mutation, useSuppDataQuery } from '@/generated/graphql';
+import { useDeleteSuppMutation, useSuppDataQuery } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/style.module.css';
 
@@ -18,7 +18,7 @@ export const DataGridSupplier = () => {
   // refresh tabulky
   const suppD = useSuppDataQuery();
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const [deleteSuppD] = useDeleteSupp2Mutation();
+  const [deleteSuppD] = useDeleteSuppMutation();
   const [selection, setSelection] = React.useState<GridRowSelectionModel>([]);
 
   const rows =
@@ -67,8 +67,8 @@ export const DataGridSupplier = () => {
         })
         .catch((error) => alert(error));
 
-      const err = result.data?.deleteSupp2?.error;
-      const deleted = result.data?.deleteSupp2?.deletion;
+      const err = result.data?.deleteSupp?.error;
+      const deleted = result.data?.deleteSupp?.deletion;
       if (deleted) {
         alert('Deletion secusfull');
       }

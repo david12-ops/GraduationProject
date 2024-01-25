@@ -180,17 +180,25 @@ const PageBody = (
 // eslint-disable-next-line import/no-default-export
 export default function Page() {
   const suppD = useSuppDataQuery();
-  const [body, SetBody] = useState({});
+  const [body, SetBody] = useState({ element: <div></div> });
   const [admin, SetAdmin] = useState(false);
   const [logged, SetLogin] = useState(false);
 
   const router = useRouter();
   const { query } = router;
   const { id } = query;
+  const auth = getAuth();
+  const title = `Welocome to package detail of supplier ${
+    auth.currentUser
+      ? // eslint-disable-next-line unicorn/prefer-logical-operator-over-ternary
+        auth.currentUser.email
+        ? auth.currentUser.email
+        : ''
+      : ''
+  }`;
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
-    const auth = getAuth();
     if (auth.currentUser) {
       SetLogin(true);
     }
@@ -207,7 +215,7 @@ export default function Page() {
       const errPack = IsTherePackage(selectedSupp?.package);
 
       SetBody({
-        data: PageBody(
+        element: PageBody(
           errSup,
           errPack,
           selectedSupp,
@@ -217,7 +225,14 @@ export default function Page() {
         ),
       });
     }
-  }, [suppD.data?.suplierData, suppD.loading, id, logged, admin]);
+  }, [
+    suppD.data?.suplierData,
+    suppD.loading,
+    id,
+    logged,
+    admin,
+    auth.currentUser,
+  ]);
 
   return (
     <div className={styles.container}>
@@ -228,10 +243,8 @@ export default function Page() {
       </Head>
       <Navbar />
       <main className={styles.main}>
-        <h1 style={{ textAlign: 'center' }}>
-          Welocome to package detail of supplier
-        </h1>
-        {body.data}
+        <h1 style={{ textAlign: 'center' }}>{title} </h1>
+        {body.element}
       </main>
       <footer className={styles.footer}></footer>
     </div>

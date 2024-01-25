@@ -7,13 +7,13 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
 
+import { authUtils } from '@/firebase/auth-utils';
 import {
   useAddHistoryToFirestoreMutation,
   useSuppDataQuery,
 } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/style.module.css';
-import { useAuthContext } from '../auth-context-provider';
 
 type Props = {
   name: string;
@@ -112,7 +112,6 @@ export const ResSuppCard: React.FC<Props> = ({
   dataFrPage,
   sId,
 }) => {
-  const { user, loading } = useAuthContext();
   const dataS = useSuppDataQuery();
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [history] = useAddHistoryToFirestoreMutation();
@@ -122,11 +121,11 @@ export const ResSuppCard: React.FC<Props> = ({
   });
 
   const Save = (data: object, suppData: any, priceS: number, mutation: any) => {
-    if (!loading && user?.email) {
+    if (authUtils.getCurrentUser()?.uid) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       mutation({
         variables: {
-          Email: user?.email,
+          Id: authUtils.getCurrentUser()?.uid.toString(),
           Data: JSON.stringify({ formData: data, data: { suppData, priceS } }),
         },
       });
@@ -206,14 +205,12 @@ export const ResSuppCard: React.FC<Props> = ({
                 <Button className={styles.crudbtnTable}>Order</Button>
               </Link>
             )}
-            {/* <Link key="orderPage" href={`../../orderPage`}> */}
             <Button
               onClick={() => Save(dataFrPage, supplier, price, history)}
               className={styles.crudbtnTable}
             >
               Save
             </Button>
-            {/* </Link> */}
           </CardActions>
         </Typography>
       </CardContent>

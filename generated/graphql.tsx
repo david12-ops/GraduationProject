@@ -54,9 +54,7 @@ export type Mutation = {
   Predict?: Maybe<Value>;
   SupplierToFirestore?: Maybe<Supplier>;
   deletePack?: Maybe<Delete>;
-  deletePack2?: Maybe<Delete>;
   deleteSupp?: Maybe<Delete>;
-  deleteSupp2?: Maybe<Delete>;
   updatePack?: Maybe<UpdatedPack>;
   updateSup?: Maybe<Supplier>;
 };
@@ -69,7 +67,7 @@ export type MutationActualUsToFirestoreArgs = {
 
 export type MutationAddHistoryArgs = {
   data: Scalars['String'];
-  userEmail: Scalars['String'];
+  uId: Scalars['String'];
 };
 
 
@@ -126,17 +124,7 @@ export type MutationDeletePackArgs = {
 };
 
 
-export type MutationDeletePack2Args = {
-  id?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
-};
-
-
 export type MutationDeleteSuppArgs = {
-  id?: InputMaybe<Scalars['Int']>;
-};
-
-
-export type MutationDeleteSupp2Args = {
   id?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
 };
 
@@ -329,13 +317,6 @@ export type ActualUsToFirestoreMutationVariables = Exact<{
 
 export type ActualUsToFirestoreMutation = { __typename?: 'Mutation', ActualUsToFirestore?: { __typename?: 'UserData', email: string } | null };
 
-export type DeleteSuppMutationVariables = Exact<{
-  Id?: InputMaybe<Scalars['Int']>;
-}>;
-
-
-export type DeleteSuppMutation = { __typename?: 'Mutation', deleteSupp?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
-
 export type DeletePacMutationVariables = Exact<{
   Id: Scalars['String'];
   Key: Scalars['String'];
@@ -344,22 +325,15 @@ export type DeletePacMutationVariables = Exact<{
 
 export type DeletePacMutation = { __typename?: 'Mutation', deletePack?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
 
-export type DeletePac2MutationVariables = Exact<{
+export type DeleteSuppMutationVariables = Exact<{
   Id?: InputMaybe<Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>>;
 }>;
 
 
-export type DeletePac2Mutation = { __typename?: 'Mutation', deletePack2?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
-
-export type DeleteSupp2MutationVariables = Exact<{
-  Id?: InputMaybe<Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>>;
-}>;
-
-
-export type DeleteSupp2Mutation = { __typename?: 'Mutation', deleteSupp2?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
+export type DeleteSuppMutation = { __typename?: 'Mutation', deleteSupp?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
 
 export type AddHistoryToFirestoreMutationVariables = Exact<{
-  Email: Scalars['String'];
+  Id: Scalars['String'];
   Data: Scalars['String'];
 }>;
 
@@ -538,40 +512,6 @@ export function useActualUsToFirestoreMutation(baseOptions?: Apollo.MutationHook
 export type ActualUsToFirestoreMutationHookResult = ReturnType<typeof useActualUsToFirestoreMutation>;
 export type ActualUsToFirestoreMutationResult = Apollo.MutationResult<ActualUsToFirestoreMutation>;
 export type ActualUsToFirestoreMutationOptions = Apollo.BaseMutationOptions<ActualUsToFirestoreMutation, ActualUsToFirestoreMutationVariables>;
-export const DeleteSuppDocument = gql`
-    mutation DeleteSupp($Id: Int) {
-  deleteSupp(id: $Id) {
-    deletion
-    error
-  }
-}
-    `;
-export type DeleteSuppMutationFn = Apollo.MutationFunction<DeleteSuppMutation, DeleteSuppMutationVariables>;
-
-/**
- * __useDeleteSuppMutation__
- *
- * To run a mutation, you first call `useDeleteSuppMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteSuppMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteSuppMutation, { data, loading, error }] = useDeleteSuppMutation({
- *   variables: {
- *      Id: // value for 'Id'
- *   },
- * });
- */
-export function useDeleteSuppMutation(baseOptions?: Apollo.MutationHookOptions<DeleteSuppMutation, DeleteSuppMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteSuppMutation, DeleteSuppMutationVariables>(DeleteSuppDocument, options);
-      }
-export type DeleteSuppMutationHookResult = ReturnType<typeof useDeleteSuppMutation>;
-export type DeleteSuppMutationResult = Apollo.MutationResult<DeleteSuppMutation>;
-export type DeleteSuppMutationOptions = Apollo.BaseMutationOptions<DeleteSuppMutation, DeleteSuppMutationVariables>;
 export const DeletePacDocument = gql`
     mutation DeletePac($Id: String!, $Key: String!) {
   deletePack(suppId: $Id, key: $Key) {
@@ -607,77 +547,43 @@ export function useDeletePacMutation(baseOptions?: Apollo.MutationHookOptions<De
 export type DeletePacMutationHookResult = ReturnType<typeof useDeletePacMutation>;
 export type DeletePacMutationResult = Apollo.MutationResult<DeletePacMutation>;
 export type DeletePacMutationOptions = Apollo.BaseMutationOptions<DeletePacMutation, DeletePacMutationVariables>;
-export const DeletePac2Document = gql`
-    mutation DeletePac2($Id: [String]) {
-  deletePack2(id: $Id) {
+export const DeleteSuppDocument = gql`
+    mutation DeleteSupp($Id: [String]) {
+  deleteSupp(id: $Id) {
     deletion
     error
   }
 }
     `;
-export type DeletePac2MutationFn = Apollo.MutationFunction<DeletePac2Mutation, DeletePac2MutationVariables>;
+export type DeleteSuppMutationFn = Apollo.MutationFunction<DeleteSuppMutation, DeleteSuppMutationVariables>;
 
 /**
- * __useDeletePac2Mutation__
+ * __useDeleteSuppMutation__
  *
- * To run a mutation, you first call `useDeletePac2Mutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeletePac2Mutation` returns a tuple that includes:
+ * To run a mutation, you first call `useDeleteSuppMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSuppMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [deletePac2Mutation, { data, loading, error }] = useDeletePac2Mutation({
+ * const [deleteSuppMutation, { data, loading, error }] = useDeleteSuppMutation({
  *   variables: {
  *      Id: // value for 'Id'
  *   },
  * });
  */
-export function useDeletePac2Mutation(baseOptions?: Apollo.MutationHookOptions<DeletePac2Mutation, DeletePac2MutationVariables>) {
+export function useDeleteSuppMutation(baseOptions?: Apollo.MutationHookOptions<DeleteSuppMutation, DeleteSuppMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeletePac2Mutation, DeletePac2MutationVariables>(DeletePac2Document, options);
+        return Apollo.useMutation<DeleteSuppMutation, DeleteSuppMutationVariables>(DeleteSuppDocument, options);
       }
-export type DeletePac2MutationHookResult = ReturnType<typeof useDeletePac2Mutation>;
-export type DeletePac2MutationResult = Apollo.MutationResult<DeletePac2Mutation>;
-export type DeletePac2MutationOptions = Apollo.BaseMutationOptions<DeletePac2Mutation, DeletePac2MutationVariables>;
-export const DeleteSupp2Document = gql`
-    mutation DeleteSupp2($Id: [String]) {
-  deleteSupp2(id: $Id) {
-    deletion
-    error
-  }
-}
-    `;
-export type DeleteSupp2MutationFn = Apollo.MutationFunction<DeleteSupp2Mutation, DeleteSupp2MutationVariables>;
-
-/**
- * __useDeleteSupp2Mutation__
- *
- * To run a mutation, you first call `useDeleteSupp2Mutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteSupp2Mutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteSupp2Mutation, { data, loading, error }] = useDeleteSupp2Mutation({
- *   variables: {
- *      Id: // value for 'Id'
- *   },
- * });
- */
-export function useDeleteSupp2Mutation(baseOptions?: Apollo.MutationHookOptions<DeleteSupp2Mutation, DeleteSupp2MutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteSupp2Mutation, DeleteSupp2MutationVariables>(DeleteSupp2Document, options);
-      }
-export type DeleteSupp2MutationHookResult = ReturnType<typeof useDeleteSupp2Mutation>;
-export type DeleteSupp2MutationResult = Apollo.MutationResult<DeleteSupp2Mutation>;
-export type DeleteSupp2MutationOptions = Apollo.BaseMutationOptions<DeleteSupp2Mutation, DeleteSupp2MutationVariables>;
+export type DeleteSuppMutationHookResult = ReturnType<typeof useDeleteSuppMutation>;
+export type DeleteSuppMutationResult = Apollo.MutationResult<DeleteSuppMutation>;
+export type DeleteSuppMutationOptions = Apollo.BaseMutationOptions<DeleteSuppMutation, DeleteSuppMutationVariables>;
 export const AddHistoryToFirestoreDocument = gql`
-    mutation AddHistoryToFirestore($Email: String!, $Data: String!) {
-  AddHistory(userEmail: $Email, data: $Data)
+    mutation AddHistoryToFirestore($Id: String!, $Data: String!) {
+  AddHistory(uId: $Id, data: $Data)
 }
     `;
 export type AddHistoryToFirestoreMutationFn = Apollo.MutationFunction<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>;
@@ -695,7 +601,7 @@ export type AddHistoryToFirestoreMutationFn = Apollo.MutationFunction<AddHistory
  * @example
  * const [addHistoryToFirestoreMutation, { data, loading, error }] = useAddHistoryToFirestoreMutation({
  *   variables: {
- *      Email: // value for 'Email'
+ *      Id: // value for 'Id'
  *      Data: // value for 'Data'
  *   },
  * });

@@ -9,8 +9,6 @@ import { Navbar } from './components/navbar2';
 
 const Page = (logged: boolean, admin: boolean) => {
   if (!logged || !admin) {
-    // componentu misto div
-    // funguje pro jednoho usera
     return (
       <div
         style={{

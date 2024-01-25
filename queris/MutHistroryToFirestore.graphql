@@ -1,3 +1,3 @@
-mutation AddHistoryToFirestore($Email:String!, $Data:String!){
-    AddHistory(userEmail:$Email, data:$Data)
+mutation AddHistoryToFirestore($Id:String!, $Data:String!){
+    AddHistory(uId:$Id, data:$Data)
 }

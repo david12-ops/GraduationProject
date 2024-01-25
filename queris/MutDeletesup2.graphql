@@ -1,6 +1,0 @@
-mutation DeleteSupp2($Id:[String]){
-  deleteSupp2(id:$Id){
-    deletion
-    error
-  }
-}

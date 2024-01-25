@@ -1,4 +1,4 @@
-mutation DeleteSupp($Id:Int){
+mutation DeleteSupp($Id:[String]){
   deleteSupp(id:$Id){
     deletion
     error

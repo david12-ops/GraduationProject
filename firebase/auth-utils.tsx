@@ -29,4 +29,5 @@ export const authUtils = {
   register: async (email: string, password: string) => {
     await createUserWithEmailAndPassword(auth, email, password);
   },
+  getCurrentUser: () => auth.currentUser,
 };

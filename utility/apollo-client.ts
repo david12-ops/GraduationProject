@@ -1,10 +1,20 @@
-import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client';
+import {
+  ApolloClient,
+  ApolloLink,
+  HttpLink,
+  InMemoryCache,
+} from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
+
+import { authUtils } from '../firebase/auth-utils';
 // import { auth } from '../components/userContext';
 const isServer = typeof window === 'undefined';
 // source: https://github.com/shshaw/next-apollo-ssr
 // @ts-ignore
+
 const windowApolloState = !isServer && window.__NEXT_DATA__.apolloState;
+
 let CLIENT: ApolloClient<any>;
 const endpoint = '/api/graphql';
 const logoutLink = (logout: VoidFunction) =>
@@ -21,6 +31,22 @@ const logoutLink = (logout: VoidFunction) =>
     if (graphQLErrors?.[0]?.message === 'Unauthorized') {
       logout();
     }
+  });
+//!
+const oAuthLink = () =>
+  // @ts-ignore
+  setContext(async ({ operationName }, { headers }) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const user = authUtils.getCurrentUser() || null;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const jwtToken = user ? await user.getIdToken() : null;
+    console.log('USER', user);
+    return {
+      headers: {
+        ...headers,
+        authorization: jwtToken ? `Bearer ${jwtToken}` : '',
+      },
+    };
   });
 const httpLink = (): HttpLink => {
   if (typeof window === 'undefined') {
@@ -49,14 +75,18 @@ type ApolloClientProps =
     };
 export function getApolloClient(parameters: ApolloClientProps) {
   const forceNew = parameters?.forceNew;
-  const logout = !parameters.forceNew ? parameters.logout : undefined;
+  const logout = parameters.forceNew ? undefined : parameters.logout;
   if (!CLIENT || forceNew) {
     CLIENT = new ApolloClient({
       ssrMode: isServer,
       uri: endpoint,
       cache: new InMemoryCache().restore(windowApolloState || {}),
       credentials: 'same-origin',
-      link: ApolloLink.from(isServer || !logout ? [httpLink()] : [logoutLink(logout), httpLink()]),
+      link: ApolloLink.from(
+        isServer || !logout
+          ? [oAuthLink(), httpLink()]
+          : [oAuthLink(), logoutLink(logout), httpLink()],
+      ),
       /**
         // Default options to disable SSR for all queries.
         defaultOptions: {
