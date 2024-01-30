@@ -21,13 +21,8 @@ type Props = {
   onChangeDelka: (inputVal: number) => any;
   onChangeSirka: (inputVal: number) => any;
   onChangeCena: (inputVal: number) => any;
-  // onChangeCityFromWhere: (inputVal: string) => any;
-  // onChangePscFromWhere: (inputVal: string) => any;
-  // onChangeCityWhere: (inputVal: string) => any;
-  // onChangePscWhere: (inputVal: string) => any;
   onChangeDo: (inputVal: string) => any;
   onChangeZ: (inputVal: string) => any;
-
   buttonEl: any;
 };
 
@@ -39,10 +34,6 @@ export const FormChooseSup: React.FC<Props> = ({
   onChangeCena,
   onChangeDo,
   onChangeZ,
-  // onChangeCityFromWhere,
-  // onChangePscFromWhere,
-  // onChangeCityWhere,
-  // onChangePscWhere,
   buttonEl,
 }) => {
   const MyComponentPicker = () => {
@@ -183,50 +174,6 @@ export const FormChooseSup: React.FC<Props> = ({
           }}
         >
           {MyComponentPicker()}
-          {/* <div>
-            <label>
-              <p style={{ textAlign: 'center' }}>Město (odkud)</p>
-              <input
-                className={styles.input}
-                onChange={(e) => onChangeCityFromWhere(e.target.value)}
-                required
-                type="text"
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              <p style={{ textAlign: 'center' }}>PSČ </p>
-              <input
-                className={styles.input}
-                onChange={(e) => onChangePscFromWhere(e.target.value)}
-                required
-                type="text"
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              <p style={{ textAlign: 'center' }}>Město (kam)</p>
-              <input
-                className={styles.input}
-                onChange={(e) => onChangeCityWhere(e.target.value)}
-                required
-                type="text"
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              <p style={{ textAlign: 'center' }}>PSČ</p>
-              <input
-                className={styles.input}
-                onChange={(e) => onChangePscWhere(e.target.value)}
-                required
-                type="text"
-              />
-            </label>
-          </div> */}
         </div>
         <div
           style={{

@@ -1,0 +1,12 @@
+mutation UpdateHistory($newPricePack: Int, $oldPricePack:Int, $newPricePersonal:Int, $oldPricePersonal:Int, $newPriceDepo:Int, $oldPriceDepo:Int, $SuppId:String, $PackageName:String){
+    updateHistory(
+        newPricePack: $newPricePack,
+        oldPricePack: $oldPricePack,
+        newPricePersonal: $newPricePersonal,
+        oldPricePersonal: $oldPricePersonal,
+        newPriceDepo: $newPriceDepo,
+        oldPriceDepo: $oldPriceDepo,
+        suppId: $SuppId,
+        packName: $PackageName,
+    )
+}

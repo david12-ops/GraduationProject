@@ -7,6 +7,7 @@ import Select from 'react-select';
 
 import {
   useSuppDataQuery,
+  useUpdateHistoryMutation,
   useUpdateSupplierMutation,
 } from '@/generated/graphql';
 
@@ -52,13 +53,18 @@ const Refetch = (data: any) => {
   data.refetch();
 };
 
-const IsNumber = (stringToNum: string) => {
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-  if (
-    Number.isSafeInteger(stringToNum) ||
-    (Number(stringToNum) >= 0 && Number(stringToNum) <= Number.MAX_SAFE_INTEGER)
-  ) {
-    return true;
+const parseIntReliable = (numArg: string) => {
+  const min = 1;
+  if (numArg.length > 0) {
+    const parsed = Number.parseInt(numArg, 10);
+    if (parsed === 0) {
+      // eslint-disable-next-line max-depth
+      if (numArg.replaceAll('0', '') === '') {
+        return 0;
+      }
+    } else if (Number.isSafeInteger(parsed) && Number(parsed) > min) {
+      return parsed;
+    }
   }
   return false;
 };
@@ -90,9 +96,12 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const [SsuppId, SetSsuppId] = React.useState('');
   const [SupplierName, SetSupplierName] = React.useState('');
   const [ActualSupplierName, SetASupplierName] = React.useState('');
+  const [depoCost, SetDepoCost] = React.useState('');
+  const [personalCost, SetPersonalCost] = React.useState('');
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const supData = useSuppDataQuery();
+  const [UpdateHistory] = useUpdateHistoryMutation();
   const [UpdateSupp] = useUpdateSupplierMutation();
   const [admin, SetAdmin] = useState(false);
   const [logged, SetLogin] = useState(false);
@@ -113,6 +122,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       );
 
       if (actualSupp) {
+        console.log('location', actualSupp.location);
         SetSsuppId(actualSupp.supplierId);
         SetDelivery(actualSupp.delivery);
         SetsendCashDelivery(actualSupp.sendCashDelivery);
@@ -123,6 +133,8 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         SetSupplierName(actualSupp.suppName);
         SetASupplierName(actualSupp.suppName);
         SetFoil(actualSupp.foil);
+        SetDepoCost(String(actualSupp.location?.depoDelivery.cost));
+        SetPersonalCost(String(actualSupp.location?.personalDelivery.cost));
       }
     }
   }, [id, supData.data, supData, logged, admin]);
@@ -135,10 +147,20 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     Foilarg: string,
     ShippingLabelarg: string,
     packInBoxarg: string,
+    depoCostarg: string,
+    personalCostarg: string,
     // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
   ) => {
-    if (!IsNumber(Insurancearg)) {
-      return new Error('Invalid argument, expext number');
+    if (!parseIntReliable(Insurancearg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+
+    if (!parseIntReliable(depoCostarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+
+    if (!parseIntReliable(personalCostarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
     }
 
     // eslint-disable-next-line sonarjs/prefer-single-boolean-return
@@ -198,15 +220,16 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
 
   const handleForm = async (event: React.FormEvent) => {
     event.preventDefault();
-
     const valid = Valid(
       PickUp,
       SDelivery,
-      SInsurance.toString(),
+      SInsurance,
       SSendCashDelivery,
       SFoil,
       SShippingLabel,
       SPackInBox,
+      depoCost,
+      personalCost,
     )?.message;
     if (valid) {
       alert(valid);
@@ -223,29 +246,26 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           packInBox: SPackInBox,
           SuppId: SsuppId,
           ActNameSupp: ActualSupplierName,
+          DepoCost: Number(depoCost),
+          PersonalCost: Number(personalCost),
         },
-      })
-        // eslint-disable-next-line consistent-return
-        .then((res) => {
-          return res;
-        })
-        .catch((error) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-          return { err: error };
-        });
+      });
 
       const err = result.data?.updateSup?.message;
       const data = result.data?.updateSup?.data;
-
-      if (result.err) {
-        alert(result.err);
-      }
 
       if (err) {
         alert(err);
       }
 
       if (data) {
+        await UpdateHistory({
+          variables: {
+            newPriceDepo: Number(depoCost),
+            newPricePersonal: Number(personalCost),
+            SuppId: SsuppId,
+          },
+        });
         Refetch(supData);
         alert(`Dodavatel byl upraven s parametry: Doručení: ${data.delivery},
             Zabalení do folie: ${data.foil},
@@ -355,6 +375,33 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               <p className={styles.Odstavce}>Do krabice</p>
               {MyComponentPackInB()}
             </label>
+          </div>
+          <h3 className={styles.Nadpisy}>Ceny způsobu dopravení/předání</h3>
+          <div className={styles.divinput}>
+            <div className={styles.divinput}>
+              <label>
+                <p className={styles.Odstavce}>Depo</p>
+                <input
+                  className={styles.inputForSupp}
+                  onChange={(e) => SetDepoCost(e.target.value)}
+                  required
+                  type="number"
+                  value={depoCost}
+                />
+              </label>
+            </div>
+            <div className={styles.divinput}>
+              <label>
+                <p className={styles.Odstavce}>Personal</p>
+                <input
+                  className={styles.inputForSupp}
+                  onChange={(e) => SetPersonalCost(e.target.value)}
+                  required
+                  type="number"
+                  value={personalCost}
+                />
+              </label>
+            </div>
           </div>
           <div className={styles.divinput}>
             <button className={styles.crudbtn} type="submit">

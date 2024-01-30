@@ -1,5 +1,5 @@
 mutation UpdateSupplier($SupName:String!, $Delivery:String!, $pickUp:String!,
- $ShippingLabel:String!, $Foil:String!, $Insurance:Int!, $SendCashDelivery: String!, $packInBox:String!, $SuppId: String!, $ActNameSupp:String!){
+ $ShippingLabel:String!, $Foil:String!, $Insurance:Int!, $SendCashDelivery: String!, $packInBox:String!, $SuppId: String!, $ActNameSupp:String!, $DepoCost:Int!, $PersonalCost:Int!){
     updateSup( 
       supplierName: $SupName,
       delivery: $Delivery,
@@ -11,6 +11,8 @@ mutation UpdateSupplier($SupName:String!, $Delivery:String!, $pickUp:String!,
       packInBox: $packInBox
       suppId: $SuppId
       actNameSupp:$ActNameSupp
+      depoCost:$DepoCost,
+      personalCost:$PersonalCost
       )
       {
         ... on Supp {

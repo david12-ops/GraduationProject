@@ -30,7 +30,6 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    Predict(value:String!, intVal:Int!):Value
     BingoSupPac(width:Int!, weight:Int!, height:Int!, Plength:Int!,  mistoZ:String!, mistoDo:String!, cost:Int!):SuitValue
     ActualUsToFirestore(emailUS: String!): UserData
     AddHistory(uId:String!, data:String!):Boolean
@@ -49,6 +48,17 @@ const typeDefs = gql`
       supplier_id:String!
       packId:String!
     ): CreatedPack
+
+    updateHistory(
+      newPricePack: Int
+      oldPricePack: Int
+      newPricePersonal: Int
+      oldPricePersonal: Int
+      newPriceDepo: Int
+      oldPriceDepo: Int
+      suppId: String
+      packName: String
+    ):Boolean
 
     updatePack(
       weight: Int!
@@ -70,6 +80,8 @@ const typeDefs = gql`
       insurance: Int!
       sendCashDelivery: String!
       packInBox: String!
+      depoCost:Int!,
+      personalCost:Int!
     ): Supplier
 
     updateSup(
@@ -83,6 +95,8 @@ const typeDefs = gql`
       packInBox: String!
       suppId: String!
       actNameSupp:String!
+      depoCost:Int!,
+      personalCost:Int!
     ):Supplier
 
     deletePack(suppId: String!, key:String!): Delete
@@ -90,17 +104,6 @@ const typeDefs = gql`
   }
 
   scalar JSON
-
-  type Val{
-    value:String!
-    intVal:Int!
-  }
-
-  type ValError{
-    message:String!
-  }
-
-  union Value = Val | ValError
 
   type Suitable{
     suitable: String!
@@ -165,6 +168,7 @@ const typeDefs = gql`
     shippingLabel: String!
     foil: String!
     package:JSON
+    location:JSON
   }
 
   type PackageError{
@@ -236,12 +240,6 @@ const typeDefs = gql`
     image: String!
   }
 `;
-
-// type DbUser = {
-//   data: string;
-//   email: string;
-//   dataOfUS: FirebaseFirestore.DocumentReference<UserDada>;
-// }
 
 const db = firestore();
 
@@ -480,6 +478,7 @@ const resolvers = {
         shippingLabel: any;
         foil: any;
         package: [any]
+        location:any
       }> = [];
 
       result.forEach((doc) => {
@@ -495,7 +494,8 @@ const resolvers = {
           insurance: docData.insurance,
           shippingLabel: docData.shippingLabel,
           foil: docData.foil,
-          package: docData.package
+          package: docData.package,
+          location:docData.location
         });
         console.log('data supplier package', data.map((item) => JSON.stringify(item.package)));
       });
@@ -504,20 +504,6 @@ const resolvers = {
     },
   },
   Mutation: {
-     Predict: async (parent_:any, args:{value:string, intVal:number}) => {
-      const {value:val, intVal:Num} = args
-       if(val === "value"){
-        return {
-          __typename: "Val",
-          value: "Bingoooo!!!!!",
-          intVal:Num
-        };
-      }
-      return {
-          __typename: "ValError",
-          message: "Error! Bad prediction",
-      };
-    },
     // vhodny balik resolver
     BingoSupPac: async (parent_: any, args: { width: number, weight: number, height: number, Plength: number, mistoZ:string, mistoDo:string, cost:number }) => {
       const { width: Width, weight: Weight, height: Height, Plength: pLength, mistoZ: Z, mistoDo:Do, cost: Pcost } = args
@@ -532,7 +518,9 @@ const resolvers = {
       const validargDo = ['personal','depo'].includes(Do)
 
       const suppWithLocationFiled:any = []
-      const SupplierDoc = await db
+
+      try{
+        const SupplierDoc = await db
         .collection('Supplier').get();
       
         console.log("id?",Width,Weight,Height,pLength)
@@ -571,10 +559,6 @@ const resolvers = {
           console.log("itm with location", suppWithLocationFiled)
         }
       })
-
-      // scalar Date - je ten typ!!!!!
-      // scalar DateTime - je ten typ!!!!!
-
 
       packages.forEach(packageObj => {
         // Extracting the values from each package object
@@ -670,7 +654,10 @@ const resolvers = {
         __typename: "ErrorMessage",
         message:"Any suitable supplier"
       };
-   
+      }catch (error) {
+        console.error('Chyba při vyběru vhodného balíčku:', error);
+        throw error;
+      }
     },
     // web mutation
     // create
@@ -704,14 +691,17 @@ const resolvers = {
     },
     AddHistory: async (parent_:any, args: { uId: string, data:string}) =>{
       const {uId:id, data:dataS} = args
-      // kdyz se cena zmeni a udela save na tom samém změni se cena, kdyz ne tak se neprida
       try {
         const newHistoryDoc = db.collection('History').doc();
         const data = JSON.parse(dataS)
+        // let createdHistoryItm:any;
+        console.log("jsooon",data)
 
         const sData = data.data.suppData;
         const sPrice = data.data.priceS;
-        const toFirestore = {id:sData.supplierId, name:sData.suppName, pickup:sData.pickUp, delivery:sData.delivery, insurance:sData.insurance, shippingLabel:sData.shippingLabel, sendCashDelivery:sData.sendCashDelivery, packInBox:sData.packInBox, foil:sData.foil, cost:sPrice}
+        // eslint-disable-next-line prefer-destructuring
+        const packName = data.data.packName;
+        const toFirestore = {id:sData.supplierId, name:sData.suppName, pickup:sData.pickUp, delivery:sData.delivery, insurance:sData.insurance, shippingLabel:sData.shippingLabel, sendCashDelivery:sData.sendCashDelivery, packInBox:sData.packInBox, foil:sData.foil, cost:sPrice, packName}
         
         const newHistory = {
           uId:id,
@@ -722,18 +712,22 @@ const resolvers = {
 
         const dataInColl = await db.collection('History').get()
 
+        // eslint-disable-next-line array-callback-return, consistent-return
         const duplicateByParam = dataInColl.docs.map((item:any)=>{
+          console.log("nooo",item._fieldsProto)
           const byForm = item._fieldsProto.dataForm.mapValue.fields;
-          const byCost = item._fieldsProto.suppData.mapValue.fields.cost.integerValue;
+          const byCost:number = item._fieldsProto.suppData.mapValue.fields.cost.integerValue
+          // const byCost = item._fieldsProto.suppData.mapValue.fields.cost.integerValue;
           if(item._fieldsProto.suppData.mapValue.fields.id.stringValue === sData.supplierId){
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return byForm.width.stringValue === data.formData.dataFrForm.width && byForm.height.stringValue === data.formData.dataFrForm.height && byForm.weight.stringValue === data.formData.dataFrForm.weight && byForm.plength.stringValue === data.formData.dataFrForm.plength && byForm.placeTo.stringValue === data.formData.dataFrForm.placeTo && byForm.placeFrom.stringValue === data.formData.dataFrForm.placeFrom &&  Number(byCost) === Number(data.data.priceS) ? item : undefined
+            return byForm.width.stringValue === data.formData.dataFrForm.width && byForm.height.stringValue === data.formData.dataFrForm.height && byForm.weight.stringValue === data.formData.dataFrForm.weight && byForm.plength.stringValue === data.formData.dataFrForm.plength && byForm.placeTo.stringValue === data.formData.dataFrForm.placeTo && byForm.placeFrom.stringValue === data.formData.dataFrForm.placeFrom && Number(byCost) === Number(sPrice) ? item : undefined
           }
         })
 
         // Pri zmene ceny u balicku tomu prizpusobit i historii
+        console.log("jeee",duplicateByParam)
 
-        if(!duplicateByParam.map((e) =>{return !!e}).includes(true)){
+        if(!duplicateByParam.map((e) =>{return !!e}).includes(true)) {
           await newHistoryDoc.set(newHistory);
         }
         
@@ -906,6 +900,8 @@ const resolvers = {
         insurance: number;
         sendCashDelivery: string;
         packInBox: string;
+        depoCost:number,
+        personalCost:number
       },
       context: MyContext
     ) => {
@@ -918,6 +914,8 @@ const resolvers = {
         insurance: InsuranceValue,
         sendCashDelivery: SendCashOnDelivery,
         packInBox: PackageInABox,
+        depoCost:dCost,
+        personalCost:pCost,
       } = args;
 
       try {
@@ -979,7 +977,7 @@ const resolvers = {
         const newSuppDoc = db.collection('Supplier').doc();
 
         
-        const location = {depoDelivery:{cost:20, delivery:"depo"}, personalDelivery:{cost:40, delivery:"personal"}}
+        const location = {depoDelivery:{cost:dCost, delivery:"depo"}, personalDelivery:{cost:pCost, delivery:"personal"}}
 
         const newSupp = {
           sendCashDelivery: SendCashOnDelivery,
@@ -1210,6 +1208,8 @@ const resolvers = {
       packInBox: string;
       suppId: string,
       actNameSupp: string
+      depoCost:number,
+      personalCost:number
     },     
     context: MyContext
     ) => {
@@ -1223,7 +1223,9 @@ const resolvers = {
         sendCashDelivery: SendCashOnDelivery,
         packInBox: PackageInABox,
         suppId: id,
-        actNameSupp: ActName
+        actNameSupp: ActName,
+        depoCost:dCost,
+        personalCost:pCost
       } = args;
 
       try {
@@ -1296,7 +1298,7 @@ const resolvers = {
           }
         }
 
-        const location = {depoDelivery:{cost:35, delivery:"depo"}, personalDelivery:{cost:45, delivery:"personal"}}
+        const location = {depoDelivery:{cost:dCost, delivery:"depo"}, personalDelivery:{cost:pCost, delivery:"personal"}}
         
           Supd.forEach(async (doc) => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -1335,6 +1337,70 @@ const resolvers = {
         console.error('Chyba při update dovozce', error);
         throw error;
       }
+    },
+    updateHistory: async (parent_:any, args:{newPricePack:number, oldPricePack:number, newPricePersonal:number, oldPricePersonal:number, newPriceDepo:number, oldPriceDepo:number, suppId:string, packName:string}, context:MyContext) =>{
+      const {newPricePack:nPricrePack, oldPricePack:oPricePack, newPricePersonal:nPriceP, oldPricePersonal:oPriceP, newPriceDepo:nPriceDepo, oldPriceDepo:oPriceDepo, suppId:sId, packName:nameOfpack} = args
+      // location
+      const SuppDocuments = await db.collection("History").where("suppData.id", "==", sId).get()
+      console.log(SuppDocuments);
+      let costPersonal = 0 // puvodni cena
+      let costDepo = 0 // puvodni cena
+
+      console.log("id",sId)
+      console.log("name", nameOfpack)
+
+      if(nPriceP && oPriceP){
+        if(nPriceP > oPriceP){
+          costPersonal += (nPriceP - oPriceP)
+        }
+  
+        if(nPriceP < oPriceP){
+          costPersonal += (oPriceP - nPriceP )
+        }
+        console.log(costPersonal)
+      }
+
+      if(nPriceDepo && oPriceDepo){
+        // packId - potřeba
+        if(nPriceDepo>oPriceDepo){
+          costDepo += (nPriceDepo - oPriceDepo)
+        }
+  
+        if(nPriceDepo < oPriceDepo){
+          costDepo += (oPriceDepo - nPriceDepo)
+        }  
+        console.log(costDepo)
+      }
+    
+      // package cost - vypada funkcně 
+      if(nPricrePack && oPricePack  && nameOfpack){
+        let costPack = 0 // puvodni cena
+        let historyId = "";
+        if(nPricrePack !== oPricePack){
+          SuppDocuments.forEach((doc:any) => {if(doc._fieldsProto.suppData.mapValue.fields.id.stringValue === sId && doc._fieldsProto.suppData.mapValue.fields.packName.stringValue === nameOfpack){costPack = Number(doc._fieldsProto.suppData.mapValue.fields.cost.integerValue); console.log(doc); historyId = doc._fieldsProto.historyId.stringValue}})
+          console.log("matematika", costPack)
+        }
+
+        if(nPricrePack > oPricePack){
+          console.log("spadl jsem jsem 1")
+          costPack += (nPricrePack - oPricePack)
+        }
+  
+        if(nPricrePack < oPricePack){
+          console.log("spadl jsem jsem 2")
+          console.log(oPricePack, nPricrePack)
+          costPack -= (oPricePack - nPricrePack)
+        }
+
+        console.log("historyId", historyId)
+        // eslint-disable-next-line unicorn/no-await-expression-member, @typescript-eslint/no-unused-expressions
+        historyId === "" ?? await (await db.collection("History").where("historyId", "==", historyId).get()).docs[0].ref.update({"suppData.cost":costPack})
+
+        console.log("1 stara 2 nova", oPricePack, nPricrePack)
+      
+        console.log(costPack)
+      }     
+
     },
     // delete
     deletePack: async (parent_: any, args: { key: string, suppId: string }, context:MyContext) => {     
@@ -1424,7 +1490,7 @@ const resolvers = {
       }
      
     },
-    deleteHistoryItem: async (parent_:any, args:{}, context:MyContext) =>{},
+    // deleteHistoryItem: async (parent_:any, args:{}, context:MyContext) =>{},
   },
 };
 

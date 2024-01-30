@@ -51,10 +51,10 @@ export type Mutation = {
   BingoSupPac?: Maybe<SuitValue>;
   ChangeActualUsEmToFirestore?: Maybe<UserChangeEmData>;
   PackageToFirestore?: Maybe<CreatedPack>;
-  Predict?: Maybe<Value>;
   SupplierToFirestore?: Maybe<Supplier>;
   deletePack?: Maybe<Delete>;
   deleteSupp?: Maybe<Delete>;
+  updateHistory?: Maybe<Scalars['Boolean']>;
   updatePack?: Maybe<UpdatedPack>;
   updateSup?: Maybe<Supplier>;
 };
@@ -100,17 +100,13 @@ export type MutationPackageToFirestoreArgs = {
 };
 
 
-export type MutationPredictArgs = {
-  intVal: Scalars['Int'];
-  value: Scalars['String'];
-};
-
-
 export type MutationSupplierToFirestoreArgs = {
   delivery: Scalars['String'];
+  depoCost: Scalars['Int'];
   foil?: InputMaybe<Scalars['String']>;
   insurance: Scalars['Int'];
   packInBox: Scalars['String'];
+  personalCost: Scalars['Int'];
   pickUp: Scalars['String'];
   sendCashDelivery: Scalars['String'];
   shippingLabel: Scalars['String'];
@@ -129,6 +125,18 @@ export type MutationDeleteSuppArgs = {
 };
 
 
+export type MutationUpdateHistoryArgs = {
+  newPriceDepo?: InputMaybe<Scalars['Int']>;
+  newPricePack?: InputMaybe<Scalars['Int']>;
+  newPricePersonal?: InputMaybe<Scalars['Int']>;
+  oldPriceDepo?: InputMaybe<Scalars['Int']>;
+  oldPricePack?: InputMaybe<Scalars['Int']>;
+  oldPricePersonal?: InputMaybe<Scalars['Int']>;
+  packName?: InputMaybe<Scalars['String']>;
+  suppId?: InputMaybe<Scalars['String']>;
+};
+
+
 export type MutationUpdatePackArgs = {
   PackKey: Scalars['String'];
   Plength: Scalars['Int'];
@@ -144,9 +152,11 @@ export type MutationUpdatePackArgs = {
 export type MutationUpdateSupArgs = {
   actNameSupp: Scalars['String'];
   delivery: Scalars['String'];
+  depoCost: Scalars['Int'];
   foil: Scalars['String'];
   insurance: Scalars['Int'];
   packInBox: Scalars['String'];
+  personalCost: Scalars['Int'];
   pickUp: Scalars['String'];
   sendCashDelivery: Scalars['String'];
   shippingLabel: Scalars['String'];
@@ -223,6 +233,7 @@ export type QuerySuppD = {
   delivery: Scalars['String'];
   foil: Scalars['String'];
   insurance: Scalars['Int'];
+  location?: Maybe<Scalars['JSON']>;
   packInBox: Scalars['String'];
   package?: Maybe<Scalars['JSON']>;
   pickUp: Scalars['String'];
@@ -288,19 +299,6 @@ export type UserData = {
   historyId: Scalars['Int'];
   supplierId: Scalars['Int'];
 };
-
-export type Val = {
-  __typename?: 'Val';
-  intVal: Scalars['Int'];
-  value: Scalars['String'];
-};
-
-export type ValError = {
-  __typename?: 'ValError';
-  message: Scalars['String'];
-};
-
-export type Value = Val | ValError;
 
 export type ChangeActualUsEmToFirestoreMutationVariables = Exact<{
   ActualemailUser: Scalars['String'];
@@ -376,10 +374,26 @@ export type NewSupplierToFirestoreMutationVariables = Exact<{
   Insurance: Scalars['Int'];
   SendCashDelivery: Scalars['String'];
   packInBox: Scalars['String'];
+  DepoCost: Scalars['Int'];
+  PersonalCost: Scalars['Int'];
 }>;
 
 
 export type NewSupplierToFirestoreMutation = { __typename?: 'Mutation', SupplierToFirestore?: { __typename?: 'Supp', data: { __typename?: 'SupplierData', sendCashDelivery: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } } | { __typename?: 'SupplierError', message: string } | null };
+
+export type UpdateHistoryMutationVariables = Exact<{
+  newPricePack?: InputMaybe<Scalars['Int']>;
+  oldPricePack?: InputMaybe<Scalars['Int']>;
+  newPricePersonal?: InputMaybe<Scalars['Int']>;
+  oldPricePersonal?: InputMaybe<Scalars['Int']>;
+  newPriceDepo?: InputMaybe<Scalars['Int']>;
+  oldPriceDepo?: InputMaybe<Scalars['Int']>;
+  SuppId?: InputMaybe<Scalars['String']>;
+  PackageName?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type UpdateHistoryMutation = { __typename?: 'Mutation', updateHistory?: boolean | null };
 
 export type UpdatePackageMutationVariables = Exact<{
   Hmotnost: Scalars['Int'];
@@ -406,6 +420,8 @@ export type UpdateSupplierMutationVariables = Exact<{
   packInBox: Scalars['String'];
   SuppId: Scalars['String'];
   ActNameSupp: Scalars['String'];
+  DepoCost: Scalars['Int'];
+  PersonalCost: Scalars['Int'];
 }>;
 
 
@@ -416,14 +432,6 @@ export type PackageDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type PackageDataQuery = { __typename?: 'Query', packageData: Array<{ __typename?: 'QueryPackD', Pkam: string, Podkud: string, costPackage: number, delka: number, hmotnost: number, kam: string, odkud: string, packName: string, packgeId: string, sirka: number, vyska: number, supplierId: string }> };
 
-export type ResSupplierMutationVariables = Exact<{
-  Value: Scalars['String'];
-  valInt: Scalars['Int'];
-}>;
-
-
-export type ResSupplierMutation = { __typename?: 'Mutation', Predict?: { __typename?: 'Val', value: string, intVal: number } | { __typename?: 'ValError', message: string } | null };
-
 export type CardDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -432,7 +440,7 @@ export type CardDataQuery = { __typename?: 'Query', cardValues: Array<{ __typena
 export type SuppDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SuppDataQuery = { __typename?: 'Query', suplierData: Array<{ __typename?: 'QuerySuppD', sendCashDelivery: string, packInBox: string, supplierId: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string, package?: { [key: string]: any } | null }> };
+export type SuppDataQuery = { __typename?: 'Query', suplierData: Array<{ __typename?: 'QuerySuppD', sendCashDelivery: string, packInBox: string, supplierId: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string, package?: { [key: string]: any } | null, location?: { [key: string]: any } | null }> };
 
 export type UserDataQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -728,7 +736,7 @@ export type MutSuitableSuppMutationHookResult = ReturnType<typeof useMutSuitable
 export type MutSuitableSuppMutationResult = Apollo.MutationResult<MutSuitableSuppMutation>;
 export type MutSuitableSuppMutationOptions = Apollo.BaseMutationOptions<MutSuitableSuppMutation, MutSuitableSuppMutationVariables>;
 export const NewSupplierToFirestoreDocument = gql`
-    mutation NewSupplierToFirestore($SupName: String!, $Delivery: String!, $pickUp: String!, $ShippingLabel: String!, $Foil: String!, $Insurance: Int!, $SendCashDelivery: String!, $packInBox: String!) {
+    mutation NewSupplierToFirestore($SupName: String!, $Delivery: String!, $pickUp: String!, $ShippingLabel: String!, $Foil: String!, $Insurance: Int!, $SendCashDelivery: String!, $packInBox: String!, $DepoCost: Int!, $PersonalCost: Int!) {
   SupplierToFirestore(
     supplierName: $SupName
     delivery: $Delivery
@@ -738,6 +746,8 @@ export const NewSupplierToFirestoreDocument = gql`
     insurance: $Insurance
     sendCashDelivery: $SendCashDelivery
     packInBox: $packInBox
+    depoCost: $DepoCost
+    personalCost: $PersonalCost
   ) {
     ... on Supp {
       data {
@@ -780,6 +790,8 @@ export type NewSupplierToFirestoreMutationFn = Apollo.MutationFunction<NewSuppli
  *      Insurance: // value for 'Insurance'
  *      SendCashDelivery: // value for 'SendCashDelivery'
  *      packInBox: // value for 'packInBox'
+ *      DepoCost: // value for 'DepoCost'
+ *      PersonalCost: // value for 'PersonalCost'
  *   },
  * });
  */
@@ -790,6 +802,53 @@ export function useNewSupplierToFirestoreMutation(baseOptions?: Apollo.MutationH
 export type NewSupplierToFirestoreMutationHookResult = ReturnType<typeof useNewSupplierToFirestoreMutation>;
 export type NewSupplierToFirestoreMutationResult = Apollo.MutationResult<NewSupplierToFirestoreMutation>;
 export type NewSupplierToFirestoreMutationOptions = Apollo.BaseMutationOptions<NewSupplierToFirestoreMutation, NewSupplierToFirestoreMutationVariables>;
+export const UpdateHistoryDocument = gql`
+    mutation UpdateHistory($newPricePack: Int, $oldPricePack: Int, $newPricePersonal: Int, $oldPricePersonal: Int, $newPriceDepo: Int, $oldPriceDepo: Int, $SuppId: String, $PackageName: String) {
+  updateHistory(
+    newPricePack: $newPricePack
+    oldPricePack: $oldPricePack
+    newPricePersonal: $newPricePersonal
+    oldPricePersonal: $oldPricePersonal
+    newPriceDepo: $newPriceDepo
+    oldPriceDepo: $oldPriceDepo
+    suppId: $SuppId
+    packName: $PackageName
+  )
+}
+    `;
+export type UpdateHistoryMutationFn = Apollo.MutationFunction<UpdateHistoryMutation, UpdateHistoryMutationVariables>;
+
+/**
+ * __useUpdateHistoryMutation__
+ *
+ * To run a mutation, you first call `useUpdateHistoryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateHistoryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateHistoryMutation, { data, loading, error }] = useUpdateHistoryMutation({
+ *   variables: {
+ *      newPricePack: // value for 'newPricePack'
+ *      oldPricePack: // value for 'oldPricePack'
+ *      newPricePersonal: // value for 'newPricePersonal'
+ *      oldPricePersonal: // value for 'oldPricePersonal'
+ *      newPriceDepo: // value for 'newPriceDepo'
+ *      oldPriceDepo: // value for 'oldPriceDepo'
+ *      SuppId: // value for 'SuppId'
+ *      PackageName: // value for 'PackageName'
+ *   },
+ * });
+ */
+export function useUpdateHistoryMutation(baseOptions?: Apollo.MutationHookOptions<UpdateHistoryMutation, UpdateHistoryMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateHistoryMutation, UpdateHistoryMutationVariables>(UpdateHistoryDocument, options);
+      }
+export type UpdateHistoryMutationHookResult = ReturnType<typeof useUpdateHistoryMutation>;
+export type UpdateHistoryMutationResult = Apollo.MutationResult<UpdateHistoryMutation>;
+export type UpdateHistoryMutationOptions = Apollo.BaseMutationOptions<UpdateHistoryMutation, UpdateHistoryMutationVariables>;
 export const UpdatePackageDocument = gql`
     mutation UpdatePackage($Hmotnost: Int!, $Cost: Int!, $Delka: Int!, $Vyska: Int!, $Sirka: Int!, $Pack_name: String!, $PackKey: String!, $SuppId: String!) {
   updatePack(
@@ -853,7 +912,7 @@ export type UpdatePackageMutationHookResult = ReturnType<typeof useUpdatePackage
 export type UpdatePackageMutationResult = Apollo.MutationResult<UpdatePackageMutation>;
 export type UpdatePackageMutationOptions = Apollo.BaseMutationOptions<UpdatePackageMutation, UpdatePackageMutationVariables>;
 export const UpdateSupplierDocument = gql`
-    mutation UpdateSupplier($SupName: String!, $Delivery: String!, $pickUp: String!, $ShippingLabel: String!, $Foil: String!, $Insurance: Int!, $SendCashDelivery: String!, $packInBox: String!, $SuppId: String!, $ActNameSupp: String!) {
+    mutation UpdateSupplier($SupName: String!, $Delivery: String!, $pickUp: String!, $ShippingLabel: String!, $Foil: String!, $Insurance: Int!, $SendCashDelivery: String!, $packInBox: String!, $SuppId: String!, $ActNameSupp: String!, $DepoCost: Int!, $PersonalCost: Int!) {
   updateSup(
     supplierName: $SupName
     delivery: $Delivery
@@ -865,6 +924,8 @@ export const UpdateSupplierDocument = gql`
     packInBox: $packInBox
     suppId: $SuppId
     actNameSupp: $ActNameSupp
+    depoCost: $DepoCost
+    personalCost: $PersonalCost
   ) {
     ... on Supp {
       data {
@@ -910,6 +971,8 @@ export type UpdateSupplierMutationFn = Apollo.MutationFunction<UpdateSupplierMut
  *      packInBox: // value for 'packInBox'
  *      SuppId: // value for 'SuppId'
  *      ActNameSupp: // value for 'ActNameSupp'
+ *      DepoCost: // value for 'DepoCost'
+ *      PersonalCost: // value for 'PersonalCost'
  *   },
  * });
  */
@@ -965,46 +1028,6 @@ export function usePackageDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type PackageDataQueryHookResult = ReturnType<typeof usePackageDataQuery>;
 export type PackageDataLazyQueryHookResult = ReturnType<typeof usePackageDataLazyQuery>;
 export type PackageDataQueryResult = Apollo.QueryResult<PackageDataQuery, PackageDataQueryVariables>;
-export const ResSupplierDocument = gql`
-    mutation ResSupplier($Value: String!, $valInt: Int!) {
-  Predict(value: $Value, intVal: $valInt) {
-    ... on Val {
-      value
-      intVal
-    }
-    ... on ValError {
-      message
-    }
-  }
-}
-    `;
-export type ResSupplierMutationFn = Apollo.MutationFunction<ResSupplierMutation, ResSupplierMutationVariables>;
-
-/**
- * __useResSupplierMutation__
- *
- * To run a mutation, you first call `useResSupplierMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useResSupplierMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [resSupplierMutation, { data, loading, error }] = useResSupplierMutation({
- *   variables: {
- *      Value: // value for 'Value'
- *      valInt: // value for 'valInt'
- *   },
- * });
- */
-export function useResSupplierMutation(baseOptions?: Apollo.MutationHookOptions<ResSupplierMutation, ResSupplierMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ResSupplierMutation, ResSupplierMutationVariables>(ResSupplierDocument, options);
-      }
-export type ResSupplierMutationHookResult = ReturnType<typeof useResSupplierMutation>;
-export type ResSupplierMutationResult = Apollo.MutationResult<ResSupplierMutation>;
-export type ResSupplierMutationOptions = Apollo.BaseMutationOptions<ResSupplierMutation, ResSupplierMutationVariables>;
 export const CardDataDocument = gql`
     query CardData {
   cardValues {
@@ -1055,6 +1078,7 @@ export const SuppDataDocument = gql`
     shippingLabel
     foil
     package
+    location
   }
 }
     `;

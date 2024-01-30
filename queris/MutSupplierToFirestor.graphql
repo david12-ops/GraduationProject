@@ -1,8 +1,9 @@
 mutation NewSupplierToFirestore($SupName:String!, $Delivery:String!, $pickUp:String!,
- $ShippingLabel:String!, $Foil:String!, $Insurance:Int!, $SendCashDelivery: String!, $packInBox:String!){
+ $ShippingLabel:String!, $Foil:String!, $Insurance:Int!, $SendCashDelivery: String!, $packInBox:String!, $DepoCost:Int!, $PersonalCost:Int!){
     SupplierToFirestore(supplierName:$SupName, delivery:$Delivery, 
     shippingLabel:$ShippingLabel, pickUp:$pickUp, foil:$Foil, 
-    insurance:$Insurance, sendCashDelivery:$SendCashDelivery, packInBox:$packInBox){
+    insurance:$Insurance, sendCashDelivery:$SendCashDelivery, packInBox:$packInBox, depoCost:$DepoCost,
+      personalCost:$PersonalCost){
         ... on Supp {
             data{
                 sendCashDelivery,

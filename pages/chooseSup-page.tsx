@@ -12,16 +12,30 @@ import { ResSuppCard } from './components/Cards/resSupp';
 import { FormChooseSup } from './components/formChooseSupp';
 import { Navbar } from './components/navbar2';
 
-const Res = (dataSui: any, allSupp: any) => {
+const parseIntReliable = (numArg: string) => {
+  const min = 1;
+  if (numArg.length > 0) {
+    const parsed = Number.parseInt(numArg, 10);
+    if (parsed === 0) {
+      // eslint-disable-next-line max-depth
+      if (numArg.replaceAll('0', '') === '') {
+        return 0;
+      }
+    } else if (Number.isSafeInteger(parsed) && Number(parsed) > min) {
+      return parsed;
+    }
+  }
+  return false;
+};
+
+const Res = (dataSui: [], allSupp: any) => {
   const SuitableSupps: Array<any> = [];
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const sortedValues = dataSui.map((item: any) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return item;
-  });
-  console.log(Object.values(sortedValues));
+  console.log('co tam je', SuitableSupps);
+  console.log('co tam jeee2', dataSui);
+  console.log('objecty', dataSui);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return
-  sortedValues.forEach((itm: any) => {
+  dataSui.forEach((itm: any) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     SuitableSupps.push({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -29,6 +43,7 @@ const Res = (dataSui: any, allSupp: any) => {
         return item.supplierId === itm.suppId;
       }),
       cost: itm.cost,
+      packName: itm.name,
     });
     console.log('sorted val', itm.suppId);
     console.log('supplier', allSupp.data?.suplierData);
@@ -41,16 +56,17 @@ const Res = (dataSui: any, allSupp: any) => {
 
 // eslint-disable-next-line consistent-return
 const RenderSupp = (
-  dataFromResover: any,
+  dataFromResolver: any,
   QueryData: any,
   dataFromForm: object,
 ) => {
   // alert(JSON.stringify(Res(dataFromResover, QueryData)));
   if (!QueryData.loading && !QueryData.error && QueryData.data) {
     // eslint-disable-next-line array-callback-return
-    return Res(dataFromResover, QueryData).map((itm: any) => (
+    return Res(dataFromResolver, QueryData).map((itm: any) => (
       <div key={itm.dataS.supplierId}>
         <ResSuppCard
+          packName={itm.packName}
           price={itm.cost}
           delivery={itm.dataS.delivery}
           folie={itm.dataS.foil}
@@ -66,7 +82,35 @@ const RenderSupp = (
       </div>
     ));
   }
-  // otazka hledam vhodnýho a zaroven + pocitam cenu?
+};
+
+const Valid = (
+  hmotnostarg: string,
+  costarg: string,
+  delkaarg: string,
+  vyskaarg: string,
+  sirkaarg: string,
+  // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
+) => {
+  if (!parseIntReliable(hmotnostarg)) {
+    return new Error('Invalid argument, expext number bigger than 0');
+  }
+
+  if (!parseIntReliable(costarg)) {
+    return new Error('Invalid argument, expext number bigger than 0');
+  }
+
+  if (!parseIntReliable(delkaarg)) {
+    return new Error('Invalid argument, expext number bigger than 0');
+  }
+
+  if (!parseIntReliable(vyskaarg)) {
+    return new Error('Invalid argument, expext number bigger than 0');
+  }
+
+  if (!parseIntReliable(sirkaarg)) {
+    return new Error('Invalid argument, expext number bigger than 0');
+  }
 };
 
 export default function SuitableSupp() {
@@ -84,38 +128,32 @@ export default function SuitableSupp() {
   const suppData = useSuppDataQuery();
 
   const HandleForm = async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const result = await suitableSupp({
-      variables: {
-        Width: Number(width),
-        Weight: Number(weight),
-        Height: Number(height),
-        Length: Number(plength),
-        Mz: placeFrom,
-        Mdo: placeTo,
-        Cost: Number(cost),
-      },
-    })
-      .then((res) => {
-        // eslint-disable-next-line promise/always-return
-        return res;
-      })
-      .catch((error: string) => {
-        return { err: error };
+    const valid = Valid(weight, cost, plength, height, width)?.message;
+    if (valid) {
+      alert(valid);
+    } else {
+      const result = await suitableSupp({
+        variables: {
+          Width: Number(width),
+          Weight: Number(weight),
+          Height: Number(height),
+          Length: Number(plength),
+          Mz: placeFrom,
+          Mdo: placeTo,
+          Cost: Number(cost),
+        },
       });
 
-    if (result.err) {
-      alert(result.err);
-    }
-
-    if (result.data?.BingoSupPac?.suitable) {
-      const data = JSON.parse(result.data?.BingoSupPac?.suitable);
-      SetData(data);
-    } else {
-      // eslint-disable-next-line no-alert
-      alert(result.data?.BingoSupPac?.message);
+      if (result.data?.BingoSupPac?.suitable) {
+        const data = JSON.parse(result.data?.BingoSupPac?.suitable);
+        SetData(data);
+      } else {
+        // eslint-disable-next-line no-alert
+        alert(result.data?.BingoSupPac?.message);
+      }
     }
   };
+
   return (
     <div className={styles.container}>
       <Head>
@@ -131,11 +169,6 @@ export default function SuitableSupp() {
           onChangeHmotnost={(e) => SetWeight(e.toString())}
           onChangeDelka={(e) => SetLength(e.toString())}
           onChangeCena={(e) => SetCost(e.toString())}
-          // onChangeCityFromWhere={(e) => e}
-          // onChangePscFromWhere={(e) => e}
-          // onChangeCityWhere={(e) => e}
-          // onChangePscWhere={(e) => e}
-          // Kontrola!!!
           onChangeDo={(e) => SetPlceTo(e.toString())}
           onChangeZ={(e) => SetPlceForm(e.toString())}
           buttonEl={

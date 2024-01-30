@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 
 import {
   useSuppDataQuery,
+  useUpdateHistoryMutation,
   useUpdatePackageMutation,
 } from '@/generated/graphql';
 
@@ -19,10 +20,27 @@ const Refetch = (data: any) => {
   data.refetch();
 };
 
+const parseIntReliable = (numArg: string) => {
+  const min = 1;
+  if (numArg.length > 0) {
+    const parsed = Number.parseInt(numArg, 10);
+    if (parsed === 0) {
+      // eslint-disable-next-line max-depth
+      if (numArg.replaceAll('0', '') === '') {
+        return 0;
+      }
+    } else if (Number.isSafeInteger(parsed) && Number(parsed) > min) {
+      return parsed;
+    }
+  }
+  return false;
+};
+
 export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   // pouziti loadingu u mutation
   const [kg, SetKg] = React.useState(' ');
   const [cost, SetCost] = React.useState(' ');
+  const [oldCost, SetoldCost] = React.useState(' ');
   const [delka, SetDelka] = React.useState(' ');
   const [vyska, SetVyska] = React.useState(' ');
   const [sirka, SetSirka] = React.useState(' ');
@@ -30,6 +48,8 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   const [suppId, SetSuppId] = React.useState(' ');
 
   const [UpdatePackage] = useUpdatePackageMutation();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const [UpdateHistory] = useUpdateHistoryMutation();
   const SuppPackages = useSuppDataQuery();
   const [admin, SetAdmin] = useState(false);
   const [logged, SetLogin] = useState(false);
@@ -67,6 +87,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
               if (itm) {
                 SetKg(itm.weight.toString());
                 SetCost(itm.cost.toString());
+                SetoldCost(itm.cost.toString());
                 SetDelka(itm.Plength.toString());
                 SetVyska(itm.height.toString());
                 SetSirka(itm.width.toString());
@@ -80,46 +101,78 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     }
   }, [id, SuppPackages.data, SuppPackages, logged, admin]);
 
+  const Valid = (
+    hmotnostarg: string,
+    costarg: string,
+    delkaarg: string,
+    vyskaarg: string,
+    sirkaarg: string,
+    // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
+  ) => {
+    if (!parseIntReliable(hmotnostarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+
+    if (!parseIntReliable(costarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+
+    if (!parseIntReliable(delkaarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+
+    if (!parseIntReliable(vyskaarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+
+    if (!parseIntReliable(sirkaarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+  };
+
   const handleForm = async (event?: React.FormEvent) => {
     event?.preventDefault();
-    const result = await UpdatePackage({
-      variables: {
-        Hmotnost: Number(kg),
-        Cost: Number(cost),
-        Delka: Number(delka),
-        Vyska: Number(vyska),
-        Sirka: Number(sirka),
-        Pack_name: packName,
-        PackKey: id,
-        SuppId: suppId,
-      },
-    })
-      .then((res) => {
-        return res;
-      })
-      .catch((error: string) => {
-        return { err: error };
+    const valid = Valid(kg, cost, delka, vyska, sirka)?.message;
+    if (valid) {
+      alert(valid);
+    } else {
+      const result = await UpdatePackage({
+        variables: {
+          Hmotnost: Number(kg),
+          Cost: Number(cost),
+          Delka: Number(delka),
+          Vyska: Number(vyska),
+          Sirka: Number(sirka),
+          Pack_name: packName,
+          PackKey: id,
+          SuppId: suppId,
+        },
       });
 
-    const err = result.data.updatePack?.message;
-    const data = result.data.updatePack?.data;
+      const err = result.data?.updatePack?.message;
+      const data = result.data?.updatePack?.data;
 
-    if (result.err) {
-      alert(result.err);
-    }
+      if (err) {
+        alert(err);
+      }
 
-    if (err) {
-      alert(err);
-    }
-
-    if (data) {
-      Refetch(SuppPackages);
-      alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
-              Délka: ${data.Plength},
-              Šířka: ${data.width},
-              Výška: ${data.height},
-              Označení: ${data.name_package}`);
-      return router.push(`/../../admpage/${data.supplier_id}`);
+      if (data) {
+        await UpdateHistory({
+          variables: {
+            PackageName: packName,
+            newPricePack: Number(cost),
+            oldPricePack: Number(oldCost),
+            SuppId: suppId,
+          },
+        });
+        Refetch(SuppPackages);
+        alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
+                Délka: ${data.Plength},
+                Šířka: ${data.width},
+                Výška: ${data.height},
+                Označení: ${data.name_package}`);
+        return router.push(`/../../admpage/${data.supplier_id}`);
+      }
     }
   };
 

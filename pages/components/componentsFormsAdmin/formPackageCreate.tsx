@@ -22,6 +22,22 @@ const Refetch = (data: any) => {
   data.refetch();
 };
 
+const parseIntReliable = (numArg: string) => {
+  const min = 1;
+  if (numArg.length > 0) {
+    const parsed = Number.parseInt(numArg, 10);
+    if (parsed === 0) {
+      // eslint-disable-next-line max-depth
+      if (numArg.replaceAll('0', '') === '') {
+        return 0;
+      }
+    } else if (Number.isSafeInteger(parsed) && Number(parsed) > min) {
+      return parsed;
+    }
+  }
+  return false;
+};
+
 export const FormPackage: React.FC<Props> = ({ id }) => {
   // const { user } = useAuthContext();
   const [kg, SetKg] = React.useState(' ');
@@ -46,49 +62,72 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     }
   }, [logged, admin]);
 
+  const Valid = (
+    hmotnostarg: string,
+    costarg: string,
+    delkaarg: string,
+    vyskaarg: string,
+    sirkaarg: string,
+    // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
+  ) => {
+    if (!parseIntReliable(hmotnostarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+
+    if (!parseIntReliable(costarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+
+    if (!parseIntReliable(delkaarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+
+    if (!parseIntReliable(vyskaarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+
+    if (!parseIntReliable(sirkaarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+  };
+
   // eslint-disable-next-line consistent-return
   const handleForm = async (event?: React.FormEvent) => {
-    const pID = uuidv4();
-
     event?.preventDefault();
-    const result: any = await newPackage({
-      variables: {
-        Hmotnost: Number(kg),
-        Cost: Number(cost),
-        Delka: Number(delka),
-        Vyska: Number(vyska),
-        Sirka: Number(sirka),
-        Pack_name: packName,
-        SuppID: id,
-        PackId: pID,
-      },
-    })
-      .then((res) => {
-        return res;
-      })
-      .catch((error: string) => {
-        return { err: error };
+    const pID = uuidv4();
+    const valid = Valid(kg, cost, delka, vyska, sirka)?.message;
+    if (valid) {
+      alert(valid);
+    } else {
+      const result: any = await newPackage({
+        variables: {
+          Hmotnost: Number(kg),
+          Cost: Number(cost),
+          Delka: Number(delka),
+          Vyska: Number(vyska),
+          Sirka: Number(sirka),
+          Pack_name: packName,
+          SuppID: id,
+          PackId: pID,
+        },
       });
 
-    const err = result.data?.PackageToFirestore?.message;
-    const data = result.data?.PackageToFirestore?.data;
+      const err = result.data?.PackageToFirestore?.message;
+      const data = result.data?.PackageToFirestore?.data;
 
-    if (result.err) {
-      alert(result.err);
-    }
+      if (err) {
+        alert(err);
+      }
 
-    if (err) {
-      alert(err);
-    }
-
-    if (data) {
-      Refetch(SuppPackages);
-      alert(`Balíček byl vytvořen s parametry: Váha: ${data.weight},
+      if (data) {
+        Refetch(SuppPackages);
+        alert(`Balíček byl vytvořen s parametry: Váha: ${data.weight},
             Délka: ${data.Plength},
             Šířka: ${data.width},
             Výška: ${data.height},
             Označení: ${data.name_package}`);
-      return router.push(`/../../admpage/${data.supplier_id}`);
+        return router.push(`/../../admpage/${data.supplier_id}`);
+      }
     }
   };
 

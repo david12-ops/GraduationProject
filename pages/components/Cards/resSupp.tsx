@@ -27,6 +27,7 @@ type Props = {
   sendCash: string;
   dataFrPage: object;
   sId: string;
+  packName: string;
 };
 
 const Odstavec = (
@@ -111,6 +112,7 @@ export const ResSuppCard: React.FC<Props> = ({
   sendCash,
   dataFrPage,
   sId,
+  packName,
 }) => {
   const dataS = useSuppDataQuery();
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -126,7 +128,10 @@ export const ResSuppCard: React.FC<Props> = ({
       mutation({
         variables: {
           Id: authUtils.getCurrentUser()?.uid.toString(),
-          Data: JSON.stringify({ formData: data, data: { suppData, priceS } }),
+          Data: JSON.stringify({
+            formData: data,
+            data: { suppData, priceS, packName },
+          }),
         },
       });
     }

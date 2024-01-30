@@ -1,3 +1,4 @@
+/* eslint-disable max-depth */
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
@@ -42,9 +43,18 @@ const IsYesOrNo = (
   return false;
 };
 
-const IsNumber = (stringToNum: string) => {
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return, prettier/prettier
-  if(Number.isSafeInteger(stringToNum) || Number(stringToNum) >= 0 && Number(stringToNum) <= Number.MAX_SAFE_INTEGER) {return true}
+const parseIntReliable = (numArg: string) => {
+  const min = 1;
+  if (numArg.length > 0) {
+    const parsed = Number.parseInt(numArg, 10);
+    if (parsed === 0) {
+      if (numArg.replaceAll('0', '') === '') {
+        return 0;
+      }
+    } else if (Number.isSafeInteger(parsed) && Number(parsed) > min) {
+      return parsed;
+    }
+  }
   return false;
 };
 
@@ -82,6 +92,8 @@ export const FormSupplier = () => {
   const supData = useSuppDataQuery();
   const [admin, SetAdmin] = useState(false);
   const [logged, SetLogin] = useState(false);
+  const [depoCost, SetDepoCost] = React.useState('');
+  const [personalCost, SetPersonalCost] = React.useState('');
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
@@ -102,12 +114,20 @@ export const FormSupplier = () => {
     Foilarg: string,
     ShippingLabelarg: string,
     packInBoxarg: string,
+    depoCostarg: string,
+    personalCostarg: string,
     // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
   ) => {
-    if (!IsNumber(Insurancearg)) {
-      return new Error(
-        'Invalid argument, provided argument is not number or negative number',
-      );
+    if (!parseIntReliable(Insurancearg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+
+    if (!parseIntReliable(depoCostarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
+    }
+
+    if (!parseIntReliable(personalCostarg)) {
+      return new Error('Invalid argument, expext number bigger than 0');
     }
 
     // eslint-disable-next-line sonarjs/prefer-single-boolean-return
@@ -187,6 +207,8 @@ export const FormSupplier = () => {
       SFoil,
       SShippingLabel,
       SPackInBox,
+      depoCost,
+      personalCost,
     )?.message;
     if (valid) {
       alert(valid);
@@ -201,21 +223,13 @@ export const FormSupplier = () => {
           Foil: SFoil,
           ShippingLabel: SShippingLabel,
           packInBox: SPackInBox,
+          DepoCost: Number(depoCost),
+          PersonalCost: Number(personalCost),
         },
-      })
-        .then((res) => {
-          return res;
-        })
-        .catch((error) => {
-          return { err: error };
-        });
+      });
 
       const err = result.data?.SupplierToFirestore?.message;
       const data = result.data?.SupplierToFirestore?.data;
-
-      if (result.err) {
-        alert(result.err);
-      }
 
       if (err) {
         alert(err);
@@ -308,6 +322,7 @@ export const FormSupplier = () => {
                 onChange={(e) => SetInsurance(e.target.value)}
                 required
                 type="number"
+                placeholder="Kč"
               />
             </label>
           </div>
@@ -330,6 +345,35 @@ export const FormSupplier = () => {
               <p className={styles.Odstavce}>Do krabice</p>
               {MyComponentPackInB()}
             </label>
+          </div>
+          <h3 className={styles.Nadpisy}>Ceny způsobu dopravení/předání</h3>
+          <div className={styles.divinput}>
+            <div className={styles.divinput}>
+              <label>
+                <p className={styles.Odstavce}>Depo</p>
+                <input
+                  className={styles.inputForSupp}
+                  onChange={(e) => SetDepoCost(e.target.value)}
+                  required
+                  type="number"
+                  value={depoCost}
+                  placeholder="Kč"
+                />
+              </label>
+            </div>
+            <div className={styles.divinput}>
+              <label>
+                <p className={styles.Odstavce}>Personal</p>
+                <input
+                  className={styles.inputForSupp}
+                  onChange={(e) => SetPersonalCost(e.target.value)}
+                  required
+                  type="number"
+                  value={personalCost}
+                  placeholder="Kč"
+                />
+              </label>
+            </div>
           </div>
           <div className={styles.divinput}>
             <button className={styles.crudbtn} type="submit">
