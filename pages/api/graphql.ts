@@ -356,7 +356,6 @@ const ConverBool = (
   }
   return false
 };
-
 // funkcni
 const ConverDate = (dateU1: any, dateU2: any) => {
   console.log(dateU1)
@@ -927,6 +926,21 @@ const resolvers = {
           }
         }
 
+        // porovnat jmena v lowerCase
+        const Supd = await db
+        .collection('Supplier')
+        .where('suppName',"==", SuppName.toLowerCase())
+        .get();
+
+      console.log('size', Supd.size);
+
+      if (Supd.size > 0) {
+        return {
+          __typename: "SupplierError",
+          message: "Supplier name is already in use"
+        }
+      }
+
         if(ConverDate(PickupPoint, isDelivered)?.message){
           return {
             __typename: "SupplierError",
@@ -957,20 +971,6 @@ const resolvers = {
           return{
             __typename: "SupplierError",
             message: "Pickup cant be longer then delivery"
-          }
-        }
-        
-        const Supd = await db
-          .collection('Supplier')
-          .where('suppName', '==', SuppName)
-          .get();
-
-        console.log('size', Supd.size);
-
-        if (Supd.size > 0) {
-          return {
-            __typename: "SupplierError",
-            message: "Supplier name is already in use"
           }
         }
 

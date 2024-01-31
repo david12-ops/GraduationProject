@@ -1,8 +1,8 @@
-/* eslint-disable max-depth */
+import { State, useHookstate } from '@hookstate/core';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Select from 'react-select';
 
 import {
@@ -44,14 +44,13 @@ const IsYesOrNo = (
 };
 
 const parseIntReliable = (numArg: string) => {
-  const min = 1;
+  // neposti nulu
   if (numArg.length > 0) {
     const parsed = Number.parseInt(numArg, 10);
-    if (parsed === 0) {
-      if (numArg.replaceAll('0', '') === '') {
-        return 0;
-      }
-    } else if (Number.isSafeInteger(parsed) && Number(parsed) > min) {
+    if (parsed < 0) {
+      return false;
+    }
+    if (Number.isSafeInteger(parsed)) {
       return parsed;
     }
   }
@@ -80,31 +79,38 @@ export const FormSupplier = () => {
     { value: 'Ne', label: 'Ne' },
   ];
 
-  const [SDelivery, SetDelivery] = React.useState(' ');
-  const [SSendCashDelivery, SetsendCashDelivery] = React.useState(' ');
-  const [SPackInBox, SetPackInBox] = React.useState('');
-  const [PickUp, SetPickUp] = React.useState('');
-  const [SInsurance, SetInsurance] = React.useState('');
-  const [SShippingLabel, SetShippingLabel] = React.useState('');
-  const [SFoil, SetFoil] = React.useState('');
-  const [SupplierName, SetSupplierName] = React.useState(' ');
+  const statesOfDataSupp = useHookstate({
+    SuppId: '',
+    SupplierName: '',
+    ActualSupplierName: '',
+    Delivery: ' ',
+    PickUp: '',
+    Insurance: '',
+    SendCashDelivery: '',
+    PackInBox: '',
+    ShippingLabel: '',
+    Foil: '',
+    DepoCost: '',
+    PersonalCost: '',
+  });
+
+  // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
+
+  const user = useHookstate({ Admin: false, LoggedIn: false });
   const [newSupp] = useNewSupplierToFirestoreMutation();
+
   const supData = useSuppDataQuery();
-  const [admin, SetAdmin] = useState(false);
-  const [logged, SetLogin] = useState(false);
-  const [depoCost, SetDepoCost] = React.useState('');
-  const [personalCost, SetPersonalCost] = React.useState('');
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
     const auth = getAuth();
     if (auth.currentUser) {
-      SetLogin(true);
+      user.LoggedIn.set(true);
     }
     if (auth.currentUser?.email === Admin) {
-      SetAdmin(true);
+      user.Admin.set(true);
     }
-  }, [logged, admin]);
+  });
 
   const Valid = (
     pickUparg: string,
@@ -116,115 +122,80 @@ export const FormSupplier = () => {
     packInBoxarg: string,
     depoCostarg: string,
     personalCostarg: string,
-    // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
   ) => {
-    if (!parseIntReliable(Insurancearg)) {
-      return new Error('Invalid argument, expext number bigger than 0');
+    if (
+      !parseIntReliable(Insurancearg) ||
+      !parseIntReliable(depoCostarg) ||
+      !parseIntReliable(personalCostarg)
+    ) {
+      return new Error('Invalid argument');
     }
 
-    if (!parseIntReliable(depoCostarg)) {
-      return new Error('Invalid argument, expext number bigger than 0');
-    }
-
-    if (!parseIntReliable(personalCostarg)) {
-      return new Error('Invalid argument, expext number bigger than 0');
-    }
-
-    // eslint-disable-next-line sonarjs/prefer-single-boolean-return
     if (
       IsYesOrNo(SendCashDeliveryarg, Foilarg, ShippingLabelarg, packInBoxarg)
     ) {
       return new Error('Provided data is not in valid format (Ano/Ne)');
     }
 
-    // eslint-disable-next-line sonarjs/prefer-single-boolean-return
     if (!ValidDateForm(Deliveryarg) || !ValidDateForm(pickUparg)) {
       return new Error('Date is not valid');
     }
   };
 
-  // const MyComponent = (onChangeS: any) => (
+  const MyComponent = (state: State<string>, paragraph: string) => {
+    return (
+      <label>
+        <p className={styles.Odstavce}>{paragraph}</p>
+        <Select
+          className={styles.selectInput}
+          onChange={(selectedOption: any) => state.set(selectedOption.value)}
+          options={options}
+          placeholder={'Ano/Ne'}
+          required
+        />
+      </label>
+    );
+  };
+  // match-sorter
+
+  // const MyComponentFoil = () => (
   //   <Select
   //     className={styles.selectInput}
-  //     // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-  //     onChange={(e: any) => onChangeS(e.target.value)}
+  //     onChange={(selectedOption: any) => SetFoil(selectedOption.value)}
   //     options={options}
+  //     placeholder={'Ano/Ne'}
   //     required
   //   />
   // );
 
-  // match-sorter
-
-  const MyComponentFoil = () => (
-    <Select
-      className={styles.selectInput}
-      onChange={(selectedOption: any) => SetFoil(selectedOption.value)}
-      options={options}
-      placeholder={'Ano/Ne'}
-      required
-    />
-  );
-
-  const MyComponentSendCash = () => (
-    <Select
-      className={styles.selectInput}
-      onChange={(selectedOption: any) =>
-        SetsendCashDelivery(selectedOption.value)
-      }
-      options={options}
-      placeholder={'Ano/Ne'}
-      required
-    />
-  );
-
-  const MyComponentPackInB = () => (
-    <Select
-      className={styles.selectInput}
-      onChange={(selectedOption: any) => SetPackInBox(selectedOption.value)}
-      options={options}
-      placeholder={'Ano/Ne'}
-      required
-    />
-  );
-
-  const MyComponentShippingL = () => (
-    <Select
-      className={styles.selectInput}
-      onChange={(selectedOption: any) => SetShippingLabel(selectedOption.value)}
-      options={options}
-      placeholder={'Ano/Ne'}
-      required
-    />
-  );
-
   const handleForm = async (event: React.FormEvent) => {
     event.preventDefault();
     const valid = Valid(
-      PickUp,
-      SDelivery,
-      SInsurance.toString(),
-      SSendCashDelivery,
-      SFoil,
-      SShippingLabel,
-      SPackInBox,
-      depoCost,
-      personalCost,
+      statesOfDataSupp.PickUp.get(),
+      statesOfDataSupp.Delivery.get(),
+      statesOfDataSupp.Insurance.get(),
+      statesOfDataSupp.SendCashDelivery.get(),
+      statesOfDataSupp.Foil.get(),
+      statesOfDataSupp.ShippingLabel.get(),
+      statesOfDataSupp.PackInBox.get(),
+      statesOfDataSupp.DepoCost.get(),
+      statesOfDataSupp.PersonalCost.get(),
     )?.message;
     if (valid) {
       alert(valid);
     } else {
       const result = await newSupp({
         variables: {
-          SupName: SupplierName,
-          pickUp: PickUp,
-          Delivery: SDelivery,
-          Insurance: Number(SInsurance),
-          SendCashDelivery: SSendCashDelivery,
-          Foil: SFoil,
-          ShippingLabel: SShippingLabel,
-          packInBox: SPackInBox,
-          DepoCost: Number(depoCost),
-          PersonalCost: Number(personalCost),
+          SupName: statesOfDataSupp.SupplierName.get(),
+          pickUp: statesOfDataSupp.PickUp.get(),
+          Delivery: statesOfDataSupp.Delivery.get(),
+          Insurance: Number(statesOfDataSupp.Insurance.get()),
+          SendCashDelivery: statesOfDataSupp.SendCashDelivery.get(),
+          Foil: statesOfDataSupp.Foil.get(),
+          ShippingLabel: statesOfDataSupp.ShippingLabel.get(),
+          packInBox: statesOfDataSupp.PackInBox.get(),
+          DepoCost: Number(statesOfDataSupp.DepoCost.get()),
+          PersonalCost: Number(statesOfDataSupp.PersonalCost.get()),
         },
       });
 
@@ -252,7 +223,7 @@ export const FormSupplier = () => {
     }
   };
 
-  if (!logged || !admin) {
+  if (!user.Admin.get() || !user.LoggedIn.get()) {
     return (
       <div
         style={{
@@ -286,7 +257,9 @@ export const FormSupplier = () => {
               <p className={styles.Odstavce}>Supplier name</p>
               <input
                 className={styles.inputForSupp}
-                onChange={(e) => SetSupplierName(e.target.value)}
+                onChange={(e) =>
+                  statesOfDataSupp.SupplierName.set(e.target.value)
+                }
                 required
                 type="text"
                 placeholder="Name"
@@ -298,7 +271,7 @@ export const FormSupplier = () => {
               <p className={styles.Odstavce}>Doručení</p>
               <input
                 className={styles.inputDate}
-                onChange={(e) => SetDelivery(e.target.value)}
+                onChange={(e) => statesOfDataSupp.Delivery.set(e.target.value)}
                 required
                 type="date"
               />
@@ -307,7 +280,7 @@ export const FormSupplier = () => {
               <p className={styles.Odstavce}>Vyzvednutí</p>
               <input
                 className={styles.inputDate}
-                onChange={(e) => SetPickUp(e.target.value)}
+                onChange={(e) => statesOfDataSupp.PickUp.set(e.target.value)}
                 required
                 type="date"
               />
@@ -319,7 +292,7 @@ export const FormSupplier = () => {
               <p className={styles.Odstavce}>Pojištění</p>
               <input
                 className={styles.inputForSupp}
-                onChange={(e) => SetInsurance(e.target.value)}
+                onChange={(e) => statesOfDataSupp.Insurance.set(e.target.value)}
                 required
                 type="number"
                 placeholder="Kč"
@@ -327,24 +300,12 @@ export const FormSupplier = () => {
             </label>
           </div>
           <div className={styles.divinput}>
-            <label>
-              <p className={styles.Odstavce}>Na dobírku</p>
-              {MyComponentSendCash()}
-            </label>
-            <label>
-              <p className={styles.Odstavce}>Přepravní štítek</p>
-              {MyComponentShippingL()}
-            </label>
+            {MyComponent(statesOfDataSupp.SendCashDelivery, 'Na dobírku')}
+            {MyComponent(statesOfDataSupp.ShippingLabel, 'Přepravní štítek')}
           </div>
           <div className={styles.divinput}>
-            <label>
-              <p className={styles.Odstavce}>Folie</p>
-              {MyComponentFoil()}
-            </label>
-            <label>
-              <p className={styles.Odstavce}>Do krabice</p>
-              {MyComponentPackInB()}
-            </label>
+            {MyComponent(statesOfDataSupp.Foil, 'Folie')}
+            {MyComponent(statesOfDataSupp.PackInBox, 'Do krabice')}
           </div>
           <h3 className={styles.Nadpisy}>Ceny způsobu dopravení/předání</h3>
           <div className={styles.divinput}>
@@ -353,10 +314,11 @@ export const FormSupplier = () => {
                 <p className={styles.Odstavce}>Depo</p>
                 <input
                   className={styles.inputForSupp}
-                  onChange={(e) => SetDepoCost(e.target.value)}
+                  onChange={(e) =>
+                    statesOfDataSupp.DepoCost.set(e.target.value)
+                  }
                   required
                   type="number"
-                  value={depoCost}
                   placeholder="Kč"
                 />
               </label>
@@ -366,10 +328,11 @@ export const FormSupplier = () => {
                 <p className={styles.Odstavce}>Personal</p>
                 <input
                   className={styles.inputForSupp}
-                  onChange={(e) => SetPersonalCost(e.target.value)}
+                  onChange={(e) =>
+                    statesOfDataSupp.PersonalCost.set(e.target.value)
+                  }
                   required
                   type="number"
-                  value={personalCost}
                   placeholder="Kč"
                 />
               </label>

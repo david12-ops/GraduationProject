@@ -1,72 +1,12 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import React, { useState } from 'react';
-
-import { useResSupplierMutation, useUserDataQuery } from '@/generated/graphql';
+import React from 'react';
 
 import stylesM from '../styles/Main.module.css';
-import { useAuthContext } from './components/auth-context-provider';
 import { CardOffer } from './components/Cards/cardToIndexPage';
 import { Navbar } from './components/navbar2';
 
 export default function Home() {
-  const userD = useUserDataQuery();
-  const [val, SetVal] = useState('');
-  const [intV, SetintVal] = useState('');
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const [suitableSupp] = useResSupplierMutation();
-  const { user, loading } = useAuthContext();
-  const s = userD.data?.userdata;
-  const EmUS = () => {
-    return s?.map((em) => (
-      <p key={em.email}>
-        {em.email} : {em.dataUs} : {em.historyId} : {em.supplierId}
-      </p>
-    ));
-  };
-  const P = () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    return <div>{user?.email}</div>;
-  };
-  // const Res = (dataSui: any) => {
-  //   return (
-  //     <div>
-  //       <p>{dataSui.length}</p>
-  //       {dataSui.map((itm: any, index: number) => (
-  //         <div key={index}>
-  //           {Object.values(itm).map((value: any, idx: number) => (
-  //             <p key={idx}>{value}</p>
-  //           ))}
-  //         </div>
-  //       ))}
-  //     </div>
-  //   );
-  // };
-  const HandleForm = async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    await suitableSupp({
-      variables: {
-        Value: val,
-        valInt: Number(intV),
-      },
-    })
-      .then((result) => {
-        alert(
-          `${result.data?.Predict.value ?? result.data?.Predict.message} ${
-            result.data?.Predict.intVal ?? 0
-          }`,
-        );
-      })
-      .catch((error) => {
-        // console.log('jjjerr', error.message);
-        alert(error);
-      });
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    // SetErrMsg(res.data?.Predict.message ?? 'vse ok');
-    // alert(res.errors.message);
-    // alert(err);
-  };
   return (
     <div className={stylesM.container}>
       <Head>

@@ -1,8 +1,9 @@
 // eslint-disable-next-line unicorn/filename-case
+import { State, useHookstate } from '@hookstate/core';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Select from 'react-select';
 
 import {
@@ -54,15 +55,13 @@ const Refetch = (data: any) => {
 };
 
 const parseIntReliable = (numArg: string) => {
-  const min = 1;
   if (numArg.length > 0) {
     const parsed = Number.parseInt(numArg, 10);
-    if (parsed === 0) {
+    if (parsed < 0) {
       // eslint-disable-next-line max-depth
-      if (numArg.replaceAll('0', '') === '') {
-        return 0;
-      }
-    } else if (Number.isSafeInteger(parsed) && Number(parsed) > min) {
+      return false;
+    }
+    if (Number.isSafeInteger(parsed)) {
       return parsed;
     }
   }
@@ -86,34 +85,39 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     { value: 'Ne', label: 'Ne' },
   ];
 
-  const [SDelivery, SetDelivery] = React.useState(' ');
-  const [SSendCashDelivery, SetsendCashDelivery] = React.useState('');
-  const [SPackInBox, SetPackInBox] = React.useState('');
-  const [PickUp, SetPickUp] = React.useState('');
-  const [SInsurance, SetInsurance] = React.useState('');
-  const [SShippingLabel, SetShippingLabel] = React.useState('');
-  const [SFoil, SetFoil] = React.useState('');
-  const [SsuppId, SetSsuppId] = React.useState('');
-  const [SupplierName, SetSupplierName] = React.useState('');
-  const [ActualSupplierName, SetASupplierName] = React.useState('');
-  const [depoCost, SetDepoCost] = React.useState('');
-  const [personalCost, SetPersonalCost] = React.useState('');
+  // ukladat jako utc, pouziti timestamp
+  const statesOfDataSupp = useHookstate({
+    SuppId: '',
+    SupplierName: '',
+    ActualSupplierName: '',
+    Delivery: ' ',
+    PickUp: '',
+    Insurance: '',
+    SendCashDelivery: '',
+    PackInBox: '',
+    ShippingLabel: '',
+    Foil: '',
+    DepoCost: '',
+    PersonalCost: '',
+  });
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
+
+  const user = useHookstate({ Admin: false, LoggedIn: false });
+
   const supData = useSuppDataQuery();
   const [UpdateHistory] = useUpdateHistoryMutation();
   const [UpdateSupp] = useUpdateSupplierMutation();
-  const [admin, SetAdmin] = useState(false);
-  const [logged, SetLogin] = useState(false);
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
     const auth = getAuth();
+    console.log('ada', auth.currentUser?.email);
     if (auth.currentUser) {
-      SetLogin(true);
+      user.LoggedIn.set(true);
     }
     if (auth.currentUser?.email === Admin) {
-      SetAdmin(true);
+      user.Admin.set(true);
     }
 
     if (id && supData.data && supData) {
@@ -122,22 +126,23 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       );
 
       if (actualSupp) {
-        console.log('location', actualSupp.location);
-        SetSsuppId(actualSupp.supplierId);
-        SetDelivery(actualSupp.delivery);
-        SetsendCashDelivery(actualSupp.sendCashDelivery);
-        SetPackInBox(actualSupp.packInBox);
-        SetPickUp(actualSupp.pickUp);
-        SetInsurance(actualSupp.insurance.toString());
-        SetShippingLabel(actualSupp.shippingLabel);
-        SetSupplierName(actualSupp.suppName);
-        SetASupplierName(actualSupp.suppName);
-        SetFoil(actualSupp.foil);
-        SetDepoCost(String(actualSupp.location?.depoDelivery.cost));
-        SetPersonalCost(String(actualSupp.location?.personalDelivery.cost));
+        statesOfDataSupp.set({
+          SuppId: actualSupp.supplierId,
+          SupplierName: actualSupp.suppName,
+          Delivery: actualSupp.delivery,
+          PickUp: actualSupp.pickUp,
+          Insurance: actualSupp.insurance.toString(),
+          SendCashDelivery: actualSupp.sendCashDelivery,
+          PackInBox: actualSupp.packInBox,
+          ShippingLabel: actualSupp.shippingLabel,
+          ActualSupplierName: actualSupp.suppName,
+          Foil: actualSupp.foil,
+          DepoCost: String(actualSupp.location?.depoDelivery.cost),
+          PersonalCost: String(actualSupp.location?.personalDelivery.cost),
+        });
       }
     }
-  }, [id, supData.data, supData, logged, admin]);
+  }, [id, supData]);
 
   const Valid = (
     pickUparg: string,
@@ -151,16 +156,12 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     personalCostarg: string,
     // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
   ) => {
-    if (!parseIntReliable(Insurancearg)) {
-      return new Error('Invalid argument, expext number bigger than 0');
-    }
-
-    if (!parseIntReliable(depoCostarg)) {
-      return new Error('Invalid argument, expext number bigger than 0');
-    }
-
-    if (!parseIntReliable(personalCostarg)) {
-      return new Error('Invalid argument, expext number bigger than 0');
+    if (
+      !parseIntReliable(Insurancearg) ||
+      !parseIntReliable(depoCostarg) ||
+      !parseIntReliable(personalCostarg)
+    ) {
+      return new Error('Invalid argument');
     }
 
     // eslint-disable-next-line sonarjs/prefer-single-boolean-return
@@ -176,78 +177,66 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     }
   };
 
-  const MyComponentFoil = () => (
-    <Select
-      className={styles.selectInput}
-      onChange={(selectedOption: any) => SetFoil(selectedOption.value)}
-      options={options}
-      value={options.find((opt) => opt.value === SFoil)}
-      required
-    />
-  );
+  const MyComponent = (state: State<string>, paragraph: string) => {
+    return (
+      <label>
+        <p className={styles.Odstavce}>{paragraph}</p>
+        <Select
+          className={styles.selectInput}
+          onChange={(selectedOption: any) => state.set(selectedOption.value)}
+          options={options}
+          value={options.find((opt) => opt.value === state.get())}
+          placeholder={'Ano/Ne'}
+          required
+        />
+      </label>
+    );
+  };
 
-  const MyComponentSendCash = () => (
-    <Select
-      className={styles.selectInput}
-      onChange={(selectedOption: any) =>
-        SetsendCashDelivery(selectedOption.value)
-      }
-      options={options}
-      value={options.find((opt) => opt.value === SSendCashDelivery)}
-      required
-    />
-  );
-
-  const MyComponentPackInB = () => (
-    <Select
-      className={styles.selectInput}
-      onChange={(selectedOption: any) => SetPackInBox(selectedOption.value)}
-      options={options}
-      value={options.find((opt) => opt.value === SPackInBox)}
-      required
-    />
-  );
-
-  const MyComponentShippingL = () => (
-    <Select
-      className={styles.selectInput}
-      onChange={(selectedOption: any) => SetShippingLabel(selectedOption.value)}
-      options={options}
-      value={options.find((opt) => opt.value === SShippingLabel)}
-      required
-    />
-  );
+  // const MyComponentShippingL = () => (
+  //   <Select
+  //     className={styles.selectInput}
+  //     onChange={(selectedOption: any) =>
+  //       statesOfDataSupp.ShippingLabel.set(selectedOption.value)
+  //     }
+  //     options={options}
+  //     value={options.find(
+  //       (opt) => opt.value === statesOfDataSupp.ShippingLabel.get(),
+  //     )}
+  //     required
+  //   />
+  // );
 
   const handleForm = async (event: React.FormEvent) => {
     event.preventDefault();
     const valid = Valid(
-      PickUp,
-      SDelivery,
-      SInsurance,
-      SSendCashDelivery,
-      SFoil,
-      SShippingLabel,
-      SPackInBox,
-      depoCost,
-      personalCost,
+      statesOfDataSupp.PickUp.get(),
+      statesOfDataSupp.Delivery.get(),
+      statesOfDataSupp.Insurance.get(),
+      statesOfDataSupp.SendCashDelivery.get(),
+      statesOfDataSupp.Foil.get(),
+      statesOfDataSupp.ShippingLabel.get(),
+      statesOfDataSupp.PackInBox.get(),
+      statesOfDataSupp.DepoCost.get(),
+      statesOfDataSupp.PersonalCost.get(),
     )?.message;
     if (valid) {
       alert(valid);
     } else {
       const result = await UpdateSupp({
         variables: {
-          SupName: SupplierName,
-          Delivery: SDelivery,
-          pickUp: PickUp,
-          ShippingLabel: SShippingLabel,
-          Foil: SFoil,
-          Insurance: Number(SInsurance),
-          SendCashDelivery: SSendCashDelivery,
-          packInBox: SPackInBox,
-          SuppId: SsuppId,
-          ActNameSupp: ActualSupplierName,
-          DepoCost: Number(depoCost),
-          PersonalCost: Number(personalCost),
+          SupName: statesOfDataSupp.SupplierName.get(),
+          Delivery: statesOfDataSupp.Delivery.get(),
+          pickUp: statesOfDataSupp.PickUp.get(),
+          ShippingLabel: statesOfDataSupp.ShippingLabel.get(),
+          Foil: statesOfDataSupp.Foil.get(),
+          Insurance: Number(statesOfDataSupp.Insurance.get()),
+          SendCashDelivery: statesOfDataSupp.SendCashDelivery.get(),
+          packInBox: statesOfDataSupp.PackInBox.get(),
+          SuppId: statesOfDataSupp.SuppId.get(),
+          ActNameSupp: statesOfDataSupp.ActualSupplierName.get(),
+          DepoCost: Number(statesOfDataSupp.DepoCost.get()),
+          PersonalCost: Number(statesOfDataSupp.PersonalCost.get()),
         },
       });
 
@@ -261,9 +250,9 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       if (data) {
         await UpdateHistory({
           variables: {
-            newPriceDepo: Number(depoCost),
-            newPricePersonal: Number(personalCost),
-            SuppId: SsuppId,
+            newPriceDepo: Number(statesOfDataSupp.DepoCost.get()),
+            newPricePersonal: Number(statesOfDataSupp.PersonalCost.get()),
+            SuppId: statesOfDataSupp.SuppId.get(),
           },
         });
         Refetch(supData);
@@ -280,7 +269,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     }
   };
 
-  if (!logged || !admin) {
+  if (!user.Admin.get() || !user.LoggedIn.get()) {
     return (
       <div
         style={{
@@ -314,10 +303,12 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               <p className={styles.Odstavce}>Supplier name</p>
               <input
                 className={styles.inputForSupp}
-                onChange={(e) => SetSupplierName(e.target.value)}
+                onChange={(e) =>
+                  statesOfDataSupp.SupplierName.set(e.target.value)
+                }
                 required
                 type="text"
-                value={SupplierName}
+                value={statesOfDataSupp.SupplierName.get()}
               />
             </label>
           </div>
@@ -326,20 +317,20 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               <p className={styles.Odstavce}>Doručení</p>
               <input
                 className={styles.inputDate}
-                onChange={(e) => SetDelivery(e.target.value)}
+                onChange={(e) => statesOfDataSupp.Delivery.set(e.target.value)}
                 required
                 type="date"
-                value={SDelivery}
+                value={statesOfDataSupp.Delivery.get()}
               />
             </label>
             <label>
               <p className={styles.Odstavce}>Vyzvednutí</p>
               <input
                 className={styles.inputDate}
-                onChange={(e) => SetPickUp(e.target.value)}
+                onChange={(e) => statesOfDataSupp.PickUp.set(e.target.value)}
                 required
                 type="date"
-                value={PickUp}
+                value={statesOfDataSupp.PickUp.get()}
               />
             </label>
           </div>
@@ -349,32 +340,39 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               <p className={styles.Odstavce}>Pojištění</p>
               <input
                 className={styles.inputForSupp}
-                onChange={(e) => SetInsurance(e.target.value)}
+                onChange={(e) => statesOfDataSupp.Insurance.set(e.target.value)}
                 required
                 type="number"
-                value={SInsurance}
+                value={statesOfDataSupp.Insurance.get()}
+                placeholder="Kč"
               />
             </label>
           </div>
           <div className={styles.divinput}>
-            <label>
+            {MyComponent(statesOfDataSupp.SendCashDelivery, 'Na dobírku')}
+            {/* <label>
               <p className={styles.Odstavce}>Na dobírku</p>
               {MyComponentSendCash()}
-            </label>
-            <label>
+            </label> */}
+            {MyComponent(statesOfDataSupp.ShippingLabel, 'Přepravní štítek')}
+            {/* <label>
               <p className={styles.Odstavce}>Přepravní štítek</p>
               {MyComponentShippingL()}
-            </label>
+            </label> */}
           </div>
           <div className={styles.divinput}>
-            <label>
+            {MyComponent(statesOfDataSupp.Foil, 'Folie')}
+
+            {/* <label>
               <p className={styles.Odstavce}>Folie</p>
               {MyComponentFoil()}
-            </label>
-            <label>
+            </label> */}
+            {MyComponent(statesOfDataSupp.PackInBox, 'Do krabice')}
+
+            {/* <label>
               <p className={styles.Odstavce}>Do krabice</p>
               {MyComponentPackInB()}
-            </label>
+            </label> */}
           </div>
           <h3 className={styles.Nadpisy}>Ceny způsobu dopravení/předání</h3>
           <div className={styles.divinput}>
@@ -383,10 +381,13 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
                 <p className={styles.Odstavce}>Depo</p>
                 <input
                   className={styles.inputForSupp}
-                  onChange={(e) => SetDepoCost(e.target.value)}
+                  onChange={(e) =>
+                    statesOfDataSupp.DepoCost.set(e.target.value)
+                  }
                   required
                   type="number"
-                  value={depoCost}
+                  value={statesOfDataSupp.DepoCost.get()}
+                  placeholder="Kč"
                 />
               </label>
             </div>
@@ -395,10 +396,13 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
                 <p className={styles.Odstavce}>Personal</p>
                 <input
                   className={styles.inputForSupp}
-                  onChange={(e) => SetPersonalCost(e.target.value)}
+                  onChange={(e) =>
+                    statesOfDataSupp.PersonalCost.set(e.target.value)
+                  }
                   required
                   type="number"
-                  value={personalCost}
+                  value={statesOfDataSupp.PersonalCost.get()}
+                  placeholder="Kč"
                 />
               </label>
             </div>

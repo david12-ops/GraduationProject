@@ -21,7 +21,7 @@ const Refetch = (data: any) => {
 };
 
 const parseIntReliable = (numArg: string) => {
-  const min = 1;
+  const min = 0;
   if (numArg.length > 0) {
     const parsed = Number.parseInt(numArg, 10);
     if (parsed === 0) {
