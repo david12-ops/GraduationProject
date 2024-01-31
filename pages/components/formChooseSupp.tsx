@@ -51,8 +51,8 @@ export const FormChooseSup: React.FC<Props> = ({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
             onChange={(selectedOption: any) => onChangeZ(selectedOption.value)}
             options={options}
-            // value={options.find((opt) => opt.value === SFoil)}
             required
+            placeholder="depo/ruky"
           />
         </div>
         <div>
@@ -62,8 +62,8 @@ export const FormChooseSup: React.FC<Props> = ({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
             onChange={(selectedOption: any) => onChangeDo(selectedOption.value)}
             options={options}
-            // value={options.find((opt) => opt.value === SFoil)}
             required
+            placeholder="depo/ruky"
           />
         </div>
       </div>
@@ -94,7 +94,7 @@ export const FormChooseSup: React.FC<Props> = ({
                 onChange={(e) => onChangeVyska(e.target.value)}
                 required
                 type="number"
-                placeholder="0"
+                placeholder="Cm"
               />
             </label>
           </div>
@@ -106,7 +106,7 @@ export const FormChooseSup: React.FC<Props> = ({
                 onChange={(e) => onChangeHmotnost(e.target.value)}
                 required
                 type="number"
-                placeholder="0"
+                placeholder="Kg"
               />
             </label>
           </div>
@@ -118,7 +118,7 @@ export const FormChooseSup: React.FC<Props> = ({
                 onChange={(e) => onChangeDelka(e.target.value)}
                 required
                 type="number"
-                placeholder="0"
+                placeholder="Cm"
               />
             </label>
           </div>
@@ -130,7 +130,7 @@ export const FormChooseSup: React.FC<Props> = ({
                 onChange={(e) => onChangeSirka(e.target.value)}
                 required
                 type="number"
-                placeholder="0"
+                placeholder="Cm"
               />
             </label>
           </div>
@@ -151,7 +151,7 @@ export const FormChooseSup: React.FC<Props> = ({
               onChange={(e) => onChangeCena(e.target.value)}
               required
               type="number"
-              placeholder="0"
+              placeholder="Kč"
             />
           </label>
         </div>

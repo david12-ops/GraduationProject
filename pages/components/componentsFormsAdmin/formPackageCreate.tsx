@@ -1,7 +1,8 @@
+import { useHookstate } from '@hookstate/core';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -10,8 +11,6 @@ import {
 } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
-
-// není validace cisel na frontendu
 
 type Props = {
   id: string;
@@ -23,15 +22,17 @@ const Refetch = (data: any) => {
 };
 
 const parseIntReliable = (numArg: string) => {
-  const min = 1;
+  const min = 0;
   if (numArg.length > 0) {
     const parsed = Number.parseInt(numArg, 10);
-    if (parsed === 0) {
+    if (parsed < 0) {
+      // if (numArg.replaceAll('0', '') === '') {
+      //   return 0;
+      // }
       // eslint-disable-next-line max-depth
-      if (numArg.replaceAll('0', '') === '') {
-        return 0;
-      }
-    } else if (Number.isSafeInteger(parsed) && Number(parsed) > min) {
+      return false;
+    }
+    if (Number.isSafeInteger(parsed) && parsed > min) {
       return parsed;
     }
   }
@@ -39,55 +40,49 @@ const parseIntReliable = (numArg: string) => {
 };
 
 export const FormPackage: React.FC<Props> = ({ id }) => {
-  // const { user } = useAuthContext();
-  const [kg, SetKg] = React.useState(' ');
-  const [cost, SetCost] = React.useState(' ');
-  const [delka, SetDelka] = React.useState(' ');
-  const [vyska, SetVyska] = React.useState(' ');
-  const [sirka, SetSirka] = React.useState(' ');
-  const [packName, SetPackName] = React.useState(' ');
+  const statesOfDataPack = useHookstate({
+    Weight: '',
+    Cost: '',
+    Plength: ' ',
+    Height: '',
+    Width: '',
+    PackName: '',
+  });
+
+  // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
+
+  const user = useHookstate({ Admin: false, LoggedIn: false });
+
   const [newPackage] = useNewPackageToFirestoreMutation();
   const SuppPackages = useSuppDataQuery();
-  const [admin, SetAdmin] = useState(false);
-  const [logged, SetLogin] = useState(false);
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
     const auth = getAuth();
     if (auth.currentUser) {
-      SetLogin(true);
+      user.LoggedIn.set(true);
     }
     if (auth.currentUser?.email === Admin) {
-      SetAdmin(true);
+      user.Admin.set(true);
     }
-  }, [logged, admin]);
+  });
 
   const Valid = (
-    hmotnostarg: string,
+    weightarg: string,
     costarg: string,
-    delkaarg: string,
-    vyskaarg: string,
-    sirkaarg: string,
+    pLemgtharg: string,
+    heightarg: string,
+    widtharg: string,
     // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
   ) => {
-    if (!parseIntReliable(hmotnostarg)) {
-      return new Error('Invalid argument, expext number bigger than 0');
-    }
-
-    if (!parseIntReliable(costarg)) {
-      return new Error('Invalid argument, expext number bigger than 0');
-    }
-
-    if (!parseIntReliable(delkaarg)) {
-      return new Error('Invalid argument, expext number bigger than 0');
-    }
-
-    if (!parseIntReliable(vyskaarg)) {
-      return new Error('Invalid argument, expext number bigger than 0');
-    }
-
-    if (!parseIntReliable(sirkaarg)) {
-      return new Error('Invalid argument, expext number bigger than 0');
+    if (
+      !parseIntReliable(weightarg) ||
+      !parseIntReliable(costarg) ||
+      !parseIntReliable(pLemgtharg) ||
+      !parseIntReliable(heightarg) ||
+      !parseIntReliable(widtharg)
+    ) {
+      return new Error('Invalid argument');
     }
   };
 
@@ -95,18 +90,24 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
   const handleForm = async (event?: React.FormEvent) => {
     event?.preventDefault();
     const pID = uuidv4();
-    const valid = Valid(kg, cost, delka, vyska, sirka)?.message;
+    const valid = Valid(
+      statesOfDataPack.Weight.get(),
+      statesOfDataPack.Cost.get(),
+      statesOfDataPack.Plength.get(),
+      statesOfDataPack.Height.get(),
+      statesOfDataPack.Width.get(),
+    )?.message;
     if (valid) {
       alert(valid);
     } else {
       const result: any = await newPackage({
         variables: {
-          Hmotnost: Number(kg),
-          Cost: Number(cost),
-          Delka: Number(delka),
-          Vyska: Number(vyska),
-          Sirka: Number(sirka),
-          Pack_name: packName,
+          Hmotnost: Number(statesOfDataPack.Weight.get()),
+          Cost: Number(statesOfDataPack.Cost.get()),
+          Delka: Number(statesOfDataPack.Plength.get()),
+          Vyska: Number(statesOfDataPack.Height.get()),
+          Sirka: Number(statesOfDataPack.Width.get()),
+          Pack_name: statesOfDataPack.PackName.get(),
           SuppID: id,
           PackId: pID,
         },
@@ -131,7 +132,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     }
   };
 
-  if (!logged || !admin) {
+  if (!user.LoggedIn.get() || !user.Admin.get()) {
     return (
       <div
         style={{
@@ -165,7 +166,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
               <p className={styles.Odstavce}>Name</p>
               <input
                 className={styles.input}
-                onChange={(e) => SetPackName(e.target.value)}
+                onChange={(e) => statesOfDataPack.PackName.set(e.target.value)}
                 required
                 type="text"
                 placeholder="Name"
@@ -175,7 +176,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
               <p className={styles.Odstavce}>Cena</p>
               <input
                 className={styles.input}
-                onChange={(e) => SetCost(e.target.value)}
+                onChange={(e) => statesOfDataPack.Cost.set(e.target.value)}
                 required
                 type="number"
                 placeholder="Kč"
@@ -188,7 +189,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
               <p className={styles.Odstavce}>Sirka</p>
               <input
                 className={styles.input}
-                onChange={(e) => SetSirka(e.target.value)}
+                onChange={(e) => statesOfDataPack.Width.set(e.target.value)}
                 required
                 type="number"
                 placeholder="Cm"
@@ -198,7 +199,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
               <p className={styles.Odstavce}>Hmotnost</p>
               <input
                 className={styles.input}
-                onChange={(e) => SetKg(e.target.value)}
+                onChange={(e) => statesOfDataPack.Weight.set(e.target.value)}
                 required
                 type="number"
                 placeholder="Kg"
@@ -210,7 +211,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
               <p className={styles.Odstavce}>Delka</p>
               <input
                 className={styles.input}
-                onChange={(e) => SetDelka(e.target.value)}
+                onChange={(e) => statesOfDataPack.Plength.set(e.target.value)}
                 required
                 type="number"
                 placeholder="Cm"
@@ -220,7 +221,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
               <p className={styles.Odstavce}>Vyska</p>
               <input
                 className={styles.input}
-                onChange={(e) => SetVyska(e.target.value)}
+                onChange={(e) => statesOfDataPack.Height.set(e.target.value)}
                 required
                 type="number"
                 placeholder="Cm"

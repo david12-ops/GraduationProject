@@ -1,3 +1,4 @@
+/* eslint-disable max-depth */
 /* eslint-disable complexity */
 // eslint-disable-next-line eslint-comments/disable-enable-pair
 /* eslint-disable prettier/prettier */
@@ -12,6 +13,8 @@ import axios from 'axios';
 import { DecodedIdToken } from 'firebase-admin/auth';
 import { gql } from 'graphql-tag';
 import { createSchema, createYoga } from 'graphql-yoga';
+
+import { authUtils } from '@/firebase/auth-utils';
 
 import { firestore } from '../../firebase/firebase-admin-config';
 // import { UserCreate } from '../components/types-user';
@@ -688,9 +691,20 @@ const resolvers = {
         throw error;
       }
     },
-    AddHistory: async (parent_:any, args: { uId: string, data:string}) =>{
+    AddHistory: async (parent_:any, args: { uId: string, data:string}, context:MyContext) =>{
       const {uId:id, data:dataS} = args
       try {
+
+      const Admin = process.env.NEXT_PUBLIC_AdminEm;
+      console.log("databaze user",context.user)
+      if(context.user?.email !== authUtils.getCurrentUser()?.email){
+        // return {
+        //   __typename: "PackageError",
+        //   message: "Only admin can use this function"
+        // }
+        alert("Only users with account can use this function")
+      }
+
         const newHistoryDoc = db.collection('History').doc();
         const data = JSON.parse(dataS)
         // let createdHistoryItm:any;
@@ -918,6 +932,7 @@ const resolvers = {
       } = args;
 
       try {
+        const namesOfSup:Array<string>=[];
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
         if(context.user?.email !== Admin){
           return {
@@ -926,15 +941,17 @@ const resolvers = {
           }
         }
 
-        // porovnat jmena v lowerCase
-        const Supd = await db
-        .collection('Supplier')
-        .where('suppName',"==", SuppName.toLowerCase())
-        .get();
+        const SuppDocument = await db
+        .collection('Supplier').get();
 
-      console.log('size', Supd.size);
+        SuppDocument.forEach((data:any)=>{
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
+          namesOfSup.push(data._fieldsProto.suppName.stringValue)
+        })
 
-      if (Supd.size > 0) {
+        console.log("names",namesOfSup.find((name:string) => name.toLowerCase() === SuppName.toLowerCase()))
+
+      if (namesOfSup.some((name:string) => name.toLowerCase() === SuppName.toLowerCase())) {
         return {
           __typename: "SupplierError",
           message: "Supplier name is already in use"
@@ -1275,7 +1292,7 @@ const resolvers = {
 
         const docsWithoutCurrentSupp = docs.filter((doc) => doc.suppName !== ActName);
 
-        const duplicateSupp = docsWithoutCurrentSupp.find((item) => item.suppName === SuppName)
+        const duplicateSupp = docsWithoutCurrentSupp.find((item) => item.suppName.toLowerCase() === SuppName.toLowerCase())
 
         if (duplicateSupp) {
           return {
@@ -1340,66 +1357,82 @@ const resolvers = {
     },
     updateHistory: async (parent_:any, args:{newPricePack:number, oldPricePack:number, newPricePersonal:number, oldPricePersonal:number, newPriceDepo:number, oldPriceDepo:number, suppId:string, packName:string}, context:MyContext) =>{
       const {newPricePack:nPricrePack, oldPricePack:oPricePack, newPricePersonal:nPriceP, oldPricePersonal:oPriceP, newPriceDepo:nPriceDepo, oldPriceDepo:oPriceDepo, suppId:sId, packName:nameOfpack} = args
-      // location
-      const SuppDocuments = await db.collection("History").where("suppData.id", "==", sId).get()
-      console.log(SuppDocuments);
-      let costPersonal = 0 // puvodni cena
-      let costDepo = 0 // puvodni cena
-
-      console.log("id",sId)
-      console.log("name", nameOfpack)
-
-      if(nPriceP && oPriceP){
-        if(nPriceP > oPriceP){
-          costPersonal += (nPriceP - oPriceP)
+      // nrfukcni update u ceny baliku
+      try{
+        const Admin = process.env.NEXT_PUBLIC_AdminEm;
+        console.log("databaze user",context.user)
+        if(context.user?.email !== Admin){
+          // return {
+          //   __typename: "PackageError",
+          //   message: "Only admin can use this function"
+          // }
+          alert("Only admin can use this function")
         }
+        // location
+        const SuppDocuments = await db.collection("History").where("suppData.id", "==", sId).get()
+        console.log(SuppDocuments);
+        let costPersonal = 0 // puvodni cena
+        let costDepo = 0 // puvodni cena
   
-        if(nPriceP < oPriceP){
-          costPersonal += (oPriceP - nPriceP )
-        }
-        console.log(costPersonal)
-      }
-
-      if(nPriceDepo && oPriceDepo){
-        // packId - potřeba
-        if(nPriceDepo>oPriceDepo){
-          costDepo += (nPriceDepo - oPriceDepo)
-        }
+        console.log("id",sId)
+        console.log("name", nameOfpack)
   
-        if(nPriceDepo < oPriceDepo){
-          costDepo += (oPriceDepo - nPriceDepo)
-        }  
-        console.log(costDepo)
-      }
+        if(nPriceP && oPriceP){
+          if(nPriceP > oPriceP){
+            costPersonal += (nPriceP - oPriceP)
+          }
     
-      // package cost - vypada funkcně 
-      if(nPricrePack && oPricePack  && nameOfpack){
-        let costPack = 0 // puvodni cena
-        let historyId = "";
-        if(nPricrePack !== oPricePack){
-          SuppDocuments.forEach((doc:any) => {if(doc._fieldsProto.suppData.mapValue.fields.id.stringValue === sId && doc._fieldsProto.suppData.mapValue.fields.packName.stringValue === nameOfpack){costPack = Number(doc._fieldsProto.suppData.mapValue.fields.cost.integerValue); console.log(doc); historyId = doc._fieldsProto.historyId.stringValue}})
-          console.log("matematika", costPack)
-        }
-
-        if(nPricrePack > oPricePack){
-          console.log("spadl jsem jsem 1")
-          costPack += (nPricrePack - oPricePack)
+          if(nPriceP < oPriceP){
+            costPersonal += (oPriceP - nPriceP )
+          }
+          console.log(costPersonal)
         }
   
-        if(nPricrePack < oPricePack){
-          console.log("spadl jsem jsem 2")
-          console.log(oPricePack, nPricrePack)
-          costPack -= (oPricePack - nPricrePack)
+        if(nPriceDepo && oPriceDepo){
+          // packId - potřeba
+          if(nPriceDepo>oPriceDepo){
+            costDepo += (nPriceDepo - oPriceDepo)
+          }
+    
+          if(nPriceDepo < oPriceDepo){
+            costDepo += (oPriceDepo - nPriceDepo)
+          }  
+          console.log(costDepo)
         }
-
-        console.log("historyId", historyId)
-        // eslint-disable-next-line unicorn/no-await-expression-member, @typescript-eslint/no-unused-expressions
-        historyId === "" ?? await (await db.collection("History").where("historyId", "==", historyId).get()).docs[0].ref.update({"suppData.cost":costPack})
-
-        console.log("1 stara 2 nova", oPricePack, nPricrePack)
       
-        console.log(costPack)
-      }     
+        // package cost - vypada funkcně 
+        if(nPricrePack && oPricePack  && nameOfpack){
+          let costPack = 0 // puvodni cena
+          let historyId = "";
+          if(nPricrePack !== oPricePack){
+            SuppDocuments.forEach((doc:any) => {if(doc._fieldsProto.suppData.mapValue.fields.id.stringValue === sId && doc._fieldsProto.suppData.mapValue.fields.packName.stringValue === nameOfpack){costPack = Number(doc._fieldsProto.suppData.mapValue.fields.cost.integerValue); console.log(doc); historyId = doc._fieldsProto.historyId.stringValue}})
+            console.log("matematika", costPack)
+          }
+  
+          if(nPricrePack > oPricePack){
+            console.log("spadl jsem jsem 1")
+            costPack += (nPricrePack - oPricePack)
+          }
+    
+          if(nPricrePack < oPricePack){
+            console.log("spadl jsem jsem 2")
+            console.log(oPricePack, nPricrePack)
+            costPack -= (oPricePack - nPricrePack)
+          }
+  
+          console.log("historyId", historyId)
+          // eslint-disable-next-line unicorn/no-await-expression-member, @typescript-eslint/no-unused-expressions
+          historyId === "" ?? await (await db.collection("History").where("historyId", "==", historyId).get()).docs[0].ref.update({"suppData.cost":costPack})
+  
+          console.log("1 stara 2 nova", oPricePack, nPricrePack)
+        
+          console.log(costPack)
+        }     
+      }catch (error) {
+        console.error('Chyba při update historie uživatele', error);
+        throw error;
+      }
+      
 
     },
     // delete

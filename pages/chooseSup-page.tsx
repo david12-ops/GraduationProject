@@ -1,3 +1,4 @@
+import { useHookstate } from '@hookstate/core';
 import Head from 'next/head';
 import React, { useState } from 'react';
 
@@ -85,62 +86,62 @@ const RenderSupp = (
 };
 
 const Valid = (
-  hmotnostarg: string,
+  weightarg: string,
   costarg: string,
-  delkaarg: string,
-  vyskaarg: string,
-  sirkaarg: string,
+  pLengtharg: string,
+  heightarg: string,
+  widtharg: string,
   // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
 ) => {
-  if (!parseIntReliable(hmotnostarg)) {
-    return new Error('Invalid argument, expext number bigger than 0');
-  }
-
-  if (!parseIntReliable(costarg)) {
-    return new Error('Invalid argument, expext number bigger than 0');
-  }
-
-  if (!parseIntReliable(delkaarg)) {
-    return new Error('Invalid argument, expext number bigger than 0');
-  }
-
-  if (!parseIntReliable(vyskaarg)) {
-    return new Error('Invalid argument, expext number bigger than 0');
-  }
-
-  if (!parseIntReliable(sirkaarg)) {
-    return new Error('Invalid argument, expext number bigger than 0');
+  if (
+    !parseIntReliable(weightarg) ||
+    !parseIntReliable(costarg) ||
+    !parseIntReliable(pLengtharg) ||
+    !parseIntReliable(heightarg) ||
+    !parseIntReliable(widtharg)
+  ) {
+    return new Error('Invalid argument');
   }
 };
 
 export default function SuitableSupp() {
+  const statesOfFormPack = useHookstate({
+    Width: '',
+    Height: '',
+    Weight: '',
+    Plength: '',
+    PlaceFrom: '',
+    PlaceTo: '',
+    Cost: '',
+  });
+
+  // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
   const [dataS, SetData] = useState([]);
-  const [width, SetWidth] = useState('');
-  const [height, SetHeight] = useState('');
-  const [weight, SetWeight] = useState('');
-  const [plength, SetLength] = useState('');
-  const [placeFrom, SetPlceForm] = useState('');
-  const [placeTo, SetPlceTo] = useState('');
-  const [cost, SetCost] = useState('');
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [suitableSupp] = useMutSuitableSuppMutation();
   const suppData = useSuppDataQuery();
 
   const HandleForm = async () => {
-    const valid = Valid(weight, cost, plength, height, width)?.message;
+    const valid = Valid(
+      statesOfFormPack.Weight.get(),
+      statesOfFormPack.Cost.get(),
+      statesOfFormPack.Plength.get(),
+      statesOfFormPack.Height.get(),
+      statesOfFormPack.Width.get(),
+    )?.message;
     if (valid) {
       alert(valid);
     } else {
       const result = await suitableSupp({
         variables: {
-          Width: Number(width),
-          Weight: Number(weight),
-          Height: Number(height),
-          Length: Number(plength),
-          Mz: placeFrom,
-          Mdo: placeTo,
-          Cost: Number(cost),
+          Width: Number(statesOfFormPack.Width.get()),
+          Weight: Number(statesOfFormPack.Weight.get()),
+          Height: Number(statesOfFormPack.Height.get()),
+          Length: Number(statesOfFormPack.Plength.get()),
+          Mz: statesOfFormPack.PlaceFrom.get(),
+          Mdo: statesOfFormPack.PlaceTo.get(),
+          Cost: Number(statesOfFormPack.Cost.get()),
         },
       });
 
@@ -164,13 +165,13 @@ export default function SuitableSupp() {
       <Navbar />
       <main className={styles.main}>
         <FormChooseSup
-          onChangeSirka={(e) => SetWidth(e.toString())}
-          onChangeVyska={(e) => SetHeight(e.toString())}
-          onChangeHmotnost={(e) => SetWeight(e.toString())}
-          onChangeDelka={(e) => SetLength(e.toString())}
-          onChangeCena={(e) => SetCost(e.toString())}
-          onChangeDo={(e) => SetPlceTo(e.toString())}
-          onChangeZ={(e) => SetPlceForm(e.toString())}
+          onChangeSirka={(e) => statesOfFormPack.Width.set(e.toString())}
+          onChangeVyska={(e) => statesOfFormPack.Height.set(e.toString())}
+          onChangeHmotnost={(e) => statesOfFormPack.Weight.set(e.toString())}
+          onChangeDelka={(e) => statesOfFormPack.Plength.set(e.toString())}
+          onChangeCena={(e) => statesOfFormPack.Cost.set(e.toString())}
+          onChangeDo={(e) => statesOfFormPack.PlaceTo.set(e.toString())}
+          onChangeZ={(e) => statesOfFormPack.PlaceFrom.set(e.toString())}
           buttonEl={
             <button className={stylesF.crudbtn} onClick={HandleForm}>
               odeslat
@@ -179,12 +180,12 @@ export default function SuitableSupp() {
         />
         {RenderSupp(dataS, suppData, {
           dataFrForm: {
-            width,
-            height,
-            weight,
-            plength,
-            placeFrom,
-            placeTo,
+            width: statesOfFormPack.Width.get(),
+            height: statesOfFormPack.Height.get(),
+            weight: statesOfFormPack.Weight.get(),
+            plength: statesOfFormPack.Plength.get(),
+            placeFrom: statesOfFormPack.PlaceFrom.get(),
+            placeTo: statesOfFormPack.PlaceTo.get(),
           },
         })}
       </main>
