@@ -1,5 +1,3 @@
-/* eslint-disable max-depth */
-/* eslint-disable complexity */
 // eslint-disable-next-line eslint-comments/disable-enable-pair
 /* eslint-disable prettier/prettier */
 // eslint-disable-next-line eslint-comments/disable-enable-pair
@@ -13,6 +11,7 @@ import axios from 'axios';
 import { DecodedIdToken } from 'firebase-admin/auth';
 import { gql } from 'graphql-tag';
 import { createSchema, createYoga } from 'graphql-yoga';
+import _ from 'lodash';
 
 import { authUtils } from '@/firebase/auth-utils';
 
@@ -509,13 +508,11 @@ const resolvers = {
     // vhodny balik resolver
     BingoSupPac: async (parent_: any, args: { width: number, weight: number, height: number, Plength: number, mistoZ:string, mistoDo:string, cost:number }) => {
       const { width: Width, weight: Weight, height: Height, Plength: pLength, mistoZ: Z, mistoDo:Do, cost: Pcost } = args
-      // Natahnout data
       const packages:any = [];
       const packData:[] = [];
       const rtrnItem:any = [];
       let location:any;
 
-      // 19.12 - omluvenka
       const validargZ = ['personal','depo'].includes(Z)
       const validargDo = ['personal','depo'].includes(Do)
 
@@ -547,6 +544,8 @@ const resolvers = {
           message:"Ivalid argument, expexted (personal/depo)"
         }
       }
+
+
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       SupplierDoc.docs.forEach((item:any)=>{
@@ -622,6 +621,38 @@ const resolvers = {
 
       // Filtrace dle parametru
       // nebrat i moc velké
+      const cleared = suitableByCost.filter((itm) => itm !== undefined)
+
+      // console.log("clearded", cleared)
+      const groupedById = _.groupBy(cleared, "supplierId");
+
+      type PackageType = {supplierId:string, Cost:number, Name:string, param:{width:number,length:number,weight:number,height:number}};
+      const bestPackage:Record<string, PackageType> = {}
+      console.log("grouped2", groupedById)
+      Object.entries(groupedById).forEach(([key, items]) => {
+        console.log(`Supplier: ${key}`);
+        // Iterate over each item in the array
+        items.forEach((item:{supplierId:string, Cost:number, Name:string, param:{width:number,length:number,weight:number,height:number}}) => {
+          // eslint-disable-next-line sonarjs/no-collapsible-if
+          if(key === item.supplierId){
+            // eslint-disable-next-line unicorn/no-lonely-if
+            if((item.param?.width >= Width && item.param?.weight >= Weight && item.param?.length >= pLength && item.param?.height >= Height)){
+              // eslint-disable-next-line unicorn/no-negated-condition, unicorn/prefer-logical-operator-over-ternary
+              const pack = !bestPackage[item.supplierId] ? undefined : bestPackage[item.supplierId]
+              console.log("pAAAAAAck",pack)
+              // eslint-disable-next-line max-depth
+              if(item.param?.width < pack.param.width && item.param?.weight < pack.param.weight && item.param?.length < pack.param.length && item.param?.height < pack.param.height) {
+                bestPackage[item.supplierId].param.height = pack.param.height
+                bestPackage[item.supplierId].param.weight = pack.param.weight
+                bestPackage[item.supplierId].param.width = pack.param.width
+                bestPackage[item.supplierId].Cost = pack.Cost
+              };
+              console.log("itm",bestPackage)
+            }
+          }
+        });
+      });
+
       const suitableByParam = suitableByCost.map((itm: {Cost:number, supplierId:string, Name:string,param:{width:number,length:number,weight:number,height:number}}) =>{
       // eslint-disable-next-line sonarjs/no-collapsible-if
       // hmotnost
@@ -1429,7 +1460,7 @@ const resolvers = {
           console.log(costPack)
         }     
       }catch (error) {
-        console.error('Chyba při update historie uživatele', error);
+        console.error('Chyba při úpravě historie uživatele', error);
         throw error;
       }
       
