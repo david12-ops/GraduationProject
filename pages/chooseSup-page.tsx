@@ -62,6 +62,9 @@ const RenderSupp = (
   dataFromForm: object,
 ) => {
   // alert(JSON.stringify(Res(dataFromResover, QueryData)));
+  console.log('resolver', dataFromResolver);
+  // v ifu problemi
+  console.log('uvidime', QueryData.loading, QueryData, QueryData.data);
   if (!QueryData.loading && !QueryData.error && QueryData.data) {
     // eslint-disable-next-line array-callback-return
     return Res(dataFromResolver, QueryData).map((itm: any) => (
@@ -145,8 +148,11 @@ export default function SuitableSupp() {
         },
       });
 
+      console.log('datatataat');
+
       if (result.data?.BingoSupPac?.suitable) {
         const data = JSON.parse(result.data?.BingoSupPac?.suitable);
+        console.log('datatataat', data);
         SetData(data);
       } else {
         // eslint-disable-next-line no-alert

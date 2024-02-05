@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 // eslint-disable-next-line eslint-comments/disable-enable-pair
 /* eslint-disable prettier/prettier */
 // eslint-disable-next-line eslint-comments/disable-enable-pair
@@ -426,82 +427,95 @@ const resolvers = {
       return data;
     },
     packageData: async (_context: Context) => {
-      const result = await db.collection('Package').get();
-      // funguje
-      const data: Array<{
-        Pkam: any;
-        Podkud: any;
-        costPackage: any;
-        delka: any;
-        hmotnost: any;
-        kam: any;
-        odkud: any;
-        packName: any;
-        packgeId: any;
-        sirka: any;
-        vyska: any;
-        supplierId: any;
-      }> = [];
 
-      result.forEach((doc) => {
-        const docData = doc.data();
-
-        data.push({
-          Pkam: docData.where_PSC,
-          Podkud: docData.fromWhere_PSC,
-          costPackage: docData.cost,
-          delka: docData.Plength,
-          hmotnost: docData.weight,
-          kam: docData.where_address,
-          odkud: docData.fromWhere_address,
-          packName: docData.name_package,
-          packgeId: docData.packgeId,
-          sirka: docData.width,
-          vyska: docData.weight,
-          supplierId: docData.supplier_id,
+      try{
+        const result = await db.collection('Package').get();
+      
+        const data: Array<{
+          Pkam: any;
+          Podkud: any;
+          costPackage: any;
+          delka: any;
+          hmotnost: any;
+          kam: any;
+          odkud: any;
+          packName: any;
+          packgeId: any;
+          sirka: any;
+          vyska: any;
+          supplierId: any;
+        }> = [];
+  
+        result.forEach((doc) => {
+          const docData = doc.data();
+  
+          data.push({
+            Pkam: docData.where_PSC,
+            Podkud: docData.fromWhere_PSC,
+            costPackage: docData.cost,
+            delka: docData.Plength,
+            hmotnost: docData.weight,
+            kam: docData.where_address,
+            odkud: docData.fromWhere_address,
+            packName: docData.name_package,
+            packgeId: docData.packgeId,
+            sirka: docData.width,
+            vyska: docData.weight,
+            supplierId: docData.supplier_id,
+          });
         });
-      });
-      console.log('package data', data.values());
-      return data;
+        console.log('package data', data.values());
+        return data;
+      }catch(error){
+        console.error('Chyba při získání balíčku', error);
+        throw error;
+      }
+     
     },
     // packages podle id supp
     suplierData: async (_context: Context) => {
-      const result = await db.collection('Supplier').get();
-      // funguje
-      const data: Array<{
-        sendCashDelivery: any;
-        packInBox: any;
-        supplierId: any;
-        suppName: any;
-        pickUp: any;
-        delivery: any;
-        insurance: any;
-        shippingLabel: any;
-        foil: any;
-        package: [any]
-        location:any
-      }> = [];
-
-      result.forEach((doc) => {
-        const docData = doc.data();
-
-        data.push({
-          sendCashDelivery: docData.sendCashDelivery,
-          packInBox: docData.packInBox,
-          supplierId: docData.supplierId,
-          suppName: docData.suppName,
-          pickUp: docData.pickUp,
-          delivery: docData.delivery,
-          insurance: docData.insurance,
-          shippingLabel: docData.shippingLabel,
-          foil: docData.foil,
-          package: docData.package,
-          location:docData.location
+      try{
+        const result = await db.collection('Supplier').get();
+  
+        const data: Array<{
+          sendCashDelivery: any;
+          packInBox: any;
+          supplierId: any;
+          suppName: any;
+          pickUp: any;
+          delivery: any;
+          insurance: any;
+          shippingLabel: any;
+          foil: any;
+          package: [any]
+          location:any
+        }> = [];
+  
+        result.forEach((doc) => {
+          const docData = doc.data();
+          
+          data.push({
+            sendCashDelivery: docData.sendCashDelivery,
+            packInBox: docData.packInBox,
+            supplierId: docData.supplierId,
+            suppName: docData.suppName,
+            pickUp: docData.pickUp,
+            delivery: docData.delivery,
+            insurance: docData.insurance,
+            shippingLabel: docData.shippingLabel,
+            foil: docData.foil,
+            package: docData.package,
+            location:docData.location
+          });
+          console.log('data supplier package', data.map((item) => JSON.stringify(item.package)));
         });
-        console.log('data supplier package', data.map((item) => JSON.stringify(item.package)));
-      });
-
-      return data;
+  
+        return data;
+      }catch(error){
+        console.error('Chyba při získání dodavatele', error);
+        throw error;
+      }
+    
     },
   },
   Mutation: {
@@ -545,15 +559,13 @@ const resolvers = {
         }
       }
 
-
-
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      SupplierDoc.docs.forEach((item:any)=>{
+      SupplierDoc.docs.forEach((item)=>{
         if(item._fieldsProto && item._fieldsProto.package && item._fieldsProto.package.arrayValue)
         {// eslint-disable-next-line @typescript-eslint/no-unsafe-return
           item._fieldsProto.package.arrayValue.values.map((packItem:any) => packages.push(packItem.mapValue.fields));
         }
-        if(item._fieldsProto.location){
+        if(item._fieldsProto?.location){
           location = item._fieldsProto.location.mapValue.fields
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call, no-underscore-dangle
           suppWithLocationFiled.push({loc:location, suppId: item._fieldsProto.supplierId.stringValue})
@@ -611,71 +623,64 @@ const resolvers = {
         }        
         return {supplierId:item.supplier_id.stringValue, Cost:Number(item.cost.integerValue), Name: item.name_package.stringValue, param:{width:Number(item.weight.integerValue), length: Number(item.Plength.integerValue), weight: Number(item.weight.integerValue), height:Number(item.height.integerValue)}}
       })
-
-      console.log("sorted",JSON.stringify(packCost))
       
-      // Filtrace nevyhovujících dat dle ceny     
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return, array-callback-return, consistent-return
       const suitableByCost = packCost.map((item: any) => { if(Pcost >= Number(item.Cost)) {return item}});
       console.log("filter by cost",JSON.stringify(suitableByCost))
 
-      // Filtrace dle parametru
-      // nebrat i moc velké
       const cleared = suitableByCost.filter((itm) => itm !== undefined)
 
-      // console.log("clearded", cleared)
       const groupedById = _.groupBy(cleared, "supplierId");
 
       type PackageType = {supplierId:string, Cost:number, Name:string, param:{width:number,length:number,weight:number,height:number}};
-      const bestPackage:Record<string, PackageType> = {}
-      console.log("grouped2", groupedById)
-      Object.entries(groupedById).forEach(([key, items]) => {
-        console.log(`Supplier: ${key}`);
-        // Iterate over each item in the array
-        items.forEach((item:{supplierId:string, Cost:number, Name:string, param:{width:number,length:number,weight:number,height:number}}) => {
-          // eslint-disable-next-line sonarjs/no-collapsible-if
-          if(key === item.supplierId){
-            // eslint-disable-next-line unicorn/no-lonely-if
-            if((item.param?.width >= Width && item.param?.weight >= Weight && item.param?.length >= pLength && item.param?.height >= Height)){
-              // eslint-disable-next-line unicorn/no-negated-condition, unicorn/prefer-logical-operator-over-ternary
-              const pack = !bestPackage[item.supplierId] ? undefined : bestPackage[item.supplierId]
-              console.log("pAAAAAAck",pack)
-              // eslint-disable-next-line max-depth
-              if(item.param?.width < pack.param.width && item.param?.weight < pack.param.weight && item.param?.length < pack.param.length && item.param?.height < pack.param.height) {
-                bestPackage[item.supplierId].param.height = pack.param.height
-                bestPackage[item.supplierId].param.weight = pack.param.weight
-                bestPackage[item.supplierId].param.width = pack.param.width
-                bestPackage[item.supplierId].Cost = pack.Cost
-              };
-              console.log("itm",bestPackage)
-            }
-          }
-        });
-      });
+      const packagesDictionary:Record<string, PackageType> = {};
 
-      const suitableByParam = suitableByCost.map((itm: {Cost:number, supplierId:string, Name:string,param:{width:number,length:number,weight:number,height:number}}) =>{
-      // eslint-disable-next-line sonarjs/no-collapsible-if
-      // hmotnost
-      if(itm){
-        // eslint-disable-next-line unicorn/no-lonely-if
-        if(itm.param?.width >= Width && itm.param?.weight >= Weight && itm.param?.length >= pLength && itm.param?.height >= Height){
-          console.log(itm)         
-          return itm
+      const lookWhichIsBetter = (item:PackageType, item2:PackageType) =>{
+
+        let bettterPack:PackageType = {
+          supplierId: '',
+          Cost: 0,
+          Name: '',
+          param: {
+            width: 0,
+            length: 0,
+            weight: 0,
+            height: 0
+          }
+        };
+
+        if(item.param.width > item2.param.width || item.param.weight > item2.param.weight || item.param.length > item2.param.length || item.param.height > item2.param.height){
+          bettterPack = item2
         }
+
+        if(item.param.width < item2.param.width || item.param.weight < item2.param.weight || item.param.length < item2.param.length || item.param.height < item2.param.height){
+          bettterPack = item
+        }
+
+        return bettterPack
       }
-        
+
+      Object.entries(groupedById).forEach(([key, item]) =>{
+        item.forEach((itm:{supplierId:string, Cost:number, Name:string, param:{width:number,length:number,weight:number,height:number}}) =>{
+          if((itm.param?.width >= Width && itm.param?.weight >= Weight && itm.param?.length >= pLength && itm.param?.height >= Height)){
+            const prev = packagesDictionary[itm.supplierId] ?? undefined;
+            // eslint-disable-next-line unicorn/prefer-ternary, unicorn/no-negated-condition
+            if(!prev){
+              packagesDictionary[itm.supplierId] = {supplierId:itm.supplierId, Cost:itm.Cost, Name:itm.Name, param:{width:itm.param.width, weight:itm.param.weight, height:itm.param.height, length:itm.param.length}}
+            }
+            else {
+              packagesDictionary[itm.supplierId] = lookWhichIsBetter(itm,prev);
+            }
+        }})
+      })
+
+    Object.entries(packagesDictionary).forEach(([key, item]) =>{
+      console.log("noooo ITMMMMMM",key)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      rtrnItem.push({suppId:item.supplierId,cost:item.Cost,name:item.Name})
     })
 
-    console.log("filter by param",suitableByParam)
-
-      suitableByParam.forEach((item:any) =>{
-        console.log("ssssssss",item)
-        if(item){
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          rtrnItem.push({suppId:item.supplierId,cost:item.Cost,name:item.Name})
-        }
-      })
-      
+    // mozna zmena
       if(rtrnItem.length > 0){
         console.log("suitable item",rtrnItem); 
         return {       
@@ -718,7 +723,7 @@ const resolvers = {
 
         return newUser;
       } catch (error) {
-        console.error('Chyba při vytváření uživatele:', error);
+        console.error('Chyba při vytváření uživatele', error);
         throw error;
       }
     },
@@ -929,7 +934,7 @@ const resolvers = {
           data: newPackage
         }      
       } catch (error) {
-        console.error('Chyba při vytváření balíčku:', error);
+        console.error('Chyba při vytváření balíčku', error);
         throw error;
       }
     },
@@ -1323,6 +1328,7 @@ const resolvers = {
 
         const docsWithoutCurrentSupp = docs.filter((doc) => doc.suppName !== ActName);
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         const duplicateSupp = docsWithoutCurrentSupp.find((item) => item.suppName.toLowerCase() === SuppName.toLowerCase())
 
         if (duplicateSupp) {
@@ -1389,6 +1395,9 @@ const resolvers = {
     updateHistory: async (parent_:any, args:{newPricePack:number, oldPricePack:number, newPricePersonal:number, oldPricePersonal:number, newPriceDepo:number, oldPriceDepo:number, suppId:string, packName:string}, context:MyContext) =>{
       const {newPricePack:nPricrePack, oldPricePack:oPricePack, newPricePersonal:nPriceP, oldPricePersonal:oPriceP, newPriceDepo:nPriceDepo, oldPriceDepo:oPriceDepo, suppId:sId, packName:nameOfpack} = args
       // nrfukcni update u ceny baliku
+      // dodelat resolver a errorning u oststnich
+      // udelat filtry na frontendu
+      // vyresit user resolvery + zmena hesla
       try{
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
         console.log("databaze user",context.user)
