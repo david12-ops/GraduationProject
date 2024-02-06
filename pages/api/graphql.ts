@@ -1394,86 +1394,103 @@ const resolvers = {
     },
     updateHistory: async (parent_:any, args:{newPricePack:number, oldPricePack:number, newPricePersonal:number, oldPricePersonal:number, newPriceDepo:number, oldPriceDepo:number, suppId:string, packName:string}, context:MyContext) =>{
       const {newPricePack:nPricrePack, oldPricePack:oPricePack, newPricePersonal:nPriceP, oldPricePersonal:oPriceP, newPriceDepo:nPriceDepo, oldPriceDepo:oPriceDepo, suppId:sId, packName:nameOfpack} = args
-      // nrfukcni update u ceny baliku
       // dodelat resolver a errorning u oststnich
       // udelat filtry na frontendu
       // vyresit user resolvery + zmena hesla
       try{
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
-        console.log("databaze user",context.user)
         if(context.user?.email !== Admin){
           // return {
-          //   __typename: "PackageError",
+          //   __typename: "HistoryError",
           //   message: "Only admin can use this function"
           // }
           alert("Only admin can use this function")
         }
-        // location
-        const SuppDocuments = await db.collection("History").where("suppData.id", "==", sId).get()
-        console.log(SuppDocuments);
-        let costPersonal = 0 // puvodni cena
-        let costDepo = 0 // puvodni cena
-  
-        console.log("id",sId)
-        console.log("name", nameOfpack)
-  
-        if(nPriceP && oPriceP){
-          if(nPriceP > oPriceP){
-            costPersonal += (nPriceP - oPriceP)
-          }
-    
-          if(nPriceP < oPriceP){
-            costPersonal += (oPriceP - nPriceP )
-          }
-          console.log(costPersonal)
-        }
-  
-        if(nPriceDepo && oPriceDepo){
-          // packId - potřeba
-          if(nPriceDepo>oPriceDepo){
-            costDepo += (nPriceDepo - oPriceDepo)
-          }
-    
-          if(nPriceDepo < oPriceDepo){
-            costDepo += (oPriceDepo - nPriceDepo)
-          }  
-          console.log(costDepo)
-        }
-      
-        // package cost - vypada funkcně 
-        if(nPricrePack && oPricePack  && nameOfpack){
-          let costPack = 0 // puvodni cena
+
+        const ChangePricePack = async (userEmail:string) =>{
           let historyId = "";
+          let updated = false;
+          let cost = 0; // puvodni cena
+          const SuppDocuments = await db.collection("History").where("suppData.id", "==", sId).get()
+
           if(nPricrePack !== oPricePack){
-            SuppDocuments.forEach((doc:any) => {if(doc._fieldsProto.suppData.mapValue.fields.id.stringValue === sId && doc._fieldsProto.suppData.mapValue.fields.packName.stringValue === nameOfpack){costPack = Number(doc._fieldsProto.suppData.mapValue.fields.cost.integerValue); console.log(doc); historyId = doc._fieldsProto.historyId.stringValue}})
-            console.log("matematika", costPack)
+            SuppDocuments.forEach((doc:any) => {if(doc._fieldsProto.suppData.mapValue.fields.id.stringValue === sId && doc._fieldsProto.suppData.mapValue.fields.packName.stringValue === nameOfpack){cost = Number(doc._fieldsProto.suppData.mapValue.fields.cost.integerValue); console.log(doc); historyId = doc._fieldsProto.historyId.stringValue}})
           }
-  
+          
           if(nPricrePack > oPricePack){
             console.log("spadl jsem jsem 1")
-            costPack += (nPricrePack - oPricePack)
+            cost += (nPricrePack - oPricePack)
           }
     
           if(nPricrePack < oPricePack){
             console.log("spadl jsem jsem 2")
             console.log(oPricePack, nPricrePack)
-            costPack -= (oPricePack - nPricrePack)
+            cost -= (oPricePack - nPricrePack)
           }
   
-          console.log("historyId", historyId)
-          // eslint-disable-next-line unicorn/no-await-expression-member, @typescript-eslint/no-unused-expressions
-          historyId === "" ?? await (await db.collection("History").where("historyId", "==", historyId).get()).docs[0].ref.update({"suppData.cost":costPack})
+          if (historyId !== "" && userEmail === Admin) {
+            const historyQuerySnapshot = await db.collection("History").where("historyId", "==", historyId).get();
+            if (!historyQuerySnapshot.empty) {
+              const historyDocumentRef = historyQuerySnapshot.docs[0].ref;
+              await historyDocumentRef.update(new firestore.FieldPath('suppData', 'cost'), cost);
+              updated = !!(historyQuerySnapshot.docChanges() && historyQuerySnapshot.docChanges().length > 0)
+            }
+          }
+
+          console.log("updated", updated);
+          // return {
+          //   __typename: "HistoryError",
+          //   isUpdated: updated
+          // }
+        }
+
+        const ChangePriceOptionsDelivery = (userEmail:string) =>{
+
+        }
+
+        // location
+        const SuppDocuments = await db.collection("History").where("suppData.id", "==", sId).get()
+        console.log("vybrany document",SuppDocuments);
+        let costPersonal = 0 // puvodni cena
+        let costDepo = 0 // puvodni cena
   
-          console.log("1 stara 2 nova", oPricePack, nPricrePack)
+        console.log("id",sId)
+        console.log("name", nameOfpack)
+        console.log("kot", nPriceDepo, nPriceP)
+        console.log("kot2", oPriceDepo, oPriceP)
+
+
+        if(nPriceP && oPriceP){
+          if(nPriceP > oPriceP){
+            costPersonal += ("cost PPPPPPP",nPriceP - oPriceP)
+          }
+    
+          if(nPriceP < oPriceP){
+            costPersonal += ("cost PPPPPPP",oPriceP - nPriceP )
+          }
+          console.log(costPersonal)
+        }
+  
+        if(nPriceDepo && oPriceDepo){
+          if(nPriceDepo>oPriceDepo){
+            costDepo += ("cost DDDDD",nPriceDepo - oPriceDepo)
+          }
+    
+          if(nPriceDepo < oPriceDepo){
+            costDepo += ("cost DDDDD",oPriceDepo - nPriceDepo)
+          }  
+          console.log("cost CCCCCCCCC",costDepo)
+          if(SuppDocuments.docChanges.length > 0) { updated = true }
+        }
         
-          console.log(costPack)
+        // package cost - vypada funkcni
+        if(nPricrePack && oPricePack  && nameOfpack){
+          ChangePricePack(context.user?.email ?? "")
         }     
       }catch (error) {
         console.error('Chyba při úpravě historie uživatele', error);
         throw error;
       }
-      
-
     },
     // delete
     deletePack: async (parent_: any, args: { key: string, suppId: string }, context:MyContext) => {     
@@ -1524,7 +1541,9 @@ const resolvers = {
       } else {
         err = "Supplier not found"
       }
-      return { deletion: deleted, error: err }}catch(error){
+      return { deletion: deleted, error: err }
+    }
+      catch(error){
         console.error('Chyba při mazání emailu uživatele', error);
         throw error;
       }

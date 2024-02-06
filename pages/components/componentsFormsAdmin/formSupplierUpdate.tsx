@@ -101,6 +101,11 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     PersonalCost: '',
   });
 
+  const gettersOfOldCosts = useHookstate({
+    oldDepoCost: '',
+    oldPersonalCost: '',
+  });
+
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
@@ -126,6 +131,28 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       );
 
       if (actualSupp) {
+        // statesOfDataSupp.SuppId.set(actualSupp.supplierId);
+        // statesOfDataSupp.SupplierName.set(actualSupp.suppName);
+        // statesOfDataSupp.Delivery.set(actualSupp.delivery);
+        // statesOfDataSupp.PickUp.set(actualSupp.pickUp);
+        // statesOfDataSupp.Insurance.set(actualSupp.insurance.toString());
+        // statesOfDataSupp.SendCashDelivery.set(actualSupp.sendCashDelivery);
+        // statesOfDataSupp.PackInBox.set(actualSupp.packInBox);
+        // statesOfDataSupp.ShippingLabel.set(actualSupp.shippingLabel);
+        // statesOfDataSupp.ActualSupplierName.set(actualSupp.suppName);
+        // statesOfDataSupp.Foil.set(actualSupp.foil);
+        // statesOfDataSupp.oldDepoCost.set(
+        //   String(actualSupp.location?.depoDelivery.cost),
+        // );
+        // statesOfDataSupp.oldPersonalCost.set(
+        //   String(actualSupp.location?.personalDelivery.cost),
+        // );
+
+        gettersOfOldCosts.set({
+          oldDepoCost: String(actualSupp.location?.depoDelivery.cost),
+          oldPersonalCost: String(actualSupp.location?.personalDelivery.cost),
+        });
+
         statesOfDataSupp.set({
           SuppId: actualSupp.supplierId,
           SupplierName: actualSupp.suppName,
@@ -250,6 +277,8 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       if (data) {
         await UpdateHistory({
           variables: {
+            oldPriceDepo: Number(gettersOfOldCosts.oldDepoCost.get()),
+            oldPricePersonal: Number(gettersOfOldCosts.oldPersonalCost.get()),
             newPriceDepo: Number(statesOfDataSupp.DepoCost.get()),
             newPricePersonal: Number(statesOfDataSupp.PersonalCost.get()),
             SuppId: statesOfDataSupp.SuppId.get(),

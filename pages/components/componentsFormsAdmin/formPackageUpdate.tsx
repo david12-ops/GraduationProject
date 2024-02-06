@@ -88,7 +88,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
             }) => {
               // jmeno balicku
               const itm = pack[id];
-              console.log('itm', itm);
               if (itm) {
                 statesOfDataPack.set({
                   SuppId: item.supplierId.toString(),
@@ -169,6 +168,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
             SuppId: statesOfDataPack.SuppId.get(),
           },
         });
+        console.log('je to tam? byl jsem tam?');
         Refetch(SuppPackages);
         alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
                 Délka: ${data.Plength},
