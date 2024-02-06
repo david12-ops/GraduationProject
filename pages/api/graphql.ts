@@ -1397,6 +1397,79 @@ const resolvers = {
       // dodelat resolver a errorning u oststnich
       // udelat filtry na frontendu
       // vyresit user resolvery + zmena hesla
+      // eslint-disable-next-line unicorn/consistent-function-scoping
+      const CostDif = (costOldDepo:number, costNewDepo:number, costOldPersonal:number, costNewPersonal:number) => {
+        let costDifference = 0;
+        // metoda vrátí cenu
+        if(costOldDepo === costNewDepo && costOldPersonal === costNewPersonal){
+          return costDifference;
+       }
+         // 1. snizi se obe ceny
+         if(costOldDepo > costNewDepo && costOldPersonal > costNewPersonal){
+            const costD = costOldDepo - costNewDepo;
+            const costP = costOldPersonal - costNewPersonal;
+            costDifference = costD + costP;
+            console.log("zlevneni", costDifference)
+            console.log("ceny nižší")
+         }
+          // 2. zvysi se obe ceny
+          if(costOldDepo < costNewDepo && costOldPersonal < costNewPersonal){
+            const costD = costNewDepo - costOldDepo;
+            const costP = costNewPersonal - costOldPersonal;
+            costDifference = costD + costP;
+            console.log("zdrazeni", costDifference)
+            console.log("ceny vyšší")
+         }
+
+          // 3. 
+          //  snizi se depo cena
+          //  zvysi se personal cena
+          if(costOldDepo > costNewDepo && costOldPersonal < costNewPersonal){
+            console.log("zvyseni personal ceny a snizeni depa ceny")
+          }
+
+          // 4.
+          //  snizi se personal cena
+          //  zvysi se depo cena
+          if(costOldPersonal > costNewPersonal && costOldDepo < costNewDepo){
+            console.log("zvyseni depo ceny a snizeni personal ceny")
+          }
+
+          // 5.snizi se jen cena depa
+          if(costOldDepo > costNewDepo && costOldPersonal === costNewPersonal){
+            const costD = costOldDepo - costNewDepo;
+            costDifference = costD;
+            console.log("zlevneni", costDifference)
+            console.log("cena depa nižší")
+         }
+
+          // 6.snizi se jen cena personal
+          if(costOldDepo === costNewDepo && costOldPersonal > costNewPersonal){
+            const costP = costOldPersonal - costNewPersonal;
+            costDifference = costP;
+            console.log("zlevneni", costDifference)
+            console.log("cena personal nižší")
+         }
+
+          // 7. bod 5 naopak
+          if(costOldDepo < costNewDepo && costOldPersonal === costNewPersonal){
+            const costD = costNewDepo - costOldDepo;
+            costDifference = costD;
+            console.log("zdrazeni", costDifference)
+            console.log("cena depa vyssi")
+         }
+
+          // 8. bod 6 naopak
+          if(costOldDepo === costNewDepo && costOldPersonal < costNewPersonal){
+            const costP = costNewPersonal - costOldPersonal;
+            costDifference = costP;
+            console.log("zdrazeni", costDifference)
+            console.log("cena personal vyssi")
+         }
+
+        console.log("variables", costOldDepo, costNewDepo, costOldPersonal, costNewPersonal);
+        return costDifference
+      }
       try{
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
         if(context.user?.email !== Admin){
@@ -1408,6 +1481,7 @@ const resolvers = {
         }
 
         const ChangePricePack = async (userEmail:string) =>{
+
           let historyId = "";
           let updated = false;
           let cost = 0; // puvodni cena
@@ -1444,45 +1518,40 @@ const resolvers = {
           // }
         }
 
-        const ChangePriceOptionsDelivery = (userEmail:string) =>{
+        const ChangePriceOptionsDelivery = async (userEmail:string) =>{
 
-        }
-
-        // location
-        const SuppDocuments = await db.collection("History").where("suppData.id", "==", sId).get()
-        console.log("vybrany document",SuppDocuments);
-        let costPersonal = 0 // puvodni cena
-        let costDepo = 0 // puvodni cena
-  
-        console.log("id",sId)
-        console.log("name", nameOfpack)
-        console.log("kot", nPriceDepo, nPriceP)
-        console.log("kot2", oPriceDepo, oPriceP)
-
-
-        if(nPriceP && oPriceP){
-          if(nPriceP > oPriceP){
-            costPersonal += ("cost PPPPPPP",nPriceP - oPriceP)
-          }
+          const SuppDocuments = await db.collection("History").where("suppData.id", "==", sId).get()
+          // SuppDocuments.forEach(async (doc) => {
+          //   await doc.ref.update({"suppData.cost":0});
+          // })
+          console.log("vybrany document",SuppDocuments);
+          let updated = false;
     
-          if(nPriceP < oPriceP){
-            costPersonal += ("cost PPPPPPP",oPriceP - nPriceP )
+          console.log("id",sId)
+          console.log("name", nameOfpack)
+          console.log("kot", nPriceDepo, nPriceP)
+          console.log("kot2", oPriceDepo, oPriceP)
+
+          if(CostDif(oPriceDepo, nPriceDepo, oPriceP, nPriceP) === 0){
+            console.log("nema smysl pocitat")
           }
-          console.log(costPersonal)
-        }
-  
-        if(nPriceDepo && oPriceDepo){
-          if(nPriceDepo>oPriceDepo){
-            costDepo += ("cost DDDDD",nPriceDepo - oPriceDepo)
+
+          if (userEmail === Admin) {
+            console.log("Ahoj administrator")
           }
-    
-          if(nPriceDepo < oPriceDepo){
-            costDepo += ("cost DDDDD",oPriceDepo - nPriceDepo)
-          }  
-          console.log("cost CCCCCCCCC",costDepo)
           if(SuppDocuments.docChanges.length > 0) { updated = true }
+
+          console.log("updated", updated);
+          // return {
+          //   __typename: "HistoryError",
+          //   isUpdated: updated
+          // }
         }
-        
+
+        if(nPriceP && oPriceP && nPriceDepo && oPriceDepo){
+          ChangePriceOptionsDelivery(context.user?.email ?? "")
+        }
+  
         // package cost - vypada funkcni
         if(nPricrePack && oPricePack  && nameOfpack){
           ChangePricePack(context.user?.email ?? "")
