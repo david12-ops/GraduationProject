@@ -275,7 +275,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       }
 
       if (data) {
-        await UpdateHistory({
+        const message = await UpdateHistory({
           variables: {
             oldPriceDepo: Number(gettersOfOldCosts.oldDepoCost.get()),
             oldPricePersonal: Number(gettersOfOldCosts.oldPersonalCost.get()),
@@ -284,6 +284,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             SuppId: statesOfDataSupp.SuppId.get(),
           },
         });
+        alert(message.data?.updateHistory?.message);
         Refetch(supData);
         alert(`Dodavatel byl upraven s parametry: Doručení: ${data.delivery},
             Zabalení do folie: ${data.foil},

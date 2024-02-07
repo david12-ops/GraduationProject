@@ -9,4 +9,7 @@ mutation UpdateHistory($newPricePack: Int, $oldPricePack:Int, $newPricePersonal:
         suppId: $SuppId,
         packName: $PackageName,
     )
+    {
+        message
+    }
 }

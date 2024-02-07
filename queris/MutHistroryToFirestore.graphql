@@ -1,3 +1,5 @@
 mutation AddHistoryToFirestore($Id:String!, $Data:String!){
-    AddHistory(uId:$Id, data:$Data)
+    AddHistory(uId:$Id, data:$Data) {
+        message
+    }
 }

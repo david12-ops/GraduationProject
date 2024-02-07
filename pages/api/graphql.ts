@@ -1,10 +1,3 @@
-/* eslint-disable complexity */
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable prettier/prettier */
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable no-extra-boolean-cast */
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable @typescript-eslint/no-floating-promises */
 import 'firebase/compat/storage';
 
 import { Context } from '@apollo/client';
@@ -13,8 +6,6 @@ import { DecodedIdToken } from 'firebase-admin/auth';
 import { gql } from 'graphql-tag';
 import { createSchema, createYoga } from 'graphql-yoga';
 import _ from 'lodash';
-
-import { authUtils } from '@/firebase/auth-utils';
 
 import { firestore } from '../../firebase/firebase-admin-config';
 // import { UserCreate } from '../components/types-user';
@@ -33,9 +24,17 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    BingoSupPac(width:Int!, weight:Int!, height:Int!, Plength:Int!,  mistoZ:String!, mistoDo:String!, cost:Int!):SuitValue
+    BingoSupPac(
+      width: Int!
+      weight: Int!
+      height: Int!
+      Plength: Int!
+      mistoZ: String!
+      mistoDo: String!
+      cost: Int!
+    ): SuitValue
     ActualUsToFirestore(emailUS: String!): UserData
-    AddHistory(uId:String!, data:String!):Boolean
+    AddHistory(uId: String!, data: String!): HistoryMessage
     ChangeActualUsEmToFirestore(
       ActualemailUser: String!
       Email: String!
@@ -48,8 +47,8 @@ const typeDefs = gql`
       height: Int!
       width: Int!
       name_package: String!
-      supplier_id:String!
-      packId:String!
+      supplier_id: String!
+      packId: String!
     ): CreatedPack
 
     updateHistory(
@@ -61,7 +60,7 @@ const typeDefs = gql`
       oldPriceDepo: Int
       suppId: String
       packName: String
-    ):Boolean
+    ): HistoryMessage
 
     updatePack(
       weight: Int!
@@ -83,8 +82,8 @@ const typeDefs = gql`
       insurance: Int!
       sendCashDelivery: String!
       packInBox: String!
-      depoCost:Int!,
-      personalCost:Int!
+      depoCost: Int!
+      personalCost: Int!
     ): Supplier
 
     updateSup(
@@ -97,46 +96,46 @@ const typeDefs = gql`
       sendCashDelivery: String!
       packInBox: String!
       suppId: String!
-      actNameSupp:String!
-      depoCost:Int!,
-      personalCost:Int!
-    ):Supplier
+      actNameSupp: String!
+      depoCost: Int!
+      personalCost: Int!
+    ): Supplier
 
-    deletePack(suppId: String!, key:String!): Delete
+    deletePack(suppId: String!, key: String!): Delete
     deleteSupp(id: [String]): Delete
   }
 
   scalar JSON
 
-  type Suitable{
+  type Suitable {
     suitable: String!
   }
 
-  type ErrorMessage{
-    message:String!
+  type ErrorMessage {
+    message: String!
   }
 
   union SuitValue = Suitable | ErrorMessage
 
   type Delete {
     error: String
-    deletion:Boolean!
+    deletion: Boolean!
   }
 
   type SupplierData {
-    sendCashDelivery:String!,
-    packInBox:String!,
-    supplierId:String!,
-    suppName:String!,
-    pickUp:String!,
-    delivery:String!,
-    insurance:Int!,
-    shippingLabel:String!,
-    foil:String!
+    sendCashDelivery: String!
+    packInBox: String!
+    supplierId: String!
+    suppName: String!
+    pickUp: String!
+    delivery: String!
+    insurance: Int!
+    shippingLabel: String!
+    foil: String!
   }
 
-  type SupplierError{
-    message:String!
+  type SupplierError {
+    message: String!
   }
 
   type Supp {
@@ -170,12 +169,12 @@ const typeDefs = gql`
     insurance: Int!
     shippingLabel: String!
     foil: String!
-    package:JSON
-    location:JSON
+    package: JSON
+    location: JSON
   }
 
-  type PackageError{
-    message:String!
+  type PackageError {
+    message: String!
   }
 
   type PackageDataCreate {
@@ -186,31 +185,31 @@ const typeDefs = gql`
     width: Int!
     name_package: String!
     packgeId: String!
-    supplier_id:String!
+    supplier_id: String!
   }
 
-  type Pack{
-    data:PackageDataCreate!
+  type Pack {
+    data: PackageDataCreate!
   }
 
   union CreatedPack = Pack | PackageError
 
   type PackageDataUpdate {
-    weight:Int!
-    cost:Int!
-    Plength:Int!
-    height:Int!
-    width:Int!
-    name_package:String!
-    supplier_id:String!
+    weight: Int!
+    cost: Int!
+    Plength: Int!
+    height: Int!
+    width: Int!
+    name_package: String!
+    supplier_id: String!
   }
 
-  type UPack{
+  type UPack {
     data: PackageDataUpdate!
   }
 
-  type PackageUpdateError{
-    message:String!
+  type PackageUpdateError {
+    message: String!
   }
 
   union UpdatedPack = UPack | PackageUpdateError
@@ -242,11 +241,14 @@ const typeDefs = gql`
     description: String!
     image: String!
   }
+
+  type HistoryMessage {
+    message: String!
+  }
 `;
 
 const db = firestore();
 
-// validace
 // validave jako uthils
 // const NoHtmlSpecialChars = (ustring: any) => {
 //   // zakladni - mozne pouziti cheerio or htmlparser2
@@ -259,41 +261,6 @@ const db = firestore();
 //   return error;
 // }
 
-// Validace pro package
-// const Convert = (
-//   // kontrola na zaporne hodnoty - je
-//   stringToNum: any,
-//   stringToNum2: any,
-//   stringToNum3: any,
-//   stringToNum4: any,
-//   stringToNum5: any,
-// ) => {
-//   let error = "";
-//   if (
-//     !Number.isSafeInteger(stringToNum) ||
-//     !Number.isSafeInteger(stringToNum2) ||
-//     !Number.isSafeInteger(stringToNum3) ||
-//     !Number.isSafeInteger(stringToNum4) ||
-//     !Number.isSafeInteger(stringToNum5)
-//   ) {
-//     error = 'Invalid number argument';
-//   }
-
-//   if (
-//     stringToNum < 0 ||
-//     stringToNum2 < 0 ||
-//     stringToNum3 < 0 ||
-//     stringToNum4 < 0 ||
-//     stringToNum5 < 0
-//   ) {
-//     error = 'Invalid number, argument is less then 0';
-//   }
-
-//   return error;
-// };
-
-// validace psc - je
-// validace adresy - neni
 // const PSCVal = (psc: string, psc2: string) => {
 //   NoHtmlSpecialChars(psc);
 //   NoHtmlSpecialChars(psc2);
@@ -310,7 +277,6 @@ const db = firestore();
 //   }
 // };
 
-// funkcni
 // const AddressVal = (address: string, address2: string) => {
 //   NoHtmlSpecialChars(address);
 //   NoHtmlSpecialChars(address2);
@@ -328,6 +294,15 @@ const db = firestore();
 //   }
 // };
 
+const ValidEmail = (email: string) => {
+  // zakladni validace
+  // eslint-disable-next-line unicorn/better-regex
+  const option = /^[a-z0-9-]+@[a-z]+\.[a-z]+$/;
+  if (!option.test(email)) {
+    throw new Error('Ivalid email');
+  }
+};
+
 // validace pro supplier
 const ConverBool = (
   stringnU1: string,
@@ -335,55 +310,164 @@ const ConverBool = (
   stringnU3: string,
   stringnU4: string,
 ) => {
-  console.log(stringnU1)
-  console.log(stringnU2)
-  console.log(stringnU3)
-  console.log(stringnU4)
+  console.log(stringnU1);
+  console.log(stringnU2);
+  console.log(stringnU3);
+  console.log(stringnU4);
 
-  if (!["Ano", "Ne"].includes(stringnU1)) {
-    // eslint-disable-next-line sonarjs/no-duplicate-string
-    console.log("co kontroliujeme?", stringnU1)
+  if (!['Ano', 'Ne'].includes(stringnU1)) {
+    console.log('co kontroliujeme1?', stringnU1);
     return true;
   }
-  if (!["Ano", "Ne"].includes(stringnU2)) {
-    console.log("co kontroliujeme?", stringnU2)
+  if (!['Ano', 'Ne'].includes(stringnU2)) {
+    console.log('co kontroliujeme2?', stringnU2);
     return true;
   }
-  if (!["Ano", "Ne"].includes(stringnU3)) {
-    console.log("co kontroliujeme?", stringnU3)
+  if (!['Ano', 'Ne'].includes(stringnU3)) {
+    console.log('co kontroliujeme3?', stringnU3);
     return true;
   }
-  if (!["Ano", "Ne"].includes(stringnU4)) {
-    console.log("co kontroliujeme?", stringnU4)
+  if (!['Ano', 'Ne'].includes(stringnU4)) {
+    console.log('co kontroliujeme4?', stringnU4);
     return true;
   }
-  return false
+  return false;
 };
-// funkcni
+
+// eslint-disable-next-line consistent-return
 const ConverDate = (dateU1: any, dateU2: any) => {
-  console.log(dateU1)
+  console.log(dateU1);
   // eslint-disable-next-line unicorn/better-regex
-  const option = /^[0-9]{4}[-][0-9]{1,2}[-][0-9]{1,2}$/
-  if (!option.test(dateU1) || !option.test(dateU2)
-  ) {
+  const option = /^[0-9]{4}[-][0-9]{1,2}[-][0-9]{1,2}$/;
+  if (!option.test(dateU1) || !option.test(dateU2)) {
     return new Error('Invalid argument of date');
   }
-  
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, unicorn/prefer-string-slice, @typescript-eslint/restrict-plus-operands
-    const dateParts = dateU1.split('-');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const DateParts2 = dateU2.split('-');
-    const middleNumber = Number.parseInt(dateParts[1], 10);
-    const middleNumber2 = Number.parseInt(DateParts2[1], 10);
-    if (middleNumber > 12 || middleNumber2 > 12 || Number.parseInt(dateParts[2], 10) > 32 || Number.parseInt(DateParts2[2], 10) > 32) {
-      return new Error('Invalid argument of month in date or day');
-    }
-  
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, unicorn/prefer-string-slice, @typescript-eslint/restrict-plus-operands
+  const dateParts = dateU1.split('-');
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const DateParts2 = dateU2.split('-');
+  const middleNumber = Number.parseInt(dateParts[1], 10);
+  const middleNumber2 = Number.parseInt(DateParts2[1], 10);
+  if (
+    middleNumber > 12 ||
+    middleNumber2 > 12 ||
+    Number.parseInt(dateParts[2], 10) > 32 ||
+    Number.parseInt(DateParts2[2], 10) > 32
+  ) {
+    return new Error('Invalid argument of month in date or day');
+  }
+};
+
+// eslint-disable-next-line complexity
+const CostDif = (
+  costOldDepo: number,
+  costNewDepo: number,
+  costOldPersonal: number,
+  costNewPersonal: number,
+  // eslint-disable-next-line sonarjs/cognitive-complexity
+) => {
+  let costDifference = 0;
+  const operationCost = { operation: '', cost: costDifference };
+
+  if (costOldDepo === costNewDepo && costOldPersonal === costNewPersonal) {
+    return operationCost;
+  }
+
+  if (costOldDepo > costNewDepo && costOldPersonal > costNewPersonal) {
+    const costD = costOldDepo - costNewDepo;
+    const costP = costOldPersonal - costNewPersonal;
+    costDifference = costD + costP;
+    console.log('zlevneni', costDifference);
+    console.log('ceny nižší');
+    operationCost.cost = costDifference;
+    operationCost.operation = '-';
+  }
+
+  if (costOldDepo < costNewDepo && costOldPersonal < costNewPersonal) {
+    const costD = costNewDepo - costOldDepo;
+    const costP = costNewPersonal - costOldPersonal;
+    costDifference = costD + costP;
+    console.log('zdrazeni', costDifference);
+    console.log('ceny vyšší');
+    operationCost.cost = costDifference;
+    operationCost.operation = '+';
+  }
+
+  if (costOldDepo > costNewDepo && costOldPersonal < costNewPersonal) {
+    const costD = costOldDepo - costNewDepo;
+    console.log('cenaD', costD);
+    const costP = costNewPersonal - costOldPersonal;
+    console.log('costP', costP);
+    costDifference = costP - costD;
+    console.log('zdrazeni/zlevneni', costDifference);
+    console.log('zvyseni personal ceny a snizeni depa ceny');
+    operationCost.cost = costDifference;
+    operationCost.operation = '+';
+  }
+
+  if (costOldPersonal > costNewPersonal && costOldDepo < costNewDepo) {
+    const costD = costNewDepo - costOldDepo;
+    console.log('cenaD', costD);
+    const costP = costOldPersonal - costNewPersonal;
+    console.log('costP', costP);
+    costDifference = costD - costP;
+    console.log('zdrazeni/zlevneni', costDifference);
+    console.log('zvyseni depo ceny a snizeni personal ceny');
+    operationCost.cost = costDifference;
+    operationCost.operation = '+';
+  }
+
+  if (costOldDepo > costNewDepo && costOldPersonal === costNewPersonal) {
+    const costD = costOldDepo - costNewDepo;
+    costDifference = costD;
+    console.log('zlevneni', costDifference);
+    console.log('cena depa nižší');
+    operationCost.cost = costDifference;
+    operationCost.operation = '-';
+  }
+
+  if (costOldDepo === costNewDepo && costOldPersonal > costNewPersonal) {
+    const costP = costOldPersonal - costNewPersonal;
+    costDifference = costP;
+    console.log('zlevneni', costDifference);
+    console.log('cena personal nižší');
+    operationCost.cost = costDifference;
+    operationCost.operation = '-';
+  }
+
+  if (costOldDepo < costNewDepo && costOldPersonal === costNewPersonal) {
+    const costD = costNewDepo - costOldDepo;
+    costDifference = costD;
+    console.log('zdrazeni', costDifference);
+    console.log('cena depa vyssi');
+    operationCost.cost = costDifference;
+    operationCost.operation = '+';
+  }
+
+  if (costOldDepo === costNewDepo && costOldPersonal < costNewPersonal) {
+    const costP = costNewPersonal - costOldPersonal;
+    costDifference = costP;
+    console.log('zdrazeni', costDifference);
+    console.log('cena personal vyssi');
+    operationCost.cost = costDifference;
+    operationCost.operation = '+';
+  }
+
+  console.log(
+    'variables',
+    costOldDepo,
+    costNewDepo,
+    costOldPersonal,
+    costNewPersonal,
+    operationCost,
+  );
+  return operationCost;
 };
 
 const resolvers = {
   Query: {
-    users: async () => {
+    users: () => {
       // vybrat users
       // z db postgres
       return [{ name: 'Nextjs' }];
@@ -405,7 +489,6 @@ const resolvers = {
     },
     userdata: async (_context: Context) => {
       const result = await db.collection('UserData').get();
-      // funguje
       const data: Array<{
         dataUs: any;
         email: any;
@@ -427,10 +510,9 @@ const resolvers = {
       return data;
     },
     packageData: async (_context: Context) => {
-
-      try{
+      try {
         const result = await db.collection('Package').get();
-      
+
         const data: Array<{
           Pkam: any;
           Podkud: any;
@@ -445,10 +527,10 @@ const resolvers = {
           vyska: any;
           supplierId: any;
         }> = [];
-  
+
         result.forEach((doc) => {
           const docData = doc.data();
-  
+
           data.push({
             Pkam: docData.where_PSC,
             Podkud: docData.fromWhere_PSC,
@@ -466,17 +548,15 @@ const resolvers = {
         });
         console.log('package data', data.values());
         return data;
-      }catch(error){
+      } catch (error) {
         console.error('Chyba při získání balíčku', error);
         throw error;
       }
-     
     },
-    // packages podle id supp
     suplierData: async (_context: Context) => {
-      try{
+      try {
         const result = await db.collection('Supplier').get();
-  
+
         const data: Array<{
           sendCashDelivery: any;
           packInBox: any;
@@ -487,13 +567,13 @@ const resolvers = {
           insurance: any;
           shippingLabel: any;
           foil: any;
-          package: [any]
-          location:any
+          package: [any];
+          location: any;
         }> = [];
-  
+
         result.forEach((doc) => {
           const docData = doc.data();
-          
+
           data.push({
             sendCashDelivery: docData.sendCashDelivery,
             packInBox: docData.packInBox,
@@ -505,194 +585,351 @@ const resolvers = {
             shippingLabel: docData.shippingLabel,
             foil: docData.foil,
             package: docData.package,
-            location:docData.location
+            location: docData.location,
           });
-          console.log('data supplier package', data.map((item) => JSON.stringify(item.package)));
+          console.log(
+            'data supplier package',
+            data.map((item) => JSON.stringify(item.package)),
+          );
         });
-  
+
         return data;
-      }catch(error){
+      } catch (error) {
         console.error('Chyba při získání dodavatele', error);
         throw error;
       }
-    
     },
   },
   Mutation: {
     // vhodny balik resolver
-    BingoSupPac: async (parent_: any, args: { width: number, weight: number, height: number, Plength: number, mistoZ:string, mistoDo:string, cost:number }) => {
-      const { width: Width, weight: Weight, height: Height, Plength: pLength, mistoZ: Z, mistoDo:Do, cost: Pcost } = args
-      const packages:any = [];
-      const packData:[] = [];
-      const rtrnItem:any = [];
-      let location:any;
+    BingoSupPac: async (
+      parent_: any,
+      args: {
+        width: number;
+        weight: number;
+        height: number;
+        Plength: number;
+        mistoZ: string;
+        mistoDo: string;
+        cost: number;
+      },
+      // eslint-disable-next-line sonarjs/cognitive-complexity
+    ) => {
+      const {
+        width: Width,
+        weight: Weight,
+        height: Height,
+        Plength: pLength,
+        mistoZ: Z,
+        mistoDo: Do,
+        cost: Pcost,
+      } = args;
+      const packages: any = [];
+      const packData: [] = [];
+      const rtrnItem: any = [];
+      let location: any;
 
-      const validargZ = ['personal','depo'].includes(Z)
-      const validargDo = ['personal','depo'].includes(Do)
+      const validargZ = ['personal', 'depo'].includes(Z);
+      const validargDo = ['personal', 'depo'].includes(Do);
 
-      const suppWithLocationFiled:any = []
+      const suppWithLocationFiled: any = [];
 
-      try{
-        const SupplierDoc = await db
-        .collection('Supplier').get();
-      
-        console.log("id?",Width,Weight,Height,pLength)
+      try {
+        const SupplierDoc = await db.collection('Supplier').get();
 
-      if(Width === 0 || Weight === 0 || Height === 0 || pLength === 0){
-        return {
-          __typename: "ErrorMessage",
-          message:"Ivalid argument, any argument cant be 0"
+        console.log('id?', Width, Weight, Height, pLength);
+
+        if (Width === 0 || Weight === 0 || Height === 0 || pLength === 0) {
+          return {
+            __typename: 'ErrorMessage',
+            message: 'Ivalid argument, any argument cant be 0',
+          };
         }
-      }
 
-      if(Width < 0 || Weight < 0 || Height < 0 || pLength < 0 || Pcost < 0){
-        return {
-          __typename: "ErrorMessage",
-          message:"Ivalid argument, any argument cant be less then 0"
+        if (Width < 0 || Weight < 0 || Height < 0 || pLength < 0 || Pcost < 0) {
+          return {
+            __typename: 'ErrorMessage',
+            message: 'Ivalid argument, any argument cant be less then 0',
+          };
         }
-      }
 
-      if(!validargZ || !validargDo){
-        return {
-          __typename: "ErrorMessage",
-          message:"Ivalid argument, expexted (personal/depo)"
+        if (!validargZ || !validargDo) {
+          return {
+            __typename: 'ErrorMessage',
+            message: 'Ivalid argument, expexted (personal/depo)',
+          };
         }
-      }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      SupplierDoc.docs.forEach((item)=>{
-        if(item._fieldsProto && item._fieldsProto.package && item._fieldsProto.package.arrayValue)
-        {// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-          item._fieldsProto.package.arrayValue.values.map((packItem:any) => packages.push(packItem.mapValue.fields));
-        }
-        if(item._fieldsProto?.location){
-          location = item._fieldsProto.location.mapValue.fields
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, no-underscore-dangle
-          suppWithLocationFiled.push({loc:location, suppId: item._fieldsProto.supplierId.stringValue})
-          console.log("itm with location", suppWithLocationFiled)
-        }
-      })
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        SupplierDoc.docs.forEach((item) => {
+          if (
+            item._fieldsProto &&
+            item._fieldsProto.package &&
+            item._fieldsProto.package.arrayValue
+          ) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            item._fieldsProto.package.arrayValue.values.map((packItem: any) =>
+              packages.push(packItem.mapValue.fields),
+            );
+          }
+          if (item._fieldsProto?.location) {
+            location = item._fieldsProto.location.mapValue.fields;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, no-underscore-dangle
+            suppWithLocationFiled.push({
+              loc: location,
+              suppId: item._fieldsProto.supplierId.stringValue,
+            });
+            console.log('itm with location', suppWithLocationFiled);
+          }
+        });
 
-      packages.forEach(packageObj => {
-        // Extracting the values from each package object
-        const [packageDetails] = Object.values(packageObj);
-        packData.push(packageDetails.mapValue.fields)
-      })
+        packages.forEach((packageObj) => {
+          // Extracting the values from each package object
+          const [packageDetails] = Object.values(packageObj);
+          packData.push(packageDetails.mapValue.fields);
+        });
 
-      // vedet cenu 
-      const costSupp = suppWithLocationFiled.map((i:{loc:{depoDelivery:{mapValue:{fields:{delivery:any}}}, personalDelivery:{mapValue:{fields:{delivery:any}}}},suppId:string}) =>{
-        // dd
-        const depo = i.loc.depoDelivery.mapValue.fields
-        const personal = i.loc.personalDelivery.mapValue.fields
-        if(depo.delivery.stringValue === Z && depo.delivery.stringValue === Do){
-          return {idS:i.suppId, cost: 2 * Number(depo.cost.integerValue)}
-        }
-        // pd
-        if(personal.delivery.stringValue === Z && depo.delivery.stringValue === Do){
-          return {idS:i.suppId, cost: Number(personal.cost.integerValue) + Number(depo.cost.integerValue)}
-        }
-        
-        // dp
-        if(depo.delivery.stringValue === Z && personal.delivery.stringValue === Do ){
-          return {idS:i.suppId, cost: Number(depo.cost.integerValue) + Number(personal.cost.integerValue)}
-        }
-        // pp
-       return {idS:i.suppId, cost: 2 * Number(personal.cost.integerValue)}
-      })
+        // vedet cenu
+        const costSupp = suppWithLocationFiled.map(
+          (i: {
+            loc: {
+              depoDelivery: { mapValue: { fields: { delivery: any } } };
+              personalDelivery: { mapValue: { fields: { delivery: any } } };
+            };
+            suppId: string;
+          }) => {
+            // dd
+            const depo = i.loc.depoDelivery.mapValue.fields;
+            const personal = i.loc.personalDelivery.mapValue.fields;
+            if (
+              depo.delivery.stringValue === Z &&
+              depo.delivery.stringValue === Do
+            ) {
+              return {
+                idS: i.suppId,
+                cost: 2 * Number(depo.cost.integerValue),
+              };
+            }
+            // pd
+            if (
+              personal.delivery.stringValue === Z &&
+              depo.delivery.stringValue === Do
+            ) {
+              return {
+                idS: i.suppId,
+                cost:
+                  Number(personal.cost.integerValue) +
+                  Number(depo.cost.integerValue),
+              };
+            }
 
-      const IsItSuppWithLoc = (loc:[], sId:string) => {
-        return loc.find((itm:any) => {return itm.suppId === sId})
-      }
+            // dp
+            if (
+              depo.delivery.stringValue === Z &&
+              personal.delivery.stringValue === Do
+            ) {
+              return {
+                idS: i.suppId,
+                cost:
+                  Number(depo.cost.integerValue) +
+                  Number(personal.cost.integerValue),
+              };
+            }
+            // pp
+            return {
+              idS: i.suppId,
+              cost: 2 * Number(personal.cost.integerValue),
+            };
+          },
+        );
 
-      const CostOfPack = (costSup:any, pack:any) =>{
-        let sumCost = 0;
-        for (const e of costSup) {
-          if(pack.supplier_id.stringValue === e.idS){
-            sumCost = Number(e.cost) + Number(pack.cost.integerValue)
-            console.log("tak cooo tam je",sumCost, e.idS)
-            return sumCost
-          }        
-        }
-      }
+        const IsItSuppWithLoc = (loc: [], sId: string) => {
+          return loc.find((itm: any) => {
+            return itm.suppId === sId;
+          });
+        };
 
-      // prilepim cenu
-      const packCost = packData.map((item:{Plength:number, width:number, weight:number, height:number, supplier_id:string, cost:number, name_package:string})=>{
-        if(IsItSuppWithLoc(suppWithLocationFiled, item.supplier_id.stringValue)) {
-          const cost =  CostOfPack(costSupp, item);
-          return {supplierId:item.supplier_id.stringValue, Cost:cost, Name: item.name_package.stringValue,param:{width:Number(item.weight.integerValue), length: Number(item.Plength.integerValue), weight: Number(item.weight.integerValue), height:Number(item.height.integerValue)}}
-        }        
-        return {supplierId:item.supplier_id.stringValue, Cost:Number(item.cost.integerValue), Name: item.name_package.stringValue, param:{width:Number(item.weight.integerValue), length: Number(item.Plength.integerValue), weight: Number(item.weight.integerValue), height:Number(item.height.integerValue)}}
-      })
-      
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, array-callback-return, consistent-return
-      const suitableByCost = packCost.map((item: any) => { if(Pcost >= Number(item.Cost)) {return item}});
-      console.log("filter by cost",JSON.stringify(suitableByCost))
-
-      const cleared = suitableByCost.filter((itm) => itm !== undefined)
-
-      const groupedById = _.groupBy(cleared, "supplierId");
-
-      type PackageType = {supplierId:string, Cost:number, Name:string, param:{width:number,length:number,weight:number,height:number}};
-      const packagesDictionary:Record<string, PackageType> = {};
-
-      const lookWhichIsBetter = (item:PackageType, item2:PackageType) =>{
-
-        let bettterPack:PackageType = {
-          supplierId: '',
-          Cost: 0,
-          Name: '',
-          param: {
-            width: 0,
-            length: 0,
-            weight: 0,
-            height: 0
+        const CostOfPack = (costSup: any, pack: any) => {
+          let sumCost = 0;
+          for (const e of costSup) {
+            if (pack.supplier_id.stringValue === e.idS) {
+              sumCost = Number(e.cost) + Number(pack.cost.integerValue);
+              console.log('tak cooo tam je', sumCost, e.idS);
+              return sumCost;
+            }
           }
         };
 
-        if(item.param.width > item2.param.width || item.param.weight > item2.param.weight || item.param.length > item2.param.length || item.param.height > item2.param.height){
-          bettterPack = item2
-        }
-
-        if(item.param.width < item2.param.width || item.param.weight < item2.param.weight || item.param.length < item2.param.length || item.param.height < item2.param.height){
-          bettterPack = item
-        }
-
-        return bettterPack
-      }
-
-      Object.entries(groupedById).forEach(([key, item]) =>{
-        item.forEach((itm:{supplierId:string, Cost:number, Name:string, param:{width:number,length:number,weight:number,height:number}}) =>{
-          if((itm.param?.width >= Width && itm.param?.weight >= Weight && itm.param?.length >= pLength && itm.param?.height >= Height)){
-            const prev = packagesDictionary[itm.supplierId] ?? undefined;
-            // eslint-disable-next-line unicorn/prefer-ternary, unicorn/no-negated-condition
-            if(!prev){
-              packagesDictionary[itm.supplierId] = {supplierId:itm.supplierId, Cost:itm.Cost, Name:itm.Name, param:{width:itm.param.width, weight:itm.param.weight, height:itm.param.height, length:itm.param.length}}
+        // prilepim cenu
+        const packCost = packData.map(
+          (item: {
+            Plength: number;
+            width: number;
+            weight: number;
+            height: number;
+            supplier_id: string;
+            cost: number;
+            name_package: string;
+          }) => {
+            if (
+              IsItSuppWithLoc(
+                suppWithLocationFiled,
+                item.supplier_id.stringValue,
+              )
+            ) {
+              const cost = CostOfPack(costSupp, item);
+              return {
+                supplierId: item.supplier_id.stringValue,
+                Cost: cost,
+                Name: item.name_package.stringValue,
+                param: {
+                  width: Number(item.weight.integerValue),
+                  length: Number(item.Plength.integerValue),
+                  weight: Number(item.weight.integerValue),
+                  height: Number(item.height.integerValue),
+                },
+              };
             }
-            else {
-              packagesDictionary[itm.supplierId] = lookWhichIsBetter(itm,prev);
-            }
-        }})
-      })
+            return {
+              supplierId: item.supplier_id.stringValue,
+              Cost: Number(item.cost.integerValue),
+              Name: item.name_package.stringValue,
+              param: {
+                width: Number(item.weight.integerValue),
+                length: Number(item.Plength.integerValue),
+                weight: Number(item.weight.integerValue),
+                height: Number(item.height.integerValue),
+              },
+            };
+          },
+        );
 
-    Object.entries(packagesDictionary).forEach(([key, item]) =>{
-      console.log("noooo ITMMMMMM",key)
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      rtrnItem.push({suppId:item.supplierId,cost:item.Cost,name:item.Name})
-    })
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, array-callback-return, consistent-return
+        const suitableByCost = packCost.map((item: any) => {
+          if (Pcost >= Number(item.Cost)) {
+            return item;
+          }
+        });
+        console.log('filter by cost', JSON.stringify(suitableByCost));
 
-    // mozna zmena
-      if(rtrnItem.length > 0){
-        console.log("suitable item",rtrnItem); 
-        return {       
-        __typename: "Suitable",
-        suitable:JSON.stringify(rtrnItem)
+        const cleared = suitableByCost.filter((itm) => itm !== undefined);
+
+        const groupedById = _.groupBy(cleared, 'supplierId');
+
+        type PackageType = {
+          supplierId: string;
+          Cost: number;
+          Name: string;
+          param: {
+            width: number;
+            length: number;
+            weight: number;
+            height: number;
+          };
+        };
+        const packagesDictionary: Record<string, PackageType> = {};
+
+        const lookWhichIsBetter = (item: PackageType, item2: PackageType) => {
+          let bettterPack: PackageType = {
+            supplierId: '',
+            Cost: 0,
+            Name: '',
+            param: {
+              width: 0,
+              length: 0,
+              weight: 0,
+              height: 0,
+            },
+          };
+
+          if (
+            item.param.width > item2.param.width ||
+            item.param.weight > item2.param.weight ||
+            item.param.length > item2.param.length ||
+            item.param.height > item2.param.height
+          ) {
+            bettterPack = item2;
+          }
+
+          if (
+            item.param.width < item2.param.width ||
+            item.param.weight < item2.param.weight ||
+            item.param.length < item2.param.length ||
+            item.param.height < item2.param.height
+          ) {
+            bettterPack = item;
+          }
+
+          return bettterPack;
+        };
+
+        Object.entries(groupedById).forEach(([key, item]) => {
+          item.forEach(
+            (itm: {
+              supplierId: string;
+              Cost: number;
+              Name: string;
+              param: {
+                width: number;
+                length: number;
+                weight: number;
+                height: number;
+              };
+            }) => {
+              if (
+                itm.param?.width >= Width &&
+                itm.param?.weight >= Weight &&
+                itm.param?.length >= pLength &&
+                itm.param?.height >= Height
+              ) {
+                const prev = packagesDictionary[itm.supplierId] ?? undefined;
+                // eslint-disable-next-line unicorn/prefer-ternary, unicorn/no-negated-condition
+                if (!prev) {
+                  packagesDictionary[itm.supplierId] = {
+                    supplierId: itm.supplierId,
+                    Cost: itm.Cost,
+                    Name: itm.Name,
+                    param: {
+                      width: itm.param.width,
+                      weight: itm.param.weight,
+                      height: itm.param.height,
+                      length: itm.param.length,
+                    },
+                  };
+                } else {
+                  packagesDictionary[itm.supplierId] = lookWhichIsBetter(
+                    itm,
+                    prev,
+                  );
+                }
+              }
+            },
+          );
+        });
+
+        Object.entries(packagesDictionary).forEach(([key, item]) => {
+          console.log('noooo ITMMMMMM', key);
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          rtrnItem.push({
+            suppId: item.supplierId,
+            cost: item.Cost,
+            name: item.Name,
+          });
+        });
+
+        // mozna zmena
+        if (rtrnItem.length > 0) {
+          console.log('suitable item', rtrnItem);
+          return {
+            __typename: 'Suitable',
+            suitable: JSON.stringify(rtrnItem),
+          };
         }
-      }
-      return {
-        __typename: "ErrorMessage",
-        message:"Any suitable supplier"
-      };
-      }catch (error) {
+        return {
+          __typename: 'ErrorMessage',
+          message: 'Any suitable supplier',
+        };
+      } catch (error) {
         console.error('Chyba při vyběru vhodného balíčku:', error);
         throw error;
       }
@@ -700,6 +937,7 @@ const resolvers = {
     // web mutation
     // create
     ActualUsToFirestore: async (parent_: any, args: { emailUS: string }) => {
+      // mozne nepouzivani emailu tim padem ukladani jen user id i admin v historii a dotazovat se na nej
       // console.log(`abcd`, args.emailUS);
       const { emailUS: email } = args;
 
@@ -727,64 +965,103 @@ const resolvers = {
         throw error;
       }
     },
-    AddHistory: async (parent_:any, args: { uId: string, data:string}, context:MyContext) =>{
-      const {uId:id, data:dataS} = args
+    AddHistory: async (
+      parent_: any,
+      args: { uId: string; data: string },
+      context: MyContext,
+    ) => {
+      const { uId: id, data: dataS } = args;
       try {
+        console.log('databaze user', context.user);
 
-      const Admin = process.env.NEXT_PUBLIC_AdminEm;
-      console.log("databaze user",context.user)
-      if(context.user?.email !== authUtils.getCurrentUser()?.email){
-        // return {
-        //   __typename: "PackageError",
-        //   message: "Only admin can use this function"
-        // }
-        alert("Only users with account can use this function")
-      }
+        if (context.user?.uid !== id) {
+          return {
+            __typename: 'HistoryMessage',
+            message: 'Only user with account can use this function',
+          };
+        }
 
         const newHistoryDoc = db.collection('History').doc();
-        const data = JSON.parse(dataS)
-        // let createdHistoryItm:any;
-        console.log("jsooon",data)
+        const data = JSON.parse(dataS);
 
         const sData = data.data.suppData;
         const sPrice = data.data.priceS;
         // eslint-disable-next-line prefer-destructuring
         const packName = data.data.packName;
-        const toFirestore = {id:sData.supplierId, name:sData.suppName, pickup:sData.pickUp, delivery:sData.delivery, insurance:sData.insurance, shippingLabel:sData.shippingLabel, sendCashDelivery:sData.sendCashDelivery, packInBox:sData.packInBox, foil:sData.foil, cost:sPrice, packName}
-        
-        const newHistory = {
-          uId:id,
-          dataForm: data.formData.dataFrForm,
-          historyId: newHistoryDoc.id,
-          suppData:toFirestore
+        const toFirestore = {
+          id: sData.supplierId,
+          name: sData.suppName,
+          pickup: sData.pickUp,
+          delivery: sData.delivery,
+          insurance: sData.insurance,
+          shippingLabel: sData.shippingLabel,
+          sendCashDelivery: sData.sendCashDelivery,
+          packInBox: sData.packInBox,
+          foil: sData.foil,
+          cost: sPrice,
+          packName,
         };
 
-        const dataInColl = await db.collection('History').get()
+        const newHistory = {
+          uId: id,
+          dataForm: data.formData.dataFrForm,
+          historyId: newHistoryDoc.id,
+          suppData: toFirestore,
+        };
+
+        const dataInColl = await db.collection('History').get();
 
         // eslint-disable-next-line array-callback-return, consistent-return
-        const duplicateByParam = dataInColl.docs.map((item:any)=>{
-          console.log("nooo",item._fieldsProto)
+        const duplicateByParam = dataInColl.docs.map((item: any) => {
           const byForm = item._fieldsProto.dataForm.mapValue.fields;
-          const byCost:number = item._fieldsProto.suppData.mapValue.fields.cost.integerValue
-          // const byCost = item._fieldsProto.suppData.mapValue.fields.cost.integerValue;
-          if(item._fieldsProto.suppData.mapValue.fields.id.stringValue === sData.supplierId){
+          const byCost: number =
+            item._fieldsProto.suppData.mapValue.fields.cost.integerValue;
+          const userId = item._fieldsProto.uId.stringValue;
+          if (
+            item._fieldsProto.suppData.mapValue.fields.id.stringValue ===
+              sData.supplierId &&
+            userId === id
+          ) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return byForm.width.stringValue === data.formData.dataFrForm.width && byForm.height.stringValue === data.formData.dataFrForm.height && byForm.weight.stringValue === data.formData.dataFrForm.weight && byForm.plength.stringValue === data.formData.dataFrForm.plength && byForm.placeTo.stringValue === data.formData.dataFrForm.placeTo && byForm.placeFrom.stringValue === data.formData.dataFrForm.placeFrom && Number(byCost) === Number(sPrice) ? item : undefined
+            return byForm.width.stringValue ===
+              data.formData.dataFrForm.width &&
+              byForm.height.stringValue === data.formData.dataFrForm.height &&
+              byForm.weight.stringValue === data.formData.dataFrForm.weight &&
+              byForm.plength.stringValue === data.formData.dataFrForm.plength &&
+              byForm.placeTo.stringValue === data.formData.dataFrForm.placeTo &&
+              byForm.placeFrom.stringValue ===
+                data.formData.dataFrForm.placeFrom &&
+              Number(byCost) === Number(sPrice)
+              ? item
+              : undefined;
           }
-        })
+        });
 
-        // Pri zmene ceny u balicku tomu prizpusobit i historii
-        console.log("jeee",duplicateByParam)
-
-        if(!duplicateByParam.map((e) =>{return !!e}).includes(true)) {
-          await newHistoryDoc.set(newHistory);
+        if (
+          duplicateByParam
+            .map((e) => {
+              return !!e;
+            })
+            .includes(true)
+        ) {
+          return {
+            __typename: 'HistoryMessage',
+            message: 'Already saved',
+          };
         }
-        
+
+        await newHistoryDoc.set(newHistory);
+
+        if (dataInColl.docChanges() && dataInColl.docChanges().length > 0) {
+          return { message: 'Save successful' };
+        }
+        return { message: 'Save  error, please try again later' };
       } catch (error) {
         console.error('Chyba při vytváření historie:', error);
         throw error;
       }
     },
+    // eslint-disable-next-line complexity
     PackageToFirestore: async (
       parent_: any,
       args: {
@@ -795,9 +1072,10 @@ const resolvers = {
         width: number;
         name_package: string;
         supplier_id: string;
-        packId: string
+        packId: string;
       },
-      context: MyContext
+      context: MyContext,
+      // eslint-disable-next-line sonarjs/cognitive-complexity
     ) => {
       const {
         weight: hmotnost,
@@ -807,48 +1085,62 @@ const resolvers = {
         width: sirka,
         name_package: packName,
         supplier_id: supplierId,
-        packId: ID
+        packId: ID,
       } = args;
       // Refactorizace kodu, mozne if zbytecné
 
       const Admin = process.env.NEXT_PUBLIC_AdminEm;
-      console.log("databaze user",context.user)
-      if(context.user?.email !== Admin){
+      console.log('databaze user', context.user);
+      if (context.user?.email !== Admin) {
         return {
-          __typename: "PackageError",
-          message: "Only admin can use this function"
-        }
+          __typename: 'PackageError',
+          message: 'Only admin can use this function',
+        };
       }
 
-      if (hmotnost < 0 || delka < 0 || vyska < 0 || costPackage < 0 || sirka < 0) {
+      if (
+        hmotnost < 0 ||
+        delka < 0 ||
+        vyska < 0 ||
+        costPackage < 0 ||
+        sirka < 0
+      ) {
         return {
-          __typename: "PackageError",
-          message: "Any of parameter that expect number dont support negative number"
-        }
+          __typename: 'PackageError',
+          message:
+            'Any of parameter that expect number dont support negative number',
+        };
       }
 
-      if (hmotnost === 0 || delka === 0 || vyska === 0 || costPackage === 0 || sirka === 0) {
+      if (
+        hmotnost === 0 ||
+        delka === 0 ||
+        vyska === 0 ||
+        costPackage === 0 ||
+        sirka === 0
+      ) {
         return {
-          __typename: "PackageError",
-          message: "Any of parameter that expect number dont support 0"
-        }
+          __typename: 'PackageError',
+          message: 'Any of parameter that expect number dont support 0',
+        };
       }
       try {
         const SupplierDoc = await db
           .collection('Supplier')
-          .where('supplierId', '==', supplierId).get();
+          .where('supplierId', '==', supplierId)
+          .get();
 
-          if (SupplierDoc.size === 0) {
-            return {
-              __typename: "PackageError",
-              message: "Supplier not found"
-            }
-          }
+        if (SupplierDoc.size === 0) {
+          return {
+            __typename: 'PackageError',
+            message: 'Supplier not found',
+          };
+        }
 
         const supplierDoc = SupplierDoc.docs[0];
         const existingPackages = supplierDoc.data().package || [];
         const dupPackages: any = [];
-        let dupName = ""
+        let dupName = '';
 
         const newPackage = {
           weight: hmotnost,
@@ -862,77 +1154,92 @@ const resolvers = {
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         const keyPack = existingPackages.map((item: any) => {
-          const keys = Object.keys(item)[0]
-          console.log(keys)
-          return keys.includes(ID)
-        })
+          const keys = Object.keys(item)[0];
+          console.log(keys);
+          return keys.includes(ID);
+        });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        existingPackages.forEach((item: { [name: string]: { weight: number, height: number, width: number, Plength: number, name_package: string } }) => {
-          // jmeno balicku
-          const nameItm = Object.keys(item)[0];
-          const itm = item[nameItm];
-          console.log("itm", itm)
-          // kontrola jmén
-          if (itm.name_package === packName) {
-            dupName = itm.name_package
-          }
-          // eslint-disable-next-line @typescript-eslint/no-for-in-array, guard-for-in
-          if (itm.weight === newPackage.weight && itm.height === newPackage.height && itm.width === newPackage.width && itm.Plength === newPackage.Plength) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            dupPackages.push(itm)
-            console.log("selected", itm)
-          }
-        })
-        console.log("keypack", keyPack)
-        console.log("duplicate pack", dupPackages)
+        existingPackages.forEach(
+          (item: {
+            [name: string]: {
+              weight: number;
+              height: number;
+              width: number;
+              Plength: number;
+              name_package: string;
+            };
+          }) => {
+            // jmeno balicku
+            const nameItm = Object.keys(item)[0];
+            const itm = item[nameItm];
+            console.log('itm', itm);
+            // kontrola jmén
+            if (itm.name_package === packName) {
+              dupName = itm.name_package;
+            }
+            // eslint-disable-next-line @typescript-eslint/no-for-in-array, guard-for-in
+            if (
+              itm.weight === newPackage.weight &&
+              itm.height === newPackage.height &&
+              itm.width === newPackage.width &&
+              itm.Plength === newPackage.Plength
+            ) {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+              dupPackages.push(itm);
+              console.log('selected', itm);
+            }
+          },
+        );
+        console.log('keypack', keyPack);
+        console.log('duplicate pack', dupPackages);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         if (keyPack.includes(true)) {
           return {
-            __typename: "PackageError",
-            message: "Duplicate id"
-          }
+            __typename: 'PackageError',
+            message: 'Duplicate id',
+          };
         }
-       
+
         if (dupName.length > 0) {
           return {
-            __typename: "PackageError",
-            message: "Name is already in use"
-          }
+            __typename: 'PackageError',
+            message: 'Name is already in use',
+          };
         }
 
         if (dupPackages.length > 0) {
           return {
-            __typename: "PackageError",
-            message: "This params have alerady another package"
-          }     
+            __typename: 'PackageError',
+            message: 'This params have alerady another package',
+          };
         }
 
-          const objectPack: { [key: string]: any } = {};
-          // eslint-disable-next-line react-hooks/rules-of-hooks
-          objectPack[ID] = {
-            weight: hmotnost,
-            cost: costPackage,
-            Plength: delka,
-            height: vyska,
-            width: sirka,
-            name_package: packName,
-            supplier_id: supplierDoc.id,
-          };
+        const objectPack: { [key: string]: any } = {};
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        objectPack[ID] = {
+          weight: hmotnost,
+          cost: costPackage,
+          Plength: delka,
+          height: vyska,
+          width: sirka,
+          name_package: packName,
+          supplier_id: supplierDoc.id,
+        };
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         existingPackages.push(objectPack);
 
-        console.log(existingPackages)
-        await supplierDoc.ref.update({ package: existingPackages });        
+        console.log(existingPackages);
+        await supplierDoc.ref.update({ package: existingPackages });
 
         console.log('ssdsds', JSON.stringify(newPackage));
 
         return {
-          __typename: "Pack",
-          data: newPackage
-        }      
+          __typename: 'Pack',
+          data: newPackage,
+        };
       } catch (error) {
         console.error('Chyba při vytváření balíčku', error);
         throw error;
@@ -949,10 +1256,10 @@ const resolvers = {
         insurance: number;
         sendCashDelivery: string;
         packInBox: string;
-        depoCost:number,
-        personalCost:number
+        depoCost: number;
+        personalCost: number;
       },
-      context: MyContext
+      context: MyContext,
     ) => {
       const {
         supplierName: SuppName,
@@ -963,74 +1270,86 @@ const resolvers = {
         insurance: InsuranceValue,
         sendCashDelivery: SendCashOnDelivery,
         packInBox: PackageInABox,
-        depoCost:dCost,
-        personalCost:pCost,
+        depoCost: dCost,
+        personalCost: pCost,
       } = args;
 
       try {
-        const namesOfSup:Array<string>=[];
+        const namesOfSup: Array<string> = [];
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
-        if(context.user?.email !== Admin){
+        if (context.user?.email !== Admin) {
           return {
-            __typename: "SupplierError",
-            message: "Only admin can use this function"
-          }
+            __typename: 'SupplierError',
+            message: 'Only admin can use this function',
+          };
         }
 
-        const SuppDocument = await db
-        .collection('Supplier').get();
+        const SuppDocument = await db.collection('Supplier').get();
 
-        SuppDocument.forEach((data:any)=>{
+        SuppDocument.forEach((data: any) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-          namesOfSup.push(data._fieldsProto.suppName.stringValue)
-        })
+          namesOfSup.push(data._fieldsProto.suppName.stringValue);
+        });
 
-        console.log("names",namesOfSup.find((name:string) => name.toLowerCase() === SuppName.toLowerCase()))
+        console.log(
+          'names',
+          namesOfSup.find(
+            (name: string) => name.toLowerCase() === SuppName.toLowerCase(),
+          ),
+        );
 
-      if (namesOfSup.some((name:string) => name.toLowerCase() === SuppName.toLowerCase())) {
-        return {
-          __typename: "SupplierError",
-          message: "Supplier name is already in use"
-        }
-      }
-
-        if(ConverDate(PickupPoint, isDelivered)?.message){
+        if (
+          namesOfSup.some(
+            (name: string) => name.toLowerCase() === SuppName.toLowerCase(),
+          )
+        ) {
           return {
-            __typename: "SupplierError",
-            message: "Provided date is not valid"
-          }
+            __typename: 'SupplierError',
+            message: 'Supplier name is already in use',
+          };
         }
 
-        if(ConverBool(
-          hasFoil,
-          hasShippingLabel,
-          SendCashOnDelivery,
-          PackageInABox,
-        ) === true){
-            return{
-              __typename: "SupplierError",
-              message: "Provided data is not in valid format (Ano/Ne)"
-            }
+        if (ConverDate(PickupPoint, isDelivered)?.message) {
+          return {
+            __typename: 'SupplierError',
+            message: 'Provided date is not valid',
+          };
         }
 
-        if(InsuranceValue < 0){
-          return{
-            __typename: "SupplierError",
-            message: "Insurance cant be less then zero"
-          }
+        if (
+          ConverBool(
+            hasFoil,
+            hasShippingLabel,
+            SendCashOnDelivery,
+            PackageInABox,
+          ) === true
+        ) {
+          return {
+            __typename: 'SupplierError',
+            message: 'Provided data is not in valid format (Ano/Ne)',
+          };
+        }
+
+        if (InsuranceValue < 0) {
+          return {
+            __typename: 'SupplierError',
+            message: 'Insurance cant be less then zero',
+          };
         }
 
         if (PickupPoint < isDelivered) {
-          return{
-            __typename: "SupplierError",
-            message: "Pickup cant be longer then delivery"
-          }
+          return {
+            __typename: 'SupplierError',
+            message: 'Pickup cant be longer then delivery',
+          };
         }
 
         const newSuppDoc = db.collection('Supplier').doc();
 
-        
-        const location = {depoDelivery:{cost:dCost, delivery:"depo"}, personalDelivery:{cost:pCost, delivery:"personal"}}
+        const location = {
+          depoDelivery: { cost: dCost, delivery: 'depo' },
+          personalDelivery: { cost: pCost, delivery: 'personal' },
+        };
 
         const newSupp = {
           sendCashDelivery: SendCashOnDelivery,
@@ -1042,14 +1361,14 @@ const resolvers = {
           insurance: InsuranceValue,
           shippingLabel: hasShippingLabel,
           foil: hasFoil,
-          location
+          location,
         };
 
         await newSuppDoc.set(newSupp);
 
         return {
-          __typename: "Supp",
-          data:newSupp
+          __typename: 'Supp',
+          data: newSupp,
         };
       } catch (error) {
         console.error('Chyba při vytváření dovozce', error);
@@ -1061,24 +1380,16 @@ const resolvers = {
       parent_: any,
       args: { ActualemailUser: string; Email: string },
     ) => {
-      // kontrola na duplicitni emaily - je 
+      // kontrola na duplicitni emaily - je
       console.log(`abcd`, args.ActualemailUser);
       console.log(`sss`, args.Email);
       const { Email: Newmail } = args;
       const { ActualemailUser: actEm } = args;
-      console.log("ememem", Newmail)
+      console.log('ememem', Newmail);
       if (!actEm) {
         throw new Error('You must be logged!');
       }
 
-      const ValidEmail = (email: string) => {
-        // zakladni validace
-        // eslint-disable-next-line unicorn/better-regex
-        const option = /^[a-z0-9-]+@[a-z]+\.[a-z]+$/
-        if (!option.test(email)) {
-          throw new Error('Ivalid email');
-        }
-      }
       try {
         const UserDocEm = await db
           .collection('UserData')
@@ -1093,6 +1404,7 @@ const resolvers = {
         if (UserDoc.empty) {
           throw new Error('User not found');
         }
+
         ValidEmail(Newmail);
         if (actEm === Newmail) {
           throw new Error('The same email as before');
@@ -1113,6 +1425,7 @@ const resolvers = {
         throw error;
       }
     },
+    // eslint-disable-next-line complexity
     updatePack: async (
       parent_: any,
       args: {
@@ -1123,9 +1436,10 @@ const resolvers = {
         width: number;
         name_package: string;
         supplier_id: string;
-        PackKey: string
+        PackKey: string;
       },
-      context: MyContext
+      context: MyContext,
+      // eslint-disable-next-line sonarjs/cognitive-complexity
     ) => {
       const {
         PackKey: id,
@@ -1137,43 +1451,57 @@ const resolvers = {
         name_package: packName,
         supplier_id: supplierId,
       } = args;
-      try { 
-      const Admin = process.env.NEXT_PUBLIC_AdminEm;
-      if(context.user?.email !== Admin){
-        return {
-          __typename: "PackageUpdateError",
-          message: "Only admin can use this function"
+      try {
+        const Admin = process.env.NEXT_PUBLIC_AdminEm;
+        if (context.user?.email !== Admin) {
+          return {
+            __typename: 'PackageUpdateError',
+            message: 'Only admin can use this function',
+          };
         }
-      }
-      if (hmotnost < 0 || delka < 0 || vyska < 0 || costPackage < 0 || sirka < 0) {
-        return {
-          __typename: "PackageUpdateError",
-          message: "Any of parameter that expect number dont support negative number"
+        if (
+          hmotnost < 0 ||
+          delka < 0 ||
+          vyska < 0 ||
+          costPackage < 0 ||
+          sirka < 0
+        ) {
+          return {
+            __typename: 'PackageUpdateError',
+            message:
+              'Any of parameter that expect number dont support negative number',
+          };
         }
-      }
 
-      if (hmotnost === 0 || delka === 0 || vyska === 0 || costPackage === 0 || sirka === 0) {
-        return {
-          __typename: "PackageUpdateError",
-          message: "Any of parameter that expect number dont support 0"
+        if (
+          hmotnost === 0 ||
+          delka === 0 ||
+          vyska === 0 ||
+          costPackage === 0 ||
+          sirka === 0
+        ) {
+          return {
+            __typename: 'PackageUpdateError',
+            message: 'Any of parameter that expect number dont support 0',
+          };
         }
-      }
 
         const SupplierDoc = await db
           .collection('Supplier')
-          .where('supplierId', '==', supplierId).get();
+          .where('supplierId', '==', supplierId)
+          .get();
 
-          if (SupplierDoc.size === 0) {
-            return {
-              __typename: "PackageUpdateError",
-              message: "Supplier not found"
-            }
-          }
+        if (SupplierDoc.size === 0) {
+          return {
+            __typename: 'PackageUpdateError',
+            message: 'Supplier not found',
+          };
+        }
 
         const supplierDoc = SupplierDoc.docs[0];
         const existingPackages = supplierDoc.data().package || [];
         const dupPackages: any = [];
-        let dupName = ""
+        let dupName = '';
 
         const UpdatePackage = {
           weight: hmotnost,
@@ -1186,85 +1514,117 @@ const resolvers = {
         };
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        existingPackages.filter((item: any) => { return !item[id] }).forEach((item: { [name: string]: { weight: number, height: number, width: number, Plength: number, name_package:string } }) => {
-          // Vybrat vsechny,Ignorovat updated
-          // jmeno balicku
-          const nameItm = Object.keys(item)[0];
-          const itm = item[nameItm];
-          console.log("itm", itm)
-          // kontrola jmén
-          if (itm.name_package === packName) {
-            dupName = itm.name_package
-          }
-          // eslint-disable-next-line @typescript-eslint/no-for-in-array, guard-for-in
-          if (itm.weight === UpdatePackage.weight && itm.height === UpdatePackage.height && itm.width === UpdatePackage.width && itm.Plength === UpdatePackage.Plength) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            dupPackages.push(itm)
-            console.log("selected", itm)
-          }
-        })
-       
+        existingPackages
+          .filter((item: any) => {
+            return !item[id];
+          })
+          .forEach(
+            (item: {
+              [name: string]: {
+                weight: number;
+                height: number;
+                width: number;
+                Plength: number;
+                name_package: string;
+              };
+            }) => {
+              // Vybrat vsechny,Ignorovat updated
+              // jmeno balicku
+              const nameItm = Object.keys(item)[0];
+              const itm = item[nameItm];
+              console.log('itm', itm);
+              // kontrola jmén
+              if (itm.name_package === packName) {
+                dupName = itm.name_package;
+              }
+              // eslint-disable-next-line @typescript-eslint/no-for-in-array, guard-for-in
+              if (
+                itm.weight === UpdatePackage.weight &&
+                itm.height === UpdatePackage.height &&
+                itm.width === UpdatePackage.width &&
+                itm.Plength === UpdatePackage.Plength
+              ) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                dupPackages.push(itm);
+                console.log('selected', itm);
+              }
+            },
+          );
+
         if (dupName.length > 0) {
           return {
-            __typename: "PackageUpdateError",
-            message: "Name is already in use"
-          }
+            __typename: 'PackageUpdateError',
+            message: 'Name is already in use',
+          };
         }
 
         if (dupPackages.length > 0) {
           return {
-            __typename: "PackageUpdateError",
-            message: "This params have alerady another package"
-          }     
+            __typename: 'PackageUpdateError',
+            message: 'This params have alerady another package',
+          };
         }
-          
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          existingPackages.forEach((item: { [name: string]: { weight: number, height: number, width: number, Plength: number, cost: number, name_package: string } }) => {
-            // najdi update item 
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        existingPackages.forEach(
+          (item: {
+            [name: string]: {
+              weight: number;
+              height: number;
+              width: number;
+              Plength: number;
+              cost: number;
+              name_package: string;
+            };
+          }) => {
+            // najdi update item
             const updatetedItem = item;
 
             // eslint-disable-next-line sonarjs/no-collapsible-if, unicorn/no-lonely-if
             if (updatetedItem[id]) {
               // eslint-disable-next-line unicorn/no-lonely-if, max-depth
-              console.log("name itm", id)
-              updatetedItem[id].weight = hmotnost
-              updatetedItem[id].cost = costPackage
-              updatetedItem[id].Plength = delka
-              updatetedItem[id].height = vyska
-              updatetedItem[id].width = sirka
-              updatetedItem[id].name_package = packName
-              console.log("update with same name", updatetedItem[id])
+              console.log('name itm', id);
+              updatetedItem[id].weight = hmotnost;
+              updatetedItem[id].cost = costPackage;
+              updatetedItem[id].Plength = delka;
+              updatetedItem[id].height = vyska;
+              updatetedItem[id].width = sirka;
+              updatetedItem[id].name_package = packName;
+              console.log('update with same name', updatetedItem[id]);
             }
-          })
+          },
+        );
 
-          console.log(existingPackages)
+        console.log(existingPackages);
 
         await supplierDoc.ref.update({ package: existingPackages });
         console.log('ssdsds', JSON.stringify(UpdatePackage));
         return {
-          __typename: "UPack",
-          data: UpdatePackage
-        }
+          __typename: 'UPack',
+          data: UpdatePackage,
+        };
       } catch (error) {
         console.error('Chyba při update balíčku', error);
         throw error;
       }
     },
-    updateSup: async (parent_: any, args: {
-      supplierName: string;
-      delivery: string;
-      shippingLabel: string;
-      pickUp: string;
-      foil: string;
-      insurance: number;
-      sendCashDelivery: string;
-      packInBox: string;
-      suppId: string,
-      actNameSupp: string
-      depoCost:number,
-      personalCost:number
-    },     
-    context: MyContext
+    updateSup: async (
+      parent_: any,
+      args: {
+        supplierName: string;
+        delivery: string;
+        shippingLabel: string;
+        pickUp: string;
+        foil: string;
+        insurance: number;
+        sendCashDelivery: string;
+        packInBox: string;
+        suppId: string;
+        actNameSupp: string;
+        depoCost: number;
+        personalCost: number;
+      },
+      context: MyContext,
     ) => {
       const {
         supplierName: SuppName,
@@ -1277,35 +1637,37 @@ const resolvers = {
         packInBox: PackageInABox,
         suppId: id,
         actNameSupp: ActName,
-        depoCost:dCost,
-        personalCost:pCost
+        depoCost: dCost,
+        personalCost: pCost,
       } = args;
 
       try {
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
-        if(context.user?.email !== Admin){
+        if (context.user?.email !== Admin) {
           return {
-            __typename: "SupplierError",
-            message: "Only admin can use this function"
-          }
+            __typename: 'SupplierError',
+            message: 'Only admin can use this function',
+          };
         }
-        if(ConverDate(PickupPoint, isDelivered)?.message){
+        if (ConverDate(PickupPoint, isDelivered)?.message) {
           return {
-            __typename: "SupplierError",
-            message: "Provided date is not valid"
-          }
+            __typename: 'SupplierError',
+            message: 'Provided date is not valid',
+          };
         }
 
-        if(ConverBool(
-          hasFoil,
-          hasShippingLabel,
-          SendCashOnDelivery,
-          PackageInABox,
-        ) === true){
-            return{
-              __typename: "SupplierError",
-              message: "Provided data is not in valid format (Ano/Ne)"
-            }
+        if (
+          ConverBool(
+            hasFoil,
+            hasShippingLabel,
+            SendCashOnDelivery,
+            PackageInABox,
+          ) === true
+        ) {
+          return {
+            __typename: 'SupplierError',
+            message: 'Provided data is not in valid format (Ano/Ne)',
+          };
         }
 
         const Supd = await db
@@ -1313,62 +1675,67 @@ const resolvers = {
           .where('supplierId', '==', id)
           .get();
 
-          
         if (Supd.size === 0) {
           return {
-          __typename: "SupplierError",
-          message: "Supplier not found"
+            __typename: 'SupplierError',
+            message: 'Supplier not found',
+          };
         }
-      }
 
-        const SupplierDoc = await db
-          .collection('Supplier').get()
+        const SupplierDoc = await db.collection('Supplier').get();
 
-        const docs = SupplierDoc.docs.map(doc => doc.data());
+        const docs = SupplierDoc.docs.map((doc) => doc.data());
 
-        const docsWithoutCurrentSupp = docs.filter((doc) => doc.suppName !== ActName);
+        const docsWithoutCurrentSupp = docs.filter(
+          (doc) => doc.suppName !== ActName,
+        );
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        const duplicateSupp = docsWithoutCurrentSupp.find((item) => item.suppName.toLowerCase() === SuppName.toLowerCase())
+        const duplicateSupp = docsWithoutCurrentSupp.find(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          (item) => item.suppName.toLowerCase() === SuppName.toLowerCase(),
+        );
 
         if (duplicateSupp) {
           return {
-            __typename: "SupplierError",
-            message: "Supplier name is already in use"
-          }
+            __typename: 'SupplierError',
+            message: 'Supplier name is already in use',
+          };
         }
 
         if (PickupPoint < isDelivered) {
           return {
-            __typename: "SupplierError",
-            message: "Pickup cant be longer then delivery"
-          }
+            __typename: 'SupplierError',
+            message: 'Pickup cant be longer then delivery',
+          };
         }
 
-        if(InsuranceValue < 0){
-          return{
-            __typename: "SupplierError",
-            message: "Insurance cant be less then zero"
-          }
+        if (InsuranceValue < 0) {
+          return {
+            __typename: 'SupplierError',
+            message: 'Insurance cant be less then zero',
+          };
         }
 
-        const location = {depoDelivery:{cost:dCost, delivery:"depo"}, personalDelivery:{cost:pCost, delivery:"personal"}}
-        
-          Supd.forEach(async (doc) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            await doc.ref.update({
-              sendCashDelivery: SendCashOnDelivery,
-              packInBox: PackageInABox,
-              suppName: SuppName,
-              pickUp: PickupPoint,
-              delivery: isDelivered,
-              insurance: InsuranceValue,
-              shippingLabel: hasShippingLabel,
-              foil: hasFoil,
-              location
-            });
-          })
-        
+        const location = {
+          depoDelivery: { cost: dCost, delivery: 'depo' },
+          personalDelivery: { cost: pCost, delivery: 'personal' },
+        };
+
+        Supd.forEach(async (doc) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          await doc.ref.update({
+            sendCashDelivery: SendCashOnDelivery,
+            packInBox: PackageInABox,
+            suppName: SuppName,
+            pickUp: PickupPoint,
+            delivery: isDelivered,
+            insurance: InsuranceValue,
+            shippingLabel: hasShippingLabel,
+            foil: hasFoil,
+            location,
+          });
+        });
 
         const newSupp = {
           sendCashDelivery: SendCashOnDelivery,
@@ -1379,256 +1746,269 @@ const resolvers = {
           insurance: InsuranceValue,
           shippingLabel: hasShippingLabel,
           foil: hasFoil,
-          supplierId:id
-        }
-
-        return {
-          __typename: "Supp",
-          data:newSupp
+          supplierId: id,
         };
 
+        return {
+          __typename: 'Supp',
+          data: newSupp,
+        };
       } catch (error) {
         console.error('Chyba při update dovozce', error);
         throw error;
       }
     },
-    updateHistory: async (parent_:any, args:{newPricePack:number, oldPricePack:number, newPricePersonal:number, oldPricePersonal:number, newPriceDepo:number, oldPriceDepo:number, suppId:string, packName:string}, context:MyContext) =>{
-      const {newPricePack:nPricrePack, oldPricePack:oPricePack, newPricePersonal:nPriceP, oldPricePersonal:oPriceP, newPriceDepo:nPriceDepo, oldPriceDepo:oPriceDepo, suppId:sId, packName:nameOfpack} = args
+    updateHistory: async (
+      parent_: any,
+      args: {
+        newPricePack: number;
+        oldPricePack: number;
+        newPricePersonal: number;
+        oldPricePersonal: number;
+        newPriceDepo: number;
+        oldPriceDepo: number;
+        suppId: string;
+        packName: string;
+      },
+      context: MyContext,
+      // eslint-disable-next-line sonarjs/cognitive-complexity, consistent-return
+    ) => {
+      const {
+        newPricePack: nPricrePack,
+        oldPricePack: oPricePack,
+        newPricePersonal: nPriceP,
+        oldPricePersonal: oPriceP,
+        newPriceDepo: nPriceDepo,
+        oldPriceDepo: oPriceDepo,
+        suppId: sId,
+        packName: nameOfpack,
+      } = args;
       // dodelat resolver a errorning u oststnich
       // udelat filtry na frontendu
       // vyresit user resolvery + zmena hesla
-      // eslint-disable-next-line unicorn/consistent-function-scoping
-      const CostDif = (costOldDepo:number, costNewDepo:number, costOldPersonal:number, costNewPersonal:number) => {
-        let costDifference = 0;
-        // metoda vrátí cenu
-        if(costOldDepo === costNewDepo && costOldPersonal === costNewPersonal){
-          return costDifference;
-       }
-         // 1. snizi se obe ceny
-         if(costOldDepo > costNewDepo && costOldPersonal > costNewPersonal){
-            const costD = costOldDepo - costNewDepo;
-            const costP = costOldPersonal - costNewPersonal;
-            costDifference = costD + costP;
-            console.log("zlevneni", costDifference)
-            console.log("ceny nižší")
-         }
-          // 2. zvysi se obe ceny
-          if(costOldDepo < costNewDepo && costOldPersonal < costNewPersonal){
-            const costD = costNewDepo - costOldDepo;
-            const costP = costNewPersonal - costOldPersonal;
-            costDifference = costD + costP;
-            console.log("zdrazeni", costDifference)
-            console.log("ceny vyšší")
-         }
 
-          // 3. 
-          //  snizi se depo cena
-          //  zvysi se personal cena
-          if(costOldDepo > costNewDepo && costOldPersonal < costNewPersonal){
-            console.log("zvyseni personal ceny a snizeni depa ceny")
-          }
-
-          // 4.
-          //  snizi se personal cena
-          //  zvysi se depo cena
-          if(costOldPersonal > costNewPersonal && costOldDepo < costNewDepo){
-            console.log("zvyseni depo ceny a snizeni personal ceny")
-          }
-
-          // 5.snizi se jen cena depa
-          if(costOldDepo > costNewDepo && costOldPersonal === costNewPersonal){
-            const costD = costOldDepo - costNewDepo;
-            costDifference = costD;
-            console.log("zlevneni", costDifference)
-            console.log("cena depa nižší")
-         }
-
-          // 6.snizi se jen cena personal
-          if(costOldDepo === costNewDepo && costOldPersonal > costNewPersonal){
-            const costP = costOldPersonal - costNewPersonal;
-            costDifference = costP;
-            console.log("zlevneni", costDifference)
-            console.log("cena personal nižší")
-         }
-
-          // 7. bod 5 naopak
-          if(costOldDepo < costNewDepo && costOldPersonal === costNewPersonal){
-            const costD = costNewDepo - costOldDepo;
-            costDifference = costD;
-            console.log("zdrazeni", costDifference)
-            console.log("cena depa vyssi")
-         }
-
-          // 8. bod 6 naopak
-          if(costOldDepo === costNewDepo && costOldPersonal < costNewPersonal){
-            const costP = costNewPersonal - costOldPersonal;
-            costDifference = costP;
-            console.log("zdrazeni", costDifference)
-            console.log("cena personal vyssi")
-         }
-
-        console.log("variables", costOldDepo, costNewDepo, costOldPersonal, costNewPersonal);
-        return costDifference
-      }
-      try{
+      try {
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
-        if(context.user?.email !== Admin){
-          // return {
-          //   __typename: "HistoryError",
-          //   message: "Only admin can use this function"
-          // }
-          alert("Only admin can use this function")
+        if (context.user?.email !== Admin) {
+          return {
+            __typename: 'HistoryMessage',
+            message: 'Only admin can use this function',
+          };
         }
 
-        const ChangePricePack = async (userEmail:string) =>{
-
-          let historyId = "";
+        const ChangePricePack = async (userEmail: string) => {
+          let historyId = '';
           let updated = false;
           let cost = 0; // puvodni cena
-          const SuppDocuments = await db.collection("History").where("suppData.id", "==", sId).get()
+          const SuppDocuments = await db
+            .collection('History')
+            .where('suppData.id', '==', sId)
+            .get();
 
-          if(nPricrePack !== oPricePack){
-            SuppDocuments.forEach((doc:any) => {if(doc._fieldsProto.suppData.mapValue.fields.id.stringValue === sId && doc._fieldsProto.suppData.mapValue.fields.packName.stringValue === nameOfpack){cost = Number(doc._fieldsProto.suppData.mapValue.fields.cost.integerValue); console.log(doc); historyId = doc._fieldsProto.historyId.stringValue}})
+          if (nPricrePack !== oPricePack) {
+            SuppDocuments.forEach((doc: any) => {
+              if (
+                doc._fieldsProto.suppData.mapValue.fields.id.stringValue ===
+                  sId &&
+                doc._fieldsProto.suppData.mapValue.fields.packName
+                  .stringValue === nameOfpack
+              ) {
+                cost = Number(
+                  doc._fieldsProto.suppData.mapValue.fields.cost.integerValue,
+                );
+                console.log(doc);
+                historyId = doc._fieldsProto.historyId.stringValue;
+              }
+            });
           }
-          
-          if(nPricrePack > oPricePack){
-            console.log("spadl jsem jsem 1")
-            cost += (nPricrePack - oPricePack)
+
+          if (nPricrePack > oPricePack) {
+            console.log('spadl jsem jsem 1');
+            cost += nPricrePack - oPricePack;
           }
-    
-          if(nPricrePack < oPricePack){
-            console.log("spadl jsem jsem 2")
-            console.log(oPricePack, nPricrePack)
-            cost -= (oPricePack - nPricrePack)
+
+          if (nPricrePack < oPricePack) {
+            console.log('spadl jsem jsem 2');
+            console.log(oPricePack, nPricrePack);
+            cost -= oPricePack - nPricrePack;
           }
-  
-          if (historyId !== "" && userEmail === Admin) {
-            const historyQuerySnapshot = await db.collection("History").where("historyId", "==", historyId).get();
+
+          if (historyId !== '' && userEmail === Admin) {
+            const historyQuerySnapshot = await db
+              .collection('History')
+              .where('historyId', '==', historyId)
+              .get();
             if (!historyQuerySnapshot.empty) {
               const historyDocumentRef = historyQuerySnapshot.docs[0].ref;
-              await historyDocumentRef.update(new firestore.FieldPath('suppData', 'cost'), cost);
-              updated = !!(historyQuerySnapshot.docChanges() && historyQuerySnapshot.docChanges().length > 0)
+              await historyDocumentRef.update(
+                new firestore.FieldPath('suppData', 'cost'),
+                cost,
+              );
+              updated = !!(
+                historyQuerySnapshot.docChanges() &&
+                historyQuerySnapshot.docChanges().length > 0
+              );
             }
           }
 
-          console.log("updated", updated);
-          // return {
-          //   __typename: "HistoryError",
-          //   isUpdated: updated
-          // }
-        }
+          // nufunkcni retutn - rozdelit create a update
+          console.log('updated', updated);
+          if (updated) {
+            return { message: 'Users history updated' };
+          }
+          return { message: 'Users history not updated' };
+        };
 
-        const ChangePriceOptionsDelivery = async (userEmail:string) =>{
+        const ChangePriceOptionsDelivery = async (userEmail: string) => {
+          const SuppDocuments = await db
+            .collection('History')
+            .where('suppData.id', '==', sId)
+            .get();
 
-          const SuppDocuments = await db.collection("History").where("suppData.id", "==", sId).get()
-          // SuppDocuments.forEach(async (doc) => {
-          //   await doc.ref.update({"suppData.cost":0});
-          // })
-          console.log("vybrany document",SuppDocuments);
+          console.log('vybrany document', SuppDocuments);
           let updated = false;
-    
-          console.log("id",sId)
-          console.log("name", nameOfpack)
-          console.log("kot", nPriceDepo, nPriceP)
-          console.log("kot2", oPriceDepo, oPriceP)
+          let total = 250;
+          console.log('id', sId);
+          console.log(
+            'cstDiff',
+            CostDif(oPriceDepo, nPriceDepo, oPriceP, nPriceP).cost,
+          );
 
-          if(CostDif(oPriceDepo, nPriceDepo, oPriceP, nPriceP) === 0){
-            console.log("nema smysl pocitat")
+          const differenceCost = CostDif(
+            oPriceDepo,
+            nPriceDepo,
+            oPriceP,
+            nPriceP,
+          );
+
+          if (differenceCost.cost === 0) {
+            console.log('nema smysl pocitat');
           }
 
-          if (userEmail === Admin) {
-            console.log("Ahoj administrator")
+          if (differenceCost.operation === '-') {
+            total -= differenceCost.cost;
+            console.log(`total: ${total}`);
           }
-          if(SuppDocuments.docChanges.length > 0) { updated = true }
 
-          console.log("updated", updated);
-          // return {
-          //   __typename: "HistoryError",
-          //   isUpdated: updated
-          // }
+          if (differenceCost.operation === '+') {
+            total += differenceCost.cost;
+            console.log(`total: ${total}`);
+          }
+
+          if (userEmail === Admin && differenceCost.cost !== 0) {
+            SuppDocuments.forEach(async (doc) => {
+              console.log('document', doc);
+              let cost = Number(
+                doc._fieldsProto.suppData.mapValue.fields.cost.integerValue,
+              );
+
+              if (differenceCost.operation === '-') {
+                cost -= differenceCost.cost;
+                console.log(`total: ${cost}`);
+              }
+
+              if (differenceCost.operation === '+') {
+                cost += differenceCost.cost;
+                console.log(`total: ${cost}`);
+              }
+              await doc.ref.update({ 'suppData.cost': cost });
+            });
+
+            updated = !!(
+              SuppDocuments.docChanges() &&
+              SuppDocuments.docChanges().length > 0
+            );
+          }
+
+          // return nefunkcni
+          console.log('updated', updated);
+          if (updated) {
+            return { message: 'Users history updated successfully' };
+          }
+          return { message: 'Users history not updated successfully' };
+        };
+
+        if (nPriceP && oPriceP && nPriceDepo && oPriceDepo) {
+          await ChangePriceOptionsDelivery(context.user?.email ?? '');
         }
 
-        if(nPriceP && oPriceP && nPriceDepo && oPriceDepo){
-          ChangePriceOptionsDelivery(context.user?.email ?? "")
+        if (nPricrePack && oPricePack && nameOfpack) {
+          await ChangePricePack(context.user?.email ?? '');
         }
-  
-        // package cost - vypada funkcni
-        if(nPricrePack && oPricePack  && nameOfpack){
-          ChangePricePack(context.user?.email ?? "")
-        }     
-      }catch (error) {
+      } catch (error) {
         console.error('Chyba při úpravě historie uživatele', error);
         throw error;
       }
     },
     // delete
-    deletePack: async (parent_: any, args: { key: string, suppId: string }, context:MyContext) => {     
+    deletePack: async (
+      parent_: any,
+      args: { key: string; suppId: string },
+      context: MyContext,
+    ) => {
       const { key: Pack, suppId: Sid } = args;
       let deleted = false;
-      let err = "";
+      let err = '';
       let find = false;
       let newArray = [];
       console.log('id', Pack);
       console.log('id', Sid);
 
       const Admin = process.env.NEXT_PUBLIC_AdminEm;
-      if(context.user?.email !== Admin){
-        err = "Only admin can use this function"
-        deleted = false
-        return { deletion: deleted, error: err }
+      if (context.user?.email !== Admin) {
+        err = 'Only admin can use this function';
+        deleted = false;
+        return { deletion: deleted, error: err };
       }
 
-      try{   
-        
-      const SupplierDoc = await db
-        .collection('Supplier')
-        .where('supplierId', '==', Sid).get();
-      const supplierDoc = SupplierDoc.docs[0];
-      const existingPackages = supplierDoc.data().package || [];
+      try {
+        const SupplierDoc = await db
+          .collection('Supplier')
+          .where('supplierId', '==', Sid)
+          .get();
+        const supplierDoc = SupplierDoc.docs[0];
+        const existingPackages = supplierDoc.data().package || [];
 
-      if (supplierDoc.exists) {
-        // eslint-disable-next-line max-depth
-        if (existingPackages) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          newArray = existingPackages.filter((item: any) => !item[Pack]);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          find = Boolean(existingPackages.filter((item: any) => !item[Pack]));
-          console.log("newARR", newArray)
-          console.log("ffffind", find)
+        if (supplierDoc.exists) {
+          // eslint-disable-next-line max-depth
+          if (existingPackages) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            newArray = existingPackages.filter((item: any) => !item[Pack]);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            find = Boolean(existingPackages.filter((item: any) => !item[Pack]));
+            console.log('newARR', newArray);
+            console.log('ffffind', find);
+          } else {
+            err = 'Nothing to delete';
+          }
+          // eslint-disable-next-line max-depth
+          if (find) {
+            await supplierDoc.ref.update({ package: newArray });
+            deleted = true;
+          } else {
+            err = 'Package not found';
+          }
+        } else {
+          err = 'Supplier not found';
         }
-        else {
-          err = "Nothing to delete"
-        }
-        // eslint-disable-next-line max-depth
-        if (find) {
-          await supplierDoc.ref.update({ package: newArray });
-          deleted = true
-        }
-        else {
-          err = "Package not found"
-        }
-      } else {
-        err = "Supplier not found"
-      }
-      return { deletion: deleted, error: err }
-    }
-      catch(error){
+        return { deletion: deleted, error: err };
+      } catch (error) {
         console.error('Chyba při mazání emailu uživatele', error);
         throw error;
       }
     },
-    deleteSupp: async (parent_: any, args: { id: [string] }, context:MyContext) => {
+    deleteSupp: (parent_: any, args: { id: [string] }, context: MyContext) => {
       let deleted = false;
-      let err = "";
+      let err = '';
       const Admin = process.env.NEXT_PUBLIC_AdminEm;
-      if(context.user?.email !== Admin){
-        err = "Only admin can use this function"
-        deleted = false
-        return { deletion: deleted, error: err }      
+      if (context.user?.email !== Admin) {
+        err = 'Only admin can use this function';
+        deleted = false;
+        return { deletion: deleted, error: err };
       }
       const { id: SupIdar } = args;
 
-      try{
+      try {
         console.log('pole', SupIdar);
         const collection = db.collection('Supplier');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -1640,16 +2020,14 @@ const resolvers = {
             err = 'Dodavatel není v databázi';
           }
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          snapshot.docs[0].ref.delete();
+          await snapshot.docs[0].ref.delete();
         });
         deleted = true;
         return { deletion: deleted, error: err };
-      }
-      catch (error) {
+      } catch (error) {
         console.error('Chyba při mazání emailu uživatele', error);
         throw error;
       }
-     
     },
     // deleteHistoryItem: async (parent_:any, args:{}, context:MyContext) =>{},
   },
@@ -1680,5 +2058,3 @@ export default createYoga({
     } as Context;
   },
 });
-
-

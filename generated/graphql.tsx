@@ -51,17 +51,22 @@ export type GithubUser = {
   login: Scalars['String'];
 };
 
+export type HistoryMessage = {
+  __typename?: 'HistoryMessage';
+  message: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   ActualUsToFirestore?: Maybe<UserData>;
-  AddHistory?: Maybe<Scalars['Boolean']>;
+  AddHistory?: Maybe<HistoryMessage>;
   BingoSupPac?: Maybe<SuitValue>;
   ChangeActualUsEmToFirestore?: Maybe<UserChangeEmData>;
   PackageToFirestore?: Maybe<CreatedPack>;
   SupplierToFirestore?: Maybe<Supplier>;
   deletePack?: Maybe<Delete>;
   deleteSupp?: Maybe<Delete>;
-  updateHistory?: Maybe<Scalars['Boolean']>;
+  updateHistory?: Maybe<HistoryMessage>;
   updatePack?: Maybe<UpdatedPack>;
   updateSup?: Maybe<Supplier>;
 };
@@ -354,7 +359,7 @@ export type AddHistoryToFirestoreMutationVariables = Exact<{
 
 export type AddHistoryToFirestoreMutation = {
   __typename?: 'Mutation';
-  AddHistory?: boolean | null;
+  AddHistory?: { __typename?: 'HistoryMessage'; message: string } | null;
 };
 
 export type NewPackageToFirestoreMutationVariables = Exact<{
@@ -453,7 +458,7 @@ export type UpdateHistoryMutationVariables = Exact<{
 
 export type UpdateHistoryMutation = {
   __typename?: 'Mutation';
-  updateHistory?: boolean | null;
+  updateHistory?: { __typename?: 'HistoryMessage'; message: string } | null;
 };
 
 export type UpdatePackageMutationVariables = Exact<{
@@ -811,7 +816,9 @@ export type DeleteSuppMutationOptions = Apollo.BaseMutationOptions<
 >;
 export const AddHistoryToFirestoreDocument = gql`
   mutation AddHistoryToFirestore($Id: String!, $Data: String!) {
-    AddHistory(uId: $Id, data: $Data)
+    AddHistory(uId: $Id, data: $Data) {
+      message
+    }
   }
 `;
 export type AddHistoryToFirestoreMutationFn = Apollo.MutationFunction<
@@ -1138,7 +1145,9 @@ export const UpdateHistoryDocument = gql`
       oldPriceDepo: $oldPriceDepo
       suppId: $SuppId
       packName: $PackageName
-    )
+    ) {
+      message
+    }
   }
 `;
 export type UpdateHistoryMutationFn = Apollo.MutationFunction<

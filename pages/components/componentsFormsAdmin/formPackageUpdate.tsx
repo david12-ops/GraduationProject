@@ -160,7 +160,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
 
       if (data) {
         // zatim neni funkcni
-        await UpdateHistory({
+        const message = await UpdateHistory({
           variables: {
             PackageName: statesOfDataPack.PackName.get(),
             newPricePack: Number(statesOfDataPack.Cost.get()),
@@ -168,13 +168,13 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
             SuppId: statesOfDataPack.SuppId.get(),
           },
         });
-        console.log('je to tam? byl jsem tam?');
+        alert(message.data?.updateHistory?.message);
         Refetch(SuppPackages);
-        alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
-                Délka: ${data.Plength},
-                Šířka: ${data.width},
-                Výška: ${data.height},
-                Označení: ${data.name_package}`);
+        // alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
+        //         Délka: ${data.Plength},
+        //         Šířka: ${data.width},
+        //         Výška: ${data.height},
+        //         Označení: ${data.name_package}`);
         return router.push(`/../../admpage/${data.supplier_id}`);
       }
     }
