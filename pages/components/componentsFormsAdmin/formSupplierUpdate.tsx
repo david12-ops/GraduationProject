@@ -75,6 +75,37 @@ const ValidDateForm = (dateU1: any) => {
   return true;
 };
 
+const Valid = (
+  pickUparg: string,
+  Deliveryarg: string,
+  Insurancearg: string,
+  SendCashDeliveryarg: string,
+  Foilarg: string,
+  ShippingLabelarg: string,
+  packInBoxarg: string,
+  depoCostarg: string,
+  personalCostarg: string,
+  // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
+) => {
+  if (
+    !parseIntReliable(Insurancearg) ||
+    !parseIntReliable(depoCostarg) ||
+    !parseIntReliable(personalCostarg)
+  ) {
+    return new Error('Invalid argument');
+  }
+
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+  if (IsYesOrNo(SendCashDeliveryarg, Foilarg, ShippingLabelarg, packInBoxarg)) {
+    return new Error('Provided data is not in valid format (Ano/Ne)');
+  }
+
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+  if (!ValidDateForm(Deliveryarg) || !ValidDateForm(pickUparg)) {
+    return new Error('Date is not valid');
+  }
+};
+
 export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const options = [
     { value: 'Ano', label: 'Ano' },
@@ -149,39 +180,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       }
     }
   }, [id, supData]);
-
-  const Valid = (
-    pickUparg: string,
-    Deliveryarg: string,
-    Insurancearg: string,
-    SendCashDeliveryarg: string,
-    Foilarg: string,
-    ShippingLabelarg: string,
-    packInBoxarg: string,
-    depoCostarg: string,
-    personalCostarg: string,
-    // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
-  ) => {
-    if (
-      !parseIntReliable(Insurancearg) ||
-      !parseIntReliable(depoCostarg) ||
-      !parseIntReliable(personalCostarg)
-    ) {
-      return new Error('Invalid argument');
-    }
-
-    // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-    if (
-      IsYesOrNo(SendCashDeliveryarg, Foilarg, ShippingLabelarg, packInBoxarg)
-    ) {
-      return new Error('Provided data is not in valid format (Ano/Ne)');
-    }
-
-    // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-    if (!ValidDateForm(Deliveryarg) || !ValidDateForm(pickUparg)) {
-      return new Error('Date is not valid');
-    }
-  };
 
   const MyComponent = (state: State<string>, paragraph: string) => {
     return (

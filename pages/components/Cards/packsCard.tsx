@@ -5,7 +5,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
 
-import { useDeletePacMutation, useSuppDataQuery } from '@/generated/graphql';
+import { SuppDataDocument, useDeletePacMutation } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/style.module.css';
 
@@ -22,11 +22,6 @@ type Props = {
   sId: string;
 };
 
-const Refetch = (data: any) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  data.refetch();
-};
-
 export const PackCard: React.FC<Props> = ({
   Heiht,
   Weight,
@@ -38,22 +33,22 @@ export const PackCard: React.FC<Props> = ({
   sId,
 }) => {
   const [del] = useDeletePacMutation();
-  const suppD = useSuppDataQuery();
   const Del = async (key: string, suppId: string) => {
     const deleted = await del({
       variables: {
         Id: suppId,
         Key: key,
       },
+      refetchQueries: [{ query: SuppDataDocument }],
+      awaitRefetchQueries: true,
     });
     if (deleted.data?.deletePack?.error) {
-      return alert(`${deleted.data?.deletePack?.error}`);
+      alert(`${deleted.data?.deletePack?.error}`);
     }
     if (!deleted.data?.deletePack?.deletion) {
-      return alert('Balíček smazán nebyl');
+      alert('Balíček smazán nebyl');
     }
-    Refetch(suppD);
-    return alert('Balíček byl smazán');
+    alert('Balíček byl smazán');
   };
   return (
     <Card sx={{ maxWidth: 290 }}>

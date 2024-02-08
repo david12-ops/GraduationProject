@@ -68,6 +68,35 @@ const ValidDateForm = (dateU1: any) => {
   return true;
 };
 
+const Valid = (
+  pickUparg: string,
+  Deliveryarg: string,
+  Insurancearg: string,
+  SendCashDeliveryarg: string,
+  Foilarg: string,
+  ShippingLabelarg: string,
+  packInBoxarg: string,
+  depoCostarg: string,
+  personalCostarg: string,
+  // eslint-disable-next-line consistent-return
+) => {
+  if (
+    !parseIntReliable(Insurancearg) ||
+    !parseIntReliable(depoCostarg) ||
+    !parseIntReliable(personalCostarg)
+  ) {
+    return new Error('Invalid argument');
+  }
+
+  if (IsYesOrNo(SendCashDeliveryarg, Foilarg, ShippingLabelarg, packInBoxarg)) {
+    return new Error('Provided data is not in valid format (Ano/Ne)');
+  }
+
+  if (!ValidDateForm(Deliveryarg) || !ValidDateForm(pickUparg)) {
+    return new Error('Date is not valid');
+  }
+};
+
 export const FormSupplier = () => {
   const options = [
     { value: 'Ano', label: 'Ano' },
@@ -104,36 +133,6 @@ export const FormSupplier = () => {
       user.Admin.set(true);
     }
   });
-
-  const Valid = (
-    pickUparg: string,
-    Deliveryarg: string,
-    Insurancearg: string,
-    SendCashDeliveryarg: string,
-    Foilarg: string,
-    ShippingLabelarg: string,
-    packInBoxarg: string,
-    depoCostarg: string,
-    personalCostarg: string,
-  ) => {
-    if (
-      !parseIntReliable(Insurancearg) ||
-      !parseIntReliable(depoCostarg) ||
-      !parseIntReliable(personalCostarg)
-    ) {
-      return new Error('Invalid argument');
-    }
-
-    if (
-      IsYesOrNo(SendCashDeliveryarg, Foilarg, ShippingLabelarg, packInBoxarg)
-    ) {
-      return new Error('Provided data is not in valid format (Ano/Ne)');
-    }
-
-    if (!ValidDateForm(Deliveryarg) || !ValidDateForm(pickUparg)) {
-      return new Error('Date is not valid');
-    }
-  };
 
   const MyComponent = (state: State<string>, paragraph: string) => {
     return (

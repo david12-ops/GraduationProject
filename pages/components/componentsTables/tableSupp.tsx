@@ -4,15 +4,15 @@ import Link from 'next/link';
 import router from 'next/router';
 import * as React from 'react';
 
-import { useDeleteSuppMutation, useSuppDataQuery } from '@/generated/graphql';
+import {
+  SuppDataDocument,
+  useDeleteSuppMutation,
+  useSuppDataQuery,
+} from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/style.module.css';
 
 // Mozna kontrola na id
-// const Refetch = (data: any) => {
-//   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-//   data.refetch();
-// };
 
 export const DataGridSupplier = () => {
   // refresh tabulky
@@ -61,11 +61,9 @@ export const DataGridSupplier = () => {
         variables: {
           Id: DeletedId,
         },
-      })
-        .then((res) => {
-          return res;
-        })
-        .catch((error) => alert(error));
+        refetchQueries: [{ query: SuppDataDocument }],
+        awaitRefetchQueries: true,
+      });
 
       const err = result.data?.deleteSupp?.error;
       const deleted = result.data?.deleteSupp?.deletion;

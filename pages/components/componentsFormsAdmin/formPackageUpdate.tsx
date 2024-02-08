@@ -167,7 +167,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           },
         });
         alert(message.data?.updateHistory?.message);
-        // Refetch(SuppPackages);
         // alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
         //         Délka: ${data.Plength},
         //         Šířka: ${data.width},

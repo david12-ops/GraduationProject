@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
-  PackageDataDocument,
+  SuppDataDocument,
   useNewPackageToFirestoreMutation,
 } from '@/generated/graphql';
 
@@ -32,6 +32,25 @@ const parseIntReliable = (numArg: string) => {
     }
   }
   return false;
+};
+
+const Valid = (
+  weightarg: string,
+  costarg: string,
+  pLemgtharg: string,
+  heightarg: string,
+  widtharg: string,
+  // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
+) => {
+  if (
+    !parseIntReliable(weightarg) ||
+    !parseIntReliable(costarg) ||
+    !parseIntReliable(pLemgtharg) ||
+    !parseIntReliable(heightarg) ||
+    !parseIntReliable(widtharg)
+  ) {
+    return new Error('Invalid argument');
+  }
 };
 
 export const FormPackage: React.FC<Props> = ({ id }) => {
@@ -61,25 +80,6 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     }
   });
 
-  const Valid = (
-    weightarg: string,
-    costarg: string,
-    pLemgtharg: string,
-    heightarg: string,
-    widtharg: string,
-    // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
-  ) => {
-    if (
-      !parseIntReliable(weightarg) ||
-      !parseIntReliable(costarg) ||
-      !parseIntReliable(pLemgtharg) ||
-      !parseIntReliable(heightarg) ||
-      !parseIntReliable(widtharg)
-    ) {
-      return new Error('Invalid argument');
-    }
-  };
-
   // eslint-disable-next-line consistent-return
   const handleForm = async (event?: React.FormEvent) => {
     event?.preventDefault();
@@ -105,7 +105,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
           SuppID: id,
           PackId: pID,
         },
-        refetchQueries: [{ query: PackageDataDocument }],
+        refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
       });
 
