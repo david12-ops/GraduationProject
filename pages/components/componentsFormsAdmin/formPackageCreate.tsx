@@ -6,19 +6,14 @@ import { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
+  PackageDataDocument,
   useNewPackageToFirestoreMutation,
-  useSuppDataQuery,
 } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
 
 type Props = {
   id: string;
-};
-
-const Refetch = (data: any) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  data.refetch();
 };
 
 const parseIntReliable = (numArg: string) => {
@@ -54,7 +49,6 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
   const user = useHookstate({ Admin: false, LoggedIn: false });
 
   const [newPackage] = useNewPackageToFirestoreMutation();
-  const SuppPackages = useSuppDataQuery();
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
@@ -111,6 +105,8 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
           SuppID: id,
           PackId: pID,
         },
+        refetchQueries: [{ query: PackageDataDocument }],
+        awaitRefetchQueries: true,
       });
 
       const err = result.data?.PackageToFirestore?.message;
@@ -121,7 +117,6 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
       }
 
       if (data) {
-        Refetch(SuppPackages);
         alert(`Balíček byl vytvořen s parametry: Váha: ${data.weight},
             Délka: ${data.Plength},
             Šířka: ${data.width},

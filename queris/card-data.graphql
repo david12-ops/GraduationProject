@@ -1,8 +1,0 @@
-query CardData{
-    cardValues{
-        id,
-        description,
-        image,
-        title
-    }
-}

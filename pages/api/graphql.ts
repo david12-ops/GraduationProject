@@ -1,24 +1,18 @@
 import 'firebase/compat/storage';
 
 import { Context } from '@apollo/client';
-import axios from 'axios';
 import { DecodedIdToken } from 'firebase-admin/auth';
 import { gql } from 'graphql-tag';
 import { createSchema, createYoga } from 'graphql-yoga';
 import _ from 'lodash';
 
 import { firestore } from '../../firebase/firebase-admin-config';
-// import { UserCreate } from '../components/types-user';
 import { verifyToken } from './verify_token';
 
 type MyContext = { user?: DecodedIdToken };
 
 const typeDefs = gql`
   type Query {
-    users: [User!]!
-    githubUsers: [GithubUser!]!
-    cardValues: [CardValue]!
-    userdata: [UserData!]!
     packageData: [QueryPackD!]!
     suplierData: [QuerySuppD!]!
   }
@@ -33,12 +27,7 @@ const typeDefs = gql`
       mistoDo: String!
       cost: Int!
     ): SuitValue
-    ActualUsToFirestore(emailUS: String!): UserData
     AddHistory(uId: String!, data: String!): HistoryMessage
-    ChangeActualUsEmToFirestore(
-      ActualemailUser: String!
-      Email: String!
-    ): UserChangeEmData
 
     PackageToFirestore(
       weight: Int!
@@ -214,34 +203,6 @@ const typeDefs = gql`
 
   union UpdatedPack = UPack | PackageUpdateError
 
-  type User {
-    name: String
-  }
-
-  type GithubUser {
-    id: ID!
-    login: String!
-    avatarUrl: String!
-  }
-
-  type UserData {
-    dataUs: String!
-    email: String!
-    historyId: Int!
-    supplierId: Int!
-  }
-
-  type UserChangeEmData {
-    email: String!
-  }
-
-  type CardValue {
-    id: Int
-    title: String!
-    description: String!
-    image: String!
-  }
-
   type HistoryMessage {
     message: String!
   }
@@ -260,48 +221,6 @@ const db = firestore();
 //   }
 //   return error;
 // }
-
-// const PSCVal = (psc: string, psc2: string) => {
-//   NoHtmlSpecialChars(psc);
-//   NoHtmlSpecialChars(psc2);
-//   // kontrola psc aby nebyli === - je
-//   // eslint-disable-next-line unicorn/better-regex
-//   const option = /^[0-9]{3} ?[0-9]{2}$/;
-//   if (!option.test(psc) || !option.test(psc2)) {
-//     throw new Error('Invalid psc argument');
-//   }
-//   if (psc === psc2) {
-//     throw new Error(
-//       'Invalid psc, argument of first psc doesnt be same like second',
-//     );
-//   }
-// };
-
-// const AddressVal = (address: string, address2: string) => {
-//   NoHtmlSpecialChars(address);
-//   NoHtmlSpecialChars(address2);
-//   // nepodporuje diakritiku!!
-//   // nemetchuje Mechov 521, Hradec Kralove
-//   // eslint-disable-next-line unicorn/better-regex
-//   const option = /^[A-Z][a-z]+ [0-9]{1,3}, [A-Z][a-z]+$/;
-//   if (!option.test(address) || !option.test(address2)) {
-//     throw new Error('Invalid address argument');
-//   }
-//   if (address === address2) {
-//     throw new Error(
-//       'Invalid address, argument of first address doesnt be same like second',
-//     );
-//   }
-// };
-
-const ValidEmail = (email: string) => {
-  // zakladni validace
-  // eslint-disable-next-line unicorn/better-regex
-  const option = /^[a-z0-9-]+@[a-z]+\.[a-z]+$/;
-  if (!option.test(email)) {
-    throw new Error('Ivalid email');
-  }
-};
 
 // validace pro supplier
 const ConverBool = (
@@ -467,48 +386,6 @@ const CostDif = (
 
 const resolvers = {
   Query: {
-    users: () => {
-      // vybrat users
-      // z db postgres
-      return [{ name: 'Nextjs' }];
-    },
-    githubUsers: async () => {
-      // eslint-disable-next-line no-useless-catch
-      try {
-        const users = await axios.get('https://api.github.com/users');
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-        return users.data.map(({ id, login, avatar_url: avatarUrl }) => ({
-          id,
-          login,
-          avatarUrl,
-        }));
-        // eslint-disable-next-line sonarjs/no-useless-catch
-      } catch (error) {
-        throw error;
-      }
-    },
-    userdata: async (_context: Context) => {
-      const result = await db.collection('UserData').get();
-      const data: Array<{
-        dataUs: any;
-        email: any;
-        historyId: any;
-        supplierId: any;
-      }> = [];
-
-      result.forEach((doc) => {
-        const docData = doc.data();
-
-        data.push({
-          email: docData.email,
-          dataUs: docData.dataUs,
-          historyId: docData.historyId,
-          supplierId: docData.supplierId,
-        });
-      });
-      console.log(data);
-      return data;
-    },
     packageData: async (_context: Context) => {
       try {
         const result = await db.collection('Package').get();
@@ -587,11 +464,12 @@ const resolvers = {
             package: docData.package,
             location: docData.location,
           });
-          console.log(
-            'data supplier package',
-            data.map((item) => JSON.stringify(item.package)),
-          );
         });
+
+        console.log(
+          'data supplier package',
+          data.map((item) => JSON.stringify(item.package)),
+        );
 
         return data;
       } catch (error) {
@@ -599,6 +477,42 @@ const resolvers = {
         throw error;
       }
     },
+    // historyUserData: async (_parent: any, context: Context) => {
+    //   try {
+    //     const { uid } = context.user.uid;
+    //     const userData = await db
+    //       .collection('History')
+    //       .where('uId', '==', uid)
+    //       .get();
+
+    //     const data: Array<{
+    //       dataForm: any;
+    //       historyId: any;
+    //       suppData: any;
+    //     }> = [];
+
+    //     userData.forEach((doc) => {
+    //       const docData = doc.data();
+
+    //       data.push({
+    //         dataForm: docData.dataForm,
+    //         historyId: docData.historyId,
+    //         suppData: docData.suppData,
+    //       });
+    //     });
+
+    //     console.log(
+    //       'user data',
+    //       data.map((item) => JSON.stringify(item.historyId)),
+    //     );
+
+    //     console.log('userDta', userData);
+    //     return data;
+    //   } catch (error) {
+    //     console.error('Chyba při zíkávání dat uživatele');
+    //     throw error;
+    //   }
+    // },
   },
   Mutation: {
     // vhodny balik resolver
@@ -936,35 +850,6 @@ const resolvers = {
     },
     // web mutation
     // create
-    ActualUsToFirestore: async (parent_: any, args: { emailUS: string }) => {
-      // mozne nepouzivani emailu tim padem ukladani jen user id i admin v historii a dotazovat se na nej
-      // console.log(`abcd`, args.emailUS);
-      const { emailUS: email } = args;
-
-      // validace email kvuli duplicite
-      // Nefunguje return emailu
-      if (!email) {
-        throw new Error('email is not valid');
-      }
-
-      try {
-        const newUserDoc = db.collection('UserData').doc();
-
-        const newUser = {
-          email,
-          dataUs: 'dataUser',
-          historyId: 0,
-          supplierId: 0,
-        };
-
-        await newUserDoc.set(newUser);
-
-        return newUser;
-      } catch (error) {
-        console.error('Chyba při vytváření uživatele', error);
-        throw error;
-      }
-    },
     AddHistory: async (
       parent_: any,
       args: { uId: string; data: string },
@@ -1376,55 +1261,6 @@ const resolvers = {
       }
     },
     // update
-    ChangeActualUsEmToFirestore: async (
-      parent_: any,
-      args: { ActualemailUser: string; Email: string },
-    ) => {
-      // kontrola na duplicitni emaily - je
-      console.log(`abcd`, args.ActualemailUser);
-      console.log(`sss`, args.Email);
-      const { Email: Newmail } = args;
-      const { ActualemailUser: actEm } = args;
-      console.log('ememem', Newmail);
-      if (!actEm) {
-        throw new Error('You must be logged!');
-      }
-
-      try {
-        const UserDocEm = await db
-          .collection('UserData')
-          .where('email', '==', Newmail)
-          .get();
-
-        const UserDoc = await db
-          .collection('UserData')
-          .where('email', '==', actEm)
-          .get();
-
-        if (UserDoc.empty) {
-          throw new Error('User not found');
-        }
-
-        ValidEmail(Newmail);
-        if (actEm === Newmail) {
-          throw new Error('The same email as before');
-        }
-        if (!UserDocEm.empty) {
-          throw new Error('Alredy taken email');
-        }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        UserDoc.forEach(async (doc) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          // zjistit chybu update
-          await doc.ref.update({ email: Newmail });
-        });
-
-        return { email: Newmail };
-      } catch (error) {
-        console.error('Chyba při update emailu uživatele', error);
-        throw error;
-      }
-    },
     // eslint-disable-next-line complexity
     updatePack: async (
       parent_: any,

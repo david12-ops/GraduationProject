@@ -1,5 +1,0 @@
-mutation ChangeActualUsEmToFirestore($ActualemailUser:String!, $NewEmail:String!){
-    ChangeActualUsEmToFirestore(Email:$NewEmail, ActualemailUser: $ActualemailUser){
-        email
-    }
-}

@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useEffect } from 'react';
 
 import {
+  PackageDataDocument,
   useSuppDataQuery,
   useUpdateHistoryMutation,
   useUpdatePackageMutation,
@@ -14,11 +15,6 @@ import styles from '../../../styles/stylesForm/styleForms.module.css';
 
 type Props = {
   id: string;
-};
-
-const Refetch = (data: any) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  data.refetch();
 };
 
 const parseIntReliable = (numArg: string) => {
@@ -149,6 +145,8 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           PackKey: id,
           SuppId: statesOfDataPack.SuppId.get(),
         },
+        refetchQueries: [{ query: PackageDataDocument }],
+        awaitRefetchQueries: true,
       });
 
       const err = result.data?.updatePack?.message;
@@ -169,7 +167,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           },
         });
         alert(message.data?.updateHistory?.message);
-        Refetch(SuppPackages);
+        // Refetch(SuppPackages);
         // alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
         //         Délka: ${data.Plength},
         //         Šířka: ${data.width},

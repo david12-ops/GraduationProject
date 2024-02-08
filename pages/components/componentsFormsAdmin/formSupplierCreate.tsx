@@ -6,8 +6,8 @@ import { useEffect } from 'react';
 import Select from 'react-select';
 
 import {
+  SuppDataDocument,
   useNewSupplierToFirestoreMutation,
-  useSuppDataQuery,
 } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
@@ -68,11 +68,6 @@ const ValidDateForm = (dateU1: any) => {
   return true;
 };
 
-const Refetch = (data: any) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  data.refetch();
-};
-
 export const FormSupplier = () => {
   const options = [
     { value: 'Ano', label: 'Ano' },
@@ -98,8 +93,6 @@ export const FormSupplier = () => {
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
   const [newSupp] = useNewSupplierToFirestoreMutation();
-
-  const supData = useSuppDataQuery();
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
@@ -197,6 +190,8 @@ export const FormSupplier = () => {
           DepoCost: Number(statesOfDataSupp.DepoCost.get()),
           PersonalCost: Number(statesOfDataSupp.PersonalCost.get()),
         },
+        refetchQueries: [{ query: SuppDataDocument }],
+        awaitRefetchQueries: true,
       });
 
       const err = result.data?.SupplierToFirestore?.message;
@@ -207,7 +202,6 @@ export const FormSupplier = () => {
       }
 
       if (data) {
-        Refetch(supData);
         alert(`Dodavatel byl vytvořen s parametry: Doručení: ${data.delivery},
               Zabalení do folie: ${data.foil},
               Pojištění: ${

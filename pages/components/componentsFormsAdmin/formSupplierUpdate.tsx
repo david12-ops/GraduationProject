@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import Select from 'react-select';
 
 import {
+  SuppDataDocument,
   useSuppDataQuery,
   useUpdateHistoryMutation,
   useUpdateSupplierMutation,
@@ -47,11 +48,6 @@ const IsYesOrNo = (
     return true;
   }
   return false;
-};
-
-const Refetch = (data: any) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  data.refetch();
 };
 
 const parseIntReliable = (numArg: string) => {
@@ -131,23 +127,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       );
 
       if (actualSupp) {
-        // statesOfDataSupp.SuppId.set(actualSupp.supplierId);
-        // statesOfDataSupp.SupplierName.set(actualSupp.suppName);
-        // statesOfDataSupp.Delivery.set(actualSupp.delivery);
-        // statesOfDataSupp.PickUp.set(actualSupp.pickUp);
-        // statesOfDataSupp.Insurance.set(actualSupp.insurance.toString());
-        // statesOfDataSupp.SendCashDelivery.set(actualSupp.sendCashDelivery);
-        // statesOfDataSupp.PackInBox.set(actualSupp.packInBox);
-        // statesOfDataSupp.ShippingLabel.set(actualSupp.shippingLabel);
-        // statesOfDataSupp.ActualSupplierName.set(actualSupp.suppName);
-        // statesOfDataSupp.Foil.set(actualSupp.foil);
-        // statesOfDataSupp.oldDepoCost.set(
-        //   String(actualSupp.location?.depoDelivery.cost),
-        // );
-        // statesOfDataSupp.oldPersonalCost.set(
-        //   String(actualSupp.location?.personalDelivery.cost),
-        // );
-
         gettersOfOldCosts.set({
           oldDepoCost: String(actualSupp.location?.depoDelivery.cost),
           oldPersonalCost: String(actualSupp.location?.personalDelivery.cost),
@@ -265,6 +244,8 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           DepoCost: Number(statesOfDataSupp.DepoCost.get()),
           PersonalCost: Number(statesOfDataSupp.PersonalCost.get()),
         },
+        refetchQueries: [{ query: SuppDataDocument }],
+        awaitRefetchQueries: true,
       });
 
       const err = result.data?.updateSup?.message;
@@ -285,7 +266,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           },
         });
         alert(message.data?.updateHistory?.message);
-        Refetch(supData);
         alert(`Dodavatel byl upraven s parametry: Doručení: ${data.delivery},
             Zabalení do folie: ${data.foil},
             Pojištění: ${data.insurance > 0 ?? 'bez pojištění'},

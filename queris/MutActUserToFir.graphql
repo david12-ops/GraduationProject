@@ -1,6 +1,0 @@
-mutation ActualUsToFirestore($email:String!){
-  ActualUsToFirestore(emailUS:$email){
-  email
-  }
-
-}
