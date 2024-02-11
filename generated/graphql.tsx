@@ -29,6 +29,16 @@ export type ErrorMessage = {
   message: Scalars['String'];
 };
 
+export type FormData = {
+  __typename?: 'FormData';
+  height: Scalars['Int'];
+  placeFrom: Scalars['String'];
+  placeTo: Scalars['String'];
+  plength: Scalars['Int'];
+  weight: Scalars['Int'];
+  width: Scalars['Int'];
+};
+
 export type HistoryMessage = {
   __typename?: 'HistoryMessage';
   message: Scalars['String'];
@@ -181,8 +191,16 @@ export type PackageUpdateError = {
 
 export type Query = {
   __typename?: 'Query';
+  historyUserData: Array<QueryHistoryData>;
   packageData: Array<QueryPackD>;
   suplierData: Array<QuerySuppD>;
+};
+
+export type QueryHistoryData = {
+  __typename?: 'QueryHistoryData';
+  dataForm: FormData;
+  historyId: Scalars['String'];
+  suppData: HistorySupplierData;
 };
 
 export type QueryPackD = {
@@ -254,6 +272,26 @@ export type UPack = {
 };
 
 export type UpdatedPack = PackageUpdateError | UPack;
+
+export type HistorySupplierData = {
+  __typename?: 'historySupplierData';
+  cost: Scalars['Int'];
+  delivery: Scalars['String'];
+  foil: Scalars['String'];
+  id: Scalars['String'];
+  insurance: Scalars['Int'];
+  name: Scalars['String'];
+  packInBox: Scalars['String'];
+  packName: Scalars['String'];
+  pickup: Scalars['String'];
+  sendCashDelivery: Scalars['String'];
+  shippingLabel: Scalars['String'];
+};
+
+export type HistoryDataQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type HistoryDataQuery = { __typename?: 'Query', historyUserData: Array<{ __typename?: 'QueryHistoryData', historyId: string, dataForm: { __typename?: 'FormData', width: number, placeTo: string, weight: number, placeFrom: string, plength: number, height: number }, suppData: { __typename?: 'historySupplierData', insurance: number, delivery: string, packInBox: string, name: string, pickup: string, shippingLabel: string, sendCashDelivery: string, foil: string, packName: string, cost: number } }> };
 
 export type DeletePacMutationVariables = Exact<{
   Id: Scalars['String'];
@@ -378,6 +416,60 @@ export type SuppDataQueryVariables = Exact<{ [key: string]: never; }>;
 export type SuppDataQuery = { __typename?: 'Query', suplierData: Array<{ __typename?: 'QuerySuppD', sendCashDelivery: string, packInBox: string, supplierId: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string, package?: { [key: string]: any } | null, location?: { [key: string]: any } | null }> };
 
 
+export const HistoryDataDocument = gql`
+    query HistoryData {
+  historyUserData {
+    dataForm {
+      width
+      placeTo
+      weight
+      placeFrom
+      plength
+      height
+    }
+    historyId
+    suppData {
+      insurance
+      delivery
+      packInBox
+      name
+      pickup
+      shippingLabel
+      sendCashDelivery
+      foil
+      packName
+      cost
+    }
+  }
+}
+    `;
+
+/**
+ * __useHistoryDataQuery__
+ *
+ * To run a query within a React component, call `useHistoryDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useHistoryDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useHistoryDataQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useHistoryDataQuery(baseOptions?: Apollo.QueryHookOptions<HistoryDataQuery, HistoryDataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<HistoryDataQuery, HistoryDataQueryVariables>(HistoryDataDocument, options);
+      }
+export function useHistoryDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<HistoryDataQuery, HistoryDataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<HistoryDataQuery, HistoryDataQueryVariables>(HistoryDataDocument, options);
+        }
+export type HistoryDataQueryHookResult = ReturnType<typeof useHistoryDataQuery>;
+export type HistoryDataLazyQueryHookResult = ReturnType<typeof useHistoryDataLazyQuery>;
+export type HistoryDataQueryResult = Apollo.QueryResult<HistoryDataQuery, HistoryDataQueryVariables>;
 export const DeletePacDocument = gql`
     mutation DeletePac($Id: String!, $Key: String!) {
   deletePack(suppId: $Id, key: $Key) {

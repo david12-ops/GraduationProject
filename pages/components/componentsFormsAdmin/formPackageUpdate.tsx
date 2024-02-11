@@ -1,11 +1,13 @@
-import { useHookstate } from '@hookstate/core';
+import { State, useHookstate } from '@hookstate/core';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
 import { useEffect } from 'react';
 
 import {
-  PackageDataDocument,
+  HistoryDataDocument,
+  SuppDataDocument,
+  SuppDataQuery,
   useSuppDataQuery,
   useUpdateHistoryMutation,
   useUpdatePackageMutation,
@@ -17,35 +19,114 @@ type Props = {
   id: string;
 };
 
+type Item = SuppDataQuery['suplierData'];
+
 const parseIntReliable = (numArg: string) => {
-  const min = 0;
   if (numArg.length > 0) {
     const parsed = Number.parseInt(numArg, 10);
     if (parsed < 0) {
       // if (numArg.replaceAll('0', '') === '') {
       //   return 0;
       // }
-      // eslint-disable-next-line max-depth
-      return false;
+      return parsed;
     }
-    if (Number.isSafeInteger(parsed) && parsed > min) {
+    if (Number.isSafeInteger(parsed) && parsed) {
       return parsed;
     }
   }
   return false;
 };
 
+const getOldCostFromPack = (pId: string, data: Item): number => {
+  let cost = 0;
+  data.forEach((item) => {
+    // eslint-disable-next-line unicorn/no-negated-condition
+    if (item.package) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      item.package.forEach(
+        (pack: {
+          [name: string]: {
+            weight: number;
+            height: number;
+            width: number;
+            Plength: number;
+            name_package: string;
+            cost: number;
+          };
+        }) => {
+          // jmeno balicku
+          const itm = pack[pId];
+          if (itm) {
+            cost = itm.cost;
+          }
+        },
+      );
+    }
+  });
+
+  return cost;
+};
+
+const setDataDatabase = (
+  pId: string,
+  data: Item,
+  stateSeter: State<{
+    Weight: string;
+    Cost: string;
+    Plength: string;
+    Height: string;
+    Width: string;
+    PackName: string;
+    SuppId: string;
+  }>,
+) => {
+  // eslint-disable-next-line no-unreachable-loop
+  data.forEach((item) => {
+    // eslint-disable-next-line unicorn/no-negated-condition
+    if (item.package) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      item.package.forEach(
+        (pack: {
+          [name: string]: {
+            weight: number;
+            height: number;
+            width: number;
+            Plength: number;
+            name_package: string;
+            cost: number;
+          };
+        }) => {
+          // jmeno balicku
+          const itm = pack[pId];
+          if (itm) {
+            stateSeter.set({
+              SuppId: item.supplierId.toString(),
+              PackName: itm.name_package.toString(),
+              Cost: itm.cost.toString(),
+              Plength: itm.Plength.toString(),
+              Weight: itm.weight.toString(),
+              Width: itm.width.toString(),
+              Height: itm.height.toString(),
+            });
+          }
+        },
+      );
+    }
+  });
+};
+
 export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   const statesOfDataPack = useHookstate({
     Weight: '',
     Cost: '',
-    OldCost: '',
     Plength: ' ',
     Height: '',
     Width: '',
     PackName: '',
     SuppId: '',
   });
+
+  const [oldCost, SetOldCost] = React.useState(0);
 
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
 
@@ -66,40 +147,13 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       user.Admin.set(true);
     }
     if (id && SuppPackages.data && SuppPackages) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      SuppPackages.data.suplierData.forEach((item) => {
-        // eslint-disable-next-line unicorn/no-negated-condition
-        if (item.package) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          item.package.forEach(
-            (pack: {
-              [name: string]: {
-                weight: number;
-                height: number;
-                width: number;
-                Plength: number;
-                name_package: string;
-                cost: number;
-              };
-            }) => {
-              // jmeno balicku
-              const itm = pack[id];
-              if (itm) {
-                statesOfDataPack.set({
-                  SuppId: item.supplierId.toString(),
-                  PackName: itm.name_package.toString(),
-                  Cost: itm.cost.toString(),
-                  Plength: itm.Plength.toString(),
-                  Weight: itm.weight.toString(),
-                  Width: itm.width.toString(),
-                  Height: itm.height.toString(),
-                  OldCost: itm.cost.toString(),
-                });
-              }
-            },
-          );
-        }
-      });
+      setDataDatabase(id, SuppPackages.data.suplierData, statesOfDataPack);
+
+      // setnout cenu
+      const costP = getOldCostFromPack(id, SuppPackages.data.suplierData);
+      if (costP) {
+        SetOldCost(costP);
+      }
     }
   }, [id, SuppPackages]);
 
@@ -145,7 +199,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           PackKey: id,
           SuppId: statesOfDataPack.SuppId.get(),
         },
-        refetchQueries: [{ query: PackageDataDocument }],
+        refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
       });
 
@@ -157,21 +211,24 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       }
 
       if (data) {
+        console.log('stara cena', oldCost);
         // zatim neni funkcni
         const message = await UpdateHistory({
           variables: {
             PackageName: statesOfDataPack.PackName.get(),
             newPricePack: Number(statesOfDataPack.Cost.get()),
-            oldPricePack: Number(statesOfDataPack.OldCost.get()),
+            oldPricePack: oldCost,
             SuppId: statesOfDataPack.SuppId.get(),
           },
+          refetchQueries: [{ query: HistoryDataDocument }],
+          awaitRefetchQueries: true,
         });
-        alert(message.data?.updateHistory?.message);
-        // alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
-        //         Délka: ${data.Plength},
-        //         Šířka: ${data.width},
-        //         Výška: ${data.height},
-        //         Označení: ${data.name_package}`);
+        alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
+              Délka: ${data.Plength},
+              Šířka: ${data.width},
+              Výška: ${data.height},
+              Označení: ${data.name_package}
+              status of history: ${message.data?.updateHistory?.message}`);
         return router.push(`/../../admpage/${data.supplier_id}`);
       }
     }

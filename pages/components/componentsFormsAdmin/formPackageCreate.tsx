@@ -17,7 +17,6 @@ type Props = {
 };
 
 const parseIntReliable = (numArg: string) => {
-  const min = 0;
   if (numArg.length > 0) {
     const parsed = Number.parseInt(numArg, 10);
     if (parsed < 0) {
@@ -25,9 +24,9 @@ const parseIntReliable = (numArg: string) => {
       //   return 0;
       // }
       // eslint-disable-next-line max-depth
-      return false;
+      return parsed;
     }
-    if (Number.isSafeInteger(parsed) && parsed > min) {
+    if (Number.isSafeInteger(parsed) && parsed) {
       return parsed;
     }
   }

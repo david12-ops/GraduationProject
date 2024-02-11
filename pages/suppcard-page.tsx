@@ -1,11 +1,13 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 
-import { useSuppDataQuery } from '@/generated/graphql';
+import { SuppDataQuery, useSuppDataQuery } from '@/generated/graphql';
 
 import styles from '../styles/Home.module.css';
 import { MediaCard } from './components/Cards/SuppCards';
 import { Navbar } from './components/navbar2';
+
+type Item = SuppDataQuery | undefined;
 
 // pouziti sorting
 const IsThereSupp = (data: any) => {
@@ -17,7 +19,7 @@ const IsThereSupp = (data: any) => {
   return false;
 };
 
-const PageBody = (warning: any, dataSupp: any) => {
+const PageBody = (warning: any, dataSupp: Item) => {
   if (!warning) {
     return (
       <div
@@ -35,7 +37,7 @@ const PageBody = (warning: any, dataSupp: any) => {
 
   return (
     <div>
-      {dataSupp?.suplierData?.map((item: any) => (
+      {dataSupp?.suplierData.map((item: any) => (
         <MediaCard
           key={item.supplierId}
           packInBox={item.packInBox}
@@ -56,7 +58,7 @@ const PageBody = (warning: any, dataSupp: any) => {
 // eslint-disable-next-line import/no-default-export
 export default function SuppCards() {
   const suppData = useSuppDataQuery();
-  const [body, SetBody] = useState({});
+  const [body, SetBody] = useState({ data: <div></div> });
 
   useEffect(() => {
     if (!suppData.loading) {

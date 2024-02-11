@@ -1,0 +1,25 @@
+query HistoryData {   
+    historyUserData {
+        dataForm {
+            width
+            placeTo
+            weight
+            placeFrom
+            plength
+            height
+        }
+        historyId
+        suppData {
+            insurance
+            delivery
+            packInBox
+            name
+            pickup
+            shippingLabel
+            sendCashDelivery
+            foil
+            packName
+            cost
+        }
+    }
+}

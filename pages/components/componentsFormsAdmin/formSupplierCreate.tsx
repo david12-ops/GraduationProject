@@ -44,11 +44,10 @@ const IsYesOrNo = (
 };
 
 const parseIntReliable = (numArg: string) => {
-  // neposti nulu
   if (numArg.length > 0) {
     const parsed = Number.parseInt(numArg, 10);
     if (parsed < 0) {
-      return false;
+      return true;
     }
     if (Number.isSafeInteger(parsed)) {
       return parsed;
@@ -85,6 +84,7 @@ const Valid = (
     !parseIntReliable(depoCostarg) ||
     !parseIntReliable(personalCostarg)
   ) {
+    console.log('costs', parseIntReliable(depoCostarg));
     return new Error('Invalid argument');
   }
 

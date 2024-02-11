@@ -7,7 +7,9 @@ import { useEffect } from 'react';
 import Select from 'react-select';
 
 import {
+  HistoryDataDocument,
   SuppDataDocument,
+  SuppDataQuery,
   useSuppDataQuery,
   useUpdateHistoryMutation,
   useUpdateSupplierMutation,
@@ -17,6 +19,28 @@ import styles from '../../../styles/stylesForm/styleForms.module.css';
 
 type Props = {
   id: string;
+};
+
+type Item = {
+  __typename?: 'QuerySuppD' | undefined;
+  sendCashDelivery: string;
+  packInBox: string;
+  supplierId: string;
+  suppName: string;
+  pickUp: string;
+  delivery: string;
+  insurance: number;
+  shippingLabel: string;
+  foil: string;
+  package?: any;
+  location?: any;
+};
+
+type Item2 = SuppDataQuery['suplierData'];
+
+type Costs = {
+  oldDepoCost: number;
+  oldPersonalCost: number;
 };
 
 const IsYesOrNo = (
@@ -58,7 +82,7 @@ const parseIntReliable = (numArg: string) => {
       return false;
     }
     if (Number.isSafeInteger(parsed)) {
-      return parsed;
+      return true;
     }
   }
   return false;
@@ -92,6 +116,7 @@ const Valid = (
     !parseIntReliable(depoCostarg) ||
     !parseIntReliable(personalCostarg)
   ) {
+    console.log('costs', parseIntReliable(depoCostarg));
     return new Error('Invalid argument');
   }
 
@@ -104,6 +129,55 @@ const Valid = (
   if (!ValidDateForm(Deliveryarg) || !ValidDateForm(pickUparg)) {
     return new Error('Date is not valid');
   }
+};
+
+const getOldCostFromSupDelivery = (
+  data: Item2,
+  sId: string,
+): Costs | undefined => {
+  for (const item of data) {
+    if (item.supplierId === sId) {
+      return {
+        oldDepoCost: item.location?.depoDelivery.cost,
+        oldPersonalCost: item.location?.personalDelivery.cost,
+      };
+    }
+  }
+  return undefined;
+};
+
+const setDataDatabase = (
+  data: Item,
+  stateSeter: State<{
+    SuppId: string;
+    SupplierName: string;
+    ActualSupplierName: string;
+    Delivery: string;
+    PickUp: string;
+    Insurance: string;
+    SendCashDelivery: string;
+    PackInBox: string;
+    ShippingLabel: string;
+    Foil: string;
+    DepoCost: string;
+    PersonalCost: string;
+  }>,
+) => {
+  // eslint-disable-next-line no-unreachable-loop
+  stateSeter.set({
+    SuppId: data.supplierId,
+    SupplierName: data.suppName,
+    Delivery: data.delivery,
+    PickUp: data.pickUp,
+    Insurance: data.insurance.toString(),
+    SendCashDelivery: data.sendCashDelivery,
+    PackInBox: data.packInBox,
+    ShippingLabel: data.shippingLabel,
+    ActualSupplierName: data.suppName,
+    Foil: data.foil,
+    DepoCost: String(data.location?.depoDelivery.cost),
+    PersonalCost: String(data.location?.personalDelivery.cost),
+  });
 };
 
 export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
@@ -128,11 +202,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     PersonalCost: '',
   });
 
-  const gettersOfOldCosts = useHookstate({
-    oldDepoCost: '',
-    oldPersonalCost: '',
-  });
-
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
@@ -140,6 +209,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const supData = useSuppDataQuery();
   const [UpdateHistory] = useUpdateHistoryMutation();
   const [UpdateSupp] = useUpdateSupplierMutation();
+  const [oldCosts, SetCosts] = React.useState({
+    oldDepoCost: 0,
+    oldPersonalCost: 0,
+  });
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
@@ -158,25 +231,22 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       );
 
       if (actualSupp) {
-        gettersOfOldCosts.set({
-          oldDepoCost: String(actualSupp.location?.depoDelivery.cost),
-          oldPersonalCost: String(actualSupp.location?.personalDelivery.cost),
-        });
+        setDataDatabase(actualSupp, statesOfDataSupp);
+      }
 
-        statesOfDataSupp.set({
-          SuppId: actualSupp.supplierId,
-          SupplierName: actualSupp.suppName,
-          Delivery: actualSupp.delivery,
-          PickUp: actualSupp.pickUp,
-          Insurance: actualSupp.insurance.toString(),
-          SendCashDelivery: actualSupp.sendCashDelivery,
-          PackInBox: actualSupp.packInBox,
-          ShippingLabel: actualSupp.shippingLabel,
-          ActualSupplierName: actualSupp.suppName,
-          Foil: actualSupp.foil,
-          DepoCost: String(actualSupp.location?.depoDelivery.cost),
-          PersonalCost: String(actualSupp.location?.personalDelivery.cost),
+      const costs = getOldCostFromSupDelivery(supData.data.suplierData, id);
+
+      // eslint-disable-next-line max-depth
+      if (costs) {
+        console.log('stare ceny v ueefect,', costs);
+        SetCosts({
+          oldDepoCost: costs.oldDepoCost,
+          oldPersonalCost: costs.oldPersonalCost,
         });
+        // gettersOfOldCosts.set({
+        //   oldDepoCost: costs.oldDepoCost,
+        //   oldPersonalCost: costs.oldPersonalCost,
+        // });
       }
     }
   }, [id, supData]);
@@ -256,14 +326,15 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       if (data) {
         const message = await UpdateHistory({
           variables: {
-            oldPriceDepo: Number(gettersOfOldCosts.oldDepoCost.get()),
-            oldPricePersonal: Number(gettersOfOldCosts.oldPersonalCost.get()),
+            oldPriceDepo: oldCosts.oldDepoCost,
+            oldPricePersonal: oldCosts.oldPersonalCost,
             newPriceDepo: Number(statesOfDataSupp.DepoCost.get()),
             newPricePersonal: Number(statesOfDataSupp.PersonalCost.get()),
             SuppId: statesOfDataSupp.SuppId.get(),
           },
+          refetchQueries: [{ query: HistoryDataDocument }],
+          awaitRefetchQueries: true,
         });
-        alert(message.data?.updateHistory?.message);
         alert(`Dodavatel byl upraven s parametry: Doručení: ${data.delivery},
             Zabalení do folie: ${data.foil},
             Pojištění: ${data.insurance > 0 ?? 'bez pojištění'},
@@ -271,7 +342,8 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             Vyzvednutí: ${data.pickUp},
             Na dobírku: ${data.sendCashDelivery},
             Štítek přiveze kurýr: ${data.shippingLabel},
-            Jméno dopravce: ${data.suppName}`);
+            Jméno dopravce: ${data.suppName}
+            status of history: ${message.data?.updateHistory?.message}`);
         return router.push(`/../../admpage/${data.supplierId}`);
       }
     }

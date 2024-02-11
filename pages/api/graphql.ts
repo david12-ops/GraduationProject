@@ -15,6 +15,7 @@ const typeDefs = gql`
   type Query {
     packageData: [QueryPackD!]!
     suplierData: [QuerySuppD!]!
+    historyUserData: [QueryHistoryData!]!
   }
 
   type Mutation {
@@ -162,6 +163,35 @@ const typeDefs = gql`
     location: JSON
   }
 
+  type QueryHistoryData {
+    dataForm: FormData!
+    historyId: String!
+    suppData: historySupplierData!
+  }
+
+  type historySupplierData {
+    insurance: Int!
+    delivery: String!
+    packInBox: String!
+    name: String!
+    pickup: String!
+    shippingLabel: String!
+    id: String!
+    sendCashDelivery: String!
+    foil: String!
+    packName: String!
+    cost: Int!
+  }
+
+  type FormData {
+    width: Int!
+    placeTo: String!
+    weight: Int!
+    placeFrom: String!
+    plength: Int!
+    height: Int!
+  }
+
   type PackageError {
     message: String!
   }
@@ -286,6 +316,12 @@ const CostDif = (
   costNewPersonal: number,
   // eslint-disable-next-line sonarjs/cognitive-complexity
 ) => {
+  // spatne hodnory
+  console.log('costOldDepo', costOldDepo);
+  console.log('costNewDepo', costNewDepo);
+  console.log('costOldPersonal', costOldPersonal);
+  console.log('costNewPersonal', costNewPersonal);
+
   let costDifference = 0;
   const operationCost = { operation: '', cost: costDifference };
 
@@ -477,42 +513,40 @@ const resolvers = {
         throw error;
       }
     },
-    // historyUserData: async (_parent: any, context: Context) => {
-    //   try {
-    //     const { uid } = context.user.uid;
-    //     const userData = await db
-    //       .collection('History')
-    //       .where('uId', '==', uid)
-    //       .get();
+    historyUserData: async (
+      parent_: unknown,
+      args: unknown,
+      context: MyContext,
+    ) => {
+      const data: Array<{
+        dataForm: any;
+        historyId: string;
+        suppData: any;
+        userId: string;
+      }> = [];
+      try {
+        const userData = await db
+          .collection('History')
+          .where('uId', '==', context.user?.uid)
+          .get();
 
-    //     const data: Array<{
-    //       dataForm: any;
-    //       historyId: any;
-    //       suppData: any;
-    //     }> = [];
+        userData.forEach((doc) => {
+          const docData = doc.data();
 
-    //     userData.forEach((doc) => {
-    //       const docData = doc.data();
+          data.push({
+            dataForm: docData.dataForm,
+            historyId: docData.historyId,
+            suppData: docData.suppData,
+            userId: docData.uId,
+          });
+        });
 
-    //       data.push({
-    //         dataForm: docData.dataForm,
-    //         historyId: docData.historyId,
-    //         suppData: docData.suppData,
-    //       });
-    //     });
-
-    //     console.log(
-    //       'user data',
-    //       data.map((item) => JSON.stringify(item.historyId)),
-    //     );
-
-    //     console.log('userDta', userData);
-    //     return data;
-    //   } catch (error) {
-    //     console.error('Chyba při zíkávání dat uživatele');
-    //     throw error;
-    //   }
-    // },
+        return data;
+      } catch (error) {
+        console.error('Chyba při zíkávání dat uživatele', error);
+        throw error;
+      }
+    },
   },
   Mutation: {
     // vhodny balik resolver
@@ -861,7 +895,6 @@ const resolvers = {
 
         if (context.user?.uid !== id) {
           return {
-            __typename: 'HistoryMessage',
             message: 'Only user with account can use this function',
           };
         }
@@ -930,7 +963,6 @@ const resolvers = {
             .includes(true)
         ) {
           return {
-            __typename: 'HistoryMessage',
             message: 'Already saved',
           };
         }
@@ -940,7 +972,7 @@ const resolvers = {
         if (dataInColl.docChanges() && dataInColl.docChanges().length > 0) {
           return { message: 'Save successful' };
         }
-        return { message: 'Save  error, please try again later' };
+        return { message: 'Save error, please try again later' };
       } catch (error) {
         console.error('Chyba při vytváření historie:', error);
         throw error;
@@ -1222,6 +1254,13 @@ const resolvers = {
           };
         }
 
+        if (dCost < 0 || pCost < 0) {
+          return {
+            __typename: 'SupplierError',
+            message: 'Delivery costs cannot be less than zero',
+          };
+        }
+
         if (PickupPoint < isDelivered) {
           return {
             __typename: 'SupplierError',
@@ -1435,9 +1474,16 @@ const resolvers = {
 
         await supplierDoc.ref.update({ package: existingPackages });
         console.log('ssdsds', JSON.stringify(UpdatePackage));
+        if (SupplierDoc.docChanges() && SupplierDoc.docChanges().length > 0) {
+          return {
+            __typename: 'UPack',
+            data: UpdatePackage,
+          };
+        }
+
         return {
-          __typename: 'UPack',
-          data: UpdatePackage,
+          __typename: 'PackageUpdateError',
+          message: 'Update not succesfull',
         };
       } catch (error) {
         console.error('Chyba při update balíčku', error);
@@ -1585,9 +1631,16 @@ const resolvers = {
           supplierId: id,
         };
 
+        if (Supd.docChanges() && Supd.docChanges().length > 0) {
+          return {
+            __typename: 'Supp',
+            data: newSupp,
+          };
+        }
+
         return {
-          __typename: 'Supp',
-          data: newSupp,
+          __typename: 'SupplierError',
+          message: 'Update not succesfull',
         };
       } catch (error) {
         console.error('Chyba při update dovozce', error);
@@ -1619,12 +1672,13 @@ const resolvers = {
         suppId: sId,
         packName: nameOfpack,
       } = args;
-      // dodelat resolver a errorning u oststnich
+      // dodelat resolver
       // udelat filtry na frontendu
-      // vyresit user resolvery + zmena hesla
+      // zmena hesla
 
       try {
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
+        let msg = '';
         if (context.user?.email !== Admin) {
           return {
             __typename: 'HistoryMessage',
@@ -1636,13 +1690,17 @@ const resolvers = {
           let historyId = '';
           let updated = false;
           let cost = 0; // puvodni cena
-          const SuppDocuments = await db
+          const historyDocuments = await db
             .collection('History')
             .where('suppData.id', '==', sId)
             .get();
 
+          // spatne hodnoty
+          console.log('old price', oPricePack);
+          console.log('new price', nPricrePack);
+
           if (nPricrePack !== oPricePack) {
-            SuppDocuments.forEach((doc: any) => {
+            historyDocuments.forEach((doc: any) => {
               if (
                 doc._fieldsProto.suppData.mapValue.fields.id.stringValue ===
                   sId &&
@@ -1676,6 +1734,7 @@ const resolvers = {
               .get();
             if (!historyQuerySnapshot.empty) {
               const historyDocumentRef = historyQuerySnapshot.docs[0].ref;
+
               await historyDocumentRef.update(
                 new firestore.FieldPath('suppData', 'cost'),
                 cost,
@@ -1687,12 +1746,17 @@ const resolvers = {
             }
           }
 
-          // nufunkcni retutn - rozdelit create a update
           console.log('updated', updated);
-          if (updated) {
-            return { message: 'Users history updated' };
+
+          if (historyId === '') {
+            return 'Nothing to update in history';
           }
-          return { message: 'Users history not updated' };
+
+          if (updated) {
+            return 'Users history updated successfully';
+          }
+
+          return 'Users history not updated successfully';
         };
 
         const ChangePriceOptionsDelivery = async (userEmail: string) => {
@@ -1703,7 +1767,7 @@ const resolvers = {
 
           console.log('vybrany document', SuppDocuments);
           let updated = false;
-          let total = 250;
+
           console.log('id', sId);
           console.log(
             'cstDiff',
@@ -1721,22 +1785,13 @@ const resolvers = {
             console.log('nema smysl pocitat');
           }
 
-          if (differenceCost.operation === '-') {
-            total -= differenceCost.cost;
-            console.log(`total: ${total}`);
-          }
-
-          if (differenceCost.operation === '+') {
-            total += differenceCost.cost;
-            console.log(`total: ${total}`);
-          }
-
           if (userEmail === Admin && differenceCost.cost !== 0) {
             SuppDocuments.forEach(async (doc) => {
               console.log('document', doc);
               let cost = Number(
                 doc._fieldsProto.suppData.mapValue.fields.cost.integerValue,
               );
+              console.log('cost total');
 
               if (differenceCost.operation === '-') {
                 cost -= differenceCost.cost;
@@ -1747,7 +1802,11 @@ const resolvers = {
                 cost += differenceCost.cost;
                 console.log(`total: ${cost}`);
               }
+
               await doc.ref.update({ 'suppData.cost': cost });
+
+              // new firestore.FieldPath('suppData', 'cost'),
+              //   cost
             });
 
             updated = !!(
@@ -1756,21 +1815,22 @@ const resolvers = {
             );
           }
 
-          // return nefunkcni
           console.log('updated', updated);
           if (updated) {
-            return { message: 'Users history updated successfully' };
+            return 'Users history updated successfully';
           }
-          return { message: 'Users history not updated successfully' };
+          return 'Users history not updated successfully';
         };
 
         if (nPriceP && oPriceP && nPriceDepo && oPriceDepo) {
-          await ChangePriceOptionsDelivery(context.user?.email ?? '');
+          msg = await ChangePriceOptionsDelivery(context.user?.email ?? '');
         }
 
         if (nPricrePack && oPricePack && nameOfpack) {
-          await ChangePricePack(context.user?.email ?? '');
+          msg = await ChangePricePack(context.user?.email ?? '');
         }
+
+        return { message: msg };
       } catch (error) {
         console.error('Chyba při úpravě historie uživatele', error);
         throw error;
