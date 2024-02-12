@@ -293,21 +293,6 @@ export type HistoryDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type HistoryDataQuery = { __typename?: 'Query', historyUserData: Array<{ __typename?: 'QueryHistoryData', historyId: string, dataForm: { __typename?: 'FormData', width: number, placeTo: string, weight: number, placeFrom: string, plength: number, height: number }, suppData: { __typename?: 'historySupplierData', insurance: number, delivery: string, packInBox: string, name: string, pickup: string, shippingLabel: string, sendCashDelivery: string, foil: string, packName: string, cost: number } }> };
 
-export type DeletePacMutationVariables = Exact<{
-  Id: Scalars['String'];
-  Key: Scalars['String'];
-}>;
-
-
-export type DeletePacMutation = { __typename?: 'Mutation', deletePack?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
-
-export type DeleteSuppMutationVariables = Exact<{
-  Id?: InputMaybe<Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>>;
-}>;
-
-
-export type DeleteSuppMutation = { __typename?: 'Mutation', deleteSupp?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
-
 export type AddHistoryToFirestoreMutationVariables = Exact<{
   Id: Scalars['String'];
   Data: Scalars['String'];
@@ -315,6 +300,41 @@ export type AddHistoryToFirestoreMutationVariables = Exact<{
 
 
 export type AddHistoryToFirestoreMutation = { __typename?: 'Mutation', AddHistory?: { __typename?: 'HistoryMessage', message: string } | null };
+
+export type UpdateHistoryMutationVariables = Exact<{
+  newPricePack?: InputMaybe<Scalars['Int']>;
+  oldPricePack?: InputMaybe<Scalars['Int']>;
+  newPricePersonal?: InputMaybe<Scalars['Int']>;
+  oldPricePersonal?: InputMaybe<Scalars['Int']>;
+  newPriceDepo?: InputMaybe<Scalars['Int']>;
+  oldPriceDepo?: InputMaybe<Scalars['Int']>;
+  SuppId?: InputMaybe<Scalars['String']>;
+  PackageName?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type UpdateHistoryMutation = { __typename?: 'Mutation', updateHistory?: { __typename?: 'HistoryMessage', message: string } | null };
+
+export type MutSuitableSuppMutationVariables = Exact<{
+  Width: Scalars['Int'];
+  Weight: Scalars['Int'];
+  Height: Scalars['Int'];
+  Length: Scalars['Int'];
+  Mz: Scalars['String'];
+  Mdo: Scalars['String'];
+  Cost: Scalars['Int'];
+}>;
+
+
+export type MutSuitableSuppMutation = { __typename?: 'Mutation', BingoSupPac?: { __typename?: 'ErrorMessage', message: string } | { __typename?: 'Suitable', suitable: string } | null };
+
+export type DeletePacMutationVariables = Exact<{
+  Id: Scalars['String'];
+  Key: Scalars['String'];
+}>;
+
+
+export type DeletePacMutation = { __typename?: 'Mutation', deletePack?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
 
 export type NewPackageToFirestoreMutationVariables = Exact<{
   SuppID: Scalars['String'];
@@ -330,18 +350,31 @@ export type NewPackageToFirestoreMutationVariables = Exact<{
 
 export type NewPackageToFirestoreMutation = { __typename?: 'Mutation', PackageToFirestore?: { __typename?: 'Pack', data: { __typename?: 'PackageDataCreate', weight: number, cost: number, Plength: number, height: number, width: number, name_package: string, supplier_id: string } } | { __typename?: 'PackageError', message: string } | null };
 
-export type MutSuitableSuppMutationVariables = Exact<{
-  Width: Scalars['Int'];
-  Weight: Scalars['Int'];
-  Height: Scalars['Int'];
-  Length: Scalars['Int'];
-  Mz: Scalars['String'];
-  Mdo: Scalars['String'];
+export type UpdatePackageMutationVariables = Exact<{
+  Hmotnost: Scalars['Int'];
   Cost: Scalars['Int'];
+  Delka: Scalars['Int'];
+  Vyska: Scalars['Int'];
+  Sirka: Scalars['Int'];
+  Pack_name: Scalars['String'];
+  PackKey: Scalars['String'];
+  SuppId: Scalars['String'];
 }>;
 
 
-export type MutSuitableSuppMutation = { __typename?: 'Mutation', BingoSupPac?: { __typename?: 'ErrorMessage', message: string } | { __typename?: 'Suitable', suitable: string } | null };
+export type UpdatePackageMutation = { __typename?: 'Mutation', updatePack?: { __typename?: 'PackageUpdateError', message: string } | { __typename?: 'UPack', data: { __typename?: 'PackageDataUpdate', weight: number, cost: number, Plength: number, height: number, width: number, name_package: string, supplier_id: string } } | null };
+
+export type PackageDataQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PackageDataQuery = { __typename?: 'Query', packageData: Array<{ __typename?: 'QueryPackD', Pkam: string, Podkud: string, costPackage: number, delka: number, hmotnost: number, kam: string, odkud: string, packName: string, packgeId: string, sirka: number, vyska: number, supplierId: string }> };
+
+export type DeleteSuppMutationVariables = Exact<{
+  Id?: InputMaybe<Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>>;
+}>;
+
+
+export type DeleteSuppMutation = { __typename?: 'Mutation', deleteSupp?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
 
 export type NewSupplierToFirestoreMutationVariables = Exact<{
   SupName: Scalars['String'];
@@ -358,34 +391,6 @@ export type NewSupplierToFirestoreMutationVariables = Exact<{
 
 
 export type NewSupplierToFirestoreMutation = { __typename?: 'Mutation', SupplierToFirestore?: { __typename?: 'Supp', data: { __typename?: 'SupplierData', sendCashDelivery: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } } | { __typename?: 'SupplierError', message: string } | null };
-
-export type UpdateHistoryMutationVariables = Exact<{
-  newPricePack?: InputMaybe<Scalars['Int']>;
-  oldPricePack?: InputMaybe<Scalars['Int']>;
-  newPricePersonal?: InputMaybe<Scalars['Int']>;
-  oldPricePersonal?: InputMaybe<Scalars['Int']>;
-  newPriceDepo?: InputMaybe<Scalars['Int']>;
-  oldPriceDepo?: InputMaybe<Scalars['Int']>;
-  SuppId?: InputMaybe<Scalars['String']>;
-  PackageName?: InputMaybe<Scalars['String']>;
-}>;
-
-
-export type UpdateHistoryMutation = { __typename?: 'Mutation', updateHistory?: { __typename?: 'HistoryMessage', message: string } | null };
-
-export type UpdatePackageMutationVariables = Exact<{
-  Hmotnost: Scalars['Int'];
-  Cost: Scalars['Int'];
-  Delka: Scalars['Int'];
-  Vyska: Scalars['Int'];
-  Sirka: Scalars['Int'];
-  Pack_name: Scalars['String'];
-  PackKey: Scalars['String'];
-  SuppId: Scalars['String'];
-}>;
-
-
-export type UpdatePackageMutation = { __typename?: 'Mutation', updatePack?: { __typename?: 'PackageUpdateError', message: string } | { __typename?: 'UPack', data: { __typename?: 'PackageDataUpdate', weight: number, cost: number, Plength: number, height: number, width: number, name_package: string, supplier_id: string } } | null };
 
 export type UpdateSupplierMutationVariables = Exact<{
   SupName: Scalars['String'];
@@ -404,11 +409,6 @@ export type UpdateSupplierMutationVariables = Exact<{
 
 
 export type UpdateSupplierMutation = { __typename?: 'Mutation', updateSup?: { __typename?: 'Supp', data: { __typename?: 'SupplierData', sendCashDelivery: string, supplierId: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } } | { __typename?: 'SupplierError', message: string } | null };
-
-export type PackageDataQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type PackageDataQuery = { __typename?: 'Query', packageData: Array<{ __typename?: 'QueryPackD', Pkam: string, Podkud: string, costPackage: number, delka: number, hmotnost: number, kam: string, odkud: string, packName: string, packgeId: string, sirka: number, vyska: number, supplierId: string }> };
 
 export type SuppDataQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -470,6 +470,141 @@ export function useHistoryDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type HistoryDataQueryHookResult = ReturnType<typeof useHistoryDataQuery>;
 export type HistoryDataLazyQueryHookResult = ReturnType<typeof useHistoryDataLazyQuery>;
 export type HistoryDataQueryResult = Apollo.QueryResult<HistoryDataQuery, HistoryDataQueryVariables>;
+export const AddHistoryToFirestoreDocument = gql`
+    mutation AddHistoryToFirestore($Id: String!, $Data: String!) {
+  AddHistory(uId: $Id, data: $Data) {
+    message
+  }
+}
+    `;
+export type AddHistoryToFirestoreMutationFn = Apollo.MutationFunction<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>;
+
+/**
+ * __useAddHistoryToFirestoreMutation__
+ *
+ * To run a mutation, you first call `useAddHistoryToFirestoreMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddHistoryToFirestoreMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addHistoryToFirestoreMutation, { data, loading, error }] = useAddHistoryToFirestoreMutation({
+ *   variables: {
+ *      Id: // value for 'Id'
+ *      Data: // value for 'Data'
+ *   },
+ * });
+ */
+export function useAddHistoryToFirestoreMutation(baseOptions?: Apollo.MutationHookOptions<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>(AddHistoryToFirestoreDocument, options);
+      }
+export type AddHistoryToFirestoreMutationHookResult = ReturnType<typeof useAddHistoryToFirestoreMutation>;
+export type AddHistoryToFirestoreMutationResult = Apollo.MutationResult<AddHistoryToFirestoreMutation>;
+export type AddHistoryToFirestoreMutationOptions = Apollo.BaseMutationOptions<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>;
+export const UpdateHistoryDocument = gql`
+    mutation UpdateHistory($newPricePack: Int, $oldPricePack: Int, $newPricePersonal: Int, $oldPricePersonal: Int, $newPriceDepo: Int, $oldPriceDepo: Int, $SuppId: String, $PackageName: String) {
+  updateHistory(
+    newPricePack: $newPricePack
+    oldPricePack: $oldPricePack
+    newPricePersonal: $newPricePersonal
+    oldPricePersonal: $oldPricePersonal
+    newPriceDepo: $newPriceDepo
+    oldPriceDepo: $oldPriceDepo
+    suppId: $SuppId
+    packName: $PackageName
+  ) {
+    message
+  }
+}
+    `;
+export type UpdateHistoryMutationFn = Apollo.MutationFunction<UpdateHistoryMutation, UpdateHistoryMutationVariables>;
+
+/**
+ * __useUpdateHistoryMutation__
+ *
+ * To run a mutation, you first call `useUpdateHistoryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateHistoryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateHistoryMutation, { data, loading, error }] = useUpdateHistoryMutation({
+ *   variables: {
+ *      newPricePack: // value for 'newPricePack'
+ *      oldPricePack: // value for 'oldPricePack'
+ *      newPricePersonal: // value for 'newPricePersonal'
+ *      oldPricePersonal: // value for 'oldPricePersonal'
+ *      newPriceDepo: // value for 'newPriceDepo'
+ *      oldPriceDepo: // value for 'oldPriceDepo'
+ *      SuppId: // value for 'SuppId'
+ *      PackageName: // value for 'PackageName'
+ *   },
+ * });
+ */
+export function useUpdateHistoryMutation(baseOptions?: Apollo.MutationHookOptions<UpdateHistoryMutation, UpdateHistoryMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateHistoryMutation, UpdateHistoryMutationVariables>(UpdateHistoryDocument, options);
+      }
+export type UpdateHistoryMutationHookResult = ReturnType<typeof useUpdateHistoryMutation>;
+export type UpdateHistoryMutationResult = Apollo.MutationResult<UpdateHistoryMutation>;
+export type UpdateHistoryMutationOptions = Apollo.BaseMutationOptions<UpdateHistoryMutation, UpdateHistoryMutationVariables>;
+export const MutSuitableSuppDocument = gql`
+    mutation MutSuitableSupp($Width: Int!, $Weight: Int!, $Height: Int!, $Length: Int!, $Mz: String!, $Mdo: String!, $Cost: Int!) {
+  BingoSupPac(
+    width: $Width
+    weight: $Weight
+    height: $Height
+    Plength: $Length
+    mistoZ: $Mz
+    mistoDo: $Mdo
+    cost: $Cost
+  ) {
+    ... on Suitable {
+      suitable
+    }
+    ... on ErrorMessage {
+      message
+    }
+  }
+}
+    `;
+export type MutSuitableSuppMutationFn = Apollo.MutationFunction<MutSuitableSuppMutation, MutSuitableSuppMutationVariables>;
+
+/**
+ * __useMutSuitableSuppMutation__
+ *
+ * To run a mutation, you first call `useMutSuitableSuppMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMutSuitableSuppMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [mutSuitableSuppMutation, { data, loading, error }] = useMutSuitableSuppMutation({
+ *   variables: {
+ *      Width: // value for 'Width'
+ *      Weight: // value for 'Weight'
+ *      Height: // value for 'Height'
+ *      Length: // value for 'Length'
+ *      Mz: // value for 'Mz'
+ *      Mdo: // value for 'Mdo'
+ *      Cost: // value for 'Cost'
+ *   },
+ * });
+ */
+export function useMutSuitableSuppMutation(baseOptions?: Apollo.MutationHookOptions<MutSuitableSuppMutation, MutSuitableSuppMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<MutSuitableSuppMutation, MutSuitableSuppMutationVariables>(MutSuitableSuppDocument, options);
+      }
+export type MutSuitableSuppMutationHookResult = ReturnType<typeof useMutSuitableSuppMutation>;
+export type MutSuitableSuppMutationResult = Apollo.MutationResult<MutSuitableSuppMutation>;
+export type MutSuitableSuppMutationOptions = Apollo.BaseMutationOptions<MutSuitableSuppMutation, MutSuitableSuppMutationVariables>;
 export const DeletePacDocument = gql`
     mutation DeletePac($Id: String!, $Key: String!) {
   deletePack(suppId: $Id, key: $Key) {
@@ -505,74 +640,6 @@ export function useDeletePacMutation(baseOptions?: Apollo.MutationHookOptions<De
 export type DeletePacMutationHookResult = ReturnType<typeof useDeletePacMutation>;
 export type DeletePacMutationResult = Apollo.MutationResult<DeletePacMutation>;
 export type DeletePacMutationOptions = Apollo.BaseMutationOptions<DeletePacMutation, DeletePacMutationVariables>;
-export const DeleteSuppDocument = gql`
-    mutation DeleteSupp($Id: [String]) {
-  deleteSupp(id: $Id) {
-    deletion
-    error
-  }
-}
-    `;
-export type DeleteSuppMutationFn = Apollo.MutationFunction<DeleteSuppMutation, DeleteSuppMutationVariables>;
-
-/**
- * __useDeleteSuppMutation__
- *
- * To run a mutation, you first call `useDeleteSuppMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteSuppMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteSuppMutation, { data, loading, error }] = useDeleteSuppMutation({
- *   variables: {
- *      Id: // value for 'Id'
- *   },
- * });
- */
-export function useDeleteSuppMutation(baseOptions?: Apollo.MutationHookOptions<DeleteSuppMutation, DeleteSuppMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteSuppMutation, DeleteSuppMutationVariables>(DeleteSuppDocument, options);
-      }
-export type DeleteSuppMutationHookResult = ReturnType<typeof useDeleteSuppMutation>;
-export type DeleteSuppMutationResult = Apollo.MutationResult<DeleteSuppMutation>;
-export type DeleteSuppMutationOptions = Apollo.BaseMutationOptions<DeleteSuppMutation, DeleteSuppMutationVariables>;
-export const AddHistoryToFirestoreDocument = gql`
-    mutation AddHistoryToFirestore($Id: String!, $Data: String!) {
-  AddHistory(uId: $Id, data: $Data) {
-    message
-  }
-}
-    `;
-export type AddHistoryToFirestoreMutationFn = Apollo.MutationFunction<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>;
-
-/**
- * __useAddHistoryToFirestoreMutation__
- *
- * To run a mutation, you first call `useAddHistoryToFirestoreMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddHistoryToFirestoreMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addHistoryToFirestoreMutation, { data, loading, error }] = useAddHistoryToFirestoreMutation({
- *   variables: {
- *      Id: // value for 'Id'
- *      Data: // value for 'Data'
- *   },
- * });
- */
-export function useAddHistoryToFirestoreMutation(baseOptions?: Apollo.MutationHookOptions<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>(AddHistoryToFirestoreDocument, options);
-      }
-export type AddHistoryToFirestoreMutationHookResult = ReturnType<typeof useAddHistoryToFirestoreMutation>;
-export type AddHistoryToFirestoreMutationResult = Apollo.MutationResult<AddHistoryToFirestoreMutation>;
-export type AddHistoryToFirestoreMutationOptions = Apollo.BaseMutationOptions<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>;
 export const NewPackageToFirestoreDocument = gql`
     mutation NewPackageToFirestore($SuppID: String!, $Hmotnost: Int!, $Cost: Int!, $Delka: Int!, $Vyska: Int!, $Sirka: Int!, $Pack_name: String!, $PackId: String!) {
   PackageToFirestore(
@@ -635,58 +702,147 @@ export function useNewPackageToFirestoreMutation(baseOptions?: Apollo.MutationHo
 export type NewPackageToFirestoreMutationHookResult = ReturnType<typeof useNewPackageToFirestoreMutation>;
 export type NewPackageToFirestoreMutationResult = Apollo.MutationResult<NewPackageToFirestoreMutation>;
 export type NewPackageToFirestoreMutationOptions = Apollo.BaseMutationOptions<NewPackageToFirestoreMutation, NewPackageToFirestoreMutationVariables>;
-export const MutSuitableSuppDocument = gql`
-    mutation MutSuitableSupp($Width: Int!, $Weight: Int!, $Height: Int!, $Length: Int!, $Mz: String!, $Mdo: String!, $Cost: Int!) {
-  BingoSupPac(
-    width: $Width
-    weight: $Weight
-    height: $Height
-    Plength: $Length
-    mistoZ: $Mz
-    mistoDo: $Mdo
+export const UpdatePackageDocument = gql`
+    mutation UpdatePackage($Hmotnost: Int!, $Cost: Int!, $Delka: Int!, $Vyska: Int!, $Sirka: Int!, $Pack_name: String!, $PackKey: String!, $SuppId: String!) {
+  updatePack(
+    PackKey: $PackKey
+    weight: $Hmotnost
     cost: $Cost
+    Plength: $Delka
+    height: $Vyska
+    width: $Sirka
+    name_package: $Pack_name
+    supplier_id: $SuppId
   ) {
-    ... on Suitable {
-      suitable
+    ... on UPack {
+      data {
+        weight
+        cost
+        Plength
+        height
+        width
+        name_package
+        supplier_id
+      }
     }
-    ... on ErrorMessage {
+    ... on PackageUpdateError {
       message
     }
   }
 }
     `;
-export type MutSuitableSuppMutationFn = Apollo.MutationFunction<MutSuitableSuppMutation, MutSuitableSuppMutationVariables>;
+export type UpdatePackageMutationFn = Apollo.MutationFunction<UpdatePackageMutation, UpdatePackageMutationVariables>;
 
 /**
- * __useMutSuitableSuppMutation__
+ * __useUpdatePackageMutation__
  *
- * To run a mutation, you first call `useMutSuitableSuppMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useMutSuitableSuppMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdatePackageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePackageMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [mutSuitableSuppMutation, { data, loading, error }] = useMutSuitableSuppMutation({
+ * const [updatePackageMutation, { data, loading, error }] = useUpdatePackageMutation({
  *   variables: {
- *      Width: // value for 'Width'
- *      Weight: // value for 'Weight'
- *      Height: // value for 'Height'
- *      Length: // value for 'Length'
- *      Mz: // value for 'Mz'
- *      Mdo: // value for 'Mdo'
+ *      Hmotnost: // value for 'Hmotnost'
  *      Cost: // value for 'Cost'
+ *      Delka: // value for 'Delka'
+ *      Vyska: // value for 'Vyska'
+ *      Sirka: // value for 'Sirka'
+ *      Pack_name: // value for 'Pack_name'
+ *      PackKey: // value for 'PackKey'
+ *      SuppId: // value for 'SuppId'
  *   },
  * });
  */
-export function useMutSuitableSuppMutation(baseOptions?: Apollo.MutationHookOptions<MutSuitableSuppMutation, MutSuitableSuppMutationVariables>) {
+export function useUpdatePackageMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePackageMutation, UpdatePackageMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<MutSuitableSuppMutation, MutSuitableSuppMutationVariables>(MutSuitableSuppDocument, options);
+        return Apollo.useMutation<UpdatePackageMutation, UpdatePackageMutationVariables>(UpdatePackageDocument, options);
       }
-export type MutSuitableSuppMutationHookResult = ReturnType<typeof useMutSuitableSuppMutation>;
-export type MutSuitableSuppMutationResult = Apollo.MutationResult<MutSuitableSuppMutation>;
-export type MutSuitableSuppMutationOptions = Apollo.BaseMutationOptions<MutSuitableSuppMutation, MutSuitableSuppMutationVariables>;
+export type UpdatePackageMutationHookResult = ReturnType<typeof useUpdatePackageMutation>;
+export type UpdatePackageMutationResult = Apollo.MutationResult<UpdatePackageMutation>;
+export type UpdatePackageMutationOptions = Apollo.BaseMutationOptions<UpdatePackageMutation, UpdatePackageMutationVariables>;
+export const PackageDataDocument = gql`
+    query PackageData {
+  packageData {
+    Pkam
+    Podkud
+    costPackage
+    delka
+    hmotnost
+    kam
+    odkud
+    packName
+    packgeId
+    sirka
+    vyska
+    supplierId
+  }
+}
+    `;
+
+/**
+ * __usePackageDataQuery__
+ *
+ * To run a query within a React component, call `usePackageDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePackageDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePackageDataQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function usePackageDataQuery(baseOptions?: Apollo.QueryHookOptions<PackageDataQuery, PackageDataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PackageDataQuery, PackageDataQueryVariables>(PackageDataDocument, options);
+      }
+export function usePackageDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PackageDataQuery, PackageDataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PackageDataQuery, PackageDataQueryVariables>(PackageDataDocument, options);
+        }
+export type PackageDataQueryHookResult = ReturnType<typeof usePackageDataQuery>;
+export type PackageDataLazyQueryHookResult = ReturnType<typeof usePackageDataLazyQuery>;
+export type PackageDataQueryResult = Apollo.QueryResult<PackageDataQuery, PackageDataQueryVariables>;
+export const DeleteSuppDocument = gql`
+    mutation DeleteSupp($Id: [String]) {
+  deleteSupp(id: $Id) {
+    deletion
+    error
+  }
+}
+    `;
+export type DeleteSuppMutationFn = Apollo.MutationFunction<DeleteSuppMutation, DeleteSuppMutationVariables>;
+
+/**
+ * __useDeleteSuppMutation__
+ *
+ * To run a mutation, you first call `useDeleteSuppMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSuppMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteSuppMutation, { data, loading, error }] = useDeleteSuppMutation({
+ *   variables: {
+ *      Id: // value for 'Id'
+ *   },
+ * });
+ */
+export function useDeleteSuppMutation(baseOptions?: Apollo.MutationHookOptions<DeleteSuppMutation, DeleteSuppMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteSuppMutation, DeleteSuppMutationVariables>(DeleteSuppDocument, options);
+      }
+export type DeleteSuppMutationHookResult = ReturnType<typeof useDeleteSuppMutation>;
+export type DeleteSuppMutationResult = Apollo.MutationResult<DeleteSuppMutation>;
+export type DeleteSuppMutationOptions = Apollo.BaseMutationOptions<DeleteSuppMutation, DeleteSuppMutationVariables>;
 export const NewSupplierToFirestoreDocument = gql`
     mutation NewSupplierToFirestore($SupName: String!, $Delivery: String!, $pickUp: String!, $ShippingLabel: String!, $Foil: String!, $Insurance: Int!, $SendCashDelivery: String!, $packInBox: String!, $DepoCost: Int!, $PersonalCost: Int!) {
   SupplierToFirestore(
@@ -754,117 +910,6 @@ export function useNewSupplierToFirestoreMutation(baseOptions?: Apollo.MutationH
 export type NewSupplierToFirestoreMutationHookResult = ReturnType<typeof useNewSupplierToFirestoreMutation>;
 export type NewSupplierToFirestoreMutationResult = Apollo.MutationResult<NewSupplierToFirestoreMutation>;
 export type NewSupplierToFirestoreMutationOptions = Apollo.BaseMutationOptions<NewSupplierToFirestoreMutation, NewSupplierToFirestoreMutationVariables>;
-export const UpdateHistoryDocument = gql`
-    mutation UpdateHistory($newPricePack: Int, $oldPricePack: Int, $newPricePersonal: Int, $oldPricePersonal: Int, $newPriceDepo: Int, $oldPriceDepo: Int, $SuppId: String, $PackageName: String) {
-  updateHistory(
-    newPricePack: $newPricePack
-    oldPricePack: $oldPricePack
-    newPricePersonal: $newPricePersonal
-    oldPricePersonal: $oldPricePersonal
-    newPriceDepo: $newPriceDepo
-    oldPriceDepo: $oldPriceDepo
-    suppId: $SuppId
-    packName: $PackageName
-  ) {
-    message
-  }
-}
-    `;
-export type UpdateHistoryMutationFn = Apollo.MutationFunction<UpdateHistoryMutation, UpdateHistoryMutationVariables>;
-
-/**
- * __useUpdateHistoryMutation__
- *
- * To run a mutation, you first call `useUpdateHistoryMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateHistoryMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateHistoryMutation, { data, loading, error }] = useUpdateHistoryMutation({
- *   variables: {
- *      newPricePack: // value for 'newPricePack'
- *      oldPricePack: // value for 'oldPricePack'
- *      newPricePersonal: // value for 'newPricePersonal'
- *      oldPricePersonal: // value for 'oldPricePersonal'
- *      newPriceDepo: // value for 'newPriceDepo'
- *      oldPriceDepo: // value for 'oldPriceDepo'
- *      SuppId: // value for 'SuppId'
- *      PackageName: // value for 'PackageName'
- *   },
- * });
- */
-export function useUpdateHistoryMutation(baseOptions?: Apollo.MutationHookOptions<UpdateHistoryMutation, UpdateHistoryMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateHistoryMutation, UpdateHistoryMutationVariables>(UpdateHistoryDocument, options);
-      }
-export type UpdateHistoryMutationHookResult = ReturnType<typeof useUpdateHistoryMutation>;
-export type UpdateHistoryMutationResult = Apollo.MutationResult<UpdateHistoryMutation>;
-export type UpdateHistoryMutationOptions = Apollo.BaseMutationOptions<UpdateHistoryMutation, UpdateHistoryMutationVariables>;
-export const UpdatePackageDocument = gql`
-    mutation UpdatePackage($Hmotnost: Int!, $Cost: Int!, $Delka: Int!, $Vyska: Int!, $Sirka: Int!, $Pack_name: String!, $PackKey: String!, $SuppId: String!) {
-  updatePack(
-    PackKey: $PackKey
-    weight: $Hmotnost
-    cost: $Cost
-    Plength: $Delka
-    height: $Vyska
-    width: $Sirka
-    name_package: $Pack_name
-    supplier_id: $SuppId
-  ) {
-    ... on UPack {
-      data {
-        weight
-        cost
-        Plength
-        height
-        width
-        name_package
-        supplier_id
-      }
-    }
-    ... on PackageUpdateError {
-      message
-    }
-  }
-}
-    `;
-export type UpdatePackageMutationFn = Apollo.MutationFunction<UpdatePackageMutation, UpdatePackageMutationVariables>;
-
-/**
- * __useUpdatePackageMutation__
- *
- * To run a mutation, you first call `useUpdatePackageMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdatePackageMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updatePackageMutation, { data, loading, error }] = useUpdatePackageMutation({
- *   variables: {
- *      Hmotnost: // value for 'Hmotnost'
- *      Cost: // value for 'Cost'
- *      Delka: // value for 'Delka'
- *      Vyska: // value for 'Vyska'
- *      Sirka: // value for 'Sirka'
- *      Pack_name: // value for 'Pack_name'
- *      PackKey: // value for 'PackKey'
- *      SuppId: // value for 'SuppId'
- *   },
- * });
- */
-export function useUpdatePackageMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePackageMutation, UpdatePackageMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdatePackageMutation, UpdatePackageMutationVariables>(UpdatePackageDocument, options);
-      }
-export type UpdatePackageMutationHookResult = ReturnType<typeof useUpdatePackageMutation>;
-export type UpdatePackageMutationResult = Apollo.MutationResult<UpdatePackageMutation>;
-export type UpdatePackageMutationOptions = Apollo.BaseMutationOptions<UpdatePackageMutation, UpdatePackageMutationVariables>;
 export const UpdateSupplierDocument = gql`
     mutation UpdateSupplier($SupName: String!, $Delivery: String!, $pickUp: String!, $ShippingLabel: String!, $Foil: String!, $Insurance: Int!, $SendCashDelivery: String!, $packInBox: String!, $SuppId: String!, $ActNameSupp: String!, $DepoCost: Int!, $PersonalCost: Int!) {
   updateSup(
@@ -937,51 +982,6 @@ export function useUpdateSupplierMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateSupplierMutationHookResult = ReturnType<typeof useUpdateSupplierMutation>;
 export type UpdateSupplierMutationResult = Apollo.MutationResult<UpdateSupplierMutation>;
 export type UpdateSupplierMutationOptions = Apollo.BaseMutationOptions<UpdateSupplierMutation, UpdateSupplierMutationVariables>;
-export const PackageDataDocument = gql`
-    query PackageData {
-  packageData {
-    Pkam
-    Podkud
-    costPackage
-    delka
-    hmotnost
-    kam
-    odkud
-    packName
-    packgeId
-    sirka
-    vyska
-    supplierId
-  }
-}
-    `;
-
-/**
- * __usePackageDataQuery__
- *
- * To run a query within a React component, call `usePackageDataQuery` and pass it any options that fit your needs.
- * When your component renders, `usePackageDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePackageDataQuery({
- *   variables: {
- *   },
- * });
- */
-export function usePackageDataQuery(baseOptions?: Apollo.QueryHookOptions<PackageDataQuery, PackageDataQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PackageDataQuery, PackageDataQueryVariables>(PackageDataDocument, options);
-      }
-export function usePackageDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PackageDataQuery, PackageDataQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PackageDataQuery, PackageDataQueryVariables>(PackageDataDocument, options);
-        }
-export type PackageDataQueryHookResult = ReturnType<typeof usePackageDataQuery>;
-export type PackageDataLazyQueryHookResult = ReturnType<typeof usePackageDataLazyQuery>;
-export type PackageDataQueryResult = Apollo.QueryResult<PackageDataQuery, PackageDataQueryVariables>;
 export const SuppDataDocument = gql`
     query SuppData {
   suplierData {

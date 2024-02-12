@@ -19,18 +19,22 @@ type Props = {
 const parseIntReliable = (numArg: string) => {
   if (numArg.length > 0) {
     const parsed = Number.parseInt(numArg, 10);
-    if (parsed < 0) {
-      // if (numArg.replaceAll('0', '') === '') {
-      //   return 0;
-      // }
+    if (parsed === 0) {
       // eslint-disable-next-line max-depth
-      return parsed;
-    }
-    if (Number.isSafeInteger(parsed) && parsed) {
+      if (numArg.replaceAll('0', '') === '') {
+        return 0;
+      }
+    } else if (Number.isSafeInteger(parsed)) {
       return parsed;
     }
   }
   return false;
+};
+
+const isInt = (numArg: string, min: number) => {
+  const parsed = parseIntReliable(numArg);
+
+  return parsed !== false && parsed > min;
 };
 
 const Valid = (
@@ -42,11 +46,11 @@ const Valid = (
   // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
 ) => {
   if (
-    !parseIntReliable(weightarg) ||
-    !parseIntReliable(costarg) ||
-    !parseIntReliable(pLemgtharg) ||
-    !parseIntReliable(heightarg) ||
-    !parseIntReliable(widtharg)
+    !isInt(weightarg, 0) ||
+    !isInt(costarg, 0) ||
+    !isInt(pLemgtharg, 0) ||
+    !isInt(heightarg, 0) ||
+    !isInt(widtharg, 0)
   ) {
     return new Error('Invalid argument');
   }

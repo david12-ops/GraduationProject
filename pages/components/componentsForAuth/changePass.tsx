@@ -1,5 +1,3 @@
-/* eslint-disable unicorn/better-regex */
-/* eslint-disable sonarjs/prefer-single-boolean-return */
 // eslint-disable-next-line unicorn/filename-case
 
 'use client';

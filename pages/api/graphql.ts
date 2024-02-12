@@ -420,6 +420,87 @@ const CostDif = (
   return operationCost;
 };
 
+const doMathForPackage = async (
+  data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
+  nPriceP: number,
+  packageName: string,
+  historyDoc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
+): Promise<number> => {
+  // type Package = {
+  //   [key: string]: {
+  //     cost: number;
+  //     name_package: string;
+  //     Plength: number;
+  //     width: number;
+  //     weight: number;
+  //     supplier_id: string;
+  //     height: number;
+  //   };
+  // };
+  let sum = 0;
+  const historyId = '';
+
+  data.forEach((item) => {
+    const loc = item.data().location;
+    // const pack: Array<Package> = item.data().package;
+    // pack.forEach((pckg) => {
+    //   if (pckg[packageName]) {
+    //     sum += pckg[packageName].cost;
+    //   }
+    // });
+    console.log('loc', loc.depoDelivery.cost, loc.personalDelivery.cost);
+    console.log('metida', sum);
+    sum =
+      nPriceP +
+      Number(loc.depoDelivery.cost) +
+      Number(loc.personalDelivery.cost);
+    console.log('cena i s zpusobem dopravy', sum);
+  });
+
+  // historie k update
+  historyDoc.forEach((doc) => {
+    // if (
+    //   doc._fieldsProto.suppData.mapValue.fields.id.stringValue === sId &&
+    //   doc._fieldsProto.suppData.mapValue.fields.packName.stringValue ===
+    //     nameOfpack
+    // ) {
+    //   cost = Number(
+    //     doc._fieldsProto.suppData.mapValue.fields.cost.integerValue,
+    //   );
+    //   console.log(doc);
+    //   historyId = doc._fieldsProto.historyId.stringValue;
+    // }
+    console.log('histrDoc', doc.data());
+  });
+
+  // const historyQuerySnapshot = await db
+  //   .collection('History')
+  //   .where('historyId', '==', historyId)
+  //   .get();
+
+  // if (!historyQuerySnapshot.empty) {
+  //   const historyDocumentRef = historyQuerySnapshot.docs[0].ref;
+
+  //   await historyDocumentRef.update(
+  //     new firestore.FieldPath('suppData', 'cost'),
+  //     sum,
+  //   );
+  //   return historyQuerySnapshot.docChanges().length;
+  // }
+
+  console.log(sum);
+
+  return data.docChanges().length;
+};
+
+const doMatchForOptionsDelivery = (
+  data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
+  nPriceDepo: number,
+  nPriceP: number,
+) => {
+  console.log(nPriceP);
+};
+
 const resolvers = {
   Query: {
     packageData: async (_context: Context) => {
@@ -1679,12 +1760,38 @@ const resolvers = {
       try {
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
         let msg = '';
+        let updated = false;
         if (context.user?.email !== Admin) {
           return {
             __typename: 'HistoryMessage',
             message: 'Only admin can use this function',
           };
         }
+
+        const SuppDocuments = await db
+          .collection('Supplier')
+          .where('supplierId', '==', sId)
+          .get();
+
+        const historyDocuments = await db
+          .collection('History')
+          .where('suppData.id', '==', sId)
+          .get();
+
+        console.log('ccc', historyDocuments.size);
+
+        if (historyDocuments) {
+          await doMathForPackage(
+            SuppDocuments,
+            nPricrePack,
+            nameOfpack,
+            historyDocuments,
+          );
+        } else {
+          updated = false;
+        }
+
+        doMatchForOptionsDelivery(SuppDocuments, nPriceDepo, nPriceP);
 
         const ChangePricePack = async (userEmail: string) => {
           let historyId = '';

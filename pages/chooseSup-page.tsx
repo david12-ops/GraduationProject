@@ -14,7 +14,6 @@ import { FormChooseSup } from './components/formChooseSupp';
 import { Navbar } from './components/navbar2';
 
 const parseIntReliable = (numArg: string) => {
-  const min = 1;
   if (numArg.length > 0) {
     const parsed = Number.parseInt(numArg, 10);
     if (parsed === 0) {
@@ -22,11 +21,17 @@ const parseIntReliable = (numArg: string) => {
       if (numArg.replaceAll('0', '') === '') {
         return 0;
       }
-    } else if (Number.isSafeInteger(parsed) && Number(parsed) > min) {
+    } else if (Number.isSafeInteger(parsed)) {
       return parsed;
     }
   }
   return false;
+};
+
+const isInt = (numArg: string, min: number) => {
+  const parsed = parseIntReliable(numArg);
+
+  return parsed !== false && parsed > min;
 };
 
 const Res = (dataSui: [], allSupp: any) => {
@@ -86,6 +91,7 @@ const RenderSupp = (
       </div>
     ));
   }
+  return <div></div>;
 };
 
 const Valid = (
@@ -97,11 +103,11 @@ const Valid = (
   // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
 ) => {
   if (
-    !parseIntReliable(weightarg) ||
-    !parseIntReliable(costarg) ||
-    !parseIntReliable(pLengtharg) ||
-    !parseIntReliable(heightarg) ||
-    !parseIntReliable(widtharg)
+    !isInt(weightarg, 0) ||
+    !isInt(costarg, 0) ||
+    !isInt(pLengtharg, 0) ||
+    !isInt(heightarg, 0) ||
+    !isInt(widtharg, 0)
   ) {
     return new Error('Invalid argument');
   }

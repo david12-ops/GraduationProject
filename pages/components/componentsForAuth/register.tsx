@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { FormEvent } from 'react';
 
-import { useActualUsToFirestoreMutation } from '@/generated/graphql';
-
 import { authUtils } from '../../../firebase/auth-utils';
 import styles from '../../../styles/stylesForm/style.module.css';
 
@@ -14,7 +12,6 @@ export const PageRegisterForm = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const router = useRouter();
-  const [newUser] = useActualUsToFirestoreMutation();
 
   // eslint-disable-next-line consistent-return
   const handleForm = async (event: FormEvent) => {

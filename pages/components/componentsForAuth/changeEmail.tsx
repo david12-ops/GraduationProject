@@ -6,7 +6,6 @@ import { useRouter } from 'next/router';
 import React, { FormEvent, useState } from 'react';
 
 import { authUtils } from '@/firebase/auth-utils';
-import { useChangeActualUsEmToFirestoreMutation } from '@/generated/graphql';
 
 // import { ChangeActualUsEmToFirestoreMutation } from '@/generated/graphql';
 import styles from '../../../styles/stylesForm/style.module.css';
@@ -17,8 +16,6 @@ export const PageFormChangeEm = () => {
   const auth = getAuth();
   const router = useRouter();
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const [changeE, error] = useChangeActualUsEmToFirestoreMutation();
-  // eslint-disable-next-line consistent-return
   const handleForm = async (event: FormEvent) => {
     try {
       if (!auth.currentUser) {
