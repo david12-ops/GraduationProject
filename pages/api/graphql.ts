@@ -424,8 +424,10 @@ const doMathForPackage = async (
   data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
   nPriceP: number,
   packageName: string,
+  supplierId: string,
   historyDoc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
-): Promise<number> => {
+): Promise<string> => {
+  let msg = '';
   // type Package = {
   //   [key: string]: {
   //     cost: number;
@@ -437,8 +439,35 @@ const doMathForPackage = async (
   //     height: number;
   //   };
   // };
+
+  // type HistoryItm = {
+  //   uId: string;
+  //   dataForm: {
+  //     width: string;
+  //     placeTo: string;
+  //     weight: string;
+  //     placeFrom: string;
+  //     plength: string;
+  //     height: string;
+  //   };
+  //   historyId: string;
+  //   suppData: {
+  //     insurance: number;
+  //     delivery: string;
+  //     packInBox: string;
+  //     name: string;
+  //     pickup: string;
+  //     shippingLabel: string;
+  //     id: string;
+  //     sendCashDelivery: string;
+  //     foil: string;
+  //     packName: string;
+  //     cost: number;
+  //   };
+  // };
+
   let sum = 0;
-  const historyId = '';
+  let historyId = '';
 
   data.forEach((item) => {
     const loc = item.data().location;
@@ -457,48 +486,67 @@ const doMathForPackage = async (
     console.log('cena i s zpusobem dopravy', sum);
   });
 
-  // historie k update
   historyDoc.forEach((doc) => {
-    // if (
-    //   doc._fieldsProto.suppData.mapValue.fields.id.stringValue === sId &&
-    //   doc._fieldsProto.suppData.mapValue.fields.packName.stringValue ===
-    //     nameOfpack
-    // ) {
-    //   cost = Number(
-    //     doc._fieldsProto.suppData.mapValue.fields.cost.integerValue,
-    //   );
-    //   console.log(doc);
-    //   historyId = doc._fieldsProto.historyId.stringValue;
-    // }
-    console.log('histrDoc', doc.data());
+    const itm = doc.data();
+    if (
+      itm.suppData.id === supplierId &&
+      itm.suppData.packName === packageName
+    ) {
+      historyId = itm.historyId;
+    }
   });
 
-  // const historyQuerySnapshot = await db
-  //   .collection('History')
-  //   .where('historyId', '==', historyId)
-  //   .get();
+  const historyQuerySnapshot = await db
+    .collection('History')
+    .where('historyId', '==', historyId)
+    .get();
 
-  // if (!historyQuerySnapshot.empty) {
-  //   const historyDocumentRef = historyQuerySnapshot.docs[0].ref;
+  // eslint-disable-next-line unicorn/no-negated-condition
+  if (!historyQuerySnapshot.empty) {
+    const historyDocumentRef = historyQuerySnapshot.docs[0].ref;
 
-  //   await historyDocumentRef.update(
-  //     new firestore.FieldPath('suppData', 'cost'),
-  //     sum,
-  //   );
-  //   return historyQuerySnapshot.docChanges().length;
-  // }
+    await historyDocumentRef.update(
+      new firestore.FieldPath('suppData', 'cost'),
+      sum,
+    );
+    // eslint-disable-next-line prettier/prettier
+  }
+  else{
+    msg = 'Nothing to update in history';
+    return msg;
+  }
 
-  console.log(sum);
+  if (
+    historyQuerySnapshot.docChanges() &&
+    historyQuerySnapshot.docChanges().length > 0
+  ) {
+    msg = 'Users history updated successfully';
+    return msg;
+  }
 
-  return data.docChanges().length;
+  msg = 'Users history not updated successfully';
+  return msg;
 };
 
 const doMatchForOptionsDelivery = (
   data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
   nPriceDepo: number,
   nPriceP: number,
+  historyDoc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
 ) => {
+  const sum: Record<string, number> = {};
+  data.forEach((item) => {
+    const { location } = item.data();
+    sum[item.data().supplierId] =
+      Number(location.depoDelivery.cost) +
+      Number(location.personalDelivery.cost);
+  });
+
+  // balicky
+
+  // update history
   console.log(nPriceP);
+  console.log('locat sum', sum);
 };
 
 const resolvers = {
@@ -1760,7 +1808,6 @@ const resolvers = {
       try {
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
         let msg = '';
-        let updated = false;
         if (context.user?.email !== Admin) {
           return {
             __typename: 'HistoryMessage',
@@ -1778,93 +1825,12 @@ const resolvers = {
           .where('suppData.id', '==', sId)
           .get();
 
-        console.log('ccc', historyDocuments.size);
-
-        if (historyDocuments) {
-          await doMathForPackage(
-            SuppDocuments,
-            nPricrePack,
-            nameOfpack,
-            historyDocuments,
-          );
-        } else {
-          updated = false;
-        }
-
-        doMatchForOptionsDelivery(SuppDocuments, nPriceDepo, nPriceP);
-
-        const ChangePricePack = async (userEmail: string) => {
-          let historyId = '';
-          let updated = false;
-          let cost = 0; // puvodni cena
-          const historyDocuments = await db
-            .collection('History')
-            .where('suppData.id', '==', sId)
-            .get();
-
-          // spatne hodnoty
-          console.log('old price', oPricePack);
-          console.log('new price', nPricrePack);
-
-          if (nPricrePack !== oPricePack) {
-            historyDocuments.forEach((doc: any) => {
-              if (
-                doc._fieldsProto.suppData.mapValue.fields.id.stringValue ===
-                  sId &&
-                doc._fieldsProto.suppData.mapValue.fields.packName
-                  .stringValue === nameOfpack
-              ) {
-                cost = Number(
-                  doc._fieldsProto.suppData.mapValue.fields.cost.integerValue,
-                );
-                console.log(doc);
-                historyId = doc._fieldsProto.historyId.stringValue;
-              }
-            });
-          }
-
-          if (nPricrePack > oPricePack) {
-            console.log('spadl jsem jsem 1');
-            cost += nPricrePack - oPricePack;
-          }
-
-          if (nPricrePack < oPricePack) {
-            console.log('spadl jsem jsem 2');
-            console.log(oPricePack, nPricrePack);
-            cost -= oPricePack - nPricrePack;
-          }
-
-          if (historyId !== '' && userEmail === Admin) {
-            const historyQuerySnapshot = await db
-              .collection('History')
-              .where('historyId', '==', historyId)
-              .get();
-            if (!historyQuerySnapshot.empty) {
-              const historyDocumentRef = historyQuerySnapshot.docs[0].ref;
-
-              await historyDocumentRef.update(
-                new firestore.FieldPath('suppData', 'cost'),
-                cost,
-              );
-              updated = !!(
-                historyQuerySnapshot.docChanges() &&
-                historyQuerySnapshot.docChanges().length > 0
-              );
-            }
-          }
-
-          console.log('updated', updated);
-
-          if (historyId === '') {
-            return 'Nothing to update in history';
-          }
-
-          if (updated) {
-            return 'Users history updated successfully';
-          }
-
-          return 'Users history not updated successfully';
-        };
+        doMatchForOptionsDelivery(
+          SuppDocuments,
+          nPriceDepo,
+          nPriceP,
+          historyDocuments,
+        );
 
         const ChangePriceOptionsDelivery = async (userEmail: string) => {
           const SuppDocuments = await db
@@ -1929,13 +1895,27 @@ const resolvers = {
           return 'Users history not updated successfully';
         };
 
-        if (nPriceP && oPriceP && nPriceDepo && oPriceDepo) {
+        if (
+          nPriceP &&
+          oPriceP &&
+          nPriceDepo &&
+          oPriceDepo &&
+          context.user?.email === Admin
+        ) {
           msg = await ChangePriceOptionsDelivery(context.user?.email ?? '');
         }
 
-        if (nPricrePack && oPricePack && nameOfpack) {
-          msg = await ChangePricePack(context.user?.email ?? '');
+        if (nPricrePack && nameOfpack && sId && context.user?.email === Admin) {
+          msg = await doMathForPackage(
+            SuppDocuments,
+            nPricrePack,
+            nameOfpack,
+            sId,
+            historyDocuments,
+          );
         }
+
+        msg = 'Only admin can use this functionality';
 
         return { message: msg };
       } catch (error) {
