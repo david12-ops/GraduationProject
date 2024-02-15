@@ -428,55 +428,23 @@ const doMathForPackage = async (
   historyDoc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
 ): Promise<string> => {
   let msg = '';
-  // type Package = {
-  //   [key: string]: {
-  //     cost: number;
-  //     name_package: string;
-  //     Plength: number;
-  //     width: number;
-  //     weight: number;
-  //     supplier_id: string;
-  //     height: number;
-  //   };
-  // };
-
-  // type HistoryItm = {
-  //   uId: string;
-  //   dataForm: {
-  //     width: string;
-  //     placeTo: string;
-  //     weight: string;
-  //     placeFrom: string;
-  //     plength: string;
-  //     height: string;
-  //   };
-  //   historyId: string;
-  //   suppData: {
-  //     insurance: number;
-  //     delivery: string;
-  //     packInBox: string;
-  //     name: string;
-  //     pickup: string;
-  //     shippingLabel: string;
-  //     id: string;
-  //     sendCashDelivery: string;
-  //     foil: string;
-  //     packName: string;
-  //     cost: number;
-  //   };
-  // };
 
   let sum = 0;
   let historyId = '';
 
+  type Location = {
+    depoDelivery: {
+      delivery: string;
+      cost: number;
+    };
+    personalDelivery: {
+      delivery: string;
+      cost: number;
+    };
+  };
+
   data.forEach((item) => {
-    const loc = item.data().location;
-    // const pack: Array<Package> = item.data().package;
-    // pack.forEach((pckg) => {
-    //   if (pckg[packageName]) {
-    //     sum += pckg[packageName].cost;
-    //   }
-    // });
+    const loc: Location = item.data().location;
     console.log('loc', loc.depoDelivery.cost, loc.personalDelivery.cost);
     console.log('metida', sum);
     sum =
@@ -504,7 +472,7 @@ const doMathForPackage = async (
   // eslint-disable-next-line unicorn/no-negated-condition
   if (!historyQuerySnapshot.empty) {
     const historyDocumentRef = historyQuerySnapshot.docs[0].ref;
-
+    // pozor!!!
     await historyDocumentRef.update(
       new firestore.FieldPath('suppData', 'cost'),
       sum,
@@ -528,25 +496,119 @@ const doMathForPackage = async (
   return msg;
 };
 
-const doMatchForOptionsDelivery = (
+const doMatchForOptionsDelivery = async (
   data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
   nPriceDepo: number,
   nPriceP: number,
   historyDoc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
 ) => {
-  const sum: Record<string, number> = {};
+  // moznost filtrovat i insecure
+
+  type Package = {
+    [name: string]: {
+      weight: number;
+      height: number;
+      width: number;
+      Plength: number;
+      name_package: string;
+      cost: number;
+    };
+  };
+
+  type PackInfo = {
+    cost: number;
+    namePack: string;
+  };
+
+  const namesPack: Array<string> = [];
+  // let pack: Record<string, Package> = {};
+  let pack: Array<Package> = [];
+  const packInfo: Array<PackInfo> = [];
+  const sum = nPriceDepo + nPriceP;
+  const historyIds: Array<string> = [];
+  const msg = '';
+
+  historyDoc.forEach((doc) => {
+    const item = doc.data();
+    namesPack.push(item.suppData.packName);
+  });
+
+  console.log('pack names', namesPack);
+
   data.forEach((item) => {
-    const { location } = item.data();
-    sum[item.data().supplierId] =
-      Number(location.depoDelivery.cost) +
-      Number(location.personalDelivery.cost);
+    console.log('option delivery', item.data());
+    const packages = item.data().package;
+    pack = packages;
   });
 
   // balicky
 
-  // update history
-  console.log(nPriceP);
-  console.log('locat sum', sum);
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  pack.forEach((itmPack: Package) => {
+    const key = Object.keys(itmPack)[0];
+    const packItm = itmPack[key];
+    if (namesPack.includes(packItm.name_package)) {
+      packInfo.push({ cost: packItm.cost, namePack: packItm.name_package });
+    }
+  });
+
+  console.log('packinfo', packInfo);
+  console.log('pack', pack);
+
+  // Dokument
+
+  historyDoc.forEach((doc) => {
+    const item = doc.data();
+    packInfo.forEach((itm: PackInfo) => {
+      if (item.suppData.packName === itm.namePack) {
+        historyIds.push(item.historyId);
+      }
+    });
+  });
+
+  // if (
+  //   nPriceP &&
+  //   oPriceP &&
+  //   nPriceDepo &&
+  //   oPriceDepo &&
+  //   context.user?.email === Admin
+  // ) {
+  //   msg = await ChangePriceOptionsDelivery(context.user?.email ?? '');
+  // }
+
+  console.log('history id', historyIds);
+
+  // const historyQuerySnapshot = await db
+  //   .collection('History')
+  //   .where('historyId', '==', historyId)
+  //   .get();
+
+  // if (!historyQuerySnapshot.empty) {
+  //   const historyDocumentRef = historyQuerySnapshot.docs[0].ref;
+
+  //   await historyDocumentRef.update(
+  //     new firestore.FieldPath('suppData', 'cost'),
+  //     Number(packInfo.cost) + sum,
+  //   );
+  //   // eslint-disable-next-line prettier/prettier
+  // }
+  // // update history
+  // console.log(nPriceP);
+  // console.log('locat sum', sum);
+
+  // if (
+  //   historyQuerySnapshot.docChanges() &&
+  //   historyQuerySnapshot.docChanges().length > 0
+  // ) {
+  //   msg = 'Users history updated successfully';
+  //   return msg;
+  // }
+
+  // msg = 'Users history not updated successfully';
+
+  // console.log('message', msg);
+  // return msg;
+  return msg;
 };
 
 const resolvers = {
@@ -1825,12 +1887,8 @@ const resolvers = {
           .where('suppData.id', '==', sId)
           .get();
 
-        doMatchForOptionsDelivery(
-          SuppDocuments,
-          nPriceDepo,
-          nPriceP,
-          historyDocuments,
-        );
+        // update celeho dokumentu histore
+        // kontrola aby nebyli u sera dva stejny dodavatele se stejnum balickem
 
         const ChangePriceOptionsDelivery = async (userEmail: string) => {
           const SuppDocuments = await db
@@ -1902,8 +1960,14 @@ const resolvers = {
           oPriceDepo &&
           context.user?.email === Admin
         ) {
-          msg = await ChangePriceOptionsDelivery(context.user?.email ?? '');
+          msg = await doMatchForOptionsDelivery(
+            SuppDocuments,
+            nPriceDepo,
+            nPriceP,
+            historyDocuments,
+          );
         }
+        // msg = await doMatchForOptionsDelivery(SuppDocuments, nPriceDepo, nPriceP, historyDocuments)
 
         if (nPricrePack && nameOfpack && sId && context.user?.email === Admin) {
           msg = await doMathForPackage(
@@ -1915,7 +1979,7 @@ const resolvers = {
           );
         }
 
-        msg = 'Only admin can use this functionality';
+        // msg = 'Only admin can use this functionality';
 
         return { message: msg };
       } catch (error) {
