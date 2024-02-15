@@ -309,116 +309,116 @@ const ConverDate = (dateU1: any, dateU2: any) => {
 };
 
 // eslint-disable-next-line complexity
-const CostDif = (
-  costOldDepo: number,
-  costNewDepo: number,
-  costOldPersonal: number,
-  costNewPersonal: number,
-  // eslint-disable-next-line sonarjs/cognitive-complexity
-) => {
-  // spatne hodnory
-  console.log('costOldDepo', costOldDepo);
-  console.log('costNewDepo', costNewDepo);
-  console.log('costOldPersonal', costOldPersonal);
-  console.log('costNewPersonal', costNewPersonal);
+// const CostDif = (
+//   costOldDepo: number,
+//   costNewDepo: number,
+//   costOldPersonal: number,
+//   costNewPersonal: number,
+//   // eslint-disable-next-line sonarjs/cognitive-complexity
+// ) => {
+//   // spatne hodnory
+//   console.log('costOldDepo', costOldDepo);
+//   console.log('costNewDepo', costNewDepo);
+//   console.log('costOldPersonal', costOldPersonal);
+//   console.log('costNewPersonal', costNewPersonal);
 
-  let costDifference = 0;
-  const operationCost = { operation: '', cost: costDifference };
+//   let costDifference = 0;
+//   const operationCost = { operation: '', cost: costDifference };
 
-  if (costOldDepo === costNewDepo && costOldPersonal === costNewPersonal) {
-    return operationCost;
-  }
+//   if (costOldDepo === costNewDepo && costOldPersonal === costNewPersonal) {
+//     return operationCost;
+//   }
 
-  if (costOldDepo > costNewDepo && costOldPersonal > costNewPersonal) {
-    const costD = costOldDepo - costNewDepo;
-    const costP = costOldPersonal - costNewPersonal;
-    costDifference = costD + costP;
-    console.log('zlevneni', costDifference);
-    console.log('ceny nižší');
-    operationCost.cost = costDifference;
-    operationCost.operation = '-';
-  }
+//   if (costOldDepo > costNewDepo && costOldPersonal > costNewPersonal) {
+//     const costD = costOldDepo - costNewDepo;
+//     const costP = costOldPersonal - costNewPersonal;
+//     costDifference = costD + costP;
+//     console.log('zlevneni', costDifference);
+//     console.log('ceny nižší');
+//     operationCost.cost = costDifference;
+//     operationCost.operation = '-';
+//   }
 
-  if (costOldDepo < costNewDepo && costOldPersonal < costNewPersonal) {
-    const costD = costNewDepo - costOldDepo;
-    const costP = costNewPersonal - costOldPersonal;
-    costDifference = costD + costP;
-    console.log('zdrazeni', costDifference);
-    console.log('ceny vyšší');
-    operationCost.cost = costDifference;
-    operationCost.operation = '+';
-  }
+//   if (costOldDepo < costNewDepo && costOldPersonal < costNewPersonal) {
+//     const costD = costNewDepo - costOldDepo;
+//     const costP = costNewPersonal - costOldPersonal;
+//     costDifference = costD + costP;
+//     console.log('zdrazeni', costDifference);
+//     console.log('ceny vyšší');
+//     operationCost.cost = costDifference;
+//     operationCost.operation = '+';
+//   }
 
-  if (costOldDepo > costNewDepo && costOldPersonal < costNewPersonal) {
-    const costD = costOldDepo - costNewDepo;
-    console.log('cenaD', costD);
-    const costP = costNewPersonal - costOldPersonal;
-    console.log('costP', costP);
-    costDifference = costP - costD;
-    console.log('zdrazeni/zlevneni', costDifference);
-    console.log('zvyseni personal ceny a snizeni depa ceny');
-    operationCost.cost = costDifference;
-    operationCost.operation = '+';
-  }
+//   if (costOldDepo > costNewDepo && costOldPersonal < costNewPersonal) {
+//     const costD = costOldDepo - costNewDepo;
+//     console.log('cenaD', costD);
+//     const costP = costNewPersonal - costOldPersonal;
+//     console.log('costP', costP);
+//     costDifference = costP - costD;
+//     console.log('zdrazeni/zlevneni', costDifference);
+//     console.log('zvyseni personal ceny a snizeni depa ceny');
+//     operationCost.cost = costDifference;
+//     operationCost.operation = '+';
+//   }
 
-  if (costOldPersonal > costNewPersonal && costOldDepo < costNewDepo) {
-    const costD = costNewDepo - costOldDepo;
-    console.log('cenaD', costD);
-    const costP = costOldPersonal - costNewPersonal;
-    console.log('costP', costP);
-    costDifference = costD - costP;
-    console.log('zdrazeni/zlevneni', costDifference);
-    console.log('zvyseni depo ceny a snizeni personal ceny');
-    operationCost.cost = costDifference;
-    operationCost.operation = '+';
-  }
+//   if (costOldPersonal > costNewPersonal && costOldDepo < costNewDepo) {
+//     const costD = costNewDepo - costOldDepo;
+//     console.log('cenaD', costD);
+//     const costP = costOldPersonal - costNewPersonal;
+//     console.log('costP', costP);
+//     costDifference = costD - costP;
+//     console.log('zdrazeni/zlevneni', costDifference);
+//     console.log('zvyseni depo ceny a snizeni personal ceny');
+//     operationCost.cost = costDifference;
+//     operationCost.operation = '+';
+//   }
 
-  if (costOldDepo > costNewDepo && costOldPersonal === costNewPersonal) {
-    const costD = costOldDepo - costNewDepo;
-    costDifference = costD;
-    console.log('zlevneni', costDifference);
-    console.log('cena depa nižší');
-    operationCost.cost = costDifference;
-    operationCost.operation = '-';
-  }
+//   if (costOldDepo > costNewDepo && costOldPersonal === costNewPersonal) {
+//     const costD = costOldDepo - costNewDepo;
+//     costDifference = costD;
+//     console.log('zlevneni', costDifference);
+//     console.log('cena depa nižší');
+//     operationCost.cost = costDifference;
+//     operationCost.operation = '-';
+//   }
 
-  if (costOldDepo === costNewDepo && costOldPersonal > costNewPersonal) {
-    const costP = costOldPersonal - costNewPersonal;
-    costDifference = costP;
-    console.log('zlevneni', costDifference);
-    console.log('cena personal nižší');
-    operationCost.cost = costDifference;
-    operationCost.operation = '-';
-  }
+//   if (costOldDepo === costNewDepo && costOldPersonal > costNewPersonal) {
+//     const costP = costOldPersonal - costNewPersonal;
+//     costDifference = costP;
+//     console.log('zlevneni', costDifference);
+//     console.log('cena personal nižší');
+//     operationCost.cost = costDifference;
+//     operationCost.operation = '-';
+//   }
 
-  if (costOldDepo < costNewDepo && costOldPersonal === costNewPersonal) {
-    const costD = costNewDepo - costOldDepo;
-    costDifference = costD;
-    console.log('zdrazeni', costDifference);
-    console.log('cena depa vyssi');
-    operationCost.cost = costDifference;
-    operationCost.operation = '+';
-  }
+//   if (costOldDepo < costNewDepo && costOldPersonal === costNewPersonal) {
+//     const costD = costNewDepo - costOldDepo;
+//     costDifference = costD;
+//     console.log('zdrazeni', costDifference);
+//     console.log('cena depa vyssi');
+//     operationCost.cost = costDifference;
+//     operationCost.operation = '+';
+//   }
 
-  if (costOldDepo === costNewDepo && costOldPersonal < costNewPersonal) {
-    const costP = costNewPersonal - costOldPersonal;
-    costDifference = costP;
-    console.log('zdrazeni', costDifference);
-    console.log('cena personal vyssi');
-    operationCost.cost = costDifference;
-    operationCost.operation = '+';
-  }
+//   if (costOldDepo === costNewDepo && costOldPersonal < costNewPersonal) {
+//     const costP = costNewPersonal - costOldPersonal;
+//     costDifference = costP;
+//     console.log('zdrazeni', costDifference);
+//     console.log('cena personal vyssi');
+//     operationCost.cost = costDifference;
+//     operationCost.operation = '+';
+//   }
 
-  console.log(
-    'variables',
-    costOldDepo,
-    costNewDepo,
-    costOldPersonal,
-    costNewPersonal,
-    operationCost,
-  );
-  return operationCost;
-};
+//   console.log(
+//     'variables',
+//     costOldDepo,
+//     costNewDepo,
+//     costOldPersonal,
+//     costNewPersonal,
+//     operationCost,
+//   );
+//   return operationCost;
+// };
 
 const doMathForPackage = async (
   data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
@@ -501,6 +501,7 @@ const doMatchForOptionsDelivery = async (
   nPriceDepo: number,
   nPriceP: number,
   historyDoc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
+  // eslint-disable-next-line sonarjs/cognitive-complexity
 ) => {
   // moznost filtrovat i insecure
 
@@ -526,7 +527,33 @@ const doMatchForOptionsDelivery = async (
   const packInfo: Array<PackInfo> = [];
   const sum = nPriceDepo + nPriceP;
   const historyIds: Array<string> = [];
-  const msg = '';
+  let msg = '';
+
+  const getCostByName = (
+    dataPack: Array<PackInfo>,
+    namePack: string,
+  ): number | undefined => {
+    let cost: number | undefined;
+    dataPack.forEach((pacInf: PackInfo) => {
+      if (pacInf.namePack === namePack) {
+        cost = pacInf.cost;
+      }
+    });
+
+    return cost;
+  };
+
+  const isNameInArr = (
+    name: string,
+    packInf: Array<PackInfo>,
+  ): PackInfo | undefined => {
+    const isThere = packInf.find((pck) => pck.namePack === name);
+    if (isThere) {
+      return isThere;
+    }
+
+    return undefined;
+  };
 
   historyDoc.forEach((doc) => {
     const item = doc.data();
@@ -578,36 +605,42 @@ const doMatchForOptionsDelivery = async (
 
   console.log('history id', historyIds);
 
-  // const historyQuerySnapshot = await db
-  //   .collection('History')
-  //   .where('historyId', '==', historyId)
-  //   .get();
+  const historyQuerySnapshot = await db.collection('History').get();
 
-  // if (!historyQuerySnapshot.empty) {
-  //   const historyDocumentRef = historyQuerySnapshot.docs[0].ref;
+  if (historyQuerySnapshot) {
+    historyQuerySnapshot.forEach((document) => {
+      historyIds.forEach(async (id) => {
+        if (
+          document.id === id &&
+          isNameInArr(document.data().suppData.packName, packInfo)
+        ) {
+          const costPack = getCostByName(
+            packInfo,
+            document.data().suppData.packName,
+          );
 
-  //   await historyDocumentRef.update(
-  //     new firestore.FieldPath('suppData', 'cost'),
-  //     Number(packInfo.cost) + sum,
-  //   );
-  //   // eslint-disable-next-line prettier/prettier
-  // }
-  // // update history
-  // console.log(nPriceP);
-  // console.log('locat sum', sum);
+          if (costPack) {
+            await document.ref.update(
+              new firestore.FieldPath('suppData', 'cost'),
+              sum + costPack,
+            );
+          }
+        }
+      });
+    });
+  }
 
-  // if (
-  //   historyQuerySnapshot.docChanges() &&
-  //   historyQuerySnapshot.docChanges().length > 0
-  // ) {
-  //   msg = 'Users history updated successfully';
-  //   return msg;
-  // }
+  if (
+    historyQuerySnapshot.docChanges() &&
+    historyQuerySnapshot.docChanges().length > 0
+  ) {
+    msg = 'Users history updated successfully';
+    return msg;
+  }
 
-  // msg = 'Users history not updated successfully';
+  msg = 'Users history not updated successfully';
 
-  // console.log('message', msg);
-  // return msg;
+  console.log('message', msg);
   return msg;
 };
 
@@ -1870,6 +1903,13 @@ const resolvers = {
       try {
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
         let msg = '';
+        console.log('proces env', Admin === context.user?.email);
+        console.log(
+          'context user',
+          context.user?.email_verified,
+          context.user?.email,
+        );
+
         if (context.user?.email !== Admin) {
           return {
             __typename: 'HistoryMessage',
@@ -1887,79 +1927,72 @@ const resolvers = {
           .where('suppData.id', '==', sId)
           .get();
 
-        // update celeho dokumentu histore
         // kontrola aby nebyli u sera dva stejny dodavatele se stejnum balickem
 
-        const ChangePriceOptionsDelivery = async (userEmail: string) => {
-          const SuppDocuments = await db
-            .collection('History')
-            .where('suppData.id', '==', sId)
-            .get();
+        // const ChangePriceOptionsDelivery = async (userEmail: string) => {
+        //   const SuppDocuments = await db
+        //     .collection('History')
+        //     .where('suppData.id', '==', sId)
+        //     .get();
 
-          console.log('vybrany document', SuppDocuments);
-          let updated = false;
+        //   console.log('vybrany document', SuppDocuments);
+        //   let updated = false;
 
-          console.log('id', sId);
-          console.log(
-            'cstDiff',
-            CostDif(oPriceDepo, nPriceDepo, oPriceP, nPriceP).cost,
-          );
+        //   console.log('id', sId);
+        //   console.log(
+        //     'cstDiff',
+        //     CostDif(oPriceDepo, nPriceDepo, oPriceP, nPriceP).cost,
+        //   );
 
-          const differenceCost = CostDif(
-            oPriceDepo,
-            nPriceDepo,
-            oPriceP,
-            nPriceP,
-          );
+        //   const differenceCost = CostDif(
+        //     oPriceDepo,
+        //     nPriceDepo,
+        //     oPriceP,
+        //     nPriceP,
+        //   );
 
-          if (differenceCost.cost === 0) {
-            console.log('nema smysl pocitat');
-          }
+        //   if (differenceCost.cost === 0) {
+        //     console.log('nema smysl pocitat');
+        //   }
 
-          if (userEmail === Admin && differenceCost.cost !== 0) {
-            SuppDocuments.forEach(async (doc) => {
-              console.log('document', doc);
-              let cost = Number(
-                doc._fieldsProto.suppData.mapValue.fields.cost.integerValue,
-              );
-              console.log('cost total');
+        //   if (userEmail === Admin && differenceCost.cost !== 0) {
+        //     SuppDocuments.forEach(async (doc) => {
+        //       console.log('document', doc);
+        //       let cost = Number(
+        //         doc._fieldsProto.suppData.mapValue.fields.cost.integerValue,
+        //       );
+        //       console.log('cost total');
 
-              if (differenceCost.operation === '-') {
-                cost -= differenceCost.cost;
-                console.log(`total: ${cost}`);
-              }
+        //       if (differenceCost.operation === '-') {
+        //         cost -= differenceCost.cost;
+        //         console.log(`total: ${cost}`);
+        //       }
 
-              if (differenceCost.operation === '+') {
-                cost += differenceCost.cost;
-                console.log(`total: ${cost}`);
-              }
+        //       if (differenceCost.operation === '+') {
+        //         cost += differenceCost.cost;
+        //         console.log(`total: ${cost}`);
+        //       }
 
-              await doc.ref.update({ 'suppData.cost': cost });
+        //       await doc.ref.update({ 'suppData.cost': cost });
 
-              // new firestore.FieldPath('suppData', 'cost'),
-              //   cost
-            });
+        //       // new firestore.FieldPath('suppData', 'cost'),
+        //       //   cost
+        //     });
 
-            updated = !!(
-              SuppDocuments.docChanges() &&
-              SuppDocuments.docChanges().length > 0
-            );
-          }
+        //     updated = !!(
+        //       SuppDocuments.docChanges() &&
+        //       SuppDocuments.docChanges().length > 0
+        //     );
+        //   }
 
-          console.log('updated', updated);
-          if (updated) {
-            return 'Users history updated successfully';
-          }
-          return 'Users history not updated successfully';
-        };
+        //   console.log('updated', updated);
+        //   if (updated) {
+        //     return 'Users history updated successfully';
+        //   }
+        //   return 'Users history not updated successfully';
+        // };
 
-        if (
-          nPriceP &&
-          oPriceP &&
-          nPriceDepo &&
-          oPriceDepo &&
-          context.user?.email === Admin
-        ) {
+        if (nPriceP && oPriceP && nPriceDepo && oPriceDepo) {
           msg = await doMatchForOptionsDelivery(
             SuppDocuments,
             nPriceDepo,
@@ -1967,9 +2000,10 @@ const resolvers = {
             historyDocuments,
           );
         }
+
         // msg = await doMatchForOptionsDelivery(SuppDocuments, nPriceDepo, nPriceP, historyDocuments)
 
-        if (nPricrePack && nameOfpack && sId && context.user?.email === Admin) {
+        if (nPricrePack && nameOfpack && sId) {
           msg = await doMathForPackage(
             SuppDocuments,
             nPricrePack,
@@ -1978,8 +2012,6 @@ const resolvers = {
             historyDocuments,
           );
         }
-
-        // msg = 'Only admin can use this functionality';
 
         return { message: msg };
       } catch (error) {
