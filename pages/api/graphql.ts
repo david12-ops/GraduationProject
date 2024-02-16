@@ -796,15 +796,84 @@ const resolvers = {
         mistoDo: Do,
         cost: Pcost,
       } = args;
-      const packages: any = [];
-      const packData: [] = [];
-      const rtrnItem: any = [];
-      let location: any;
+
+      type PackageData = {
+        weight: number;
+        height: number;
+        width: number;
+        Plength: number;
+        name_package: string;
+        cost: number;
+        supplier_id: string;
+      };
+
+      type Package = {
+        [name: string]: {
+          weight: number;
+          height: number;
+          width: number;
+          Plength: number;
+          name_package: string;
+          cost: number;
+          supplier_id: string;
+        };
+      };
+
+      type Location = {
+        depoDelivery: { delivery: string; cost: number };
+        personalDelivery: { delivery: string; cost: number };
+      };
+
+      type Supplier = {
+        supplierId: string;
+        packInBox: string;
+        shippingLabel: string;
+        sendCashDelivery: string;
+        foil: string;
+        delivery: string;
+        suppName: string;
+        pickUp: string;
+        insurance: number;
+        package: Array<Package>;
+        location: Location;
+      };
+
+      type SuppWithLocation = {
+        suppId: string;
+        loc: Location;
+      };
+
+      type PackageType = {
+        supplierId: string;
+        Cost: number;
+        Name: string;
+        param: {
+          width: number;
+          length: number;
+          weight: number;
+          height: number;
+        };
+      };
+
+      type CostSup = {
+        idS: string;
+        cost: number;
+      };
+
+      type ReturnItem = {
+        suppId: string;
+        cost: number;
+        name: string;
+      };
+
+      const packages: Array<Package> = [];
+      const packData: Array<PackageData> = [];
+      const rtrnItem: Array<ReturnItem> = [];
 
       const validargZ = ['personal', 'depo'].includes(Z);
       const validargDo = ['personal', 'depo'].includes(Do);
 
-      const suppWithLocationFiled: any = [];
+      const suppWithLocationFiled: Array<SuppWithLocation> = [];
 
       try {
         const SupplierDoc = await db.collection('Supplier').get();
@@ -833,23 +902,18 @@ const resolvers = {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        SupplierDoc.docs.forEach((item) => {
-          if (
-            item._fieldsProto &&
-            item._fieldsProto.package &&
-            item._fieldsProto.package.arrayValue
-          ) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            item._fieldsProto.package.arrayValue.values.map((packItem: any) =>
-              packages.push(packItem.mapValue.fields),
-            );
+        SupplierDoc.forEach((item) => {
+          const suppItem = item.data() as Supplier;
+
+          if (suppItem && suppItem.package) {
+            suppItem.package.forEach((packItem: Package) => {
+              packages.push(packItem);
+            });
           }
-          if (item._fieldsProto?.location) {
-            location = item._fieldsProto.location.mapValue.fields;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, no-underscore-dangle
+          if (suppItem.location) {
             suppWithLocationFiled.push({
-              loc: location,
-              suppId: item._fieldsProto.supplierId.stringValue,
+              suppId: suppItem.supplierId,
+              loc: suppItem.location,
             });
             console.log('itm with location', suppWithLocationFiled);
           }
@@ -858,147 +922,99 @@ const resolvers = {
         packages.forEach((packageObj) => {
           // Extracting the values from each package object
           const [packageDetails] = Object.values(packageObj);
-          packData.push(packageDetails.mapValue.fields);
+          packData.push(packageDetails);
         });
 
         // vedet cenu
-        const costSupp = suppWithLocationFiled.map(
-          (i: {
-            loc: {
-              depoDelivery: { mapValue: { fields: { delivery: any } } };
-              personalDelivery: { mapValue: { fields: { delivery: any } } };
-            };
-            suppId: string;
-          }) => {
-            // dd
-            const depo = i.loc.depoDelivery.mapValue.fields;
-            const personal = i.loc.personalDelivery.mapValue.fields;
-            if (
-              depo.delivery.stringValue === Z &&
-              depo.delivery.stringValue === Do
-            ) {
-              return {
-                idS: i.suppId,
-                cost: 2 * Number(depo.cost.integerValue),
-              };
-            }
-            // pd
-            if (
-              personal.delivery.stringValue === Z &&
-              depo.delivery.stringValue === Do
-            ) {
-              return {
-                idS: i.suppId,
-                cost:
-                  Number(personal.cost.integerValue) +
-                  Number(depo.cost.integerValue),
-              };
-            }
-
-            // dp
-            if (
-              depo.delivery.stringValue === Z &&
-              personal.delivery.stringValue === Do
-            ) {
-              return {
-                idS: i.suppId,
-                cost:
-                  Number(depo.cost.integerValue) +
-                  Number(personal.cost.integerValue),
-              };
-            }
-            // pp
+        const costSupp = suppWithLocationFiled.map((i) => {
+          // dd
+          const depo = i.loc.depoDelivery;
+          const personal = i.loc.personalDelivery;
+          if (depo.delivery === Z && depo.delivery === Do) {
             return {
               idS: i.suppId,
-              cost: 2 * Number(personal.cost.integerValue),
+              cost: 2 * depo.cost,
             };
-          },
-        );
+          }
+          // pd
+          if (personal.delivery === Z && depo.delivery === Do) {
+            return {
+              idS: i.suppId,
+              cost: personal.cost + depo.cost,
+            };
+          }
 
-        const IsItSuppWithLoc = (loc: [], sId: string) => {
+          // dp
+          if (depo.delivery === Z && personal.delivery === Do) {
+            return {
+              idS: i.suppId,
+              cost: depo.cost + personal.cost,
+            };
+          }
+          // pp
+          return {
+            idS: i.suppId,
+            cost: 2 * personal.cost,
+          };
+        });
+
+        const CostOfPack = (costSup: Array<CostSup>, pack: PackageData) => {
+          let sumCost = 0;
+          for (const e of costSup) {
+            if (pack.supplier_id === e.idS) {
+              const sCost = e.cost + pack.cost;
+              sumCost = sCost;
+            }
+          }
+          return sumCost;
+        };
+
+        const IsItSuppWithLoc = (loc: Array<SuppWithLocation>, sId: string) => {
           return loc.find((itm: any) => {
             return itm.suppId === sId;
           });
         };
 
-        const CostOfPack = (costSup: any, pack: any) => {
-          let sumCost = 0;
-          for (const e of costSup) {
-            if (pack.supplier_id.stringValue === e.idS) {
-              sumCost = Number(e.cost) + Number(pack.cost.integerValue);
-              console.log('tak cooo tam je', sumCost, e.idS);
-              return sumCost;
-            }
-          }
-        };
-
         // prilepim cenu
-        const packCost = packData.map(
-          (item: {
-            Plength: number;
-            width: number;
-            weight: number;
-            height: number;
-            supplier_id: string;
-            cost: number;
-            name_package: string;
-          }) => {
-            if (
-              IsItSuppWithLoc(
-                suppWithLocationFiled,
-                item.supplier_id.stringValue,
-              )
-            ) {
-              const cost = CostOfPack(costSupp, item);
-              return {
-                supplierId: item.supplier_id.stringValue,
-                Cost: cost,
-                Name: item.name_package.stringValue,
-                param: {
-                  width: Number(item.weight.integerValue),
-                  length: Number(item.Plength.integerValue),
-                  weight: Number(item.weight.integerValue),
-                  height: Number(item.height.integerValue),
-                },
-              };
-            }
+        const packCost = packData.map((item: PackageData) => {
+          const cost = CostOfPack(costSupp, item);
+          if (IsItSuppWithLoc(suppWithLocationFiled, item.supplier_id)) {
             return {
-              supplierId: item.supplier_id.stringValue,
-              Cost: Number(item.cost.integerValue),
-              Name: item.name_package.stringValue,
+              supplierId: item.supplier_id,
+              Cost: cost,
+              Name: item.name_package,
               param: {
-                width: Number(item.weight.integerValue),
-                length: Number(item.Plength.integerValue),
-                weight: Number(item.weight.integerValue),
-                height: Number(item.height.integerValue),
+                width: item.weight,
+                length: item.Plength,
+                weight: item.weight,
+                height: item.height,
               },
             };
-          },
-        );
+          }
+          return {
+            supplierId: item.supplier_id,
+            Cost: item.cost,
+            Name: item.name_package,
+            param: {
+              width: item.weight,
+              length: item.Plength,
+              weight: item.weight,
+              height: item.height,
+            },
+          };
+        });
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, array-callback-return, consistent-return
-        const suitableByCost = packCost.map((item: any) => {
+        const suitableByCost = packCost.map((item) => {
           if (Pcost >= Number(item.Cost)) {
             return item;
           }
+          return undefined;
         });
-        console.log('filter by cost', JSON.stringify(suitableByCost));
 
         const cleared = suitableByCost.filter((itm) => itm !== undefined);
 
         const groupedById = _.groupBy(cleared, 'supplierId');
 
-        type PackageType = {
-          supplierId: string;
-          Cost: number;
-          Name: string;
-          param: {
-            width: number;
-            length: number;
-            weight: number;
-            height: number;
-          };
-        };
         const packagesDictionary: Record<string, PackageType> = {};
 
         const lookWhichIsBetter = (item: PackageType, item2: PackageType) => {
@@ -1036,52 +1052,39 @@ const resolvers = {
         };
 
         Object.entries(groupedById).forEach(([key, item]) => {
-          item.forEach(
-            (itm: {
-              supplierId: string;
-              Cost: number;
-              Name: string;
-              param: {
-                width: number;
-                length: number;
-                weight: number;
-                height: number;
-              };
-            }) => {
-              if (
-                itm.param?.width >= Width &&
-                itm.param?.weight >= Weight &&
-                itm.param?.length >= pLength &&
-                itm.param?.height >= Height
-              ) {
-                const prev = packagesDictionary[itm.supplierId] ?? undefined;
-                // eslint-disable-next-line unicorn/prefer-ternary, unicorn/no-negated-condition
-                if (!prev) {
-                  packagesDictionary[itm.supplierId] = {
-                    supplierId: itm.supplierId,
-                    Cost: itm.Cost,
-                    Name: itm.Name,
-                    param: {
-                      width: itm.param.width,
-                      weight: itm.param.weight,
-                      height: itm.param.height,
-                      length: itm.param.length,
-                    },
-                  };
-                } else {
-                  packagesDictionary[itm.supplierId] = lookWhichIsBetter(
-                    itm,
-                    prev,
-                  );
-                }
+          item.forEach((itm) => {
+            if (
+              itm &&
+              itm.param?.width >= Width &&
+              itm.param?.weight >= Weight &&
+              itm.param?.length >= pLength &&
+              itm.param?.height >= Height
+            ) {
+              const prev = packagesDictionary[itm.supplierId] ?? undefined;
+              // eslint-disable-next-line unicorn/prefer-ternary, unicorn/no-negated-condition
+              if (!prev) {
+                packagesDictionary[itm.supplierId] = {
+                  supplierId: itm.supplierId,
+                  Cost: itm.Cost,
+                  Name: itm.Name,
+                  param: {
+                    width: itm.param.width,
+                    weight: itm.param.weight,
+                    height: itm.param.height,
+                    length: itm.param.length,
+                  },
+                };
+              } else {
+                packagesDictionary[itm.supplierId] = lookWhichIsBetter(
+                  itm,
+                  prev,
+                );
               }
-            },
-          );
+            }
+          });
         });
 
         Object.entries(packagesDictionary).forEach(([key, item]) => {
-          console.log('noooo ITMMMMMM', key);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           rtrnItem.push({
             suppId: item.supplierId,
             cost: item.Cost,
@@ -1091,7 +1094,6 @@ const resolvers = {
 
         // mozna zmena
         if (rtrnItem.length > 0) {
-          console.log('suitable item', rtrnItem);
           return {
             __typename: 'Suitable',
             suitable: JSON.stringify(rtrnItem),
@@ -1114,6 +1116,31 @@ const resolvers = {
       context: MyContext,
     ) => {
       const { uId: id, data: dataS } = args;
+      type HistoryDoc = {
+        uId: string;
+        dataForm: {
+          width: string;
+          placeTo: string;
+          weight: string;
+          placeFrom: string;
+          plength: string;
+          height: string;
+        };
+        historyId: string;
+        suppData: {
+          insurance: number;
+          delivery: string;
+          packInBox: string;
+          name: string;
+          pickup: string;
+          shippingLabel: string;
+          id: string;
+          sendCashDelivery: string;
+          foil: string;
+          packName: string;
+          cost: number;
+        };
+      };
       try {
         console.log('databaze user', context.user);
 
@@ -1128,8 +1155,8 @@ const resolvers = {
 
         const sData = data.data.suppData;
         const sPrice = data.data.priceS;
-        // eslint-disable-next-line prefer-destructuring
-        const packName = data.data.packName;
+        const { packName } = data.data;
+
         const toFirestore = {
           id: sData.supplierId,
           name: sData.suppName,
@@ -1153,26 +1180,21 @@ const resolvers = {
 
         const dataInColl = await db.collection('History').get();
 
-        // eslint-disable-next-line array-callback-return, consistent-return
-        const duplicateByParam = dataInColl.docs.map((item: any) => {
-          const byForm = item._fieldsProto.dataForm.mapValue.fields;
-          const byCost: number =
-            item._fieldsProto.suppData.mapValue.fields.cost.integerValue;
-          const userId = item._fieldsProto.uId.stringValue;
-          if (
-            item._fieldsProto.suppData.mapValue.fields.id.stringValue ===
-              sData.supplierId &&
-            userId === id
-          ) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return byForm.width.stringValue ===
-              data.formData.dataFrForm.width &&
-              byForm.height.stringValue === data.formData.dataFrForm.height &&
-              byForm.weight.stringValue === data.formData.dataFrForm.weight &&
-              byForm.plength.stringValue === data.formData.dataFrForm.plength &&
-              byForm.placeTo.stringValue === data.formData.dataFrForm.placeTo &&
-              byForm.placeFrom.stringValue ===
-                data.formData.dataFrForm.placeFrom &&
+        const duplicateByParam = dataInColl.docs.map((item) => {
+          // return ?
+          // spise kontrola dle jmena
+          const itm = item.data() as HistoryDoc;
+          console.log('iiiiiii', itm);
+          const byForm = itm.dataForm;
+          const byCost = itm.suppData.cost;
+          const userId = itm.uId;
+          if (itm.suppData.id === sData.supplierId && userId === id) {
+            return itm.suppData.packName === data.formData.dataFrForm.width &&
+              byForm.height === data.formData.dataFrForm.height &&
+              byForm.weight === data.formData.dataFrForm.weight &&
+              byForm.plength === data.formData.dataFrForm.plength &&
+              byForm.placeTo === data.formData.dataFrForm.placeTo &&
+              byForm.placeFrom === data.formData.dataFrForm.placeFrom &&
               Number(byCost) === Number(sPrice)
               ? item
               : undefined;
@@ -1216,7 +1238,6 @@ const resolvers = {
         packId: string;
       },
       context: MyContext,
-      // eslint-disable-next-line sonarjs/cognitive-complexity
     ) => {
       const {
         weight: hmotnost,
@@ -1293,14 +1314,12 @@ const resolvers = {
           supplier_id: supplierDoc.id,
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         const keyPack = existingPackages.map((item: any) => {
           const keys = Object.keys(item)[0];
           console.log(keys);
           return keys.includes(ID);
         });
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         existingPackages.forEach(
           (item: {
             [name: string]: {
@@ -1319,14 +1338,12 @@ const resolvers = {
             if (itm.name_package === packName) {
               dupName = itm.name_package;
             }
-            // eslint-disable-next-line @typescript-eslint/no-for-in-array, guard-for-in
             if (
               itm.weight === newPackage.weight &&
               itm.height === newPackage.height &&
               itm.width === newPackage.width &&
               itm.Plength === newPackage.Plength
             ) {
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-call
               dupPackages.push(itm);
               console.log('selected', itm);
             }
@@ -1335,7 +1352,6 @@ const resolvers = {
         console.log('keypack', keyPack);
         console.log('duplicate pack', dupPackages);
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         if (keyPack.includes(true)) {
           return {
             __typename: 'PackageError',
@@ -1358,7 +1374,6 @@ const resolvers = {
         }
 
         const objectPack: { [key: string]: any } = {};
-        // eslint-disable-next-line react-hooks/rules-of-hooks
         objectPack[ID] = {
           weight: hmotnost,
           cost: costPackage,
@@ -1369,7 +1384,6 @@ const resolvers = {
           supplier_id: supplierDoc.id,
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         existingPackages.push(objectPack);
 
         console.log(existingPackages);
@@ -1428,7 +1442,6 @@ const resolvers = {
         const SuppDocument = await db.collection('Supplier').get();
 
         SuppDocument.forEach((data: any) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
           namesOfSup.push(data._fieldsProto.suppName.stringValue);
         });
 
@@ -1612,7 +1625,6 @@ const resolvers = {
           supplier_id: supplierDoc.id,
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         existingPackages
           .filter((item: any) => {
             return !item[id];
@@ -1636,14 +1648,12 @@ const resolvers = {
               if (itm.name_package === packName) {
                 dupName = itm.name_package;
               }
-              // eslint-disable-next-line @typescript-eslint/no-for-in-array, guard-for-in
               if (
                 itm.weight === UpdatePackage.weight &&
                 itm.height === UpdatePackage.height &&
                 itm.width === UpdatePackage.width &&
                 itm.Plength === UpdatePackage.Plength
               ) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 dupPackages.push(itm);
                 console.log('selected', itm);
               }
@@ -1664,7 +1674,6 @@ const resolvers = {
           };
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         existingPackages.forEach(
           (item: {
             [name: string]: {
@@ -1796,9 +1805,7 @@ const resolvers = {
           (doc) => doc.suppName !== ActName,
         );
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         const duplicateSupp = docsWithoutCurrentSupp.find(
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           (item) => item.suppName.toLowerCase() === SuppName.toLowerCase(),
         );
 
@@ -1829,7 +1836,6 @@ const resolvers = {
         };
 
         Supd.forEach(async (doc) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           await doc.ref.update({
             sendCashDelivery: SendCashOnDelivery,
             packInBox: PackageInABox,
@@ -2130,9 +2136,7 @@ export default createYoga({
   context: async (context) => {
     const auth = context.request.headers.get('authorization');
     console.log(auth);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
       user: auth ? await verifyToken(auth) : undefined,
     } as Context;
   },
