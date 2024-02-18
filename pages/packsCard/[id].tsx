@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useSuppDataQuery } from '@/generated/graphql';
 
 import styles from '../../styles/Home.module.css';
-import { PackCards } from '../components/Cards/packsCards';
+import { PackCards } from '../components/Cards/packs-cards';
 import { Navbar } from '../components/navbar2';
 
 const IsTherePackage = (data: any) => {

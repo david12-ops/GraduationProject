@@ -13,6 +13,11 @@ import {
 import styles from '../../../styles/stylesForm/style.module.css';
 
 // Mozna kontrola na id
+const Counter = (ids: Array<string>) => {
+  const counter = 0;
+  ids.forEach((id) => (id === '' ? counter + 0 : counter + 1));
+  return counter;
+};
 
 export const DataGridSupplier = () => {
   // refresh tabulky
@@ -34,29 +39,29 @@ export const DataGridSupplier = () => {
 
   const IdSupp = () => {
     return selection.map(
-      (selectedId) => rows.find((item) => item.id === selectedId)?.suppId,
+      (selectedId) => rows.find((item) => item.id === selectedId)?.suppId ?? '',
     );
   };
 
-  const Check = () => {
+  // nefunkcni
+  const Check = async () => {
     let errmsg;
-    if (IdSupp().length === 0) {
+    if (Counter(IdSupp()) === 0) {
       errmsg = 'Vyberte si prosím záznam';
     } else if (IdSupp().length > 1) {
       errmsg = 'Vzberte jen jednoho dodavatele';
+      alert(errmsg);
     } else {
-      return router.push(`/../admpage/${IdSupp()}`);
+      await router.push(`/../admpage/${IdSupp()}`);
     }
-    // eslint-disable-next-line no-alert
-    return alert(errmsg);
+    alert(errmsg);
   };
 
   const DeleteS = async () => {
     if (IdSupp().length === 0) {
       alert('Nebyl vybrán dodavatel pro mazání');
     } else {
-      const DeletedId: any = IdSupp();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      const DeletedId: Array<string> = IdSupp();
       const result = await deleteSuppD({
         variables: {
           Id: DeletedId,
@@ -80,7 +85,6 @@ export const DataGridSupplier = () => {
     <Box>
       <Box sx={{ height: 400, width: '100%' }}>
         <DataGrid
-          // eslint-disable-next-line sonarjs/no-duplicate-string
           style={{ background: '#ADADD6', border: 'solid white' }}
           onRowSelectionModelChange={setSelection}
           loading={suppD.loading}

@@ -29,7 +29,6 @@ const Odstavec = (
   shippingLabel: string,
   insurance: number,
   sendCash: string,
-  FontSize: string,
 ) => {
   // FontSize ?
   const odstavec =
@@ -93,7 +92,7 @@ const Odstavec = (
   );
 };
 
-export const MediaCard: React.FC<Props> = ({
+export const DetailSupps: React.FC<Props> = ({
   name,
   pickUp,
   delivery,
@@ -156,7 +155,6 @@ export const MediaCard: React.FC<Props> = ({
             shippingLabel,
             insurance,
             sendCash,
-            '20px',
           )}
         </Typography>
         <Typography

@@ -22,11 +22,7 @@ export const PageRegisterForm = () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks, no-alert
       alert('User register successfully');
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      await newUser({
-        variables: {
-          email: email.toString(),
-        },
-      });
+
       return router.push('/');
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call, react-hooks/rules-of-hooks, sonarjs/no-all-duplicated-branches
     } catch (error) {

@@ -16,13 +16,13 @@ import styles from '../../styles/stylesForm/styleForms.module.css';
 // );
 
 type Props = {
-  onChangeVyska: (inputVal: number) => any;
-  onChangeHmotnost: (inputVal: number) => any;
-  onChangeDelka: (inputVal: number) => any;
-  onChangeSirka: (inputVal: number) => any;
-  onChangeCena: (inputVal: number) => any;
-  onChangeDo: (inputVal: string) => any;
-  onChangeZ: (inputVal: string) => any;
+  onChangeVyska: (inputVal: number) => void;
+  onChangeHmotnost: (inputVal: number) => void;
+  onChangeDelka: (inputVal: number) => void;
+  onChangeSirka: (inputVal: number) => void;
+  onChangeCena: (inputVal: number) => void;
+  onChangeDo: (inputVal: string) => void;
+  onChangeZ: (inputVal: string) => void;
   buttonEl: any;
 };
 
@@ -91,7 +91,7 @@ export const FormChooseSup: React.FC<Props> = ({
               <p style={{ textAlign: 'center' }}>Výška</p>
               <input
                 className={styles.input}
-                onChange={(e) => onChangeVyska(e.target.value)}
+                onChange={(e) => onChangeVyska(Number(e.target.value))}
                 required
                 type="number"
                 placeholder="Cm"
@@ -103,7 +103,7 @@ export const FormChooseSup: React.FC<Props> = ({
               <p style={{ textAlign: 'center' }}>Hmotnost</p>
               <input
                 className={styles.input}
-                onChange={(e) => onChangeHmotnost(e.target.value)}
+                onChange={(e) => onChangeHmotnost(Number(e.target.value))}
                 required
                 type="number"
                 placeholder="Kg"
@@ -115,7 +115,7 @@ export const FormChooseSup: React.FC<Props> = ({
               <p style={{ textAlign: 'center' }}>Délka</p>
               <input
                 className={styles.input}
-                onChange={(e) => onChangeDelka(e.target.value)}
+                onChange={(e) => onChangeDelka(Number(e.target.value))}
                 required
                 type="number"
                 placeholder="Cm"
@@ -127,7 +127,7 @@ export const FormChooseSup: React.FC<Props> = ({
               <p style={{ textAlign: 'center' }}>Šířka</p>
               <input
                 className={styles.input}
-                onChange={(e) => onChangeSirka(e.target.value)}
+                onChange={(e) => onChangeSirka(Number(e.target.value))}
                 required
                 type="number"
                 placeholder="Cm"
@@ -148,7 +148,7 @@ export const FormChooseSup: React.FC<Props> = ({
             <p style={{ textAlign: 'center' }}>Cena</p>
             <input
               className={styles.input}
-              onChange={(e) => onChangeCena(e.target.value)}
+              onChange={(e) => onChangeCena(Number(e.target.value))}
               required
               type="number"
               placeholder="Kč"

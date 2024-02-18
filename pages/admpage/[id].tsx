@@ -8,23 +8,51 @@ import { useSuppDataQuery } from '@/generated/graphql';
 
 import styles from '../../styles/Home.module.css';
 import stylesF from '../../styles/stylesForm/style.module.css';
-import { PackCard } from '../components/Cards/packsCard';
-import { AdmPageSuppCard } from '../components/Cards/suppCard';
+import { PackCard } from '../components/Cards/packs-card';
+import { AdmPageSuppCard } from '../components/Cards/supp-card';
 import { Navbar } from '../components/navbar2';
+
+type Package = {
+  [name: string]: {
+    weight: number;
+    height: number;
+    width: number;
+    Plength: number;
+    name_package: string;
+    cost: number;
+    supplier_id: string;
+  };
+};
+type SuppData =
+  | {
+      __typename?: 'QuerySuppD' | undefined;
+      sendCashDelivery: string;
+      packInBox: string;
+      supplierId: string;
+      suppName: string;
+      pickUp: string;
+      delivery: string;
+      insurance: number;
+      shippingLabel: string;
+      foil: string;
+      package?: any | undefined;
+      location?: any | undefined;
+    }
+  | undefined;
 
 // responzivitu vyresit a  sortovani
 
 const IsTherePackage = (data: any) => {
+  const packages: Array<Package> = data;
+  console.log('how much', packages.length > 0);
   // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-  console.log('how much', data?.length > 0);
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-  if (data?.length > 0) {
+  if (packages.length > 0) {
     return true;
   }
   return false;
 };
 
-const IsThereSupp = (data: any) => {
+const IsThereSupp = (data: SuppData) => {
   console.log('co kontrolujeme', data);
   // eslint-disable-next-line sonarjs/prefer-single-boolean-return
   if (data) {
@@ -34,13 +62,16 @@ const IsThereSupp = (data: any) => {
 };
 
 const PageBody = (
-  error: any,
-  warning: any,
-  dataSupp: any,
+  error: boolean,
+  warning: boolean,
+  dataSupp: SuppData,
   id: string,
   logged: boolean,
   admin: boolean,
 ) => {
+  // Mozna uprava
+  const packages: Array<Package> = dataSupp?.package;
+
   if (!logged || !admin) {
     return (
       <div
@@ -57,7 +88,6 @@ const PageBody = (
   }
 
   if (!error) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return (
       <div
         style={{
@@ -75,18 +105,24 @@ const PageBody = (
   if (!warning) {
     return (
       <div>
-        <AdmPageSuppCard
-          key={dataSupp?.supplierId}
-          packInBox={dataSupp?.packInBox}
-          name={dataSupp?.suppName}
-          sendCash={dataSupp?.sendCashDelivery}
-          folie={dataSupp?.foil}
-          shippingLabel={dataSupp?.shippingLabel}
-          pickUp={dataSupp?.pickUp}
-          delivery={dataSupp?.delivery}
-          insurance={dataSupp?.insurance}
-          suppId={dataSupp?.supplierId}
-        />
+        {dataSupp ? (
+          <div>
+            <AdmPageSuppCard
+              key={dataSupp.supplierId}
+              packInBox={dataSupp.packInBox}
+              name={dataSupp.suppName}
+              sendCash={dataSupp.sendCashDelivery}
+              folie={dataSupp.foil}
+              shippingLabel={dataSupp.shippingLabel}
+              pickUp={dataSupp.pickUp}
+              delivery={dataSupp.delivery}
+              insurance={dataSupp.insurance}
+              suppId={dataSupp.supplierId}
+            />
+          </div>
+        ) : (
+          <div></div>
+        )}
 
         <div
           style={{
@@ -113,66 +149,74 @@ const PageBody = (
 
   return (
     <div>
-      <div>
-        <AdmPageSuppCard
-          key={dataSupp?.supplierId}
-          packInBox={dataSupp?.packInBox}
-          name={dataSupp?.suppName}
-          sendCash={dataSupp?.sendCashDelivery}
-          folie={dataSupp?.foil}
-          shippingLabel={dataSupp?.shippingLabel}
-          pickUp={dataSupp?.pickUp}
-          delivery={dataSupp?.delivery}
-          insurance={dataSupp?.insurance}
-          suppId={dataSupp?.supplierId}
-        />
-      </div>
-      <div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            maxWidth: '800px',
-          }}
-        >
-          {dataSupp?.package.map((item: any) => {
-            const keys = Object.keys(item);
-            return keys.map((key: any) => (
-              <div
-                key={key}
-                style={{
-                  backgroundColor: '#D67F76',
-                  padding: '10px',
-                  margin: '10px',
-                  borderRadius: '10px',
-                }}
-              >
-                <PackCard
-                  key={key}
-                  Name={item[key].name_package}
-                  Cost={item[key].cost}
-                  Weight={item[key].weight}
-                  Width={item[key].width}
-                  Length={item[key].Plength}
-                  Heiht={item[key].height}
-                  sId={dataSupp.supplierId}
-                  keyPac={key}
-                />
-              </div>
-            ));
-          })}
-        </div>
-      </div>
+      {dataSupp ? (
+        <div>
+          <div>
+            <AdmPageSuppCard
+              key={dataSupp.supplierId}
+              packInBox={dataSupp.packInBox}
+              name={dataSupp.suppName}
+              sendCash={dataSupp.sendCashDelivery}
+              folie={dataSupp.foil}
+              shippingLabel={dataSupp.shippingLabel}
+              pickUp={dataSupp.pickUp}
+              delivery={dataSupp.delivery}
+              insurance={dataSupp.insurance}
+              suppId={dataSupp.supplierId}
+            />
+          </div>
 
-      <div>
-        <Link
-          key="CreateFormPackage"
-          href={`../../Forms/CreateFormPackage/${id}`}
-        >
-          <button className={stylesF.crudbtn}>Create</button>
-        </Link>
-      </div>
+          <div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                maxWidth: '800px',
+              }}
+            >
+              {packages.map((item) => {
+                const key = Object.keys(item)[0];
+
+                return (
+                  <div
+                    key={key}
+                    style={{
+                      backgroundColor: '#D67F76',
+                      padding: '10px',
+                      margin: '10px',
+                      borderRadius: '10px',
+                    }}
+                  >
+                    <PackCard
+                      key={key}
+                      Name={item[key].name_package}
+                      Cost={item[key].cost}
+                      Weight={item[key].weight}
+                      Width={item[key].width}
+                      Length={item[key].Plength}
+                      Heiht={item[key].height}
+                      sId={dataSupp.supplierId}
+                      keyPac={key}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <Link
+              key="CreateFormPackage"
+              href={`../../Forms/CreateFormPackage/${id}`}
+            >
+              <button className={stylesF.crudbtn}>Create</button>
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div></div>
+      )}
     </div>
   );
 };
@@ -207,7 +251,7 @@ export default function Page() {
     }
     if (!suppD.loading) {
       const selectedSupp = suppD.data?.suplierData.find(
-        (actPack: any) => actPack.supplierId === id,
+        (actPack: SuppData) => actPack?.supplierId === id,
       );
 
       console.log(selectedSupp);

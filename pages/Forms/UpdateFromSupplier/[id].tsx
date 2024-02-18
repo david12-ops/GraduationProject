@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 import styles from '../../../styles/Home.module.css';
-import { FormSupplierUpdate } from '../../components/componentsFormsAdmin/formSupplierUpdate';
+import { FormSupplierUpdate } from '../../components/componentsFormsAdmin/form-supplier-update';
 import { Navbar } from '../../components/navbar2';
 
 export default function Update() {

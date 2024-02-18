@@ -3,7 +3,7 @@ import Link from 'next/link';
 import React from 'react';
 
 import stylesM from '../styles/Main.module.css';
-import { CardOffer } from './components/Cards/cardToIndexPage';
+import { CardOffer } from './components/Cards/card-index-page';
 import { Navbar } from './components/navbar2';
 
 export default function Home() {

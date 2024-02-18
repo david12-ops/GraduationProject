@@ -42,35 +42,35 @@ const isInt = (numArg: string, min: number) => {
   return parsed !== false && parsed > min;
 };
 
-const getOldCostFromPack = (pId: string, data: Item): number => {
-  let cost = 0;
-  data.forEach((item) => {
-    // eslint-disable-next-line unicorn/no-negated-condition
-    if (item.package) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      item.package.forEach(
-        (pack: {
-          [name: string]: {
-            weight: number;
-            height: number;
-            width: number;
-            Plength: number;
-            name_package: string;
-            cost: number;
-          };
-        }) => {
-          // jmeno balicku
-          const itm = pack[pId];
-          if (itm) {
-            cost = itm.cost;
-          }
-        },
-      );
-    }
-  });
+// const getOldCostFromPack = (pId: string, data: Item): number => {
+//   let cost = 0;
+//   data.forEach((item) => {
+//     // eslint-disable-next-line unicorn/no-negated-condition
+//     if (item.package) {
+//       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+//       item.package.forEach(
+//         (pack: {
+//           [name: string]: {
+//             weight: number;
+//             height: number;
+//             width: number;
+//             Plength: number;
+//             name_package: string;
+//             cost: number;
+//           };
+//         }) => {
+//           // jmeno balicku
+//           const itm = pack[pId];
+//           if (itm) {
+//             cost = itm.cost;
+//           }
+//         },
+//       );
+//     }
+//   });
 
-  return cost;
-};
+//   return cost;
+// };
 
 const setDataDatabase = (
   pId: string,
@@ -131,8 +131,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     SuppId: '',
   });
 
-  const [oldCost, SetOldCost] = React.useState(0);
-
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
@@ -155,10 +153,10 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       setDataDatabase(id, SuppPackages.data.suplierData, statesOfDataPack);
 
       // setnout cenu
-      const costP = getOldCostFromPack(id, SuppPackages.data.suplierData);
-      if (costP) {
-        SetOldCost(costP);
-      }
+      // const costP = getOldCostFromPack(id, SuppPackages.data.suplierData);
+      // if (costP) {
+      //   SetOldCost(costP);
+      // }
     }
   }, [id, SuppPackages]);
 
@@ -216,13 +214,11 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       }
 
       if (data) {
-        console.log('stara cena', oldCost);
         // zatim neni funkcni
         const message = await UpdateHistory({
           variables: {
             PackageName: statesOfDataPack.PackName.get(),
             newPricePack: Number(statesOfDataPack.Cost.get()),
-            oldPricePack: oldCost,
             SuppId: statesOfDataPack.SuppId.get(),
           },
           refetchQueries: [{ query: HistoryDataDocument }],

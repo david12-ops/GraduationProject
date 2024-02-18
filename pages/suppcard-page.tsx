@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import { SuppDataQuery, useSuppDataQuery } from '@/generated/graphql';
 
 import styles from '../styles/Home.module.css';
-import { MediaCard } from './components/Cards/SuppCards';
+import { DetailSupps } from './components/Cards/supp-cards';
 import { Navbar } from './components/navbar2';
 
 type Item = SuppDataQuery | undefined;
 
 // pouziti sorting
-const IsThereSupp = (data: any) => {
+const IsThereSupp = (data: Item) => {
   console.log('co kontrolujeme', data);
   // eslint-disable-next-line sonarjs/prefer-single-boolean-return
   if (data) {
@@ -19,7 +19,7 @@ const IsThereSupp = (data: any) => {
   return false;
 };
 
-const PageBody = (warning: any, dataSupp: Item) => {
+const PageBody = (warning: boolean, dataSupp: Item) => {
   if (!warning) {
     return (
       <div
@@ -37,8 +37,8 @@ const PageBody = (warning: any, dataSupp: Item) => {
 
   return (
     <div>
-      {dataSupp?.suplierData.map((item: any) => (
-        <MediaCard
+      {dataSupp?.suplierData.map((item) => (
+        <DetailSupps
           key={item.supplierId}
           packInBox={item.packInBox}
           name={item.suppName}
@@ -62,7 +62,7 @@ export default function SuppCards() {
 
   useEffect(() => {
     if (!suppData.loading) {
-      const errSup = IsThereSupp(suppData);
+      const errSup = IsThereSupp(suppData.data);
 
       SetBody({
         data: PageBody(errSup, suppData.data),

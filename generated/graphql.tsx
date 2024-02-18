@@ -116,9 +116,6 @@ export type MutationUpdateHistoryArgs = {
   newPriceDepo?: InputMaybe<Scalars['Int']>;
   newPricePack?: InputMaybe<Scalars['Int']>;
   newPricePersonal?: InputMaybe<Scalars['Int']>;
-  oldPriceDepo?: InputMaybe<Scalars['Int']>;
-  oldPricePack?: InputMaybe<Scalars['Int']>;
-  oldPricePersonal?: InputMaybe<Scalars['Int']>;
   packName?: InputMaybe<Scalars['String']>;
   suppId?: InputMaybe<Scalars['String']>;
 };
@@ -303,11 +300,8 @@ export type AddHistoryToFirestoreMutation = { __typename?: 'Mutation', AddHistor
 
 export type UpdateHistoryMutationVariables = Exact<{
   newPricePack?: InputMaybe<Scalars['Int']>;
-  oldPricePack?: InputMaybe<Scalars['Int']>;
   newPricePersonal?: InputMaybe<Scalars['Int']>;
-  oldPricePersonal?: InputMaybe<Scalars['Int']>;
   newPriceDepo?: InputMaybe<Scalars['Int']>;
-  oldPriceDepo?: InputMaybe<Scalars['Int']>;
   SuppId?: InputMaybe<Scalars['String']>;
   PackageName?: InputMaybe<Scalars['String']>;
 }>;
@@ -505,14 +499,11 @@ export type AddHistoryToFirestoreMutationHookResult = ReturnType<typeof useAddHi
 export type AddHistoryToFirestoreMutationResult = Apollo.MutationResult<AddHistoryToFirestoreMutation>;
 export type AddHistoryToFirestoreMutationOptions = Apollo.BaseMutationOptions<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>;
 export const UpdateHistoryDocument = gql`
-    mutation UpdateHistory($newPricePack: Int, $oldPricePack: Int, $newPricePersonal: Int, $oldPricePersonal: Int, $newPriceDepo: Int, $oldPriceDepo: Int, $SuppId: String, $PackageName: String) {
+    mutation UpdateHistory($newPricePack: Int, $newPricePersonal: Int, $newPriceDepo: Int, $SuppId: String, $PackageName: String) {
   updateHistory(
     newPricePack: $newPricePack
-    oldPricePack: $oldPricePack
     newPricePersonal: $newPricePersonal
-    oldPricePersonal: $oldPricePersonal
     newPriceDepo: $newPriceDepo
-    oldPriceDepo: $oldPriceDepo
     suppId: $SuppId
     packName: $PackageName
   ) {
@@ -536,11 +527,8 @@ export type UpdateHistoryMutationFn = Apollo.MutationFunction<UpdateHistoryMutat
  * const [updateHistoryMutation, { data, loading, error }] = useUpdateHistoryMutation({
  *   variables: {
  *      newPricePack: // value for 'newPricePack'
- *      oldPricePack: // value for 'oldPricePack'
  *      newPricePersonal: // value for 'newPricePersonal'
- *      oldPricePersonal: // value for 'oldPricePersonal'
  *      newPriceDepo: // value for 'newPriceDepo'
- *      oldPriceDepo: // value for 'oldPriceDepo'
  *      SuppId: // value for 'SuppId'
  *      PackageName: // value for 'PackageName'
  *   },

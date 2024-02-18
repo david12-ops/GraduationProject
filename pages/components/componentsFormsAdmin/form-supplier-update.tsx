@@ -9,7 +9,6 @@ import Select from 'react-select';
 import {
   HistoryDataDocument,
   SuppDataDocument,
-  SuppDataQuery,
   useSuppDataQuery,
   useUpdateHistoryMutation,
   useUpdateSupplierMutation,
@@ -36,12 +35,12 @@ type Item = {
   location?: any;
 };
 
-type Item2 = SuppDataQuery['suplierData'];
+// type Item2 = SuppDataQuery['suplierData'];
 
-type Costs = {
-  oldDepoCost: number;
-  oldPersonalCost: number;
-};
+// type Costs = {
+//   oldDepoCost: number;
+//   oldPersonalCost: number;
+// };
 
 const IsYesOrNo = (
   stringnU1: string,
@@ -95,7 +94,7 @@ const isInt = (numArg: string, min: number) => {
   return parsed !== false && parsed >= min;
 };
 
-const ValidDateForm = (dateU1: any) => {
+const ValidDateForm = (dateU1: string) => {
   // eslint-disable-next-line no-constant-condition, @typescript-eslint/no-unsafe-argument
   const option = /^\d{4}(?:-\d{1,2}){2}$/;
   // eslint-disable-next-line sonarjs/prefer-single-boolean-return
@@ -141,20 +140,20 @@ const Valid = (
   }
 };
 
-const getOldCostFromSupDelivery = (
-  data: Item2,
-  sId: string,
-): Costs | undefined => {
-  for (const item of data) {
-    if (item.supplierId === sId) {
-      return {
-        oldDepoCost: item.location?.depoDelivery.cost,
-        oldPersonalCost: item.location?.personalDelivery.cost,
-      };
-    }
-  }
-  return undefined;
-};
+// const getOldCostFromSupDelivery = (
+//   data: Item2,
+//   sId: string,
+// ): Costs | undefined => {
+//   for (const item of data) {
+//     if (item.supplierId === sId) {
+//       return {
+//         oldDepoCost: item.location?.depoDelivery.cost,
+//         oldPersonalCost: item.location?.personalDelivery.cost,
+//       };
+//     }
+//   }
+//   return undefined;
+// };
 
 const setDataDatabase = (
   data: Item,
@@ -219,10 +218,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const supData = useSuppDataQuery();
   const [UpdateHistory] = useUpdateHistoryMutation();
   const [UpdateSupp] = useUpdateSupplierMutation();
-  const [oldCosts, SetCosts] = React.useState({
-    oldDepoCost: 0,
-    oldPersonalCost: 0,
-  });
+  // const [oldCosts, SetCosts] = React.useState({
+  //   oldDepoCost: 0,
+  //   oldPersonalCost: 0,
+  // });
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
@@ -244,20 +243,20 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         setDataDatabase(actualSupp, statesOfDataSupp);
       }
 
-      const costs = getOldCostFromSupDelivery(supData.data.suplierData, id);
+      // const costs = getOldCostFromSupDelivery(supData.data.suplierData, id);
 
       // eslint-disable-next-line max-depth
-      if (costs) {
-        console.log('stare ceny v ueefect,', costs);
-        SetCosts({
-          oldDepoCost: costs.oldDepoCost,
-          oldPersonalCost: costs.oldPersonalCost,
-        });
-        // gettersOfOldCosts.set({
-        //   oldDepoCost: costs.oldDepoCost,
-        //   oldPersonalCost: costs.oldPersonalCost,
-        // });
-      }
+      // if (costs) {
+      //   console.log('stare ceny v ueefect,', costs);
+      //   SetCosts({
+      //     oldDepoCost: costs.oldDepoCost,
+      //     oldPersonalCost: costs.oldPersonalCost,
+      //   });
+      // gettersOfOldCosts.set({
+      //   oldDepoCost: costs.oldDepoCost,
+      //   oldPersonalCost: costs.oldPersonalCost,
+      // });
+      // }
     }
   }, [id, supData]);
 
@@ -336,8 +335,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       if (data) {
         const message = await UpdateHistory({
           variables: {
-            oldPriceDepo: oldCosts.oldDepoCost,
-            oldPricePersonal: oldCosts.oldPersonalCost,
             newPriceDepo: Number(statesOfDataSupp.DepoCost.get()),
             newPricePersonal: Number(statesOfDataSupp.PersonalCost.get()),
             SuppId: statesOfDataSupp.SuppId.get(),

@@ -1,17 +1,92 @@
-import { useHookstate } from '@hookstate/core';
+import { ApolloError } from '@apollo/client';
+import { State, useHookstate } from '@hookstate/core';
 import Head from 'next/head';
 import React, { useState } from 'react';
 
 import {
+  SuppDataQuery,
   useMutSuitableSuppMutation,
   useSuppDataQuery,
 } from '@/generated/graphql';
 
 import styles from '../styles/Home.module.css';
 import stylesF from '../styles/stylesForm/styleForms.module.css';
-import { ResSuppCard } from './components/Cards/resSupp';
+import { ResSuppCard } from './components/Cards/res-supp';
 import { FormChooseSup } from './components/formChooseSupp';
 import { Navbar } from './components/navbar2';
+
+type DataFromForm = {
+  width: string;
+  height: string;
+  weight: string;
+  plength: string;
+  placeFrom: string;
+  placeTo: string;
+};
+
+type SuppData = {
+  data: SuppDataQuery | undefined;
+  loading: boolean;
+  error: ApolloError | undefined;
+};
+
+type DataS = {
+  suppId: string;
+  cost: number;
+  name: string;
+};
+
+type Data = {
+  __typename?: 'QuerySuppD' | undefined;
+  sendCashDelivery: string;
+  packInBox: string;
+  supplierId: string;
+  suppName: string;
+  pickUp: string;
+  delivery: string;
+  insurance: number;
+  shippingLabel: string;
+  foil: string;
+  package?: any | undefined;
+  location?: any | undefined;
+};
+
+type SuitableSupps = {
+  dataS: Data | undefined;
+  cost: number;
+  packName: string;
+};
+
+const SetAndReturnDataForm = (
+  stateSetter: State<{
+    Width: string;
+    Height: string;
+    Weight: string;
+    Plength: string;
+    PlaceFrom: string;
+    PlaceTo: string;
+    Cost: string;
+  }>,
+) => {
+  const dataForm: DataFromForm = {
+    width: '',
+    height: '',
+    weight: '',
+    plength: '',
+    placeFrom: '',
+    placeTo: '',
+  };
+  dataForm.width = stateSetter.Width.get();
+  dataForm.height = stateSetter.Height.get();
+  dataForm.weight = stateSetter.Weight.get();
+  dataForm.plength = stateSetter.Plength.get();
+  dataForm.placeFrom = stateSetter.PlaceFrom.get();
+  dataForm.placeTo = stateSetter.PlaceTo.get();
+
+  // packName: statesOfFormPack.PackName.get(),
+
+  return dataForm;
+};
 
 const parseIntReliable = (numArg: string) => {
   if (numArg.length > 0) {
@@ -34,18 +109,14 @@ const isInt = (numArg: string, min: number) => {
   return parsed !== false && parsed > min;
 };
 
-const Res = (dataSui: [], allSupp: any) => {
-  const SuitableSupps: Array<any> = [];
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+const Res = (dataSui: Array<DataS>, allSupp: SuppData) => {
+  const SuitableSupps: Array<SuitableSupps> = [];
   console.log('co tam je', SuitableSupps);
   console.log('co tam jeee2', dataSui);
   console.log('objecty', dataSui);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return
-  dataSui.forEach((itm: any) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  dataSui.forEach((itm) => {
     SuitableSupps.push({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      dataS: allSupp.data?.suplierData.find((item: any) => {
+      dataS: allSupp.data?.suplierData.find((item) => {
         return item.supplierId === itm.suppId;
       }),
       cost: itm.cost,
@@ -56,40 +127,39 @@ const Res = (dataSui: [], allSupp: any) => {
   });
   console.log('ssuitabel', SuitableSupps);
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return SuitableSupps ?? [];
 };
 
 // eslint-disable-next-line consistent-return
 const RenderSupp = (
-  dataFromResolver: any,
-  QueryData: any,
-  dataFromForm: object,
+  dataFromResolver: Array<DataS>,
+  QueryData: SuppData,
+  dataFromForm: DataFromForm,
 ) => {
-  // alert(JSON.stringify(Res(dataFromResover, QueryData)));
-  console.log('resolver', dataFromResolver);
-  // v ifu problemi
-  console.log('uvidime', QueryData.loading, QueryData, QueryData.data);
-  if (!QueryData.loading && !QueryData.error && QueryData.data) {
-    // eslint-disable-next-line array-callback-return
-    return Res(dataFromResolver, QueryData).map((itm: any) => (
-      <div key={itm.dataS.supplierId}>
-        <ResSuppCard
-          packName={itm.packName}
-          price={itm.cost}
-          delivery={itm.dataS.delivery}
-          folie={itm.dataS.foil}
-          insurance={itm.dataS.insurance}
-          packInBox={itm.dataS.packInBox}
-          pickUp={itm.dataS.pickUp}
-          sendCash={itm.dataS.sendCashDelivery}
-          shippingLabel={itm.dataS.shippingLabel}
-          name={itm.dataS.suppName}
-          sId={itm.dataS.supplierId}
-          dataFrPage={dataFromForm}
-        />
-      </div>
-    ));
+  const res = Res(dataFromResolver, QueryData);
+  if (!QueryData.loading && !QueryData.error && QueryData.data && res) {
+    return res.map((itm) =>
+      itm.dataS && itm ? (
+        <div key={itm.dataS.supplierId}>
+          <ResSuppCard
+            packName={itm.packName}
+            price={itm.cost}
+            delivery={itm.dataS.delivery}
+            folie={itm.dataS.foil}
+            insurance={itm.dataS.insurance}
+            packInBox={itm.dataS.packInBox}
+            pickUp={itm.dataS.pickUp}
+            sendCash={itm.dataS.sendCashDelivery}
+            shippingLabel={itm.dataS.shippingLabel}
+            name={itm.dataS.suppName}
+            sId={itm.dataS.supplierId}
+            dataFrPage={dataFromForm}
+          />
+        </div>
+      ) : (
+        <div key=""></div>
+      ),
+    );
   }
   return <div></div>;
 };
@@ -100,7 +170,6 @@ const Valid = (
   pLengtharg: string,
   heightarg: string,
   widtharg: string,
-  // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
 ) => {
   if (
     !isInt(weightarg, 0) ||
@@ -111,6 +180,8 @@ const Valid = (
   ) {
     return new Error('Invalid argument');
   }
+
+  return undefined;
 };
 
 export default function SuitableSupp() {
@@ -125,7 +196,7 @@ export default function SuitableSupp() {
   });
 
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
-  const [dataS, SetData] = useState([]);
+  const [dataS, SetData] = useState(Array<DataS>);
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [suitableSupp] = useMutSuitableSuppMutation();
@@ -157,7 +228,9 @@ export default function SuitableSupp() {
       console.log('datatataat');
 
       if (result.data?.BingoSupPac?.suitable) {
-        const data = JSON.parse(result.data?.BingoSupPac?.suitable);
+        const data: Array<DataS> = JSON.parse(
+          result.data?.BingoSupPac?.suitable,
+        );
         console.log('datatataat', data);
         SetData(data);
       } else {
@@ -182,25 +255,23 @@ export default function SuitableSupp() {
           onChangeHmotnost={(e) => statesOfFormPack.Weight.set(e.toString())}
           onChangeDelka={(e) => statesOfFormPack.Plength.set(e.toString())}
           onChangeCena={(e) => statesOfFormPack.Cost.set(e.toString())}
-          onChangeDo={(e) => statesOfFormPack.PlaceTo.set(e.toString())}
-          onChangeZ={(e) => statesOfFormPack.PlaceFrom.set(e.toString())}
+          onChangeDo={(e) => statesOfFormPack.PlaceTo.set(e)}
+          onChangeZ={(e) => statesOfFormPack.PlaceFrom.set(e)}
           buttonEl={
             <button className={stylesF.crudbtn} onClick={HandleForm}>
               odeslat
             </button>
           }
         />
-        {RenderSupp(dataS, suppData, {
-          dataFrForm: {
-            width: statesOfFormPack.Width.get(),
-            height: statesOfFormPack.Height.get(),
-            weight: statesOfFormPack.Weight.get(),
-            plength: statesOfFormPack.Plength.get(),
-            placeFrom: statesOfFormPack.PlaceFrom.get(),
-            placeTo: statesOfFormPack.PlaceTo.get(),
-            // packName: statesOfFormPack.PackName.get(),
+        {RenderSupp(
+          dataS,
+          {
+            data: suppData.data,
+            loading: suppData.loading,
+            error: suppData.error,
           },
-        })}
+          SetAndReturnDataForm(statesOfFormPack),
+        )}
       </main>
 
       <footer className={styles.footer}></footer>

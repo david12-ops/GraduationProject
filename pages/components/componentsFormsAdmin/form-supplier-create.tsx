@@ -64,7 +64,7 @@ const isInt = (numArg: string, min: number) => {
   return parsed !== false && parsed >= min;
 };
 
-const ValidDateForm = (dateU1: any) => {
+const ValidDateForm = (dateU1: string) => {
   // eslint-disable-next-line no-constant-condition, @typescript-eslint/no-unsafe-argument
   const option = /^\d{4}(?:-\d{1,2}){2}$/;
   // eslint-disable-next-line sonarjs/prefer-single-boolean-return

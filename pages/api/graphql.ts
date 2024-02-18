@@ -43,11 +43,8 @@ const typeDefs = gql`
 
     updateHistory(
       newPricePack: Int
-      oldPricePack: Int
       newPricePersonal: Int
-      oldPricePersonal: Int
       newPriceDepo: Int
-      oldPriceDepo: Int
       suppId: String
       packName: String
     ): HistoryMessage
@@ -284,7 +281,7 @@ const ConverBool = (
 };
 
 // eslint-disable-next-line consistent-return
-const ConverDate = (dateU1: any, dateU2: any) => {
+const ConverDate = (dateU1: string, dateU2: string) => {
   console.log(dateU1);
   // eslint-disable-next-line unicorn/better-regex
   const option = /^[0-9]{4}[-][0-9]{1,2}[-][0-9]{1,2}$/;
@@ -504,6 +501,31 @@ const doMatchForOptionsDelivery = async (
   // eslint-disable-next-line sonarjs/cognitive-complexity
 ) => {
   // moznost filtrovat i insecure
+  type HistoryDoc = {
+    uId: string;
+    dataForm: {
+      width: string;
+      placeTo: string;
+      weight: string;
+      placeFrom: string;
+      plength: string;
+      height: string;
+    };
+    historyId: string;
+    suppData: {
+      insurance: number;
+      delivery: string;
+      packInBox: string;
+      name: string;
+      pickup: string;
+      shippingLabel: string;
+      id: string;
+      sendCashDelivery: string;
+      foil: string;
+      packName: string;
+      cost: number;
+    };
+  };
 
   type Package = {
     [name: string]: {
@@ -556,7 +578,7 @@ const doMatchForOptionsDelivery = async (
   };
 
   historyDoc.forEach((doc) => {
-    const item = doc.data();
+    const item = doc.data() as HistoryDoc;
     namesPack.push(item.suppData.packName);
   });
 
@@ -585,7 +607,7 @@ const doMatchForOptionsDelivery = async (
   // Dokument
 
   historyDoc.forEach((doc) => {
-    const item = doc.data();
+    const item = doc.data() as HistoryDoc;
     packInfo.forEach((itm: PackInfo) => {
       if (item.suppData.packName === itm.namePack) {
         historyIds.push(item.historyId);
@@ -609,15 +631,13 @@ const doMatchForOptionsDelivery = async (
 
   if (historyQuerySnapshot) {
     historyQuerySnapshot.forEach((document) => {
+      const dataDoc = document.data() as HistoryDoc;
       historyIds.forEach(async (id) => {
         if (
           document.id === id &&
-          isNameInArr(document.data().suppData.packName, packInfo)
+          isNameInArr(dataDoc.suppData.packName, packInfo)
         ) {
-          const costPack = getCostByName(
-            packInfo,
-            document.data().suppData.packName,
-          );
+          const costPack = getCostByName(packInfo, dataDoc.suppData.packName);
 
           if (costPack) {
             await document.ref.update(
@@ -1199,6 +1219,7 @@ const resolvers = {
               ? item
               : undefined;
           }
+          return undefined;
         });
 
         if (
@@ -1238,6 +1259,7 @@ const resolvers = {
         packId: string;
       },
       context: MyContext,
+      // eslint-disable-next-line sonarjs/cognitive-complexity
     ) => {
       const {
         weight: hmotnost,
@@ -1250,7 +1272,26 @@ const resolvers = {
         packId: ID,
       } = args;
       // Refactorizace kodu, mozne if zbytecné
+      type Package = {
+        [name: string]: {
+          weight: number;
+          height: number;
+          width: number;
+          Plength: number;
+          name_package: string;
+          cost: number;
+          supplier_id: string;
+        };
+      };
 
+      type PackageData = {
+        weight: number;
+        height: number;
+        width: number;
+        Plength: number;
+        name_package: string;
+        cost: number;
+      };
       const Admin = process.env.NEXT_PUBLIC_AdminEm;
       console.log('databaze user', context.user);
       if (context.user?.email !== Admin) {
@@ -1300,8 +1341,9 @@ const resolvers = {
         }
 
         const supplierDoc = SupplierDoc.docs[0];
-        const existingPackages = supplierDoc.data().package || [];
-        const dupPackages: any = [];
+        const existingPackages: Array<Package> =
+          supplierDoc.data().package || [];
+        const dupPackages: Array<PackageData> = [];
         let dupName = '';
 
         const newPackage = {
@@ -1314,41 +1356,31 @@ const resolvers = {
           supplier_id: supplierDoc.id,
         };
 
-        const keyPack = existingPackages.map((item: any) => {
+        const keyPack = existingPackages.map((item) => {
           const keys = Object.keys(item)[0];
           console.log(keys);
           return keys.includes(ID);
         });
 
-        existingPackages.forEach(
-          (item: {
-            [name: string]: {
-              weight: number;
-              height: number;
-              width: number;
-              Plength: number;
-              name_package: string;
-            };
-          }) => {
-            // jmeno balicku
-            const nameItm = Object.keys(item)[0];
-            const itm = item[nameItm];
-            console.log('itm', itm);
-            // kontrola jmén
-            if (itm.name_package === packName) {
-              dupName = itm.name_package;
-            }
-            if (
-              itm.weight === newPackage.weight &&
-              itm.height === newPackage.height &&
-              itm.width === newPackage.width &&
-              itm.Plength === newPackage.Plength
-            ) {
-              dupPackages.push(itm);
-              console.log('selected', itm);
-            }
-          },
-        );
+        existingPackages.forEach((item) => {
+          // jmeno balicku
+          const nameItm = Object.keys(item)[0];
+          const itm = item[nameItm];
+          console.log('itm', itm);
+          // kontrola jmén
+          if (itm.name_package === packName) {
+            dupName = itm.name_package;
+          }
+          if (
+            itm.weight === newPackage.weight &&
+            itm.height === newPackage.height &&
+            itm.width === newPackage.width &&
+            itm.Plength === newPackage.Plength
+          ) {
+            dupPackages.push(itm);
+            console.log('selected', itm);
+          }
+        });
         console.log('keypack', keyPack);
         console.log('duplicate pack', dupPackages);
 
@@ -1373,7 +1405,8 @@ const resolvers = {
           };
         }
 
-        const objectPack: { [key: string]: any } = {};
+        const objectPack: Package = {};
+
         objectPack[ID] = {
           weight: hmotnost,
           cost: costPackage,
@@ -1384,6 +1417,7 @@ const resolvers = {
           supplier_id: supplierDoc.id,
         };
 
+        // existingPackages.push(objectPack);
         existingPackages.push(objectPack);
 
         console.log(existingPackages);
@@ -1429,6 +1463,31 @@ const resolvers = {
         personalCost: pCost,
       } = args;
 
+      type Package = {
+        [name: string]: {
+          weight: number;
+          height: number;
+          width: number;
+          Plength: number;
+          name_package: string;
+          cost: number;
+        };
+      };
+
+      type Supplier = {
+        supplierId: string;
+        packInBox: string;
+        shippingLabel: string;
+        sendCashDelivery: string;
+        foil: string;
+        delivery: string;
+        suppName: string;
+        pickUp: string;
+        insurance: number;
+        package: Array<Package>;
+        location: Location;
+      };
+
       try {
         const namesOfSup: Array<string> = [];
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
@@ -1441,8 +1500,9 @@ const resolvers = {
 
         const SuppDocument = await db.collection('Supplier').get();
 
-        SuppDocument.forEach((data: any) => {
-          namesOfSup.push(data._fieldsProto.suppName.stringValue);
+        SuppDocument.forEach((data) => {
+          const item = data.data() as Supplier;
+          namesOfSup.push(item.suppName);
         });
 
         console.log(
@@ -1563,6 +1623,28 @@ const resolvers = {
         name_package: packName,
         supplier_id: supplierId,
       } = args;
+
+      type Package = {
+        [name: string]: {
+          weight: number;
+          height: number;
+          width: number;
+          Plength: number;
+          name_package: string;
+          cost: number;
+          supplier_id: string;
+        };
+      };
+
+      type PackageData = {
+        weight: number;
+        height: number;
+        width: number;
+        Plength: number;
+        name_package: string;
+        cost: number;
+      };
+
       try {
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
         if (context.user?.email !== Admin) {
@@ -1611,8 +1693,9 @@ const resolvers = {
         }
 
         const supplierDoc = SupplierDoc.docs[0];
-        const existingPackages = supplierDoc.data().package || [];
-        const dupPackages: any = [];
+        const existingPackages: Array<Package> | [] =
+          supplierDoc.data().package || [];
+        const dupPackages: Array<PackageData> = [];
         let dupName = '';
 
         const UpdatePackage = {
@@ -1626,39 +1709,29 @@ const resolvers = {
         };
 
         existingPackages
-          .filter((item: any) => {
+          .filter((item) => {
             return !item[id];
           })
-          .forEach(
-            (item: {
-              [name: string]: {
-                weight: number;
-                height: number;
-                width: number;
-                Plength: number;
-                name_package: string;
-              };
-            }) => {
-              // Vybrat vsechny,Ignorovat updated
-              // jmeno balicku
-              const nameItm = Object.keys(item)[0];
-              const itm = item[nameItm];
-              console.log('itm', itm);
-              // kontrola jmén
-              if (itm.name_package === packName) {
-                dupName = itm.name_package;
-              }
-              if (
-                itm.weight === UpdatePackage.weight &&
-                itm.height === UpdatePackage.height &&
-                itm.width === UpdatePackage.width &&
-                itm.Plength === UpdatePackage.Plength
-              ) {
-                dupPackages.push(itm);
-                console.log('selected', itm);
-              }
-            },
-          );
+          .forEach((item) => {
+            // Vybrat vsechny,Ignorovat updated
+            // jmeno balicku
+            const nameItm = Object.keys(item)[0];
+            const itm = item[nameItm];
+            console.log('itm', itm);
+            // kontrola jmén
+            if (itm.name_package === packName) {
+              dupName = itm.name_package;
+            }
+            if (
+              itm.weight === UpdatePackage.weight &&
+              itm.height === UpdatePackage.height &&
+              itm.width === UpdatePackage.width &&
+              itm.Plength === UpdatePackage.Plength
+            ) {
+              dupPackages.push(itm);
+              console.log('selected', itm);
+            }
+          });
 
         if (dupName.length > 0) {
           return {
@@ -1674,34 +1747,23 @@ const resolvers = {
           };
         }
 
-        existingPackages.forEach(
-          (item: {
-            [name: string]: {
-              weight: number;
-              height: number;
-              width: number;
-              Plength: number;
-              cost: number;
-              name_package: string;
-            };
-          }) => {
-            // najdi update item
-            const updatetedItem = item;
+        existingPackages.forEach((item) => {
+          // najdi update item
+          const updatetedItem = item;
 
-            // eslint-disable-next-line sonarjs/no-collapsible-if, unicorn/no-lonely-if
-            if (updatetedItem[id]) {
-              // eslint-disable-next-line unicorn/no-lonely-if, max-depth
-              console.log('name itm', id);
-              updatetedItem[id].weight = hmotnost;
-              updatetedItem[id].cost = costPackage;
-              updatetedItem[id].Plength = delka;
-              updatetedItem[id].height = vyska;
-              updatetedItem[id].width = sirka;
-              updatetedItem[id].name_package = packName;
-              console.log('update with same name', updatetedItem[id]);
-            }
-          },
-        );
+          // eslint-disable-next-line sonarjs/no-collapsible-if, unicorn/no-lonely-if
+          if (updatetedItem[id]) {
+            // eslint-disable-next-line unicorn/no-lonely-if, max-depth
+            console.log('name itm', id);
+            updatetedItem[id].weight = hmotnost;
+            updatetedItem[id].cost = costPackage;
+            updatetedItem[id].Plength = delka;
+            updatetedItem[id].height = vyska;
+            updatetedItem[id].width = sirka;
+            updatetedItem[id].name_package = packName;
+            console.log('update with same name', updatetedItem[id]);
+          }
+        });
 
         console.log(existingPackages);
 
@@ -1756,6 +1818,32 @@ const resolvers = {
         personalCost: pCost,
       } = args;
 
+      type Package = {
+        [name: string]: {
+          weight: number;
+          height: number;
+          width: number;
+          Plength: number;
+          name_package: string;
+          cost: number;
+          supplier_id: string;
+        };
+      };
+
+      type Supplier = {
+        supplierId: string;
+        packInBox: string;
+        shippingLabel: string;
+        sendCashDelivery: string;
+        foil: string;
+        delivery: string;
+        suppName: string;
+        pickUp: string;
+        insurance: number;
+        package: Array<Package>;
+        location: Location;
+      };
+
       try {
         const Admin = process.env.NEXT_PUBLIC_AdminEm;
         if (context.user?.email !== Admin) {
@@ -1799,7 +1887,7 @@ const resolvers = {
 
         const SupplierDoc = await db.collection('Supplier').get();
 
-        const docs = SupplierDoc.docs.map((doc) => doc.data());
+        const docs = SupplierDoc.docs.map((doc) => doc.data() as Supplier);
 
         const docsWithoutCurrentSupp = docs.filter(
           (doc) => doc.suppName !== ActName,
@@ -1881,24 +1969,20 @@ const resolvers = {
       parent_: any,
       args: {
         newPricePack: number;
-        oldPricePack: number;
         newPricePersonal: number;
-        oldPricePersonal: number;
         newPriceDepo: number;
-        oldPriceDepo: number;
         suppId: string;
         packName: string;
       },
       context: MyContext,
       // eslint-disable-next-line sonarjs/cognitive-complexity, consistent-return
     ) => {
+      // update nejen ceny ale i dodavatele
+      // pri mazani baliku a dodavatele i mazani historie
       const {
         newPricePack: nPricrePack,
-        oldPricePack: oPricePack,
         newPricePersonal: nPriceP,
-        oldPricePersonal: oPriceP,
         newPriceDepo: nPriceDepo,
-        oldPriceDepo: oPriceDepo,
         suppId: sId,
         packName: nameOfpack,
       } = args;
@@ -1998,7 +2082,7 @@ const resolvers = {
         //   return 'Users history not updated successfully';
         // };
 
-        if (nPriceP && oPriceP && nPriceDepo && oPriceDepo) {
+        if (nPriceP && nPriceDepo) {
           msg = await doMatchForOptionsDelivery(
             SuppDocuments,
             nPriceDepo,
@@ -2097,7 +2181,7 @@ const resolvers = {
         console.log('pole', SupIdar);
         const collection = db.collection('Supplier');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        SupIdar.forEach(async function (Idsup) {
+        SupIdar.forEach(async (Idsup) => {
           const snapshot = await collection
             .where('supplierId', '==', Idsup)
             .get();

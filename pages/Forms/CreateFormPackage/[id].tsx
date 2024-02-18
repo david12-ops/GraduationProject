@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { FormPackage } from '@/pages/components/componentsFormsAdmin/formPackageCreate';
+import { FormPackage } from '@/pages/components/componentsFormsAdmin/form-package-create';
 
 import styles from '../../../styles/Home.module.css';
 import { Navbar } from '../../components/navbar2';
