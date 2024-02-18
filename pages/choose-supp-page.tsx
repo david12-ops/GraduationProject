@@ -250,11 +250,11 @@ export default function SuitableSupp() {
       <Navbar />
       <main className={styles.main}>
         <FormChooseSup
-          onChangeSirka={(e) => statesOfFormPack.Width.set(e.toString())}
-          onChangeVyska={(e) => statesOfFormPack.Height.set(e.toString())}
-          onChangeHmotnost={(e) => statesOfFormPack.Weight.set(e.toString())}
-          onChangeDelka={(e) => statesOfFormPack.Plength.set(e.toString())}
-          onChangeCena={(e) => statesOfFormPack.Cost.set(e.toString())}
+          onChangeSirka={(e) => statesOfFormPack.Width.set(e)}
+          onChangeVyska={(e) => statesOfFormPack.Height.set(e)}
+          onChangeHmotnost={(e) => statesOfFormPack.Weight.set(e)}
+          onChangeDelka={(e) => statesOfFormPack.Plength.set(e)}
+          onChangeCena={(e) => statesOfFormPack.Cost.set(e)}
           onChangeDo={(e) => statesOfFormPack.PlaceTo.set(e)}
           onChangeZ={(e) => statesOfFormPack.PlaceFrom.set(e)}
           buttonEl={

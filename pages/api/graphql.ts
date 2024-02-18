@@ -1204,7 +1204,6 @@ const resolvers = {
           // return ?
           // spise kontrola dle jmena
           const itm = item.data() as HistoryDoc;
-          console.log('iiiiiii', itm);
           const byForm = itm.dataForm;
           const byCost = itm.suppData.cost;
           const userId = itm.uId;

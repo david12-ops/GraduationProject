@@ -16,11 +16,11 @@ import styles from '../../styles/stylesForm/styleForms.module.css';
 // );
 
 type Props = {
-  onChangeVyska: (inputVal: number) => void;
-  onChangeHmotnost: (inputVal: number) => void;
-  onChangeDelka: (inputVal: number) => void;
-  onChangeSirka: (inputVal: number) => void;
-  onChangeCena: (inputVal: number) => void;
+  onChangeVyska: (inputVal: string) => void;
+  onChangeHmotnost: (inputVal: string) => void;
+  onChangeDelka: (inputVal: string) => void;
+  onChangeSirka: (inputVal: string) => void;
+  onChangeCena: (inputVal: string) => void;
   onChangeDo: (inputVal: string) => void;
   onChangeZ: (inputVal: string) => void;
   buttonEl: any;
@@ -48,7 +48,6 @@ export const FormChooseSup: React.FC<Props> = ({
           <label>Z</label>
           <Select
             className={styles.selectInput}
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
             onChange={(selectedOption: any) => onChangeZ(selectedOption.value)}
             options={options}
             required
@@ -59,7 +58,6 @@ export const FormChooseSup: React.FC<Props> = ({
           <label>Do</label>
           <Select
             className={styles.selectInput}
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
             onChange={(selectedOption: any) => onChangeDo(selectedOption.value)}
             options={options}
             required
@@ -91,7 +89,7 @@ export const FormChooseSup: React.FC<Props> = ({
               <p style={{ textAlign: 'center' }}>Výška</p>
               <input
                 className={styles.input}
-                onChange={(e) => onChangeVyska(Number(e.target.value))}
+                onChange={(e) => onChangeVyska(e.target.value)}
                 required
                 type="number"
                 placeholder="Cm"
@@ -103,7 +101,7 @@ export const FormChooseSup: React.FC<Props> = ({
               <p style={{ textAlign: 'center' }}>Hmotnost</p>
               <input
                 className={styles.input}
-                onChange={(e) => onChangeHmotnost(Number(e.target.value))}
+                onChange={(e) => onChangeHmotnost(e.target.value)}
                 required
                 type="number"
                 placeholder="Kg"
@@ -115,7 +113,7 @@ export const FormChooseSup: React.FC<Props> = ({
               <p style={{ textAlign: 'center' }}>Délka</p>
               <input
                 className={styles.input}
-                onChange={(e) => onChangeDelka(Number(e.target.value))}
+                onChange={(e) => onChangeDelka(e.target.value)}
                 required
                 type="number"
                 placeholder="Cm"
@@ -127,7 +125,7 @@ export const FormChooseSup: React.FC<Props> = ({
               <p style={{ textAlign: 'center' }}>Šířka</p>
               <input
                 className={styles.input}
-                onChange={(e) => onChangeSirka(Number(e.target.value))}
+                onChange={(e) => onChangeSirka(e.target.value)}
                 required
                 type="number"
                 placeholder="Cm"
@@ -148,7 +146,7 @@ export const FormChooseSup: React.FC<Props> = ({
             <p style={{ textAlign: 'center' }}>Cena</p>
             <input
               className={styles.input}
-              onChange={(e) => onChangeCena(Number(e.target.value))}
+              onChange={(e) => onChangeCena(e.target.value)}
               required
               type="number"
               placeholder="Kč"
