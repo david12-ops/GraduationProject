@@ -48,7 +48,7 @@ export const DataGridSupplier = () => {
     let errmsg;
     if (Counter(IdSupp()) === 0) {
       errmsg = 'Vyberte si prosím záznam';
-    } else if (IdSupp().length > 1) {
+    } else if (Counter(IdSupp()) > 1) {
       errmsg = 'Vzberte jen jednoho dodavatele';
       alert(errmsg);
     } else {

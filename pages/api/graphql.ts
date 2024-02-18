@@ -2017,71 +2017,6 @@ const resolvers = {
           .where('suppData.id', '==', sId)
           .get();
 
-        // kontrola aby nebyli u sera dva stejny dodavatele se stejnum balickem
-
-        // const ChangePriceOptionsDelivery = async (userEmail: string) => {
-        //   const SuppDocuments = await db
-        //     .collection('History')
-        //     .where('suppData.id', '==', sId)
-        //     .get();
-
-        //   console.log('vybrany document', SuppDocuments);
-        //   let updated = false;
-
-        //   console.log('id', sId);
-        //   console.log(
-        //     'cstDiff',
-        //     CostDif(oPriceDepo, nPriceDepo, oPriceP, nPriceP).cost,
-        //   );
-
-        //   const differenceCost = CostDif(
-        //     oPriceDepo,
-        //     nPriceDepo,
-        //     oPriceP,
-        //     nPriceP,
-        //   );
-
-        //   if (differenceCost.cost === 0) {
-        //     console.log('nema smysl pocitat');
-        //   }
-
-        //   if (userEmail === Admin && differenceCost.cost !== 0) {
-        //     SuppDocuments.forEach(async (doc) => {
-        //       console.log('document', doc);
-        //       let cost = Number(
-        //         doc._fieldsProto.suppData.mapValue.fields.cost.integerValue,
-        //       );
-        //       console.log('cost total');
-
-        //       if (differenceCost.operation === '-') {
-        //         cost -= differenceCost.cost;
-        //         console.log(`total: ${cost}`);
-        //       }
-
-        //       if (differenceCost.operation === '+') {
-        //         cost += differenceCost.cost;
-        //         console.log(`total: ${cost}`);
-        //       }
-
-        //       await doc.ref.update({ 'suppData.cost': cost });
-
-        //       // new firestore.FieldPath('suppData', 'cost'),
-        //       //   cost
-        //     });
-
-        //     updated = !!(
-        //       SuppDocuments.docChanges() &&
-        //       SuppDocuments.docChanges().length > 0
-        //     );
-        //   }
-
-        //   console.log('updated', updated);
-        //   if (updated) {
-        //     return 'Users history updated successfully';
-        //   }
-        //   return 'Users history not updated successfully';
-        // };
-
         if (nPriceP && nPriceDepo) {
           msg = await doMatchForOptionsDelivery(
             SuppDocuments,
@@ -2090,8 +2025,6 @@ const resolvers = {
             historyDocuments,
           );
         }
-
-        // msg = await doMatchForOptionsDelivery(SuppDocuments, nPriceDepo, nPriceP, historyDocuments)
 
         if (nPricrePack && nameOfpack && sId) {
           msg = await doMathForPackage(
@@ -2115,13 +2048,22 @@ const resolvers = {
       args: { key: string; suppId: string },
       context: MyContext,
     ) => {
+      type Package = {
+        [name: string]: {
+          weight: number;
+          height: number;
+          width: number;
+          Plength: number;
+          name_package: string;
+          cost: number;
+          supplier_id: string;
+        };
+      };
       const { key: Pack, suppId: Sid } = args;
       let deleted = false;
       let err = '';
       let find = false;
-      let newArray = [];
-      console.log('id', Pack);
-      console.log('id', Sid);
+      let newArray: Array<Package> = [];
 
       const Admin = process.env.NEXT_PUBLIC_AdminEm;
       if (context.user?.email !== Admin) {
@@ -2136,17 +2078,14 @@ const resolvers = {
           .where('supplierId', '==', Sid)
           .get();
         const supplierDoc = SupplierDoc.docs[0];
-        const existingPackages = supplierDoc.data().package || [];
+        const existingPackages: Array<Package> =
+          supplierDoc.data().package || [];
 
         if (supplierDoc.exists) {
           // eslint-disable-next-line max-depth
           if (existingPackages) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             newArray = existingPackages.filter((item: any) => !item[Pack]);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             find = Boolean(existingPackages.filter((item: any) => !item[Pack]));
-            console.log('newARR', newArray);
-            console.log('ffffind', find);
           } else {
             err = 'Nothing to delete';
           }
@@ -2166,7 +2105,11 @@ const resolvers = {
         throw error;
       }
     },
-    deleteSupp: (parent_: any, args: { id: [string] }, context: MyContext) => {
+    deleteSupp: (
+      parent_: any,
+      args: { id: Array<string> },
+      context: MyContext,
+    ) => {
       let deleted = false;
       let err = '';
       const Admin = process.env.NEXT_PUBLIC_AdminEm;
@@ -2180,16 +2123,13 @@ const resolvers = {
       try {
         console.log('pole', SupIdar);
         const collection = db.collection('Supplier');
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         SupIdar.forEach(async (Idsup) => {
           const snapshot = await collection
             .where('supplierId', '==', Idsup)
             .get();
-          if (snapshot.empty) {
-            err = 'Dodavatel není v databázi';
+          if (snapshot) {
+            await snapshot.docs[0].ref.delete();
           }
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          await snapshot.docs[0].ref.delete();
         });
         deleted = true;
         return { deletion: deleted, error: err };
