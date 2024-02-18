@@ -24,23 +24,15 @@ const IsYesOrNo = (
   console.log(stringnU4);
 
   if (!['Ano', 'Ne'].includes(stringnU1)) {
-    // eslint-disable-next-line sonarjs/no-duplicate-string
-    console.log('co kontroliujeme?', stringnU1);
     return true;
   }
   if (!['Ano', 'Ne'].includes(stringnU2)) {
-    console.log('co kontroliujeme?', stringnU2);
     return true;
   }
   if (!['Ano', 'Ne'].includes(stringnU3)) {
-    console.log('co kontroliujeme?', stringnU3);
     return true;
   }
-  if (!['Ano', 'Ne'].includes(stringnU4)) {
-    console.log('co kontroliujeme?', stringnU4);
-    return true;
-  }
-  return false;
+  return !['Ano', 'Ne'].includes(stringnU4);
 };
 
 const parseIntReliable = (numArg: string) => {
@@ -65,14 +57,8 @@ const isInt = (numArg: string, min: number) => {
 };
 
 const ValidDateForm = (dateU1: string) => {
-  // eslint-disable-next-line no-constant-condition, @typescript-eslint/no-unsafe-argument
   const option = /^\d{4}(?:-\d{1,2}){2}$/;
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-  if (!option.test(dateU1)) {
-    return false;
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return true;
+  return !!option.test(dateU1);
 };
 
 const Valid = (
@@ -85,7 +71,6 @@ const Valid = (
   packInBoxarg: string,
   depoCostarg: string,
   personalCostarg: string,
-  // eslint-disable-next-line consistent-return
 ) => {
   if (
     !isInt(Insurancearg, 0) ||
@@ -103,6 +88,7 @@ const Valid = (
   if (!ValidDateForm(Deliveryarg) || !ValidDateForm(pickUparg)) {
     return new Error('Date is not valid');
   }
+  return undefined;
 };
 
 export const FormSupplier = () => {
@@ -157,16 +143,6 @@ export const FormSupplier = () => {
     );
   };
   // match-sorter
-
-  // const MyComponentFoil = () => (
-  //   <Select
-  //     className={styles.selectInput}
-  //     onChange={(selectedOption: any) => SetFoil(selectedOption.value)}
-  //     options={options}
-  //     placeholder={'Ano/Ne'}
-  //     required
-  //   />
-  // );
 
   const handleForm = async (event: React.FormEvent) => {
     event.preventDefault();

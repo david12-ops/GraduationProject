@@ -44,21 +44,11 @@ type SuppData =
 
 const IsTherePackage = (data: any) => {
   const packages: Array<Package> = data;
-  console.log('how much', packages.length > 0);
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-  if (packages.length > 0) {
-    return true;
-  }
-  return false;
+  return packages.length > 0;
 };
 
 const IsThereSupp = (data: SuppData) => {
-  console.log('co kontrolujeme', data);
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-  if (data) {
-    return true;
-  }
-  return false;
+  return !!data;
 };
 
 const PageBody = (

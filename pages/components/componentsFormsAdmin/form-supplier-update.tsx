@@ -95,14 +95,8 @@ const isInt = (numArg: string, min: number) => {
 };
 
 const ValidDateForm = (dateU1: string) => {
-  // eslint-disable-next-line no-constant-condition, @typescript-eslint/no-unsafe-argument
   const option = /^\d{4}(?:-\d{1,2}){2}$/;
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-  if (!option.test(dateU1)) {
-    return false;
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return true;
+  return !!option.test(dateU1);
 };
 
 const Valid = (
@@ -115,7 +109,6 @@ const Valid = (
   packInBoxarg: string,
   depoCostarg: string,
   personalCostarg: string,
-  // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
 ) => {
   if (
     !isInt(Insurancearg, 0) ||
@@ -129,15 +122,14 @@ const Valid = (
     return new Error('Invalid argument');
   }
 
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
   if (IsYesOrNo(SendCashDeliveryarg, Foilarg, ShippingLabelarg, packInBoxarg)) {
     return new Error('Provided data is not in valid format (Ano/Ne)');
   }
 
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
   if (!ValidDateForm(Deliveryarg) || !ValidDateForm(pickUparg)) {
     return new Error('Date is not valid');
   }
+  return undefined;
 };
 
 // const getOldCostFromSupDelivery = (

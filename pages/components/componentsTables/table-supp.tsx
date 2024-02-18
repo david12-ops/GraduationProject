@@ -45,16 +45,16 @@ export const DataGridSupplier = () => {
 
   // nefunkcni
   const Check = async () => {
-    let errmsg;
-    if (Counter(IdSupp()) === 0) {
-      errmsg = 'Vyberte si prosím záznam';
-    } else if (Counter(IdSupp()) > 1) {
-      errmsg = 'Vzberte jen jednoho dodavatele';
-      alert(errmsg);
-    } else {
-      await router.push(`/../admpage/${IdSupp()}`);
-    }
-    alert(errmsg);
+    // let errmsg;
+    // if (Counter(IdSupp()) === 0) {
+    //   errmsg = 'Vyberte si prosím záznam';
+    // } else if (Counter(IdSupp()) > 1) {
+    //   errmsg = 'Vzberte jen jednoho dodavatele';
+    //   alert(errmsg);
+    // } else {
+    await router.push(`/../admpage/${IdSupp()}`);
+    // }
+    // alert(errmsg);
   };
 
   const DeleteS = async () => {
@@ -151,7 +151,7 @@ export const DataGridSupplier = () => {
         <button onClick={DeleteS} className={styles.crudbtDel}>
           Delete
         </button>
-        <Link key="CreateFormSupp" href="/../Forms/CreateFormSupp">
+        <Link key="create-form-supp" href="/../Forms/create-form-supp">
           <button className={styles.crudbtn}>Create</button>
         </Link>
         <Link key="suppcard-page" href="/../../suppcard-page">

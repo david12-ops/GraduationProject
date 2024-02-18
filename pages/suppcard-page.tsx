@@ -11,12 +11,7 @@ type Item = SuppDataQuery | undefined;
 
 // pouziti sorting
 const IsThereSupp = (data: Item) => {
-  console.log('co kontrolujeme', data);
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-  if (data) {
-    return true;
-  }
-  return false;
+  return !!data;
 };
 
 const PageBody = (warning: boolean, dataSupp: Item) => {
