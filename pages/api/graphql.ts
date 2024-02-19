@@ -280,7 +280,6 @@ const ConverBool = (
   return false;
 };
 
-// eslint-disable-next-line consistent-return
 const ConverDate = (dateU1: string, dateU2: string) => {
   console.log(dateU1);
   // eslint-disable-next-line unicorn/better-regex
@@ -289,9 +288,7 @@ const ConverDate = (dateU1: string, dateU2: string) => {
     return new Error('Invalid argument of date');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, unicorn/prefer-string-slice, @typescript-eslint/restrict-plus-operands
   const dateParts = dateU1.split('-');
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const DateParts2 = dateU2.split('-');
   const middleNumber = Number.parseInt(dateParts[1], 10);
   const middleNumber2 = Number.parseInt(DateParts2[1], 10);
@@ -304,118 +301,6 @@ const ConverDate = (dateU1: string, dateU2: string) => {
     return new Error('Invalid argument of month in date or day');
   }
 };
-
-// eslint-disable-next-line complexity
-// const CostDif = (
-//   costOldDepo: number,
-//   costNewDepo: number,
-//   costOldPersonal: number,
-//   costNewPersonal: number,
-//   // eslint-disable-next-line sonarjs/cognitive-complexity
-// ) => {
-//   // spatne hodnory
-//   console.log('costOldDepo', costOldDepo);
-//   console.log('costNewDepo', costNewDepo);
-//   console.log('costOldPersonal', costOldPersonal);
-//   console.log('costNewPersonal', costNewPersonal);
-
-//   let costDifference = 0;
-//   const operationCost = { operation: '', cost: costDifference };
-
-//   if (costOldDepo === costNewDepo && costOldPersonal === costNewPersonal) {
-//     return operationCost;
-//   }
-
-//   if (costOldDepo > costNewDepo && costOldPersonal > costNewPersonal) {
-//     const costD = costOldDepo - costNewDepo;
-//     const costP = costOldPersonal - costNewPersonal;
-//     costDifference = costD + costP;
-//     console.log('zlevneni', costDifference);
-//     console.log('ceny nižší');
-//     operationCost.cost = costDifference;
-//     operationCost.operation = '-';
-//   }
-
-//   if (costOldDepo < costNewDepo && costOldPersonal < costNewPersonal) {
-//     const costD = costNewDepo - costOldDepo;
-//     const costP = costNewPersonal - costOldPersonal;
-//     costDifference = costD + costP;
-//     console.log('zdrazeni', costDifference);
-//     console.log('ceny vyšší');
-//     operationCost.cost = costDifference;
-//     operationCost.operation = '+';
-//   }
-
-//   if (costOldDepo > costNewDepo && costOldPersonal < costNewPersonal) {
-//     const costD = costOldDepo - costNewDepo;
-//     console.log('cenaD', costD);
-//     const costP = costNewPersonal - costOldPersonal;
-//     console.log('costP', costP);
-//     costDifference = costP - costD;
-//     console.log('zdrazeni/zlevneni', costDifference);
-//     console.log('zvyseni personal ceny a snizeni depa ceny');
-//     operationCost.cost = costDifference;
-//     operationCost.operation = '+';
-//   }
-
-//   if (costOldPersonal > costNewPersonal && costOldDepo < costNewDepo) {
-//     const costD = costNewDepo - costOldDepo;
-//     console.log('cenaD', costD);
-//     const costP = costOldPersonal - costNewPersonal;
-//     console.log('costP', costP);
-//     costDifference = costD - costP;
-//     console.log('zdrazeni/zlevneni', costDifference);
-//     console.log('zvyseni depo ceny a snizeni personal ceny');
-//     operationCost.cost = costDifference;
-//     operationCost.operation = '+';
-//   }
-
-//   if (costOldDepo > costNewDepo && costOldPersonal === costNewPersonal) {
-//     const costD = costOldDepo - costNewDepo;
-//     costDifference = costD;
-//     console.log('zlevneni', costDifference);
-//     console.log('cena depa nižší');
-//     operationCost.cost = costDifference;
-//     operationCost.operation = '-';
-//   }
-
-//   if (costOldDepo === costNewDepo && costOldPersonal > costNewPersonal) {
-//     const costP = costOldPersonal - costNewPersonal;
-//     costDifference = costP;
-//     console.log('zlevneni', costDifference);
-//     console.log('cena personal nižší');
-//     operationCost.cost = costDifference;
-//     operationCost.operation = '-';
-//   }
-
-//   if (costOldDepo < costNewDepo && costOldPersonal === costNewPersonal) {
-//     const costD = costNewDepo - costOldDepo;
-//     costDifference = costD;
-//     console.log('zdrazeni', costDifference);
-//     console.log('cena depa vyssi');
-//     operationCost.cost = costDifference;
-//     operationCost.operation = '+';
-//   }
-
-//   if (costOldDepo === costNewDepo && costOldPersonal < costNewPersonal) {
-//     const costP = costNewPersonal - costOldPersonal;
-//     costDifference = costP;
-//     console.log('zdrazeni', costDifference);
-//     console.log('cena personal vyssi');
-//     operationCost.cost = costDifference;
-//     operationCost.operation = '+';
-//   }
-
-//   console.log(
-//     'variables',
-//     costOldDepo,
-//     costNewDepo,
-//     costOldPersonal,
-//     costNewPersonal,
-//     operationCost,
-//   );
-//   return operationCost;
-// };
 
 const doMathForPackage = async (
   data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
@@ -500,7 +385,6 @@ const doMatchForOptionsDelivery = async (
   historyDoc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
   // eslint-disable-next-line sonarjs/cognitive-complexity
 ) => {
-  // moznost filtrovat i insecure
   type HistoryDoc = {
     uId: string;
     dataForm: {
@@ -544,7 +428,6 @@ const doMatchForOptionsDelivery = async (
   };
 
   const namesPack: Array<string> = [];
-  // let pack: Record<string, Package> = {};
   let pack: Array<Package> = [];
   const packInfo: Array<PackInfo> = [];
   const sum = nPriceDepo + nPriceP;
@@ -592,7 +475,6 @@ const doMatchForOptionsDelivery = async (
 
   // balicky
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   pack.forEach((itmPack: Package) => {
     const key = Object.keys(itmPack)[0];
     const packItm = itmPack[key];
@@ -614,16 +496,6 @@ const doMatchForOptionsDelivery = async (
       }
     });
   });
-
-  // if (
-  //   nPriceP &&
-  //   oPriceP &&
-  //   nPriceDepo &&
-  //   oPriceDepo &&
-  //   context.user?.email === Admin
-  // ) {
-  //   msg = await ChangePriceOptionsDelivery(context.user?.email ?? '');
-  // }
 
   console.log('history id', historyIds);
 
@@ -921,7 +793,6 @@ const resolvers = {
           };
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         SupplierDoc.forEach((item) => {
           const suppItem = item.data() as Supplier;
 
@@ -990,7 +861,7 @@ const resolvers = {
         };
 
         const IsItSuppWithLoc = (loc: Array<SuppWithLocation>, sId: string) => {
-          return loc.find((itm: any) => {
+          return loc.find((itm) => {
             return itm.suppId === sId;
           });
         };
@@ -1112,7 +983,6 @@ const resolvers = {
           });
         });
 
-        // mozna zmena
         if (rtrnItem.length > 0) {
           return {
             __typename: 'Suitable',
@@ -1416,7 +1286,6 @@ const resolvers = {
           supplier_id: supplierDoc.id,
         };
 
-        // existingPackages.push(objectPack);
         existingPackages.push(objectPack);
 
         console.log(existingPackages);
@@ -1712,7 +1581,6 @@ const resolvers = {
             return !item[id];
           })
           .forEach((item) => {
-            // Vybrat vsechny,Ignorovat updated
             // jmeno balicku
             const nameItm = Object.keys(item)[0];
             const itm = item[nameItm];
@@ -1750,7 +1618,6 @@ const resolvers = {
           // najdi update item
           const updatetedItem = item;
 
-          // eslint-disable-next-line sonarjs/no-collapsible-if, unicorn/no-lonely-if
           if (updatetedItem[id]) {
             // eslint-disable-next-line unicorn/no-lonely-if, max-depth
             console.log('name itm', id);
@@ -2083,8 +1950,8 @@ const resolvers = {
         if (supplierDoc.exists) {
           // eslint-disable-next-line max-depth
           if (existingPackages) {
-            newArray = existingPackages.filter((item: any) => !item[Pack]);
-            find = Boolean(existingPackages.filter((item: any) => !item[Pack]));
+            newArray = existingPackages.filter((item) => !item[Pack]);
+            find = Boolean(existingPackages.filter((item) => !item[Pack]));
           } else {
             err = 'Nothing to delete';
           }

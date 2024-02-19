@@ -1,4 +1,3 @@
-// eslint-disable-next-line unicorn/filename-case
 import { CardActions } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -29,9 +28,7 @@ const Odstavec = (
   shippingLabel: string,
   insurance: number,
   sendCash: string,
-  FontSize: string,
 ) => {
-  // FontSize ?
   const odstavec =
     packInBox === 'Ano' ? (
       <p>
@@ -156,7 +153,6 @@ export const AdmPageSuppCard: React.FC<Props> = ({
             shippingLabel,
             insurance,
             sendCash,
-            '20px',
           )}
         </Typography>
         <Typography
@@ -178,6 +174,4 @@ export const AdmPageSuppCard: React.FC<Props> = ({
   );
 };
 
-// chybi link u button, mozne avg ceny
-// 404 not found
 // upravit opacity

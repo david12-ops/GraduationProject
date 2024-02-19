@@ -6,15 +6,6 @@ import Select from 'react-select';
 
 import styles from '../../styles/stylesForm/styleForms.module.css';
 
-// const bull = (
-//   <Box
-//     component="span"
-//     sx={{ display: 'inline-block', mx: '2px', transform: 'scale(0.8)' }}
-//   >
-//     •
-//   </Box>
-// );
-
 type Props = {
   onChangeVyska: (inputVal: string) => void;
   onChangeHmotnost: (inputVal: string) => void;
@@ -48,7 +39,9 @@ export const FormChooseSup: React.FC<Props> = ({
           <label>Z</label>
           <Select
             className={styles.selectInput}
-            onChange={(selectedOption: any) => onChangeZ(selectedOption.value)}
+            onChange={(selectedOption) =>
+              onChangeZ(selectedOption ? selectedOption.value : '')
+            }
             options={options}
             required
             placeholder="depo/ruky"
@@ -58,7 +51,9 @@ export const FormChooseSup: React.FC<Props> = ({
           <label>Do</label>
           <Select
             className={styles.selectInput}
-            onChange={(selectedOption: any) => onChangeDo(selectedOption.value)}
+            onChange={(selectedOption) =>
+              onChangeDo(selectedOption ? selectedOption.value : '')
+            }
             options={options}
             required
             placeholder="depo/ruky"
@@ -77,11 +72,6 @@ export const FormChooseSup: React.FC<Props> = ({
         <div
           style={{
             display: 'flex',
-            // justifyContent: 'space-around',
-            // flexDirection: 'row',
-            // alignItems: 'center',
-            // flexWrap: 'wrap',
-            // gap: '29x',
           }}
         >
           <div>

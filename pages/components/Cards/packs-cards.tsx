@@ -4,8 +4,6 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-
 type Props = {
   Heiht: number;
   Weight: number;

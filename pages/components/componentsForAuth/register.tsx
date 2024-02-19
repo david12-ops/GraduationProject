@@ -13,18 +13,15 @@ export const PageRegisterForm = () => {
   const [password, setPassword] = React.useState('');
   const router = useRouter();
 
-  // eslint-disable-next-line consistent-return
   const handleForm = async (event: FormEvent) => {
     try {
       event.preventDefault();
-      // const actual = email;
+
       await authUtils.register(email, password);
-      // eslint-disable-next-line react-hooks/rules-of-hooks, no-alert
+
       alert('User register successfully');
-      // eslint-disable-next-line react-hooks/rules-of-hooks
 
       return router.push('/');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, react-hooks/rules-of-hooks, sonarjs/no-all-duplicated-branches
     } catch (error) {
       const err = error as FirebaseError;
       if (err.code === 'auth/email-already-in-use') {
@@ -37,7 +34,6 @@ export const PageRegisterForm = () => {
       <div className={styles.container}>
         <h1>Register</h1>
         <form onSubmit={handleForm} className={styles.form}>
-          {/* <hr> */}
           <label htmlFor="email">
             <p>Email</p>
             <input
@@ -62,12 +58,8 @@ export const PageRegisterForm = () => {
               placeholder="password"
             />
           </label>
-          {/* </hr> */}
-          <button
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            className={styles.registerbtn}
-            type="submit"
-          >
+
+          <button className={styles.registerbtn} type="submit">
             Register
           </button>
         </form>

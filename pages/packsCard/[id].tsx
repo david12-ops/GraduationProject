@@ -165,7 +165,7 @@ export default function PacksCards() {
     }
     if (!suppD.loading) {
       const selectedSupp = suppD.data?.suplierData.find(
-        (actPack: SuppData) => actPack?.supplierId === id,
+        (actPack) => actPack?.supplierId === id,
       );
 
       const errSup = IsThereSupp(selectedSupp);

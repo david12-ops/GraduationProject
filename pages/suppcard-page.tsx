@@ -50,7 +50,6 @@ const PageBody = (warning: boolean, dataSupp: Item) => {
   );
 };
 
-// eslint-disable-next-line import/no-default-export
 export default function SuppCards() {
   const suppData = useSuppDataQuery();
   const [body, SetBody] = useState({ data: <div></div> });

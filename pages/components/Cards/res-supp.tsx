@@ -1,4 +1,3 @@
-// eslint-disable-next-line unicorn/filename-case
 import { Button } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -32,6 +31,23 @@ type Props = {
   packName: string;
 };
 
+type Supplier =
+  | {
+      __typename?: 'QuerySuppD' | undefined;
+      sendCashDelivery: string;
+      packInBox: string;
+      supplierId: string;
+      suppName: string;
+      pickUp: string;
+      delivery: string;
+      insurance: number;
+      shippingLabel: string;
+      foil: string;
+      package?: any | undefined;
+      location?: any | undefined;
+    }
+  | undefined;
+
 const Odstavec = (
   pickUp: string,
   delivery: string,
@@ -41,7 +57,6 @@ const Odstavec = (
   insurance: number,
   sendCash: string,
 ) => {
-  // FontSize ?
   const odstavec =
     packInBox === 'Ano' ? (
       <p>
@@ -116,19 +131,25 @@ export const ResSuppCard: React.FC<Props> = ({
   packName,
 }) => {
   const dataS = useSuppDataQuery();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [history] = useAddHistoryToFirestoreMutation();
   console.log(typeof history);
   const supplier = dataS.data?.suplierData.find((sup) => {
     return sup.supplierId === sId ? sup : null;
   });
 
-  const Save = (data: object, suppData: any, priceS: number, mutation: any) => {
-    if (authUtils.getCurrentUser()?.uid) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      mutation({
+  type MutationHistory = typeof history;
+
+  const Save = async (
+    data: object,
+    suppData: Supplier,
+    priceS: number,
+    mutation: MutationHistory,
+  ) => {
+    const user = authUtils.getCurrentUser()?.uid;
+    if (user) {
+      await mutation({
         variables: {
-          Id: authUtils.getCurrentUser()?.uid.toString(),
+          Id: user,
           Data: JSON.stringify({
             formData: data,
             data: { suppData, priceS, packName },
@@ -224,6 +245,3 @@ export const ResSuppCard: React.FC<Props> = ({
     </Card>
   );
 };
-
-// chybi link u button, mozne avg ceny
-// 404 not found

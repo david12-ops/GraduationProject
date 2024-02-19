@@ -43,7 +43,6 @@ const Valid = (
   pLemgtharg: string,
   heightarg: string,
   widtharg: string,
-  // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
 ) => {
   if (
     !isInt(weightarg, 0) ||
@@ -83,7 +82,6 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     }
   });
 
-  // eslint-disable-next-line consistent-return
   const handleForm = async (event?: React.FormEvent) => {
     event?.preventDefault();
     const pID = uuidv4();
@@ -97,7 +95,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     if (valid) {
       alert(valid);
     } else {
-      const result: any = await newPackage({
+      const result = await newPackage({
         variables: {
           Hmotnost: Number(statesOfDataPack.Weight.get()),
           Cost: Number(statesOfDataPack.Cost.get()),

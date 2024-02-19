@@ -38,12 +38,10 @@ export const FullBorderedGridOfHomePage = () => {
 
   return (
     <Grid container my={6}>
-      {/* Prazdý box */}
       <Grid item xs={12}>
         <Box p={2}></Box>
       </Grid>
 
-      {/* Odstavec */}
       {TextBox(
         <div>
           <h1>Vítáme Vás na TopFive!</h1>
@@ -57,17 +55,16 @@ export const FullBorderedGridOfHomePage = () => {
         'https://www.footyrenders.com/render/Cristiano-Ronaldo-Real-Madrid-CL-Final-Cardiff_3-2017-render.png',
       )}
       {ImageBox('https://pngimg.com/d/football_player_PNG88.png')}
-      {/* Prazdý box */}
+
       <Grid item xs={3}>
         <Box p={2}></Box>
       </Grid>
       {TextBox(<h1>Co zde budete moct vidět?</h1>, 18, 6, 'center')}
-      {/* Prazdý box */}
+
       <Grid item xs={3}>
         <Box p={2}></Box>
       </Grid>
 
-      {/* Karty */}
       <Grid container justifyContent={'space-around'}>
         {query?.data?.cardValues.map(
           (values) =>

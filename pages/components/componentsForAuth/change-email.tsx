@@ -7,15 +7,13 @@ import React, { FormEvent, useState } from 'react';
 
 import { authUtils } from '@/firebase/auth-utils';
 
-// import { ChangeActualUsEmToFirestoreMutation } from '@/generated/graphql';
 import styles from '../../../styles/stylesForm/style.module.css';
 
 export const PageFormChangeEm = () => {
-  // const [email, setEmail] = React.useState('');
   const [newEm, setNewEm] = useState('');
   const auth = getAuth();
   const router = useRouter();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
   const handleForm = async (event: FormEvent) => {
     try {
       if (!auth.currentUser) {
@@ -23,29 +21,14 @@ export const PageFormChangeEm = () => {
       }
 
       event.preventDefault();
-      // funguje
-      // validace email, duplicitni email
-      // alert('co?');
-      // alert(auth.currentUser);
-      // event.preventDefault();
-      // alert('copak?');
-      // alert(auth.currentUser?.email);
-      // nefunkcni
+
       await authUtils.channgeUsEmail(auth.currentUser, newEm);
-      // alert('copak copak?');
-      // alert(auth.currentUser?.email);
-      // await changeE({
-      //   variables: {
-      //     ActualemailUser: auth.currentUser?.email, // replace with actual value
-      //     NewEmail: newEm, // use the state variable
-      //   },
-      // });
+
       console.log(auth.currentUser);
 
       alert('User password update successfull');
 
       return await router.push('/'); // presmerovani na libovolnou stranku .push(url)
-      // eslint-disable-next-line no-alert
     } catch (error) {
       const err = error as FirebaseError;
       if (err.code === 'auth/user-not-found') {

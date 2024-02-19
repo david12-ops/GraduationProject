@@ -111,9 +111,7 @@ const isInt = (numArg: string, min: number) => {
 
 const Res = (dataSui: Array<DataS>, allSupp: SuppData) => {
   const SuitableSupps: Array<SuitableSupps> = [];
-  console.log('co tam je', SuitableSupps);
-  console.log('co tam jeee2', dataSui);
-  console.log('objecty', dataSui);
+
   dataSui.forEach((itm) => {
     SuitableSupps.push({
       dataS: allSupp.data?.suplierData.find((item) => {
@@ -130,7 +128,6 @@ const Res = (dataSui: Array<DataS>, allSupp: SuppData) => {
   return SuitableSupps ?? [];
 };
 
-// eslint-disable-next-line consistent-return
 const RenderSupp = (
   dataFromResolver: Array<DataS>,
   QueryData: SuppData,

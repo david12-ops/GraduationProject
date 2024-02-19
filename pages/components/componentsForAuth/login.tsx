@@ -12,7 +12,6 @@ export const PageFormLogin = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const router = useRouter();
-  // eslint-disable-next-line consistent-return
   const handleForm = async (event: FormEvent) => {
     try {
       event.preventDefault();

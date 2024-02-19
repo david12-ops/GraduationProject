@@ -16,9 +16,6 @@ function createData(
   return { socialniSite, podminkyUziti, doporuceneStranky };
 }
 
-// const ToImage = // img) => (
-//   <div>{/* <img src={require(img) as string}/> */}</div>;
-
 const rows = [
   createData('Podmínky užití', 'Doporučeneé stránky', 'Facebook'),
   createData('Reklama', 'Práce v Livesportu', 'Twiter'),

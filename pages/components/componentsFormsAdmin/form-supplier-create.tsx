@@ -134,7 +134,9 @@ export const FormSupplier = () => {
         <p className={styles.Odstavce}>{paragraph}</p>
         <Select
           className={styles.selectInput}
-          onChange={(selectedOption: any) => state.set(selectedOption.value)}
+          onChange={(selectedOption) =>
+            state.set(selectedOption ? selectedOption.value : '')
+          }
           options={options}
           placeholder={'Ano/Ne'}
           required
@@ -142,7 +144,6 @@ export const FormSupplier = () => {
       </label>
     );
   };
-  // match-sorter
 
   const handleForm = async (event: React.FormEvent) => {
     event.preventDefault();

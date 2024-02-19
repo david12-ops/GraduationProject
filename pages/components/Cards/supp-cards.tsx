@@ -1,4 +1,3 @@
-// eslint-disable-next-line unicorn/filename-case
 import { Button, Link } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -30,7 +29,6 @@ const Odstavec = (
   insurance: number,
   sendCash: string,
 ) => {
-  // FontSize ?
   const odstavec =
     packInBox === 'Ano' ? (
       <p>

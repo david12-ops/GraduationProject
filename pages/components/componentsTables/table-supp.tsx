@@ -22,7 +22,6 @@ const Counter = (ids: Array<string>) => {
 export const DataGridSupplier = () => {
   // refresh tabulky
   const suppD = useSuppDataQuery();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [deleteSuppD] = useDeleteSuppMutation();
   const [selection, setSelection] = React.useState<GridRowSelectionModel>([]);
 

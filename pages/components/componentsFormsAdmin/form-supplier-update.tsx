@@ -1,4 +1,3 @@
-// eslint-disable-next-line unicorn/filename-case
 import { State, useHookstate } from '@hookstate/core';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
@@ -34,13 +33,6 @@ type Item = {
   package?: any;
   location?: any;
 };
-
-// type Item2 = SuppDataQuery['suplierData'];
-
-// type Costs = {
-//   oldDepoCost: number;
-//   oldPersonalCost: number;
-// };
 
 const IsYesOrNo = (
   stringnU1: string,
@@ -132,21 +124,6 @@ const Valid = (
   return undefined;
 };
 
-// const getOldCostFromSupDelivery = (
-//   data: Item2,
-//   sId: string,
-// ): Costs | undefined => {
-//   for (const item of data) {
-//     if (item.supplierId === sId) {
-//       return {
-//         oldDepoCost: item.location?.depoDelivery.cost,
-//         oldPersonalCost: item.location?.personalDelivery.cost,
-//       };
-//     }
-//   }
-//   return undefined;
-// };
-
 const setDataDatabase = (
   data: Item,
   stateSeter: State<{
@@ -164,7 +141,6 @@ const setDataDatabase = (
     PersonalCost: string;
   }>,
 ) => {
-  // eslint-disable-next-line no-unreachable-loop
   stateSeter.set({
     SuppId: data.supplierId,
     SupplierName: data.suppName,
@@ -210,10 +186,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const supData = useSuppDataQuery();
   const [UpdateHistory] = useUpdateHistoryMutation();
   const [UpdateSupp] = useUpdateSupplierMutation();
-  // const [oldCosts, SetCosts] = React.useState({
-  //   oldDepoCost: 0,
-  //   oldPersonalCost: 0,
-  // });
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
@@ -234,21 +206,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       if (actualSupp) {
         setDataDatabase(actualSupp, statesOfDataSupp);
       }
-
-      // const costs = getOldCostFromSupDelivery(supData.data.suplierData, id);
-
-      // eslint-disable-next-line max-depth
-      // if (costs) {
-      //   console.log('stare ceny v ueefect,', costs);
-      //   SetCosts({
-      //     oldDepoCost: costs.oldDepoCost,
-      //     oldPersonalCost: costs.oldPersonalCost,
-      //   });
-      // gettersOfOldCosts.set({
-      //   oldDepoCost: costs.oldDepoCost,
-      //   oldPersonalCost: costs.oldPersonalCost,
-      // });
-      // }
     }
   }, [id, supData]);
 
@@ -258,7 +215,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         <p className={styles.Odstavce}>{paragraph}</p>
         <Select
           className={styles.selectInput}
-          onChange={(selectedOption: any) => state.set(selectedOption.value)}
+          onChange={(selectedOption) => state.set(selectedOption?.value ?? '')}
           options={options}
           value={options.find((opt) => opt.value === state.get())}
           placeholder={'Ano/Ne'}
@@ -267,20 +224,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       </label>
     );
   };
-
-  // const MyComponentShippingL = () => (
-  //   <Select
-  //     className={styles.selectInput}
-  //     onChange={(selectedOption: any) =>
-  //       statesOfDataSupp.ShippingLabel.set(selectedOption.value)
-  //     }
-  //     options={options}
-  //     value={options.find(
-  //       (opt) => opt.value === statesOfDataSupp.ShippingLabel.get(),
-  //     )}
-  //     required
-  //   />
-  // );
 
   const handleForm = async (event: React.FormEvent) => {
     event.preventDefault();

@@ -9,8 +9,6 @@ import { SuppDataDocument, useDeletePacMutation } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/style.module.css';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-
 type Props = {
   Heiht: number;
   Weight: number;
@@ -153,6 +151,3 @@ export const PackCard: React.FC<Props> = ({
 };
 
 // Upravit opacity na button
-// Uprava query a resolveru update i create, zprovoznění single update (query i resolver je)
-// Obrazky
-// u supp id se chovat k id jako k poli

@@ -1,4 +1,4 @@
-import { State, useHookstate } from '@hookstate/core';
+import { useHookstate } from '@hookstate/core';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
@@ -21,6 +21,16 @@ type Props = {
 
 type Item = SuppDataQuery['suplierData'];
 
+type DataFrServer = {
+  SuppId: string;
+  PackName: string;
+  Cost: string;
+  Plength: string;
+  Weight: string;
+  Width: string;
+  Height: string;
+};
+
 const parseIntReliable = (numArg: string) => {
   if (numArg.length > 0) {
     const parsed = Number.parseInt(numArg, 10);
@@ -42,82 +52,37 @@ const isInt = (numArg: string, min: number) => {
   return parsed !== false && parsed > min;
 };
 
-// const getOldCostFromPack = (pId: string, data: Item): number => {
-//   let cost = 0;
-//   data.forEach((item) => {
-//     // eslint-disable-next-line unicorn/no-negated-condition
-//     if (item.package) {
-//       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-//       item.package.forEach(
-//         (pack: {
-//           [name: string]: {
-//             weight: number;
-//             height: number;
-//             width: number;
-//             Plength: number;
-//             name_package: string;
-//             cost: number;
-//           };
-//         }) => {
-//           // jmeno balicku
-//           const itm = pack[pId];
-//           if (itm) {
-//             cost = itm.cost;
-//           }
-//         },
-//       );
-//     }
-//   });
+const setDataDatabase = (pId: string, data: Item): DataFrServer | undefined => {
+  type Package = {
+    [name: string]: {
+      weight: number;
+      height: number;
+      width: number;
+      Plength: number;
+      name_package: string;
+      cost: number;
+    };
+  };
 
-//   return cost;
-// };
-
-const setDataDatabase = (
-  pId: string,
-  data: Item,
-  stateSeter: State<{
-    Weight: string;
-    Cost: string;
-    Plength: string;
-    Height: string;
-    Width: string;
-    PackName: string;
-    SuppId: string;
-  }>,
-) => {
-  // eslint-disable-next-line no-unreachable-loop
-  data.forEach((item) => {
-    // eslint-disable-next-line unicorn/no-negated-condition
-    if (item.package) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      item.package.forEach(
-        (pack: {
-          [name: string]: {
-            weight: number;
-            height: number;
-            width: number;
-            Plength: number;
-            name_package: string;
-            cost: number;
-          };
-        }) => {
-          // jmeno balicku
-          const itm = pack[pId];
-          if (itm) {
-            stateSeter.set({
-              SuppId: item.supplierId.toString(),
-              PackName: itm.name_package.toString(),
-              Cost: itm.cost.toString(),
-              Plength: itm.Plength.toString(),
-              Weight: itm.weight.toString(),
-              Width: itm.width.toString(),
-              Height: itm.height.toString(),
-            });
-          }
-        },
-      );
+  for (const item of data) {
+    const packs: Array<Package> = item.package as Array<Package>;
+    for (const pack of packs) {
+      const itm = pack[pId];
+      // eslint-disable-next-line max-depth
+      if (itm) {
+        return {
+          SuppId: item.supplierId,
+          PackName: itm.name_package,
+          Cost: itm.cost.toString(),
+          Plength: itm.Plength.toString(),
+          Weight: itm.weight.toString(),
+          Width: itm.width.toString(),
+          Height: itm.height.toString(),
+        };
+      }
     }
-  });
+  }
+  return undefined;
 };
 
 export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
@@ -136,7 +101,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   const user = useHookstate({ Admin: false, LoggedIn: false });
 
   const [UpdatePackage] = useUpdatePackageMutation();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+
   const [UpdateHistory] = useUpdateHistoryMutation();
   const SuppPackages = useSuppDataQuery();
 
@@ -150,13 +115,18 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       user.Admin.set(true);
     }
     if (id && SuppPackages.data && SuppPackages) {
-      setDataDatabase(id, SuppPackages.data.suplierData, statesOfDataPack);
-
-      // setnout cenu
-      // const costP = getOldCostFromPack(id, SuppPackages.data.suplierData);
-      // if (costP) {
-      //   SetOldCost(costP);
-      // }
+      const data = setDataDatabase(id, SuppPackages.data.suplierData);
+      if (data) {
+        statesOfDataPack.set({
+          SuppId: data.SuppId,
+          PackName: data.PackName,
+          Cost: data.Cost,
+          Plength: data.Plength,
+          Weight: data.Weight,
+          Width: data.Width,
+          Height: data.Height,
+        });
+      }
     }
   }, [id, SuppPackages]);
 
@@ -166,7 +136,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     pLemgtharg: string,
     heightarg: string,
     widtharg: string,
-    // eslint-disable-next-line unicorn/consistent-function-scoping, consistent-return
   ) => {
     if (
       !isInt(weightarg, 0) ||
@@ -214,7 +183,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       }
 
       if (data) {
-        // zatim neni funkcni
         const message = await UpdateHistory({
           variables: {
             PackageName: statesOfDataPack.PackName.get(),
