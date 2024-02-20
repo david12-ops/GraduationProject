@@ -129,7 +129,7 @@ const setDataDatabase = (
   stateSeter: State<{
     SuppId: string;
     SupplierName: string;
-    ActualSupplierName: string;
+    OldSupplierName: string;
     Delivery: string;
     PickUp: string;
     Insurance: string;
@@ -150,7 +150,7 @@ const setDataDatabase = (
     SendCashDelivery: data.sendCashDelivery,
     PackInBox: data.packInBox,
     ShippingLabel: data.shippingLabel,
-    ActualSupplierName: data.suppName,
+    OldSupplierName: data.suppName,
     Foil: data.foil,
     DepoCost: String(data.location?.depoDelivery.cost),
     PersonalCost: String(data.location?.personalDelivery.cost),
@@ -167,7 +167,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const statesOfDataSupp = useHookstate({
     SuppId: '',
     SupplierName: '',
-    ActualSupplierName: '',
+    OldSupplierName: '',
     Delivery: ' ',
     PickUp: '',
     Insurance: '',
@@ -252,7 +252,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           SendCashDelivery: statesOfDataSupp.SendCashDelivery.get(),
           packInBox: statesOfDataSupp.PackInBox.get(),
           SuppId: statesOfDataSupp.SuppId.get(),
-          ActNameSupp: statesOfDataSupp.ActualSupplierName.get(),
+          OldSupplierName: statesOfDataSupp.OldSupplierName.get(),
           DepoCost: Number(statesOfDataSupp.DepoCost.get()),
           PersonalCost: Number(statesOfDataSupp.PersonalCost.get()),
         },
@@ -270,8 +270,19 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       if (data) {
         const message = await UpdateHistory({
           variables: {
-            newPriceDepo: Number(statesOfDataSupp.DepoCost.get()),
-            newPricePersonal: Number(statesOfDataSupp.PersonalCost.get()),
+            SuppData: {
+              Delivery: statesOfDataSupp.Delivery.get(),
+              Foil: statesOfDataSupp.Foil.get(),
+              Insurance: statesOfDataSupp.Insurance.get(),
+              PackInBox: statesOfDataSupp.PackInBox.get(),
+              PickUp: statesOfDataSupp.PickUp.get(),
+              SendCashDelivery: statesOfDataSupp.SendCashDelivery.get(),
+              ShippingLabel: statesOfDataSupp.ShippingLabel.get(),
+              SuppName: statesOfDataSupp.SupplierName.get(),
+              OldSuppName: statesOfDataSupp.OldSupplierName.get(),
+            },
+            NewPriceDepo: Number(statesOfDataSupp.DepoCost.get()),
+            NewPricePersonal: Number(statesOfDataSupp.PersonalCost.get()),
             SuppId: statesOfDataSupp.SuppId.get(),
           },
           refetchQueries: [{ query: HistoryDataDocument }],

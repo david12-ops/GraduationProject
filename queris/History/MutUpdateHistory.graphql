@@ -1,10 +1,24 @@
-mutation UpdateHistory($newPricePack: Int, $newPricePersonal:Int, $newPriceDepo:Int, $SuppId:String, $PackageName:String){
+input DataUpdateSupp {
+    Delivery: String
+    Foil: String
+    Insurance: String
+    PackInBox: String
+    PickUp: String
+    SendCashDelivery: String
+    ShippingLabel: String
+    SuppName: String
+    OldSuppName: String
+  }
+
+mutation UpdateHistory($NewPricePack: Int, $NewPricePersonal:Int, $NewPriceDepo:Int, $SuppId:String, $PackageName:String, $OldPackName:String, $SuppData:DataUpdateSupp){
     updateHistory(
-        newPricePack: $newPricePack,
-        newPricePersonal: $newPricePersonal,
-        newPriceDepo: $newPriceDepo,
+        newPricePack: $NewPricePack,
+        newPricePersonal: $NewPricePersonal,
+        newPriceDepo: $NewPriceDepo,
         suppId: $SuppId,
         packName: $PackageName,
+        oldPackName:$OldPackName,
+        suppData:$SuppData
     )
     {
         message

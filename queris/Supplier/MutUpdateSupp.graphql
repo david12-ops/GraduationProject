@@ -1,16 +1,16 @@
-mutation UpdateSupplier($SupName:String!, $Delivery:String!, $pickUp:String!,
- $ShippingLabel:String!, $Foil:String!, $Insurance:Int!, $SendCashDelivery: String!, $packInBox:String!, $SuppId: String!, $ActNameSupp:String!, $DepoCost:Int!, $PersonalCost:Int!){
+mutation UpdateSupplier($SupName:String!, $Delivery:String!, $PickUp:String!,
+ $ShippingLabel:String!, $Foil:String!, $Insurance:Int!, $SendCashDelivery: String!, $PackInBox:String!, $SuppId: String!, $OldSupplierName:String!, $DepoCost:Int!, $PersonalCost:Int!){
     updateSup( 
       supplierName: $SupName,
       delivery: $Delivery,
       shippingLabel:$ShippingLabel,
-      pickUp: $pickUp,
+      pickUp: $PickUp,
       foil: $Foil,
       insurance: $Insurance, 
       sendCashDelivery: $SendCashDelivery, 
-      packInBox: $packInBox
+      packInBox: $PackInBox
       suppId: $SuppId
-      actNameSupp:$ActNameSupp
+      oldNameSupp:$OldSupplierName
       depoCost:$DepoCost,
       personalCost:$PersonalCost
       )

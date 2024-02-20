@@ -104,6 +104,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
 
   const [UpdateHistory] = useUpdateHistoryMutation();
   const SuppPackages = useSuppDataQuery();
+  const [oldPackName, SetOldPackName] = React.useState('');
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
@@ -117,6 +118,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     if (id && SuppPackages.data && SuppPackages) {
       const data = setDataDatabase(id, SuppPackages.data.suplierData);
       if (data) {
+        SetOldPackName(data.PackName);
         statesOfDataPack.set({
           SuppId: data.SuppId,
           PackName: data.PackName,
@@ -186,7 +188,8 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
         const message = await UpdateHistory({
           variables: {
             PackageName: statesOfDataPack.PackName.get(),
-            newPricePack: Number(statesOfDataPack.Cost.get()),
+            OldPackName: oldPackName,
+            NewPricePack: Number(statesOfDataPack.Cost.get()),
             SuppId: statesOfDataPack.SuppId.get(),
           },
           refetchQueries: [{ query: HistoryDataDocument }],

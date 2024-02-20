@@ -97,11 +97,11 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     } else {
       const result = await newPackage({
         variables: {
-          Hmotnost: Number(statesOfDataPack.Weight.get()),
+          Weight: Number(statesOfDataPack.Weight.get()),
           Cost: Number(statesOfDataPack.Cost.get()),
-          Delka: Number(statesOfDataPack.Plength.get()),
-          Vyska: Number(statesOfDataPack.Height.get()),
-          Sirka: Number(statesOfDataPack.Width.get()),
+          Length: Number(statesOfDataPack.Plength.get()),
+          Height: Number(statesOfDataPack.Height.get()),
+          Width: Number(statesOfDataPack.Width.get()),
           Pack_name: statesOfDataPack.PackName.get(),
           SuppID: id,
           PackId: pID,

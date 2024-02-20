@@ -164,13 +164,13 @@ export const FormSupplier = () => {
       const result = await newSupp({
         variables: {
           SupName: statesOfDataSupp.SupplierName.get(),
-          pickUp: statesOfDataSupp.PickUp.get(),
+          PickUp: statesOfDataSupp.PickUp.get(),
           Delivery: statesOfDataSupp.Delivery.get(),
           Insurance: Number(statesOfDataSupp.Insurance.get()),
           SendCashDelivery: statesOfDataSupp.SendCashDelivery.get(),
           Foil: statesOfDataSupp.Foil.get(),
           ShippingLabel: statesOfDataSupp.ShippingLabel.get(),
-          packInBox: statesOfDataSupp.PackInBox.get(),
+          PackInBox: statesOfDataSupp.PackInBox.get(),
           DepoCost: Number(statesOfDataSupp.DepoCost.get()),
           PersonalCost: Number(statesOfDataSupp.PersonalCost.get()),
         },

@@ -47,6 +47,8 @@ const typeDefs = gql`
       newPriceDepo: Int
       suppId: String
       packName: String
+      oldPackName: String
+      suppData: DataUpdateSupp
     ): HistoryMessage
 
     updatePack(
@@ -83,13 +85,25 @@ const typeDefs = gql`
       sendCashDelivery: String!
       packInBox: String!
       suppId: String!
-      actNameSupp: String!
+      oldNameSupp: String!
       depoCost: Int!
       personalCost: Int!
     ): Supplier
 
     deletePack(suppId: String!, key: String!): Delete
     deleteSupp(id: [String]): Delete
+  }
+
+  input DataUpdateSupp {
+    Delivery: String
+    Foil: String
+    Insurance: String
+    PackInBox: String
+    PickUp: String
+    SendCashDelivery: String
+    ShippingLabel: String
+    SuppName: String
+    OldSuppName: String
   }
 
   scalar JSON
@@ -305,14 +319,14 @@ const ConverDate = (dateU1: string, dateU2: string) => {
 const doMathForPackage = async (
   data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
   nPriceP: number,
-  packageName: string,
-  supplierId: string,
-  historyDoc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
+  historyDoc:
+    | FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+    | undefined,
+  nameOfPack: string,
 ): Promise<string> => {
   let msg = '';
 
   let sum = 0;
-  let historyId = '';
 
   type Location = {
     depoDelivery: {
@@ -336,45 +350,26 @@ const doMathForPackage = async (
     console.log('cena i s zpusobem dopravy', sum);
   });
 
-  historyDoc.forEach((doc) => {
-    const itm = doc.data();
-    if (
-      itm.suppData.id === supplierId &&
-      itm.suppData.packName === packageName
-    ) {
-      historyId = itm.historyId;
-    }
-  });
-
-  const historyQuerySnapshot = await db
-    .collection('History')
-    .where('historyId', '==', historyId)
-    .get();
-
-  // eslint-disable-next-line unicorn/no-negated-condition
-  if (!historyQuerySnapshot.empty) {
-    const historyDocumentRef = historyQuerySnapshot.docs[0].ref;
+  if (historyDoc) {
+    const historyDocumentRef = historyDoc.ref;
     // pozor!!!
+    if (nameOfPack === historyDoc.data().suppData.packName) {
+      await historyDocumentRef.update(
+        new firestore.FieldPath('suppData', 'cost'),
+        sum,
+      );
+    }
     await historyDocumentRef.update(
       new firestore.FieldPath('suppData', 'cost'),
       sum,
+      new firestore.FieldPath('suppData', 'packName'),
+      nameOfPack,
     );
-    // eslint-disable-next-line prettier/prettier
-  }
-  else{
+  } else {
     msg = 'Nothing to update in history';
     return msg;
   }
 
-  if (
-    historyQuerySnapshot.docChanges() &&
-    historyQuerySnapshot.docChanges().length > 0
-  ) {
-    msg = 'Users history updated successfully';
-    return msg;
-  }
-
-  msg = 'Users history not updated successfully';
   return msg;
 };
 
@@ -578,7 +573,7 @@ const resolvers = {
         console.log('package data', data.values());
         return data;
       } catch (error) {
-        console.error('Chyba při získání balíčku', error);
+        console.error('Error while getting package data', error);
         throw error;
       }
     },
@@ -625,7 +620,7 @@ const resolvers = {
 
         return data;
       } catch (error) {
-        console.error('Chyba při získání dodavatele', error);
+        console.error('Error while getting supplier data', error);
         throw error;
       }
     },
@@ -659,7 +654,7 @@ const resolvers = {
 
         return data;
       } catch (error) {
-        console.error('Chyba při zíkávání dat uživatele', error);
+        console.error('Error while getting history data', error);
         throw error;
       }
     },
@@ -994,7 +989,7 @@ const resolvers = {
           message: 'Any suitable supplier',
         };
       } catch (error) {
-        console.error('Chyba při vyběru vhodného balíčku:', error);
+        console.error('Error while selecting suitable package', error);
         throw error;
       }
     },
@@ -1110,7 +1105,7 @@ const resolvers = {
         }
         return { message: 'Save error, please try again later' };
       } catch (error) {
-        console.error('Chyba při vytváření historie:', error);
+        console.error('Error while saving document to your history', error);
         throw error;
       }
     },
@@ -1131,11 +1126,11 @@ const resolvers = {
       // eslint-disable-next-line sonarjs/cognitive-complexity
     ) => {
       const {
-        weight: hmotnost,
-        Plength: delka,
-        height: vyska,
+        weight: weightPack,
+        Plength: lengthPack,
+        height: heightPack,
         cost: costPackage,
-        width: sirka,
+        width: widthPack,
         name_package: packName,
         supplier_id: supplierId,
         packId: ID,
@@ -1171,11 +1166,11 @@ const resolvers = {
       }
 
       if (
-        hmotnost < 0 ||
-        delka < 0 ||
-        vyska < 0 ||
+        weightPack < 0 ||
+        lengthPack < 0 ||
+        heightPack < 0 ||
         costPackage < 0 ||
-        sirka < 0
+        widthPack < 0
       ) {
         return {
           __typename: 'PackageError',
@@ -1185,11 +1180,11 @@ const resolvers = {
       }
 
       if (
-        hmotnost === 0 ||
-        delka === 0 ||
-        vyska === 0 ||
+        weightPack === 0 ||
+        lengthPack === 0 ||
+        heightPack === 0 ||
         costPackage === 0 ||
-        sirka === 0
+        widthPack === 0
       ) {
         return {
           __typename: 'PackageError',
@@ -1216,11 +1211,11 @@ const resolvers = {
         let dupName = '';
 
         const newPackage = {
-          weight: hmotnost,
+          weight: weightPack,
           cost: costPackage,
-          Plength: delka,
-          height: vyska,
-          width: sirka,
+          Plength: lengthPack,
+          height: heightPack,
+          width: weightPack,
           name_package: packName,
           supplier_id: supplierDoc.id,
         };
@@ -1277,11 +1272,11 @@ const resolvers = {
         const objectPack: Package = {};
 
         objectPack[ID] = {
-          weight: hmotnost,
+          weight: weightPack,
           cost: costPackage,
-          Plength: delka,
-          height: vyska,
-          width: sirka,
+          Plength: lengthPack,
+          height: heightPack,
+          width: widthPack,
           name_package: packName,
           supplier_id: supplierDoc.id,
         };
@@ -1298,7 +1293,7 @@ const resolvers = {
           data: newPackage,
         };
       } catch (error) {
-        console.error('Chyba při vytváření balíčku', error);
+        console.error('Error while creating package', error);
         throw error;
       }
     },
@@ -1460,7 +1455,7 @@ const resolvers = {
           data: newSupp,
         };
       } catch (error) {
-        console.error('Chyba při vytváření dovozce', error);
+        console.error('Error while creating supplier', error);
         throw error;
       }
     },
@@ -1483,11 +1478,11 @@ const resolvers = {
     ) => {
       const {
         PackKey: id,
-        weight: hmotnost,
-        Plength: delka,
-        height: vyska,
+        weight: weightPack,
+        Plength: lengthPack,
+        height: heightPack,
         cost: costPackage,
-        width: sirka,
+        width: widthPack,
         name_package: packName,
         supplier_id: supplierId,
       } = args;
@@ -1522,11 +1517,11 @@ const resolvers = {
           };
         }
         if (
-          hmotnost < 0 ||
-          delka < 0 ||
-          vyska < 0 ||
+          weightPack < 0 ||
+          lengthPack < 0 ||
+          heightPack < 0 ||
           costPackage < 0 ||
-          sirka < 0
+          widthPack < 0
         ) {
           return {
             __typename: 'PackageUpdateError',
@@ -1536,11 +1531,11 @@ const resolvers = {
         }
 
         if (
-          hmotnost === 0 ||
-          delka === 0 ||
-          vyska === 0 ||
+          weightPack === 0 ||
+          lengthPack === 0 ||
+          heightPack === 0 ||
           costPackage === 0 ||
-          sirka === 0
+          widthPack === 0
         ) {
           return {
             __typename: 'PackageUpdateError',
@@ -1567,11 +1562,11 @@ const resolvers = {
         let dupName = '';
 
         const UpdatePackage = {
-          weight: hmotnost,
+          weight: weightPack,
           cost: costPackage,
-          Plength: delka,
-          height: vyska,
-          width: sirka,
+          Plength: lengthPack,
+          height: heightPack,
+          width: widthPack,
           name_package: packName,
           supplier_id: supplierDoc.id,
         };
@@ -1621,11 +1616,11 @@ const resolvers = {
           if (updatetedItem[id]) {
             // eslint-disable-next-line unicorn/no-lonely-if, max-depth
             console.log('name itm', id);
-            updatetedItem[id].weight = hmotnost;
+            updatetedItem[id].weight = weightPack;
             updatetedItem[id].cost = costPackage;
-            updatetedItem[id].Plength = delka;
-            updatetedItem[id].height = vyska;
-            updatetedItem[id].width = sirka;
+            updatetedItem[id].Plength = lengthPack;
+            updatetedItem[id].height = heightPack;
+            updatetedItem[id].width = widthPack;
             updatetedItem[id].name_package = packName;
             console.log('update with same name', updatetedItem[id]);
           }
@@ -1647,7 +1642,7 @@ const resolvers = {
           message: 'Update not succesfull',
         };
       } catch (error) {
-        console.error('Chyba při update balíčku', error);
+        console.error('Error while updating package', error);
         throw error;
       }
     },
@@ -1663,7 +1658,7 @@ const resolvers = {
         sendCashDelivery: string;
         packInBox: string;
         suppId: string;
-        actNameSupp: string;
+        oldNameSupp: string;
         depoCost: number;
         personalCost: number;
       },
@@ -1679,7 +1674,7 @@ const resolvers = {
         sendCashDelivery: SendCashOnDelivery,
         packInBox: PackageInABox,
         suppId: id,
-        actNameSupp: ActName,
+        oldNameSupp: oldName,
         depoCost: dCost,
         personalCost: pCost,
       } = args;
@@ -1756,7 +1751,7 @@ const resolvers = {
         const docs = SupplierDoc.docs.map((doc) => doc.data() as Supplier);
 
         const docsWithoutCurrentSupp = docs.filter(
-          (doc) => doc.suppName !== ActName,
+          (doc) => doc.suppName !== oldName,
         );
 
         const duplicateSupp = docsWithoutCurrentSupp.find(
@@ -1827,7 +1822,7 @@ const resolvers = {
           message: 'Update not succesfull',
         };
       } catch (error) {
-        console.error('Chyba při update dovozce', error);
+        console.error('Error while updating supplier', error);
         throw error;
       }
     },
@@ -1839,6 +1834,7 @@ const resolvers = {
         newPriceDepo: number;
         suppId: string;
         packName: string;
+        oldPackName: string;
       },
       context: MyContext,
       // eslint-disable-next-line sonarjs/cognitive-complexity, consistent-return
@@ -1851,6 +1847,7 @@ const resolvers = {
         newPriceDepo: nPriceDepo,
         suppId: sId,
         packName: nameOfpack,
+        oldPackName: oldNameOfpack,
       } = args;
       // dodelat resolver
       // udelat filtry na frontendu
@@ -1865,6 +1862,23 @@ const resolvers = {
           context.user?.email_verified,
           context.user?.email,
         );
+        console.log('named', oldNameOfpack, nameOfpack);
+        const getDoc = (
+          doc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
+          sID: string,
+          packageName: string,
+        ) => {
+          for (const document of doc.docs) {
+            const item = document.data();
+            if (
+              item.suppData.id === sID &&
+              item.suppData.packName === packageName
+            ) {
+              return document;
+            }
+          }
+          return undefined;
+        };
 
         if (context.user?.email !== Admin) {
           return {
@@ -1892,19 +1906,19 @@ const resolvers = {
           );
         }
 
-        if (nPricrePack && nameOfpack && sId) {
+        if (nPricrePack && nameOfpack && sId && oldNameOfpack) {
+          const historyDoc = getDoc(historyDocuments, sId, oldNameOfpack);
           msg = await doMathForPackage(
             SuppDocuments,
             nPricrePack,
-            nameOfpack,
-            sId,
-            historyDocuments,
+            historyDoc,
+            oldNameOfpack === nameOfpack ? oldNameOfpack : nameOfpack,
           );
         }
 
         return { message: msg };
       } catch (error) {
-        console.error('Chyba při úpravě historie uživatele', error);
+        console.error('Error while updating history', error);
         throw error;
       }
     },
@@ -1967,7 +1981,7 @@ const resolvers = {
         }
         return { deletion: deleted, error: err };
       } catch (error) {
-        console.error('Chyba při mazání emailu uživatele', error);
+        console.error('Error while deleting package', error);
         throw error;
       }
     },
@@ -2000,7 +2014,7 @@ const resolvers = {
         deleted = true;
         return { deletion: deleted, error: err };
       } catch (error) {
-        console.error('Chyba při mazání emailu uživatele', error);
+        console.error('Error while deleting supplier', error);
         throw error;
       }
     },

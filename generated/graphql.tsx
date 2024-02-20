@@ -1,17 +1,10 @@
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
-
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K];
-};
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>;
-};
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>;
-};
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 const defaultOptions = {} as const;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -24,6 +17,18 @@ export type Scalars = {
 };
 
 export type CreatedPack = Pack | PackageError;
+
+export type DataUpdateSupp = {
+  Delivery?: InputMaybe<Scalars['String']>;
+  Foil?: InputMaybe<Scalars['String']>;
+  Insurance?: InputMaybe<Scalars['String']>;
+  OldSuppName?: InputMaybe<Scalars['String']>;
+  PackInBox?: InputMaybe<Scalars['String']>;
+  PickUp?: InputMaybe<Scalars['String']>;
+  SendCashDelivery?: InputMaybe<Scalars['String']>;
+  ShippingLabel?: InputMaybe<Scalars['String']>;
+  SuppName?: InputMaybe<Scalars['String']>;
+};
 
 export type Delete = {
   __typename?: 'Delete';
@@ -64,10 +69,12 @@ export type Mutation = {
   updateSup?: Maybe<Supplier>;
 };
 
+
 export type MutationAddHistoryArgs = {
   data: Scalars['String'];
   uId: Scalars['String'];
 };
+
 
 export type MutationBingoSupPacArgs = {
   Plength: Scalars['Int'];
@@ -79,6 +86,7 @@ export type MutationBingoSupPacArgs = {
   width: Scalars['Int'];
 };
 
+
 export type MutationPackageToFirestoreArgs = {
   Plength: Scalars['Int'];
   cost: Scalars['Int'];
@@ -89,6 +97,7 @@ export type MutationPackageToFirestoreArgs = {
   weight: Scalars['Int'];
   width: Scalars['Int'];
 };
+
 
 export type MutationSupplierToFirestoreArgs = {
   delivery: Scalars['String'];
@@ -103,22 +112,28 @@ export type MutationSupplierToFirestoreArgs = {
   supplierName: Scalars['String'];
 };
 
+
 export type MutationDeletePackArgs = {
   key: Scalars['String'];
   suppId: Scalars['String'];
 };
 
+
 export type MutationDeleteSuppArgs = {
   id?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
 };
+
 
 export type MutationUpdateHistoryArgs = {
   newPriceDepo?: InputMaybe<Scalars['Int']>;
   newPricePack?: InputMaybe<Scalars['Int']>;
   newPricePersonal?: InputMaybe<Scalars['Int']>;
+  oldPackName?: InputMaybe<Scalars['String']>;
   packName?: InputMaybe<Scalars['String']>;
+  suppData?: InputMaybe<DataUpdateSupp>;
   suppId?: InputMaybe<Scalars['String']>;
 };
+
 
 export type MutationUpdatePackArgs = {
   PackKey: Scalars['String'];
@@ -131,12 +146,13 @@ export type MutationUpdatePackArgs = {
   width: Scalars['Int'];
 };
 
+
 export type MutationUpdateSupArgs = {
-  actNameSupp: Scalars['String'];
   delivery: Scalars['String'];
   depoCost: Scalars['Int'];
   foil: Scalars['String'];
   insurance: Scalars['Int'];
+  oldNameSupp: Scalars['String'];
   packInBox: Scalars['String'];
   personalCost: Scalars['Int'];
   pickUp: Scalars['String'];
@@ -283,60 +299,31 @@ export type HistorySupplierData = {
   shippingLabel: Scalars['String'];
 };
 
-export type HistoryDataQueryVariables = Exact<{ [key: string]: never }>;
+export type HistoryDataQueryVariables = Exact<{ [key: string]: never; }>;
 
-export type HistoryDataQuery = {
-  __typename?: 'Query';
-  historyUserData: Array<{
-    __typename?: 'QueryHistoryData';
-    historyId: string;
-    dataForm: {
-      __typename?: 'FormData';
-      width: number;
-      placeTo: string;
-      weight: number;
-      placeFrom: string;
-      plength: number;
-      height: number;
-    };
-    suppData: {
-      __typename?: 'historySupplierData';
-      insurance: number;
-      delivery: string;
-      packInBox: string;
-      name: string;
-      pickup: string;
-      shippingLabel: string;
-      sendCashDelivery: string;
-      foil: string;
-      packName: string;
-      cost: number;
-    };
-  }>;
-};
+
+export type HistoryDataQuery = { __typename?: 'Query', historyUserData: Array<{ __typename?: 'QueryHistoryData', historyId: string, dataForm: { __typename?: 'FormData', width: number, placeTo: string, weight: number, placeFrom: string, plength: number, height: number }, suppData: { __typename?: 'historySupplierData', insurance: number, delivery: string, packInBox: string, name: string, pickup: string, shippingLabel: string, sendCashDelivery: string, foil: string, packName: string, cost: number } }> };
 
 export type AddHistoryToFirestoreMutationVariables = Exact<{
   Id: Scalars['String'];
   Data: Scalars['String'];
 }>;
 
-export type AddHistoryToFirestoreMutation = {
-  __typename?: 'Mutation';
-  AddHistory?: { __typename?: 'HistoryMessage'; message: string } | null;
-};
+
+export type AddHistoryToFirestoreMutation = { __typename?: 'Mutation', AddHistory?: { __typename?: 'HistoryMessage', message: string } | null };
 
 export type UpdateHistoryMutationVariables = Exact<{
-  newPricePack?: InputMaybe<Scalars['Int']>;
-  newPricePersonal?: InputMaybe<Scalars['Int']>;
-  newPriceDepo?: InputMaybe<Scalars['Int']>;
+  NewPricePack?: InputMaybe<Scalars['Int']>;
+  NewPricePersonal?: InputMaybe<Scalars['Int']>;
+  NewPriceDepo?: InputMaybe<Scalars['Int']>;
   SuppId?: InputMaybe<Scalars['String']>;
   PackageName?: InputMaybe<Scalars['String']>;
+  OldPackName?: InputMaybe<Scalars['String']>;
+  SuppData?: InputMaybe<DataUpdateSupp>;
 }>;
 
-export type UpdateHistoryMutation = {
-  __typename?: 'Mutation';
-  updateHistory?: { __typename?: 'HistoryMessage'; message: string } | null;
-};
+
+export type UpdateHistoryMutation = { __typename?: 'Mutation', updateHistory?: { __typename?: 'HistoryMessage', message: string } | null };
 
 export type MutSuitableSuppMutationVariables = Exact<{
   Width: Scalars['Int'];
@@ -348,244 +335,124 @@ export type MutSuitableSuppMutationVariables = Exact<{
   Cost: Scalars['Int'];
 }>;
 
-export type MutSuitableSuppMutation = {
-  __typename?: 'Mutation';
-  BingoSupPac?:
-    | { __typename?: 'ErrorMessage'; message: string }
-    | { __typename?: 'Suitable'; suitable: string }
-    | null;
-};
+
+export type MutSuitableSuppMutation = { __typename?: 'Mutation', BingoSupPac?: { __typename?: 'ErrorMessage', message: string } | { __typename?: 'Suitable', suitable: string } | null };
 
 export type DeletePacMutationVariables = Exact<{
   Id: Scalars['String'];
   Key: Scalars['String'];
 }>;
 
-export type DeletePacMutation = {
-  __typename?: 'Mutation';
-  deletePack?: {
-    __typename?: 'Delete';
-    deletion: boolean;
-    error?: string | null;
-  } | null;
-};
+
+export type DeletePacMutation = { __typename?: 'Mutation', deletePack?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
 
 export type NewPackageToFirestoreMutationVariables = Exact<{
   SuppID: Scalars['String'];
-  Hmotnost: Scalars['Int'];
+  Weight: Scalars['Int'];
   Cost: Scalars['Int'];
-  Delka: Scalars['Int'];
-  Vyska: Scalars['Int'];
-  Sirka: Scalars['Int'];
+  Length: Scalars['Int'];
+  Height: Scalars['Int'];
+  Width: Scalars['Int'];
   Pack_name: Scalars['String'];
   PackId: Scalars['String'];
 }>;
 
-export type NewPackageToFirestoreMutation = {
-  __typename?: 'Mutation';
-  PackageToFirestore?:
-    | {
-        __typename?: 'Pack';
-        data: {
-          __typename?: 'PackageDataCreate';
-          weight: number;
-          cost: number;
-          Plength: number;
-          height: number;
-          width: number;
-          name_package: string;
-          supplier_id: string;
-        };
-      }
-    | { __typename?: 'PackageError'; message: string }
-    | null;
-};
+
+export type NewPackageToFirestoreMutation = { __typename?: 'Mutation', PackageToFirestore?: { __typename?: 'Pack', data: { __typename?: 'PackageDataCreate', weight: number, cost: number, Plength: number, height: number, width: number, name_package: string, supplier_id: string } } | { __typename?: 'PackageError', message: string } | null };
 
 export type UpdatePackageMutationVariables = Exact<{
-  Hmotnost: Scalars['Int'];
+  Weight: Scalars['Int'];
   Cost: Scalars['Int'];
-  Delka: Scalars['Int'];
-  Vyska: Scalars['Int'];
-  Sirka: Scalars['Int'];
+  Length: Scalars['Int'];
+  Height: Scalars['Int'];
+  Width: Scalars['Int'];
   Pack_name: Scalars['String'];
   PackKey: Scalars['String'];
   SuppId: Scalars['String'];
 }>;
 
-export type UpdatePackageMutation = {
-  __typename?: 'Mutation';
-  updatePack?:
-    | { __typename?: 'PackageUpdateError'; message: string }
-    | {
-        __typename?: 'UPack';
-        data: {
-          __typename?: 'PackageDataUpdate';
-          weight: number;
-          cost: number;
-          Plength: number;
-          height: number;
-          width: number;
-          name_package: string;
-          supplier_id: string;
-        };
-      }
-    | null;
-};
 
-export type PackageDataQueryVariables = Exact<{ [key: string]: never }>;
+export type UpdatePackageMutation = { __typename?: 'Mutation', updatePack?: { __typename?: 'PackageUpdateError', message: string } | { __typename?: 'UPack', data: { __typename?: 'PackageDataUpdate', weight: number, cost: number, Plength: number, height: number, width: number, name_package: string, supplier_id: string } } | null };
 
-export type PackageDataQuery = {
-  __typename?: 'Query';
-  packageData: Array<{
-    __typename?: 'QueryPackD';
-    Pkam: string;
-    Podkud: string;
-    costPackage: number;
-    delka: number;
-    hmotnost: number;
-    kam: string;
-    odkud: string;
-    packName: string;
-    packgeId: string;
-    sirka: number;
-    vyska: number;
-    supplierId: string;
-  }>;
-};
+export type PackageDataQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PackageDataQuery = { __typename?: 'Query', packageData: Array<{ __typename?: 'QueryPackD', Pkam: string, Podkud: string, costPackage: number, delka: number, hmotnost: number, kam: string, odkud: string, packName: string, packgeId: string, sirka: number, vyska: number, supplierId: string }> };
 
 export type DeleteSuppMutationVariables = Exact<{
-  Id?: InputMaybe<
-    Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>
-  >;
+  Id?: InputMaybe<Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>>;
 }>;
 
-export type DeleteSuppMutation = {
-  __typename?: 'Mutation';
-  deleteSupp?: {
-    __typename?: 'Delete';
-    deletion: boolean;
-    error?: string | null;
-  } | null;
-};
+
+export type DeleteSuppMutation = { __typename?: 'Mutation', deleteSupp?: { __typename?: 'Delete', deletion: boolean, error?: string | null } | null };
 
 export type NewSupplierToFirestoreMutationVariables = Exact<{
   SupName: Scalars['String'];
   Delivery: Scalars['String'];
-  pickUp: Scalars['String'];
+  PickUp: Scalars['String'];
   ShippingLabel: Scalars['String'];
   Foil: Scalars['String'];
   Insurance: Scalars['Int'];
   SendCashDelivery: Scalars['String'];
-  packInBox: Scalars['String'];
+  PackInBox: Scalars['String'];
   DepoCost: Scalars['Int'];
   PersonalCost: Scalars['Int'];
 }>;
 
-export type NewSupplierToFirestoreMutation = {
-  __typename?: 'Mutation';
-  SupplierToFirestore?:
-    | {
-        __typename?: 'Supp';
-        data: {
-          __typename?: 'SupplierData';
-          sendCashDelivery: string;
-          packInBox: string;
-          suppName: string;
-          pickUp: string;
-          delivery: string;
-          insurance: number;
-          shippingLabel: string;
-          foil: string;
-        };
-      }
-    | { __typename?: 'SupplierError'; message: string }
-    | null;
-};
+
+export type NewSupplierToFirestoreMutation = { __typename?: 'Mutation', SupplierToFirestore?: { __typename?: 'Supp', data: { __typename?: 'SupplierData', sendCashDelivery: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } } | { __typename?: 'SupplierError', message: string } | null };
 
 export type UpdateSupplierMutationVariables = Exact<{
   SupName: Scalars['String'];
   Delivery: Scalars['String'];
-  pickUp: Scalars['String'];
+  PickUp: Scalars['String'];
   ShippingLabel: Scalars['String'];
   Foil: Scalars['String'];
   Insurance: Scalars['Int'];
   SendCashDelivery: Scalars['String'];
-  packInBox: Scalars['String'];
+  PackInBox: Scalars['String'];
   SuppId: Scalars['String'];
-  ActNameSupp: Scalars['String'];
+  OldSupplierName: Scalars['String'];
   DepoCost: Scalars['Int'];
   PersonalCost: Scalars['Int'];
 }>;
 
-export type UpdateSupplierMutation = {
-  __typename?: 'Mutation';
-  updateSup?:
-    | {
-        __typename?: 'Supp';
-        data: {
-          __typename?: 'SupplierData';
-          sendCashDelivery: string;
-          supplierId: string;
-          packInBox: string;
-          suppName: string;
-          pickUp: string;
-          delivery: string;
-          insurance: number;
-          shippingLabel: string;
-          foil: string;
-        };
-      }
-    | { __typename?: 'SupplierError'; message: string }
-    | null;
-};
 
-export type SuppDataQueryVariables = Exact<{ [key: string]: never }>;
+export type UpdateSupplierMutation = { __typename?: 'Mutation', updateSup?: { __typename?: 'Supp', data: { __typename?: 'SupplierData', sendCashDelivery: string, supplierId: string, packInBox: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string } } | { __typename?: 'SupplierError', message: string } | null };
 
-export type SuppDataQuery = {
-  __typename?: 'Query';
-  suplierData: Array<{
-    __typename?: 'QuerySuppD';
-    sendCashDelivery: string;
-    packInBox: string;
-    supplierId: string;
-    suppName: string;
-    pickUp: string;
-    delivery: string;
-    insurance: number;
-    shippingLabel: string;
-    foil: string;
-    package?: { [key: string]: any } | null;
-    location?: { [key: string]: any } | null;
-  }>;
-};
+export type SuppDataQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SuppDataQuery = { __typename?: 'Query', suplierData: Array<{ __typename?: 'QuerySuppD', sendCashDelivery: string, packInBox: string, supplierId: string, suppName: string, pickUp: string, delivery: string, insurance: number, shippingLabel: string, foil: string, package?: { [key: string]: any } | null, location?: { [key: string]: any } | null }> };
+
 
 export const HistoryDataDocument = gql`
-  query HistoryData {
-    historyUserData {
-      dataForm {
-        width
-        placeTo
-        weight
-        placeFrom
-        plength
-        height
-      }
-      historyId
-      suppData {
-        insurance
-        delivery
-        packInBox
-        name
-        pickup
-        shippingLabel
-        sendCashDelivery
-        foil
-        packName
-        cost
-      }
+    query HistoryData {
+  historyUserData {
+    dataForm {
+      width
+      placeTo
+      weight
+      placeFrom
+      plength
+      height
+    }
+    historyId
+    suppData {
+      insurance
+      delivery
+      packInBox
+      name
+      pickup
+      shippingLabel
+      sendCashDelivery
+      foil
+      packName
+      cost
     }
   }
-`;
+}
+    `;
 
 /**
  * __useHistoryDataQuery__
@@ -602,49 +469,25 @@ export const HistoryDataDocument = gql`
  *   },
  * });
  */
-export function useHistoryDataQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    HistoryDataQuery,
-    HistoryDataQueryVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<HistoryDataQuery, HistoryDataQueryVariables>(
-    HistoryDataDocument,
-    options,
-  );
-}
-export function useHistoryDataLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    HistoryDataQuery,
-    HistoryDataQueryVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<HistoryDataQuery, HistoryDataQueryVariables>(
-    HistoryDataDocument,
-    options,
-  );
-}
+export function useHistoryDataQuery(baseOptions?: Apollo.QueryHookOptions<HistoryDataQuery, HistoryDataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<HistoryDataQuery, HistoryDataQueryVariables>(HistoryDataDocument, options);
+      }
+export function useHistoryDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<HistoryDataQuery, HistoryDataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<HistoryDataQuery, HistoryDataQueryVariables>(HistoryDataDocument, options);
+        }
 export type HistoryDataQueryHookResult = ReturnType<typeof useHistoryDataQuery>;
-export type HistoryDataLazyQueryHookResult = ReturnType<
-  typeof useHistoryDataLazyQuery
->;
-export type HistoryDataQueryResult = Apollo.QueryResult<
-  HistoryDataQuery,
-  HistoryDataQueryVariables
->;
+export type HistoryDataLazyQueryHookResult = ReturnType<typeof useHistoryDataLazyQuery>;
+export type HistoryDataQueryResult = Apollo.QueryResult<HistoryDataQuery, HistoryDataQueryVariables>;
 export const AddHistoryToFirestoreDocument = gql`
-  mutation AddHistoryToFirestore($Id: String!, $Data: String!) {
-    AddHistory(uId: $Id, data: $Data) {
-      message
-    }
+    mutation AddHistoryToFirestore($Id: String!, $Data: String!) {
+  AddHistory(uId: $Id, data: $Data) {
+    message
   }
-`;
-export type AddHistoryToFirestoreMutationFn = Apollo.MutationFunction<
-  AddHistoryToFirestoreMutation,
-  AddHistoryToFirestoreMutationVariables
->;
+}
+    `;
+export type AddHistoryToFirestoreMutationFn = Apollo.MutationFunction<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>;
 
 /**
  * __useAddHistoryToFirestoreMutation__
@@ -664,50 +507,29 @@ export type AddHistoryToFirestoreMutationFn = Apollo.MutationFunction<
  *   },
  * });
  */
-export function useAddHistoryToFirestoreMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    AddHistoryToFirestoreMutation,
-    AddHistoryToFirestoreMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    AddHistoryToFirestoreMutation,
-    AddHistoryToFirestoreMutationVariables
-  >(AddHistoryToFirestoreDocument, options);
-}
-export type AddHistoryToFirestoreMutationHookResult = ReturnType<
-  typeof useAddHistoryToFirestoreMutation
->;
-export type AddHistoryToFirestoreMutationResult =
-  Apollo.MutationResult<AddHistoryToFirestoreMutation>;
-export type AddHistoryToFirestoreMutationOptions = Apollo.BaseMutationOptions<
-  AddHistoryToFirestoreMutation,
-  AddHistoryToFirestoreMutationVariables
->;
+export function useAddHistoryToFirestoreMutation(baseOptions?: Apollo.MutationHookOptions<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>(AddHistoryToFirestoreDocument, options);
+      }
+export type AddHistoryToFirestoreMutationHookResult = ReturnType<typeof useAddHistoryToFirestoreMutation>;
+export type AddHistoryToFirestoreMutationResult = Apollo.MutationResult<AddHistoryToFirestoreMutation>;
+export type AddHistoryToFirestoreMutationOptions = Apollo.BaseMutationOptions<AddHistoryToFirestoreMutation, AddHistoryToFirestoreMutationVariables>;
 export const UpdateHistoryDocument = gql`
-  mutation UpdateHistory(
-    $newPricePack: Int
-    $newPricePersonal: Int
-    $newPriceDepo: Int
-    $SuppId: String
-    $PackageName: String
+    mutation UpdateHistory($NewPricePack: Int, $NewPricePersonal: Int, $NewPriceDepo: Int, $SuppId: String, $PackageName: String, $OldPackName: String, $SuppData: DataUpdateSupp) {
+  updateHistory(
+    newPricePack: $NewPricePack
+    newPricePersonal: $NewPricePersonal
+    newPriceDepo: $NewPriceDepo
+    suppId: $SuppId
+    packName: $PackageName
+    oldPackName: $OldPackName
+    suppData: $SuppData
   ) {
-    updateHistory(
-      newPricePack: $newPricePack
-      newPricePersonal: $newPricePersonal
-      newPriceDepo: $newPriceDepo
-      suppId: $SuppId
-      packName: $PackageName
-    ) {
-      message
-    }
+    message
   }
-`;
-export type UpdateHistoryMutationFn = Apollo.MutationFunction<
-  UpdateHistoryMutation,
-  UpdateHistoryMutationVariables
->;
+}
+    `;
+export type UpdateHistoryMutationFn = Apollo.MutationFunction<UpdateHistoryMutation, UpdateHistoryMutationVariables>;
 
 /**
  * __useUpdateHistoryMutation__
@@ -722,67 +544,44 @@ export type UpdateHistoryMutationFn = Apollo.MutationFunction<
  * @example
  * const [updateHistoryMutation, { data, loading, error }] = useUpdateHistoryMutation({
  *   variables: {
- *      newPricePack: // value for 'newPricePack'
- *      newPricePersonal: // value for 'newPricePersonal'
- *      newPriceDepo: // value for 'newPriceDepo'
+ *      NewPricePack: // value for 'NewPricePack'
+ *      NewPricePersonal: // value for 'NewPricePersonal'
+ *      NewPriceDepo: // value for 'NewPriceDepo'
  *      SuppId: // value for 'SuppId'
  *      PackageName: // value for 'PackageName'
+ *      OldPackName: // value for 'OldPackName'
+ *      SuppData: // value for 'SuppData'
  *   },
  * });
  */
-export function useUpdateHistoryMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateHistoryMutation,
-    UpdateHistoryMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    UpdateHistoryMutation,
-    UpdateHistoryMutationVariables
-  >(UpdateHistoryDocument, options);
-}
-export type UpdateHistoryMutationHookResult = ReturnType<
-  typeof useUpdateHistoryMutation
->;
-export type UpdateHistoryMutationResult =
-  Apollo.MutationResult<UpdateHistoryMutation>;
-export type UpdateHistoryMutationOptions = Apollo.BaseMutationOptions<
-  UpdateHistoryMutation,
-  UpdateHistoryMutationVariables
->;
+export function useUpdateHistoryMutation(baseOptions?: Apollo.MutationHookOptions<UpdateHistoryMutation, UpdateHistoryMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateHistoryMutation, UpdateHistoryMutationVariables>(UpdateHistoryDocument, options);
+      }
+export type UpdateHistoryMutationHookResult = ReturnType<typeof useUpdateHistoryMutation>;
+export type UpdateHistoryMutationResult = Apollo.MutationResult<UpdateHistoryMutation>;
+export type UpdateHistoryMutationOptions = Apollo.BaseMutationOptions<UpdateHistoryMutation, UpdateHistoryMutationVariables>;
 export const MutSuitableSuppDocument = gql`
-  mutation MutSuitableSupp(
-    $Width: Int!
-    $Weight: Int!
-    $Height: Int!
-    $Length: Int!
-    $Mz: String!
-    $Mdo: String!
-    $Cost: Int!
+    mutation MutSuitableSupp($Width: Int!, $Weight: Int!, $Height: Int!, $Length: Int!, $Mz: String!, $Mdo: String!, $Cost: Int!) {
+  BingoSupPac(
+    width: $Width
+    weight: $Weight
+    height: $Height
+    Plength: $Length
+    mistoZ: $Mz
+    mistoDo: $Mdo
+    cost: $Cost
   ) {
-    BingoSupPac(
-      width: $Width
-      weight: $Weight
-      height: $Height
-      Plength: $Length
-      mistoZ: $Mz
-      mistoDo: $Mdo
-      cost: $Cost
-    ) {
-      ... on Suitable {
-        suitable
-      }
-      ... on ErrorMessage {
-        message
-      }
+    ... on Suitable {
+      suitable
+    }
+    ... on ErrorMessage {
+      message
     }
   }
-`;
-export type MutSuitableSuppMutationFn = Apollo.MutationFunction<
-  MutSuitableSuppMutation,
-  MutSuitableSuppMutationVariables
->;
+}
+    `;
+export type MutSuitableSuppMutationFn = Apollo.MutationFunction<MutSuitableSuppMutation, MutSuitableSuppMutationVariables>;
 
 /**
  * __useMutSuitableSuppMutation__
@@ -807,39 +606,22 @@ export type MutSuitableSuppMutationFn = Apollo.MutationFunction<
  *   },
  * });
  */
-export function useMutSuitableSuppMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    MutSuitableSuppMutation,
-    MutSuitableSuppMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    MutSuitableSuppMutation,
-    MutSuitableSuppMutationVariables
-  >(MutSuitableSuppDocument, options);
-}
-export type MutSuitableSuppMutationHookResult = ReturnType<
-  typeof useMutSuitableSuppMutation
->;
-export type MutSuitableSuppMutationResult =
-  Apollo.MutationResult<MutSuitableSuppMutation>;
-export type MutSuitableSuppMutationOptions = Apollo.BaseMutationOptions<
-  MutSuitableSuppMutation,
-  MutSuitableSuppMutationVariables
->;
+export function useMutSuitableSuppMutation(baseOptions?: Apollo.MutationHookOptions<MutSuitableSuppMutation, MutSuitableSuppMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<MutSuitableSuppMutation, MutSuitableSuppMutationVariables>(MutSuitableSuppDocument, options);
+      }
+export type MutSuitableSuppMutationHookResult = ReturnType<typeof useMutSuitableSuppMutation>;
+export type MutSuitableSuppMutationResult = Apollo.MutationResult<MutSuitableSuppMutation>;
+export type MutSuitableSuppMutationOptions = Apollo.BaseMutationOptions<MutSuitableSuppMutation, MutSuitableSuppMutationVariables>;
 export const DeletePacDocument = gql`
-  mutation DeletePac($Id: String!, $Key: String!) {
-    deletePack(suppId: $Id, key: $Key) {
-      deletion
-      error
-    }
+    mutation DeletePac($Id: String!, $Key: String!) {
+  deletePack(suppId: $Id, key: $Key) {
+    deletion
+    error
   }
-`;
-export type DeletePacMutationFn = Apollo.MutationFunction<
-  DeletePacMutation,
-  DeletePacMutationVariables
->;
+}
+    `;
+export type DeletePacMutationFn = Apollo.MutationFunction<DeletePacMutation, DeletePacMutationVariables>;
 
 /**
  * __useDeletePacMutation__
@@ -859,68 +641,43 @@ export type DeletePacMutationFn = Apollo.MutationFunction<
  *   },
  * });
  */
-export function useDeletePacMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    DeletePacMutation,
-    DeletePacMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<DeletePacMutation, DeletePacMutationVariables>(
-    DeletePacDocument,
-    options,
-  );
-}
-export type DeletePacMutationHookResult = ReturnType<
-  typeof useDeletePacMutation
->;
-export type DeletePacMutationResult = Apollo.MutationResult<DeletePacMutation>;
-export type DeletePacMutationOptions = Apollo.BaseMutationOptions<
-  DeletePacMutation,
-  DeletePacMutationVariables
->;
-export const NewPackageToFirestoreDocument = gql`
-  mutation NewPackageToFirestore(
-    $SuppID: String!
-    $Hmotnost: Int!
-    $Cost: Int!
-    $Delka: Int!
-    $Vyska: Int!
-    $Sirka: Int!
-    $Pack_name: String!
-    $PackId: String!
-  ) {
-    PackageToFirestore(
-      supplier_id: $SuppID
-      weight: $Hmotnost
-      cost: $Cost
-      Plength: $Delka
-      height: $Vyska
-      width: $Sirka
-      name_package: $Pack_name
-      packId: $PackId
-    ) {
-      ... on Pack {
-        data {
-          weight
-          cost
-          Plength
-          height
-          width
-          name_package
-          supplier_id
-        }
+export function useDeletePacMutation(baseOptions?: Apollo.MutationHookOptions<DeletePacMutation, DeletePacMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePacMutation, DeletePacMutationVariables>(DeletePacDocument, options);
       }
-      ... on PackageError {
-        message
+export type DeletePacMutationHookResult = ReturnType<typeof useDeletePacMutation>;
+export type DeletePacMutationResult = Apollo.MutationResult<DeletePacMutation>;
+export type DeletePacMutationOptions = Apollo.BaseMutationOptions<DeletePacMutation, DeletePacMutationVariables>;
+export const NewPackageToFirestoreDocument = gql`
+    mutation NewPackageToFirestore($SuppID: String!, $Weight: Int!, $Cost: Int!, $Length: Int!, $Height: Int!, $Width: Int!, $Pack_name: String!, $PackId: String!) {
+  PackageToFirestore(
+    supplier_id: $SuppID
+    weight: $Weight
+    cost: $Cost
+    Plength: $Length
+    height: $Height
+    width: $Width
+    name_package: $Pack_name
+    packId: $PackId
+  ) {
+    ... on Pack {
+      data {
+        weight
+        cost
+        Plength
+        height
+        width
+        name_package
+        supplier_id
       }
     }
+    ... on PackageError {
+      message
+    }
   }
-`;
-export type NewPackageToFirestoreMutationFn = Apollo.MutationFunction<
-  NewPackageToFirestoreMutation,
-  NewPackageToFirestoreMutationVariables
->;
+}
+    `;
+export type NewPackageToFirestoreMutationFn = Apollo.MutationFunction<NewPackageToFirestoreMutation, NewPackageToFirestoreMutationVariables>;
 
 /**
  * __useNewPackageToFirestoreMutation__
@@ -936,79 +693,53 @@ export type NewPackageToFirestoreMutationFn = Apollo.MutationFunction<
  * const [newPackageToFirestoreMutation, { data, loading, error }] = useNewPackageToFirestoreMutation({
  *   variables: {
  *      SuppID: // value for 'SuppID'
- *      Hmotnost: // value for 'Hmotnost'
+ *      Weight: // value for 'Weight'
  *      Cost: // value for 'Cost'
- *      Delka: // value for 'Delka'
- *      Vyska: // value for 'Vyska'
- *      Sirka: // value for 'Sirka'
+ *      Length: // value for 'Length'
+ *      Height: // value for 'Height'
+ *      Width: // value for 'Width'
  *      Pack_name: // value for 'Pack_name'
  *      PackId: // value for 'PackId'
  *   },
  * });
  */
-export function useNewPackageToFirestoreMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    NewPackageToFirestoreMutation,
-    NewPackageToFirestoreMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    NewPackageToFirestoreMutation,
-    NewPackageToFirestoreMutationVariables
-  >(NewPackageToFirestoreDocument, options);
-}
-export type NewPackageToFirestoreMutationHookResult = ReturnType<
-  typeof useNewPackageToFirestoreMutation
->;
-export type NewPackageToFirestoreMutationResult =
-  Apollo.MutationResult<NewPackageToFirestoreMutation>;
-export type NewPackageToFirestoreMutationOptions = Apollo.BaseMutationOptions<
-  NewPackageToFirestoreMutation,
-  NewPackageToFirestoreMutationVariables
->;
-export const UpdatePackageDocument = gql`
-  mutation UpdatePackage(
-    $Hmotnost: Int!
-    $Cost: Int!
-    $Delka: Int!
-    $Vyska: Int!
-    $Sirka: Int!
-    $Pack_name: String!
-    $PackKey: String!
-    $SuppId: String!
-  ) {
-    updatePack(
-      PackKey: $PackKey
-      weight: $Hmotnost
-      cost: $Cost
-      Plength: $Delka
-      height: $Vyska
-      width: $Sirka
-      name_package: $Pack_name
-      supplier_id: $SuppId
-    ) {
-      ... on UPack {
-        data {
-          weight
-          cost
-          Plength
-          height
-          width
-          name_package
-          supplier_id
-        }
+export function useNewPackageToFirestoreMutation(baseOptions?: Apollo.MutationHookOptions<NewPackageToFirestoreMutation, NewPackageToFirestoreMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<NewPackageToFirestoreMutation, NewPackageToFirestoreMutationVariables>(NewPackageToFirestoreDocument, options);
       }
-      ... on PackageUpdateError {
-        message
+export type NewPackageToFirestoreMutationHookResult = ReturnType<typeof useNewPackageToFirestoreMutation>;
+export type NewPackageToFirestoreMutationResult = Apollo.MutationResult<NewPackageToFirestoreMutation>;
+export type NewPackageToFirestoreMutationOptions = Apollo.BaseMutationOptions<NewPackageToFirestoreMutation, NewPackageToFirestoreMutationVariables>;
+export const UpdatePackageDocument = gql`
+    mutation UpdatePackage($Weight: Int!, $Cost: Int!, $Length: Int!, $Height: Int!, $Width: Int!, $Pack_name: String!, $PackKey: String!, $SuppId: String!) {
+  updatePack(
+    PackKey: $PackKey
+    weight: $Weight
+    cost: $Cost
+    Plength: $Length
+    height: $Height
+    width: $Width
+    name_package: $Pack_name
+    supplier_id: $SuppId
+  ) {
+    ... on UPack {
+      data {
+        weight
+        cost
+        Plength
+        height
+        width
+        name_package
+        supplier_id
       }
     }
+    ... on PackageUpdateError {
+      message
+    }
   }
-`;
-export type UpdatePackageMutationFn = Apollo.MutationFunction<
-  UpdatePackageMutation,
-  UpdatePackageMutationVariables
->;
+}
+    `;
+export type UpdatePackageMutationFn = Apollo.MutationFunction<UpdatePackageMutation, UpdatePackageMutationVariables>;
 
 /**
  * __useUpdatePackageMutation__
@@ -1023,56 +754,42 @@ export type UpdatePackageMutationFn = Apollo.MutationFunction<
  * @example
  * const [updatePackageMutation, { data, loading, error }] = useUpdatePackageMutation({
  *   variables: {
- *      Hmotnost: // value for 'Hmotnost'
+ *      Weight: // value for 'Weight'
  *      Cost: // value for 'Cost'
- *      Delka: // value for 'Delka'
- *      Vyska: // value for 'Vyska'
- *      Sirka: // value for 'Sirka'
+ *      Length: // value for 'Length'
+ *      Height: // value for 'Height'
+ *      Width: // value for 'Width'
  *      Pack_name: // value for 'Pack_name'
  *      PackKey: // value for 'PackKey'
  *      SuppId: // value for 'SuppId'
  *   },
  * });
  */
-export function useUpdatePackageMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdatePackageMutation,
-    UpdatePackageMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    UpdatePackageMutation,
-    UpdatePackageMutationVariables
-  >(UpdatePackageDocument, options);
-}
-export type UpdatePackageMutationHookResult = ReturnType<
-  typeof useUpdatePackageMutation
->;
-export type UpdatePackageMutationResult =
-  Apollo.MutationResult<UpdatePackageMutation>;
-export type UpdatePackageMutationOptions = Apollo.BaseMutationOptions<
-  UpdatePackageMutation,
-  UpdatePackageMutationVariables
->;
+export function useUpdatePackageMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePackageMutation, UpdatePackageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePackageMutation, UpdatePackageMutationVariables>(UpdatePackageDocument, options);
+      }
+export type UpdatePackageMutationHookResult = ReturnType<typeof useUpdatePackageMutation>;
+export type UpdatePackageMutationResult = Apollo.MutationResult<UpdatePackageMutation>;
+export type UpdatePackageMutationOptions = Apollo.BaseMutationOptions<UpdatePackageMutation, UpdatePackageMutationVariables>;
 export const PackageDataDocument = gql`
-  query PackageData {
-    packageData {
-      Pkam
-      Podkud
-      costPackage
-      delka
-      hmotnost
-      kam
-      odkud
-      packName
-      packgeId
-      sirka
-      vyska
-      supplierId
-    }
+    query PackageData {
+  packageData {
+    Pkam
+    Podkud
+    costPackage
+    delka
+    hmotnost
+    kam
+    odkud
+    packName
+    packgeId
+    sirka
+    vyska
+    supplierId
   }
-`;
+}
+    `;
 
 /**
  * __usePackageDataQuery__
@@ -1089,50 +806,26 @@ export const PackageDataDocument = gql`
  *   },
  * });
  */
-export function usePackageDataQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    PackageDataQuery,
-    PackageDataQueryVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<PackageDataQuery, PackageDataQueryVariables>(
-    PackageDataDocument,
-    options,
-  );
-}
-export function usePackageDataLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    PackageDataQuery,
-    PackageDataQueryVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<PackageDataQuery, PackageDataQueryVariables>(
-    PackageDataDocument,
-    options,
-  );
-}
+export function usePackageDataQuery(baseOptions?: Apollo.QueryHookOptions<PackageDataQuery, PackageDataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PackageDataQuery, PackageDataQueryVariables>(PackageDataDocument, options);
+      }
+export function usePackageDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PackageDataQuery, PackageDataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PackageDataQuery, PackageDataQueryVariables>(PackageDataDocument, options);
+        }
 export type PackageDataQueryHookResult = ReturnType<typeof usePackageDataQuery>;
-export type PackageDataLazyQueryHookResult = ReturnType<
-  typeof usePackageDataLazyQuery
->;
-export type PackageDataQueryResult = Apollo.QueryResult<
-  PackageDataQuery,
-  PackageDataQueryVariables
->;
+export type PackageDataLazyQueryHookResult = ReturnType<typeof usePackageDataLazyQuery>;
+export type PackageDataQueryResult = Apollo.QueryResult<PackageDataQuery, PackageDataQueryVariables>;
 export const DeleteSuppDocument = gql`
-  mutation DeleteSupp($Id: [String]) {
-    deleteSupp(id: $Id) {
-      deletion
-      error
-    }
+    mutation DeleteSupp($Id: [String]) {
+  deleteSupp(id: $Id) {
+    deletion
+    error
   }
-`;
-export type DeleteSuppMutationFn = Apollo.MutationFunction<
-  DeleteSuppMutation,
-  DeleteSuppMutationVariables
->;
+}
+    `;
+export type DeleteSuppMutationFn = Apollo.MutationFunction<DeleteSuppMutation, DeleteSuppMutationVariables>;
 
 /**
  * __useDeleteSuppMutation__
@@ -1151,74 +844,46 @@ export type DeleteSuppMutationFn = Apollo.MutationFunction<
  *   },
  * });
  */
-export function useDeleteSuppMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    DeleteSuppMutation,
-    DeleteSuppMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<DeleteSuppMutation, DeleteSuppMutationVariables>(
-    DeleteSuppDocument,
-    options,
-  );
-}
-export type DeleteSuppMutationHookResult = ReturnType<
-  typeof useDeleteSuppMutation
->;
-export type DeleteSuppMutationResult =
-  Apollo.MutationResult<DeleteSuppMutation>;
-export type DeleteSuppMutationOptions = Apollo.BaseMutationOptions<
-  DeleteSuppMutation,
-  DeleteSuppMutationVariables
->;
-export const NewSupplierToFirestoreDocument = gql`
-  mutation NewSupplierToFirestore(
-    $SupName: String!
-    $Delivery: String!
-    $pickUp: String!
-    $ShippingLabel: String!
-    $Foil: String!
-    $Insurance: Int!
-    $SendCashDelivery: String!
-    $packInBox: String!
-    $DepoCost: Int!
-    $PersonalCost: Int!
-  ) {
-    SupplierToFirestore(
-      supplierName: $SupName
-      delivery: $Delivery
-      shippingLabel: $ShippingLabel
-      pickUp: $pickUp
-      foil: $Foil
-      insurance: $Insurance
-      sendCashDelivery: $SendCashDelivery
-      packInBox: $packInBox
-      depoCost: $DepoCost
-      personalCost: $PersonalCost
-    ) {
-      ... on Supp {
-        data {
-          sendCashDelivery
-          packInBox
-          suppName
-          pickUp
-          delivery
-          insurance
-          shippingLabel
-          foil
-        }
+export function useDeleteSuppMutation(baseOptions?: Apollo.MutationHookOptions<DeleteSuppMutation, DeleteSuppMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteSuppMutation, DeleteSuppMutationVariables>(DeleteSuppDocument, options);
       }
-      ... on SupplierError {
-        message
+export type DeleteSuppMutationHookResult = ReturnType<typeof useDeleteSuppMutation>;
+export type DeleteSuppMutationResult = Apollo.MutationResult<DeleteSuppMutation>;
+export type DeleteSuppMutationOptions = Apollo.BaseMutationOptions<DeleteSuppMutation, DeleteSuppMutationVariables>;
+export const NewSupplierToFirestoreDocument = gql`
+    mutation NewSupplierToFirestore($SupName: String!, $Delivery: String!, $PickUp: String!, $ShippingLabel: String!, $Foil: String!, $Insurance: Int!, $SendCashDelivery: String!, $PackInBox: String!, $DepoCost: Int!, $PersonalCost: Int!) {
+  SupplierToFirestore(
+    supplierName: $SupName
+    delivery: $Delivery
+    shippingLabel: $ShippingLabel
+    pickUp: $PickUp
+    foil: $Foil
+    insurance: $Insurance
+    sendCashDelivery: $SendCashDelivery
+    packInBox: $PackInBox
+    depoCost: $DepoCost
+    personalCost: $PersonalCost
+  ) {
+    ... on Supp {
+      data {
+        sendCashDelivery
+        packInBox
+        suppName
+        pickUp
+        delivery
+        insurance
+        shippingLabel
+        foil
       }
     }
+    ... on SupplierError {
+      message
+    }
   }
-`;
-export type NewSupplierToFirestoreMutationFn = Apollo.MutationFunction<
-  NewSupplierToFirestoreMutation,
-  NewSupplierToFirestoreMutationVariables
->;
+}
+    `;
+export type NewSupplierToFirestoreMutationFn = Apollo.MutationFunction<NewSupplierToFirestoreMutation, NewSupplierToFirestoreMutationVariables>;
 
 /**
  * __useNewSupplierToFirestoreMutation__
@@ -1235,90 +900,60 @@ export type NewSupplierToFirestoreMutationFn = Apollo.MutationFunction<
  *   variables: {
  *      SupName: // value for 'SupName'
  *      Delivery: // value for 'Delivery'
- *      pickUp: // value for 'pickUp'
+ *      PickUp: // value for 'PickUp'
  *      ShippingLabel: // value for 'ShippingLabel'
  *      Foil: // value for 'Foil'
  *      Insurance: // value for 'Insurance'
  *      SendCashDelivery: // value for 'SendCashDelivery'
- *      packInBox: // value for 'packInBox'
+ *      PackInBox: // value for 'PackInBox'
  *      DepoCost: // value for 'DepoCost'
  *      PersonalCost: // value for 'PersonalCost'
  *   },
  * });
  */
-export function useNewSupplierToFirestoreMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    NewSupplierToFirestoreMutation,
-    NewSupplierToFirestoreMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    NewSupplierToFirestoreMutation,
-    NewSupplierToFirestoreMutationVariables
-  >(NewSupplierToFirestoreDocument, options);
-}
-export type NewSupplierToFirestoreMutationHookResult = ReturnType<
-  typeof useNewSupplierToFirestoreMutation
->;
-export type NewSupplierToFirestoreMutationResult =
-  Apollo.MutationResult<NewSupplierToFirestoreMutation>;
-export type NewSupplierToFirestoreMutationOptions = Apollo.BaseMutationOptions<
-  NewSupplierToFirestoreMutation,
-  NewSupplierToFirestoreMutationVariables
->;
-export const UpdateSupplierDocument = gql`
-  mutation UpdateSupplier(
-    $SupName: String!
-    $Delivery: String!
-    $pickUp: String!
-    $ShippingLabel: String!
-    $Foil: String!
-    $Insurance: Int!
-    $SendCashDelivery: String!
-    $packInBox: String!
-    $SuppId: String!
-    $ActNameSupp: String!
-    $DepoCost: Int!
-    $PersonalCost: Int!
-  ) {
-    updateSup(
-      supplierName: $SupName
-      delivery: $Delivery
-      shippingLabel: $ShippingLabel
-      pickUp: $pickUp
-      foil: $Foil
-      insurance: $Insurance
-      sendCashDelivery: $SendCashDelivery
-      packInBox: $packInBox
-      suppId: $SuppId
-      actNameSupp: $ActNameSupp
-      depoCost: $DepoCost
-      personalCost: $PersonalCost
-    ) {
-      ... on Supp {
-        data {
-          sendCashDelivery
-          supplierId
-          packInBox
-          suppName
-          pickUp
-          delivery
-          insurance
-          shippingLabel
-          foil
-        }
+export function useNewSupplierToFirestoreMutation(baseOptions?: Apollo.MutationHookOptions<NewSupplierToFirestoreMutation, NewSupplierToFirestoreMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<NewSupplierToFirestoreMutation, NewSupplierToFirestoreMutationVariables>(NewSupplierToFirestoreDocument, options);
       }
-      ... on SupplierError {
-        message
+export type NewSupplierToFirestoreMutationHookResult = ReturnType<typeof useNewSupplierToFirestoreMutation>;
+export type NewSupplierToFirestoreMutationResult = Apollo.MutationResult<NewSupplierToFirestoreMutation>;
+export type NewSupplierToFirestoreMutationOptions = Apollo.BaseMutationOptions<NewSupplierToFirestoreMutation, NewSupplierToFirestoreMutationVariables>;
+export const UpdateSupplierDocument = gql`
+    mutation UpdateSupplier($SupName: String!, $Delivery: String!, $PickUp: String!, $ShippingLabel: String!, $Foil: String!, $Insurance: Int!, $SendCashDelivery: String!, $PackInBox: String!, $SuppId: String!, $OldSupplierName: String!, $DepoCost: Int!, $PersonalCost: Int!) {
+  updateSup(
+    supplierName: $SupName
+    delivery: $Delivery
+    shippingLabel: $ShippingLabel
+    pickUp: $PickUp
+    foil: $Foil
+    insurance: $Insurance
+    sendCashDelivery: $SendCashDelivery
+    packInBox: $PackInBox
+    suppId: $SuppId
+    oldNameSupp: $OldSupplierName
+    depoCost: $DepoCost
+    personalCost: $PersonalCost
+  ) {
+    ... on Supp {
+      data {
+        sendCashDelivery
+        supplierId
+        packInBox
+        suppName
+        pickUp
+        delivery
+        insurance
+        shippingLabel
+        foil
       }
     }
+    ... on SupplierError {
+      message
+    }
   }
-`;
-export type UpdateSupplierMutationFn = Apollo.MutationFunction<
-  UpdateSupplierMutation,
-  UpdateSupplierMutationVariables
->;
+}
+    `;
+export type UpdateSupplierMutationFn = Apollo.MutationFunction<UpdateSupplierMutation, UpdateSupplierMutationVariables>;
 
 /**
  * __useUpdateSupplierMutation__
@@ -1335,57 +970,43 @@ export type UpdateSupplierMutationFn = Apollo.MutationFunction<
  *   variables: {
  *      SupName: // value for 'SupName'
  *      Delivery: // value for 'Delivery'
- *      pickUp: // value for 'pickUp'
+ *      PickUp: // value for 'PickUp'
  *      ShippingLabel: // value for 'ShippingLabel'
  *      Foil: // value for 'Foil'
  *      Insurance: // value for 'Insurance'
  *      SendCashDelivery: // value for 'SendCashDelivery'
- *      packInBox: // value for 'packInBox'
+ *      PackInBox: // value for 'PackInBox'
  *      SuppId: // value for 'SuppId'
- *      ActNameSupp: // value for 'ActNameSupp'
+ *      OldSupplierName: // value for 'OldSupplierName'
  *      DepoCost: // value for 'DepoCost'
  *      PersonalCost: // value for 'PersonalCost'
  *   },
  * });
  */
-export function useUpdateSupplierMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateSupplierMutation,
-    UpdateSupplierMutationVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    UpdateSupplierMutation,
-    UpdateSupplierMutationVariables
-  >(UpdateSupplierDocument, options);
-}
-export type UpdateSupplierMutationHookResult = ReturnType<
-  typeof useUpdateSupplierMutation
->;
-export type UpdateSupplierMutationResult =
-  Apollo.MutationResult<UpdateSupplierMutation>;
-export type UpdateSupplierMutationOptions = Apollo.BaseMutationOptions<
-  UpdateSupplierMutation,
-  UpdateSupplierMutationVariables
->;
+export function useUpdateSupplierMutation(baseOptions?: Apollo.MutationHookOptions<UpdateSupplierMutation, UpdateSupplierMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateSupplierMutation, UpdateSupplierMutationVariables>(UpdateSupplierDocument, options);
+      }
+export type UpdateSupplierMutationHookResult = ReturnType<typeof useUpdateSupplierMutation>;
+export type UpdateSupplierMutationResult = Apollo.MutationResult<UpdateSupplierMutation>;
+export type UpdateSupplierMutationOptions = Apollo.BaseMutationOptions<UpdateSupplierMutation, UpdateSupplierMutationVariables>;
 export const SuppDataDocument = gql`
-  query SuppData {
-    suplierData {
-      sendCashDelivery
-      packInBox
-      supplierId
-      suppName
-      pickUp
-      delivery
-      insurance
-      shippingLabel
-      foil
-      package
-      location
-    }
+    query SuppData {
+  suplierData {
+    sendCashDelivery
+    packInBox
+    supplierId
+    suppName
+    pickUp
+    delivery
+    insurance
+    shippingLabel
+    foil
+    package
+    location
   }
-`;
+}
+    `;
 
 /**
  * __useSuppDataQuery__
@@ -1402,32 +1023,14 @@ export const SuppDataDocument = gql`
  *   },
  * });
  */
-export function useSuppDataQuery(
-  baseOptions?: Apollo.QueryHookOptions<SuppDataQuery, SuppDataQueryVariables>,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<SuppDataQuery, SuppDataQueryVariables>(
-    SuppDataDocument,
-    options,
-  );
-}
-export function useSuppDataLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    SuppDataQuery,
-    SuppDataQueryVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<SuppDataQuery, SuppDataQueryVariables>(
-    SuppDataDocument,
-    options,
-  );
-}
+export function useSuppDataQuery(baseOptions?: Apollo.QueryHookOptions<SuppDataQuery, SuppDataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SuppDataQuery, SuppDataQueryVariables>(SuppDataDocument, options);
+      }
+export function useSuppDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SuppDataQuery, SuppDataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SuppDataQuery, SuppDataQueryVariables>(SuppDataDocument, options);
+        }
 export type SuppDataQueryHookResult = ReturnType<typeof useSuppDataQuery>;
-export type SuppDataLazyQueryHookResult = ReturnType<
-  typeof useSuppDataLazyQuery
->;
-export type SuppDataQueryResult = Apollo.QueryResult<
-  SuppDataQuery,
-  SuppDataQueryVariables
->;
+export type SuppDataLazyQueryHookResult = ReturnType<typeof useSuppDataLazyQuery>;
+export type SuppDataQueryResult = Apollo.QueryResult<SuppDataQuery, SuppDataQueryVariables>;
