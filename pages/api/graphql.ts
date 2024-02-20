@@ -1215,7 +1215,7 @@ const resolvers = {
           cost: costPackage,
           Plength: lengthPack,
           height: heightPack,
-          width: weightPack,
+          width: widthPack,
           name_package: packName,
           supplier_id: supplierDoc.id,
         };
