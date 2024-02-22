@@ -53,6 +53,7 @@ const Valid = (
   ) {
     return new Error('Invalid argument');
   }
+  return undefined;
 };
 
 export const FormPackage: React.FC<Props> = ({ id }) => {
@@ -108,10 +109,10 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
         },
         refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
-      });
+      }).catch((error: string) => alert(error));
 
-      const err = result.data?.PackageToFirestore?.message;
-      const data = result.data?.PackageToFirestore?.data;
+      const err = result?.data?.PackageToFirestore?.message;
+      const data = result?.data?.PackageToFirestore?.data;
 
       if (err) {
         alert(err);

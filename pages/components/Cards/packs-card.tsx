@@ -39,11 +39,11 @@ export const PackCard: React.FC<Props> = ({
       },
       refetchQueries: [{ query: SuppDataDocument }],
       awaitRefetchQueries: true,
-    });
-    if (deleted.data?.deletePack?.error) {
-      alert(`${deleted.data?.deletePack?.error}`);
+    }).catch((error: string) => alert(error));
+    if (deleted?.data?.deletePack?.error) {
+      alert(`${deleted?.data?.deletePack?.error}`);
     }
-    if (!deleted.data?.deletePack?.deletion) {
+    if (!deleted?.data?.deletePack?.deletion) {
       alert('Balíček smazán nebyl');
     }
     alert('Balíček byl smazán');

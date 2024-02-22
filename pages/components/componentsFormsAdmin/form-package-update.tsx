@@ -148,6 +148,8 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     ) {
       return new Error('Invalid argument');
     }
+
+    return undefined;
   };
 
   const handleForm = async (event?: React.FormEvent) => {
@@ -164,21 +166,21 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     } else {
       const result = await UpdatePackage({
         variables: {
-          Hmotnost: Number(statesOfDataPack.Weight.get()),
+          Weight: Number(statesOfDataPack.Weight.get()),
           Cost: Number(statesOfDataPack.Cost.get()),
-          Delka: Number(statesOfDataPack.Plength.get()),
-          Vyska: Number(statesOfDataPack.Height.get()),
-          Sirka: Number(statesOfDataPack.Width.get()),
+          Length: Number(statesOfDataPack.Plength.get()),
+          Height: Number(statesOfDataPack.Height.get()),
+          Width: Number(statesOfDataPack.Width.get()),
           Pack_name: statesOfDataPack.PackName.get(),
           PackKey: id,
           SuppId: statesOfDataPack.SuppId.get(),
         },
         refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
-      });
+      }).catch((error: string) => alert(error));
 
-      const err = result.data?.updatePack?.message;
-      const data = result.data?.updatePack?.data;
+      const err = result?.data?.updatePack?.message;
+      const data = result?.data?.updatePack?.data;
 
       if (err) {
         alert(err);
@@ -194,7 +196,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           },
           refetchQueries: [{ query: HistoryDataDocument }],
           awaitRefetchQueries: true,
-        });
+        }).catch((error: string) => alert(error));
         alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
               Délka: ${data.Plength},
               Šířka: ${data.width},

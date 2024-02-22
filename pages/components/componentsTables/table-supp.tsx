@@ -67,10 +67,14 @@ export const DataGridSupplier = () => {
         },
         refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
-      });
+      })
+        // .then((res) => {
+        //   return res.data;
+        // })
+        .catch((error: string) => alert(error));
 
-      const err = result.data?.deleteSupp?.error;
-      const deleted = result.data?.deleteSupp?.deletion;
+      const err = result?.data?.deleteSupp?.error;
+      const deleted = result?.data?.deleteSupp?.deletion;
       if (deleted) {
         alert('Deletion secusfull');
       }

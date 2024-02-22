@@ -10,6 +10,10 @@ import { firestore } from '../../firebase/firebase-admin-config';
 import { verifyToken } from './verify_token';
 
 type MyContext = { user?: DecodedIdToken };
+const admMessage = 'Only admin can use this function';
+const NotFoundMsg = (headerOfMsg: string) => {
+  return `${headerOfMsg} not found.`;
+};
 
 const typeDefs = gql`
   type Query {
@@ -24,8 +28,8 @@ const typeDefs = gql`
       weight: Int!
       height: Int!
       Plength: Int!
-      mistoZ: String!
-      mistoDo: String!
+      where: String!
+      fromWhere: String!
       cost: Int!
     ): SuitValue
     AddHistory(uId: String!, data: String!): HistoryMessage
@@ -97,13 +101,12 @@ const typeDefs = gql`
   input DataUpdateSupp {
     Delivery: String
     Foil: String
-    Insurance: String
+    Insurance: Int
     PackInBox: String
     PickUp: String
     SendCashDelivery: String
     ShippingLabel: String
     SuppName: String
-    OldSuppName: String
   }
 
   scalar JSON
@@ -316,6 +319,17 @@ const ConverDate = (dateU1: string, dateU2: string) => {
   }
 };
 
+type DataUpdateSupp = {
+  Delivery: string;
+  Foil: string;
+  Insurance: number;
+  PackInBox: string;
+  PickUp: string;
+  SendCashDelivery: string;
+  ShippingLabel: string;
+  SuppName: string;
+};
+
 const doMathForPackage = async (
   data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
   nPriceP: number,
@@ -378,8 +392,20 @@ const doMatchForOptionsDelivery = async (
   nPriceDepo: number,
   nPriceP: number,
   historyDoc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
+  supplierData: DataUpdateSupp,
   // eslint-disable-next-line sonarjs/cognitive-complexity
 ) => {
+  type DataForCheck = {
+    Delivery: string;
+    Foil: string;
+    Insurance: number;
+    PackInBox: string;
+    PickUp: string;
+    SendCashDelivery: string;
+    ShippingLabel: string;
+    SuppName: string;
+  };
+
   type HistoryDoc = {
     uId: string;
     dataForm: {
@@ -422,12 +448,25 @@ const doMatchForOptionsDelivery = async (
     namePack: string;
   };
 
+  type DifferentData = {
+    delivery: string | null;
+    foil: string | null;
+    insurance: number | null;
+    packInBox: string | null;
+    pickUp: string | null;
+    sendCashDelivery: string | null;
+    shippingLabel: string | null;
+    suppName: string | null;
+  };
+
   const namesPack: Array<string> = [];
   let pack: Array<Package> = [];
   const packInfo: Array<PackInfo> = [];
   const sum = nPriceDepo + nPriceP;
   const historyIds: Array<string> = [];
   let msg = '';
+
+  console.log(supplierData);
 
   const getCostByName = (
     dataPack: Array<PackInfo>,
@@ -441,6 +480,96 @@ const doMatchForOptionsDelivery = async (
     });
 
     return cost;
+  };
+
+  const diffData = (
+    newDataSupp: DataForCheck,
+    docDataSupp: DataForCheck,
+  ): DifferentData => {
+    return {
+      delivery:
+        newDataSupp.Delivery === docDataSupp.Delivery
+          ? null
+          : newDataSupp.Delivery,
+      foil: newDataSupp.Foil === docDataSupp.Foil ? null : newDataSupp.Foil,
+      insurance:
+        newDataSupp.Insurance === docDataSupp.Insurance
+          ? null
+          : newDataSupp.Insurance,
+      packInBox:
+        newDataSupp.PackInBox === docDataSupp.PackInBox
+          ? null
+          : newDataSupp.PackInBox,
+      pickUp:
+        newDataSupp.PickUp === docDataSupp.PickUp ? null : newDataSupp.PickUp,
+      sendCashDelivery:
+        newDataSupp.SendCashDelivery === docDataSupp.SendCashDelivery
+          ? null
+          : newDataSupp.SendCashDelivery,
+      shippingLabel:
+        newDataSupp.ShippingLabel === docDataSupp.ShippingLabel
+          ? null
+          : newDataSupp.ShippingLabel,
+      suppName:
+        newDataSupp.SuppName === docDataSupp.SuppName
+          ? null
+          : newDataSupp.SuppName,
+    };
+  };
+
+  const updateDataSupp = async (
+    document: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>,
+    dataSupp: DifferentData,
+  ) => {
+    const dataS = dataSupp;
+    if (dataS.delivery !== null) {
+      await document.ref.update(
+        new firestore.FieldPath('suppData', 'delivery'),
+        dataS.delivery,
+      );
+    }
+    if (dataS.pickUp !== null) {
+      await document.ref.update(
+        new firestore.FieldPath('suppData', 'pickup'),
+        dataS.pickUp,
+      );
+    }
+    if (dataS.foil !== null) {
+      await document.ref.update(
+        new firestore.FieldPath('suppData', 'foil'),
+        dataS.foil,
+      );
+    }
+    if (dataS.insurance !== null) {
+      await document.ref.update(
+        new firestore.FieldPath('suppData', 'insurance'),
+        dataS.insurance,
+      );
+    }
+    if (dataS.packInBox !== null) {
+      await document.ref.update(
+        new firestore.FieldPath('suppData', 'packInBox'),
+        dataS.packInBox,
+      );
+    }
+    if (dataS.sendCashDelivery !== null) {
+      await document.ref.update(
+        new firestore.FieldPath('suppData', 'sendCashDelivery'),
+        dataS.sendCashDelivery,
+      );
+    }
+    if (dataS.shippingLabel !== null) {
+      await document.ref.update(
+        new firestore.FieldPath('suppData', 'shippingLabel'),
+        dataS.shippingLabel,
+      );
+    }
+    if (dataS.suppName !== null) {
+      await document.ref.update(
+        new firestore.FieldPath('suppData', 'name'),
+        dataS.suppName,
+      );
+    }
   };
 
   const isNameInArr = (
@@ -510,6 +639,21 @@ const doMatchForOptionsDelivery = async (
             await document.ref.update(
               new firestore.FieldPath('suppData', 'cost'),
               sum + costPack,
+            );
+          }
+          if (supplierData) {
+            await updateDataSupp(
+              document,
+              diffData(supplierData, {
+                Delivery: dataDoc.suppData.delivery,
+                Foil: dataDoc.suppData.foil,
+                Insurance: dataDoc.suppData.insurance,
+                PackInBox: dataDoc.suppData.packInBox,
+                PickUp: dataDoc.suppData.pickup,
+                SendCashDelivery: dataDoc.suppData.sendCashDelivery,
+                ShippingLabel: dataDoc.suppData.shippingLabel,
+                SuppName: dataDoc.suppData.name,
+              }),
             );
           }
         }
@@ -668,8 +812,8 @@ const resolvers = {
         weight: number;
         height: number;
         Plength: number;
-        mistoZ: string;
-        mistoDo: string;
+        where: string;
+        fromWhere: string;
         cost: number;
       },
       // eslint-disable-next-line sonarjs/cognitive-complexity
@@ -679,8 +823,8 @@ const resolvers = {
         weight: Weight,
         height: Height,
         Plength: pLength,
-        mistoZ: Z,
-        mistoDo: Do,
+        where: Where,
+        fromWhere: FromWhere,
         cost: Pcost,
       } = args;
 
@@ -757,8 +901,8 @@ const resolvers = {
       const packData: Array<PackageData> = [];
       const rtrnItem: Array<ReturnItem> = [];
 
-      const validargZ = ['personal', 'depo'].includes(Z);
-      const validargDo = ['personal', 'depo'].includes(Do);
+      const validargZ = ['personal', 'depo'].includes(Where);
+      const validargDo = ['personal', 'depo'].includes(FromWhere);
 
       const suppWithLocationFiled: Array<SuppWithLocation> = [];
 
@@ -816,14 +960,14 @@ const resolvers = {
           // dd
           const depo = i.loc.depoDelivery;
           const personal = i.loc.personalDelivery;
-          if (depo.delivery === Z && depo.delivery === Do) {
+          if (depo.delivery === Where && depo.delivery === FromWhere) {
             return {
               idS: i.suppId,
               cost: 2 * depo.cost,
             };
           }
           // pd
-          if (personal.delivery === Z && depo.delivery === Do) {
+          if (personal.delivery === Where && depo.delivery === FromWhere) {
             return {
               idS: i.suppId,
               cost: personal.cost + depo.cost,
@@ -831,7 +975,7 @@ const resolvers = {
           }
 
           // dp
-          if (depo.delivery === Z && personal.delivery === Do) {
+          if (depo.delivery === Where && personal.delivery === FromWhere) {
             return {
               idS: i.suppId,
               cost: depo.cost + personal.cost,
@@ -1161,7 +1305,7 @@ const resolvers = {
       if (context.user?.email !== Admin) {
         return {
           __typename: 'PackageError',
-          message: 'Only admin can use this function',
+          message: admMessage,
         };
       }
 
@@ -1200,7 +1344,7 @@ const resolvers = {
         if (SupplierDoc.size === 0) {
           return {
             __typename: 'PackageError',
-            message: 'Supplier not found',
+            message: NotFoundMsg('Supplier'),
           };
         }
 
@@ -1357,7 +1501,7 @@ const resolvers = {
         if (context.user?.email !== Admin) {
           return {
             __typename: 'SupplierError',
-            message: 'Only admin can use this function',
+            message: admMessage,
           };
         }
 
@@ -1513,7 +1657,7 @@ const resolvers = {
         if (context.user?.email !== Admin) {
           return {
             __typename: 'PackageUpdateError',
-            message: 'Only admin can use this function',
+            message: admMessage,
           };
         }
         if (
@@ -1551,7 +1695,7 @@ const resolvers = {
         if (SupplierDoc.size === 0) {
           return {
             __typename: 'PackageUpdateError',
-            message: 'Supplier not found',
+            message: NotFoundMsg('Supplier'),
           };
         }
 
@@ -1609,22 +1753,19 @@ const resolvers = {
           };
         }
 
-        existingPackages.forEach((item) => {
-          // najdi update item
-          const updatetedItem = item;
-
-          if (updatetedItem[id]) {
-            // eslint-disable-next-line unicorn/no-lonely-if, max-depth
+        for (const pack of existingPackages) {
+          // eslint-disable-next-line max-depth
+          if (pack[id]) {
             console.log('name itm', id);
-            updatetedItem[id].weight = weightPack;
-            updatetedItem[id].cost = costPackage;
-            updatetedItem[id].Plength = lengthPack;
-            updatetedItem[id].height = heightPack;
-            updatetedItem[id].width = widthPack;
-            updatetedItem[id].name_package = packName;
-            console.log('update with same name', updatetedItem[id]);
+            pack[id].weight = weightPack;
+            pack[id].cost = costPackage;
+            pack[id].Plength = lengthPack;
+            pack[id].height = heightPack;
+            pack[id].width = widthPack;
+            pack[id].name_package = packName;
+            console.log('update', pack[id]);
           }
-        });
+        }
 
         console.log(existingPackages);
 
@@ -1710,7 +1851,7 @@ const resolvers = {
         if (context.user?.email !== Admin) {
           return {
             __typename: 'SupplierError',
-            message: 'Only admin can use this function',
+            message: admMessage,
           };
         }
         if (ConverDate(PickupPoint, isDelivered)?.message) {
@@ -1742,7 +1883,7 @@ const resolvers = {
         if (Supd.size === 0) {
           return {
             __typename: 'SupplierError',
-            message: 'Supplier not found',
+            message: NotFoundMsg('Supplier'),
           };
         }
 
@@ -1835,6 +1976,7 @@ const resolvers = {
         suppId: string;
         packName: string;
         oldPackName: string;
+        suppData: DataUpdateSupp;
       },
       context: MyContext,
       // eslint-disable-next-line sonarjs/cognitive-complexity, consistent-return
@@ -1848,6 +1990,7 @@ const resolvers = {
         suppId: sId,
         packName: nameOfpack,
         oldPackName: oldNameOfpack,
+        suppData: dataS,
       } = args;
       // dodelat resolver
       // udelat filtry na frontendu
@@ -1883,7 +2026,7 @@ const resolvers = {
         if (context.user?.email !== Admin) {
           return {
             __typename: 'HistoryMessage',
-            message: 'Only admin can use this function',
+            message: admMessage,
           };
         }
 
@@ -1897,12 +2040,13 @@ const resolvers = {
           .where('suppData.id', '==', sId)
           .get();
 
-        if (nPriceP && nPriceDepo) {
+        if (nPriceP && nPriceDepo && dataS) {
           msg = await doMatchForOptionsDelivery(
             SuppDocuments,
             nPriceDepo,
             nPriceP,
             historyDocuments,
+            dataS,
           );
         }
 
@@ -1947,7 +2091,7 @@ const resolvers = {
 
       const Admin = process.env.NEXT_PUBLIC_AdminEm;
       if (context.user?.email !== Admin) {
-        err = 'Only admin can use this function';
+        err = admMessage;
         deleted = false;
         return { deletion: deleted, error: err };
       }
@@ -1974,10 +2118,10 @@ const resolvers = {
             await supplierDoc.ref.update({ package: newArray });
             deleted = true;
           } else {
-            err = 'Package not found';
+            err = NotFoundMsg('Package');
           }
         } else {
-          err = 'Supplier not found';
+          err = NotFoundMsg('Supplier');
         }
         return { deletion: deleted, error: err };
       } catch (error) {
@@ -1994,7 +2138,7 @@ const resolvers = {
       let err = '';
       const Admin = process.env.NEXT_PUBLIC_AdminEm;
       if (context.user?.email !== Admin) {
-        err = 'Only admin can use this function';
+        err = admMessage;
         deleted = false;
         return { deletion: deleted, error: err };
       }

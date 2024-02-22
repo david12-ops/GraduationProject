@@ -82,9 +82,6 @@ const SetAndReturnDataForm = (
   dataForm.plength = stateSetter.Plength.get();
   dataForm.placeFrom = stateSetter.PlaceFrom.get();
   dataForm.placeTo = stateSetter.PlaceTo.get();
-
-  // packName: statesOfFormPack.PackName.get(),
-
   return dataForm;
 };
 
@@ -216,11 +213,11 @@ export default function SuitableSupp() {
           Weight: Number(statesOfFormPack.Weight.get()),
           Height: Number(statesOfFormPack.Height.get()),
           Length: Number(statesOfFormPack.Plength.get()),
-          Mz: statesOfFormPack.PlaceFrom.get(),
-          Mdo: statesOfFormPack.PlaceTo.get(),
+          Where: statesOfFormPack.PlaceFrom.get(),
+          FromWhere: statesOfFormPack.PlaceTo.get(),
           Cost: Number(statesOfFormPack.Cost.get()),
         },
-      });
+      }).catch((error: string) => alert(error));
 
       console.log('datatataat');
 

@@ -146,6 +146,7 @@ export const ResSuppCard: React.FC<Props> = ({
     mutation: MutationHistory,
   ) => {
     const user = authUtils.getCurrentUser()?.uid;
+    console.log('data', data, suppData);
     if (user) {
       await mutation({
         variables: {
@@ -157,10 +158,9 @@ export const ResSuppCard: React.FC<Props> = ({
         },
         refetchQueries: [{ query: HistoryDataDocument }],
         awaitRefetchQueries: true,
-      });
+      }).catch((error: string) => alert(error));
+      alert(`${JSON.stringify(data)} \n ${price}`);
     }
-
-    alert(`${JSON.stringify(data)} \n ${price}`);
   };
 
   return (

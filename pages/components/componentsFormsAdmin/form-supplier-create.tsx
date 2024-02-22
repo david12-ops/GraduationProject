@@ -176,10 +176,10 @@ export const FormSupplier = () => {
         },
         refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
-      });
+      }).catch((error: string) => alert(error));
 
-      const err = result.data?.SupplierToFirestore?.message;
-      const data = result.data?.SupplierToFirestore?.data;
+      const err = result?.data?.SupplierToFirestore?.message;
+      const data = result?.data?.SupplierToFirestore?.data;
 
       if (err) {
         alert(err);

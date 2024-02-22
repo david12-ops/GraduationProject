@@ -62,7 +62,7 @@ export default function Home() {
             <h1 className={stylesM.body4Napis}>Jak zde najdete svůj balík?</h1>
             <p className={stylesM.body4Odstavec}>
               Stačí kliknout na taličítko
-              <Link key="chooseSup-page" href={'/chooseSup-page'}>
+              <Link key="choose-supp-page" href={'/choose-supp-page'}>
                 <button className={stylesM.itemBtn}>Nejvhodnější balík</button>
               </Link>
               , se kterým najdete svůj vysněný balík
