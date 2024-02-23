@@ -1,4 +1,6 @@
 import { useHookstate } from '@hookstate/core';
+import { Button } from '@mui/material';
+import Alert from '@mui/material/Alert';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
@@ -56,6 +58,19 @@ const parseIntReliable = (numArg: string) => {
   return false;
 };
 
+const Back = async function Back(ids: string) {
+  await router.push(`/../../admpage/${ids}`);
+};
+
+const MessageUpdatePack = (data: UpdatedPack, error: string | undefined) => {
+  return `Balíček byl upraven s parametry: Váha: ${data.weight}, Délka: ${data.Plength}, Šířka: ${data.width}, Výška: ${data.height},
+  Označení: ${data.name_package}`;
+};
+
+const MessageUpdateHistory = (message: string) => {
+  return `Status of update History ${message}`;
+};
+
 const isInt = (numArg: string, min: number) => {
   const parsed = parseIntReliable(numArg);
 
@@ -111,6 +126,8 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   const user = useHookstate({ Admin: false, LoggedIn: false });
 
   const [UpdatePackage] = useUpdatePackageMutation();
+  const [myAlert, SetAlert] = React.useState(<div></div>);
+  const [error, SetErr] = React.useState('' || undefined);
 
   const [UpdateHistory] = useUpdateHistoryMutation();
   const SuppPackages = useSuppDataQuery();
@@ -197,7 +214,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       }
 
       if (data) {
-        const message = await UpdateHistory({
+        await UpdateHistory({
           variables: {
             PackageName: data.name_package,
             OldPackName: oldPackName,
@@ -206,14 +223,16 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           },
           refetchQueries: [{ query: HistoryDataDocument }],
           awaitRefetchQueries: true,
-        }).catch((error: string) => alert(error));
-        alert(`Balíček byl upraven s parametry: Váha: ${data.weight},
-              Délka: ${data.Plength},
-              Šířka: ${data.width},
-              Výška: ${data.height},
-              Označení: ${data.name_package}
-              status of history: ${message.data?.updateHistory?.message}`);
-        return router.push(`/../../admpage/${data.supplier_id}`);
+        }).catch((error_: string) =>
+          error_ ? SetErr(error_) : SetErr(undefined),
+        );
+
+        SetAlert(
+          <Alert severity="success">
+            {MessageUpdatePack(data, error)}
+            <Button onClick={() => Back(data.supplier_id)}>Back</Button>
+          </Alert>,
+        );
       }
     }
   };
@@ -235,6 +254,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   return (
     <div>
       <div className={styles.container}>
+        {myAlert}
         <h1
           style={{
             textAlign: 'center',
