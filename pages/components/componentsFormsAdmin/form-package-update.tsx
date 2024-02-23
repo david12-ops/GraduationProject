@@ -31,6 +31,16 @@ type DataFrServer = {
   Height: string;
 };
 
+type UpdatedPack = {
+  weight: number;
+  cost: number;
+  Plength: number;
+  height: number;
+  width: number;
+  name_package: string;
+  supplier_id: string;
+};
+
 const parseIntReliable = (numArg: string) => {
   if (numArg.length > 0) {
     const parsed = Number.parseInt(numArg, 10);
@@ -180,7 +190,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       }).catch((error: string) => alert(error));
 
       const err = result?.data?.updatePack?.message;
-      const data = result?.data?.updatePack?.data;
+      const data: UpdatedPack = result?.data?.updatePack?.data;
 
       if (err) {
         alert(err);
@@ -189,10 +199,10 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       if (data) {
         const message = await UpdateHistory({
           variables: {
-            PackageName: statesOfDataPack.PackName.get(),
+            PackageName: data.name_package,
             OldPackName: oldPackName,
-            NewPricePack: Number(statesOfDataPack.Cost.get()),
-            SuppId: statesOfDataPack.SuppId.get(),
+            NewPricePack: data.cost,
+            SuppId: data.supplier_id,
           },
           refetchQueries: [{ query: HistoryDataDocument }],
           awaitRefetchQueries: true,

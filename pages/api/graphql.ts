@@ -99,14 +99,15 @@ const typeDefs = gql`
   }
 
   input DataUpdateSupp {
-    Delivery: String
-    Foil: String
-    Insurance: Int
-    PackInBox: String
-    PickUp: String
-    SendCashDelivery: String
-    ShippingLabel: String
-    SuppName: String
+    sendCashDelivery: String
+    packInBox: String
+    suppName: String
+    pickUp: String
+    delivery: String
+    insurance: Int
+    shippingLabel: String
+    foil: String
+    supplierId: String
   }
 
   scalar JSON
@@ -320,14 +321,15 @@ const ConverDate = (dateU1: string, dateU2: string) => {
 };
 
 type DataUpdateSupp = {
-  Delivery: string;
-  Foil: string;
-  Insurance: number;
-  PackInBox: string;
-  PickUp: string;
-  SendCashDelivery: string;
-  ShippingLabel: string;
-  SuppName: string;
+  sendCashDelivery: string;
+  packInBox: string;
+  suppName: string;
+  pickUp: string;
+  delivery: string;
+  insurance: number;
+  shippingLabel: string;
+  foil: string;
+  supplierId: string;
 };
 
 const doMathForPackage = async (
@@ -395,17 +397,6 @@ const doMatchForOptionsDelivery = async (
   supplierData: DataUpdateSupp,
   // eslint-disable-next-line sonarjs/cognitive-complexity
 ) => {
-  type DataForCheck = {
-    Delivery: string;
-    Foil: string;
-    Insurance: number;
-    PackInBox: string;
-    PickUp: string;
-    SendCashDelivery: string;
-    ShippingLabel: string;
-    SuppName: string;
-  };
-
   type HistoryDoc = {
     uId: string;
     dataForm: {
@@ -466,8 +457,6 @@ const doMatchForOptionsDelivery = async (
   const historyIds: Array<string> = [];
   let msg = '';
 
-  console.log(supplierData);
-
   const getCostByName = (
     dataPack: Array<PackInfo>,
     namePack: string,
@@ -483,37 +472,37 @@ const doMatchForOptionsDelivery = async (
   };
 
   const diffData = (
-    newDataSupp: DataForCheck,
-    docDataSupp: DataForCheck,
+    newDataSupp: DataUpdateSupp,
+    docDataSupp: DataUpdateSupp,
   ): DifferentData => {
     return {
       delivery:
-        newDataSupp.Delivery === docDataSupp.Delivery
+        newDataSupp.delivery === docDataSupp.delivery
           ? null
-          : newDataSupp.Delivery,
-      foil: newDataSupp.Foil === docDataSupp.Foil ? null : newDataSupp.Foil,
+          : newDataSupp.delivery,
+      foil: newDataSupp.foil === docDataSupp.foil ? null : newDataSupp.foil,
       insurance:
-        newDataSupp.Insurance === docDataSupp.Insurance
+        newDataSupp.insurance === docDataSupp.insurance
           ? null
-          : newDataSupp.Insurance,
+          : newDataSupp.insurance,
       packInBox:
-        newDataSupp.PackInBox === docDataSupp.PackInBox
+        newDataSupp.packInBox === docDataSupp.packInBox
           ? null
-          : newDataSupp.PackInBox,
+          : newDataSupp.packInBox,
       pickUp:
-        newDataSupp.PickUp === docDataSupp.PickUp ? null : newDataSupp.PickUp,
+        newDataSupp.pickUp === docDataSupp.pickUp ? null : newDataSupp.pickUp,
       sendCashDelivery:
-        newDataSupp.SendCashDelivery === docDataSupp.SendCashDelivery
+        newDataSupp.sendCashDelivery === docDataSupp.sendCashDelivery
           ? null
-          : newDataSupp.SendCashDelivery,
+          : newDataSupp.sendCashDelivery,
       shippingLabel:
-        newDataSupp.ShippingLabel === docDataSupp.ShippingLabel
+        newDataSupp.shippingLabel === docDataSupp.shippingLabel
           ? null
-          : newDataSupp.ShippingLabel,
+          : newDataSupp.shippingLabel,
       suppName:
-        newDataSupp.SuppName === docDataSupp.SuppName
+        newDataSupp.suppName === docDataSupp.suppName
           ? null
-          : newDataSupp.SuppName,
+          : newDataSupp.suppName,
     };
   };
 
@@ -645,14 +634,15 @@ const doMatchForOptionsDelivery = async (
             await updateDataSupp(
               document,
               diffData(supplierData, {
-                Delivery: dataDoc.suppData.delivery,
-                Foil: dataDoc.suppData.foil,
-                Insurance: dataDoc.suppData.insurance,
-                PackInBox: dataDoc.suppData.packInBox,
-                PickUp: dataDoc.suppData.pickup,
-                SendCashDelivery: dataDoc.suppData.sendCashDelivery,
-                ShippingLabel: dataDoc.suppData.shippingLabel,
-                SuppName: dataDoc.suppData.name,
+                delivery: dataDoc.suppData.delivery,
+                foil: dataDoc.suppData.foil,
+                insurance: dataDoc.suppData.insurance,
+                packInBox: dataDoc.suppData.packInBox,
+                pickUp: dataDoc.suppData.pickup,
+                sendCashDelivery: dataDoc.suppData.sendCashDelivery,
+                shippingLabel: dataDoc.suppData.shippingLabel,
+                suppName: dataDoc.suppData.name,
+                supplierId: '',
               }),
             );
           }
@@ -2040,7 +2030,10 @@ const resolvers = {
           .where('suppData.id', '==', sId)
           .get();
 
+        console.log('data', nPriceDepo, nPriceP, dataS);
+
         if (nPriceP && nPriceDepo && dataS) {
+          console.log('data', nPriceDepo, nPriceP, dataS);
           msg = await doMatchForOptionsDelivery(
             SuppDocuments,
             nPriceDepo,

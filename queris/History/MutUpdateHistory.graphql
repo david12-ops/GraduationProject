@@ -1,13 +1,14 @@
-input DataUpdateSupp {
-    Delivery: String
-    Foil: String
-    Insurance: Int
-    PackInBox: String
-    PickUp: String
-    SendCashDelivery: String
-    ShippingLabel: String
-    SuppName: String
-  }
+  input DataUpdateSupp {
+    sendCashDelivery: String
+    packInBox: String
+    suppName: String
+    pickUp: String
+    delivery: String
+    insurance: Int
+    shippingLabel: String
+    foil: String
+    supplierId: String
+}
 
 mutation UpdateHistory($NewPricePack: Int, $NewPricePersonal:Int, $NewPriceDepo:Int, $SuppId:String, $PackageName:String, $OldPackName:String, $SuppData:DataUpdateSupp){
     updateHistory(

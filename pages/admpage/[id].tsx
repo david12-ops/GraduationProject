@@ -44,7 +44,7 @@ type SuppData =
 
 const IsTherePackage = (data: any) => {
   const packages: Array<Package> = data;
-  return packages;
+  return packages && packages.length > 0;
 };
 
 const IsThereSupp = (data: SuppData) => {

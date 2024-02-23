@@ -26,14 +26,15 @@ export type Scalars = {
 export type CreatedPack = Pack | PackageError;
 
 export type DataUpdateSupp = {
-  Delivery?: InputMaybe<Scalars['String']>;
-  Foil?: InputMaybe<Scalars['String']>;
-  Insurance?: InputMaybe<Scalars['Int']>;
-  PackInBox?: InputMaybe<Scalars['String']>;
-  PickUp?: InputMaybe<Scalars['String']>;
-  SendCashDelivery?: InputMaybe<Scalars['String']>;
-  ShippingLabel?: InputMaybe<Scalars['String']>;
-  SuppName?: InputMaybe<Scalars['String']>;
+  delivery?: InputMaybe<Scalars['String']>;
+  foil?: InputMaybe<Scalars['String']>;
+  insurance?: InputMaybe<Scalars['Int']>;
+  packInBox?: InputMaybe<Scalars['String']>;
+  pickUp?: InputMaybe<Scalars['String']>;
+  sendCashDelivery?: InputMaybe<Scalars['String']>;
+  shippingLabel?: InputMaybe<Scalars['String']>;
+  suppName?: InputMaybe<Scalars['String']>;
+  supplierId?: InputMaybe<Scalars['String']>;
 };
 
 export type Delete = {

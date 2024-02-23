@@ -34,6 +34,21 @@ type Item = {
   location?: any;
 };
 
+type DataUpdateSupp = {
+  data: {
+    __typename?: 'SupplierData' | undefined;
+    sendCashDelivery: string;
+    supplierId: string;
+    packInBox: string;
+    suppName: string;
+    pickUp: string;
+    delivery: string;
+    insurance: number;
+    shippingLabel: string;
+    foil: string;
+  };
+};
+
 const IsYesOrNo = (
   stringnU1: string,
   stringnU2: string,
@@ -258,11 +273,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         },
         refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
-      })
-        // .then((res) => {
-        //   return res.data;
-        // })
-        .catch((error: string) => alert(error));
+      }).catch((error: string) => alert(error));
 
       const err = result?.data?.updateSup?.message;
       const data = result?.data?.updateSup?.data;
@@ -275,14 +286,14 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         const message = await UpdateHistory({
           variables: {
             SuppData: {
-              Delivery: statesOfDataSupp.Delivery.get(),
-              Foil: statesOfDataSupp.Foil.get(),
-              Insurance: Number(statesOfDataSupp.Insurance.get()),
-              PackInBox: statesOfDataSupp.PackInBox.get(),
-              PickUp: statesOfDataSupp.PickUp.get(),
-              SendCashDelivery: statesOfDataSupp.SendCashDelivery.get(),
-              ShippingLabel: statesOfDataSupp.ShippingLabel.get(),
-              SuppName: statesOfDataSupp.SupplierName.get(),
+              delivery: statesOfDataSupp.Delivery.get(),
+              foil: statesOfDataSupp.Foil.get(),
+              insurance: Number(statesOfDataSupp.Insurance.get()),
+              packInBox: statesOfDataSupp.PackInBox.get(),
+              pickUp: statesOfDataSupp.PickUp.get(),
+              sendCashDelivery: statesOfDataSupp.SendCashDelivery.get(),
+              shippingLabel: statesOfDataSupp.ShippingLabel.get(),
+              suppName: statesOfDataSupp.SupplierName.get(),
             },
             NewPriceDepo: Number(statesOfDataSupp.DepoCost.get()),
             NewPricePersonal: Number(statesOfDataSupp.PersonalCost.get()),
@@ -290,7 +301,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           },
           refetchQueries: [{ query: HistoryDataDocument }],
           awaitRefetchQueries: true,
-        }).catch((error: string) => alert(error));
+        });
         alert(`Dodavatel byl upraven s parametry: Doručení: ${data.delivery},
             Zabalení do folie: ${data.foil},
             Pojištění: ${data.insurance > 0 ?? 'bez pojištění'},
