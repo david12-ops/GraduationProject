@@ -201,7 +201,6 @@ export type PackageUpdateError = {
 export type Query = {
   __typename?: 'Query';
   historyUserData: Array<QueryHistoryData>;
-  packageData: Array<QueryPackD>;
   suplierData: Array<QuerySuppD>;
 };
 
@@ -210,22 +209,6 @@ export type QueryHistoryData = {
   dataForm: FormData;
   historyId: Scalars['String'];
   suppData: HistorySupplierData;
-};
-
-export type QueryPackD = {
-  __typename?: 'QueryPackD';
-  Pkam: Scalars['String'];
-  Podkud: Scalars['String'];
-  costPackage: Scalars['Int'];
-  delka: Scalars['Int'];
-  hmotnost: Scalars['Int'];
-  kam: Scalars['String'];
-  odkud: Scalars['String'];
-  packName: Scalars['String'];
-  packgeId: Scalars['String'];
-  sirka: Scalars['Int'];
-  supplierId: Scalars['String'];
-  vyska: Scalars['Int'];
 };
 
 export type QuerySuppD = {
@@ -446,27 +429,6 @@ export type UpdatePackageMutation = {
         };
       }
     | null;
-};
-
-export type PackageDataQueryVariables = Exact<{ [key: string]: never }>;
-
-export type PackageDataQuery = {
-  __typename?: 'Query';
-  packageData: Array<{
-    __typename?: 'QueryPackD';
-    Pkam: string;
-    Podkud: string;
-    costPackage: number;
-    delka: number;
-    hmotnost: number;
-    kam: string;
-    odkud: string;
-    packName: string;
-    packgeId: string;
-    sirka: number;
-    vyska: number;
-    supplierId: string;
-  }>;
 };
 
 export type DeleteSuppMutationVariables = Exact<{
@@ -1076,72 +1038,6 @@ export type UpdatePackageMutationResult =
 export type UpdatePackageMutationOptions = Apollo.BaseMutationOptions<
   UpdatePackageMutation,
   UpdatePackageMutationVariables
->;
-export const PackageDataDocument = gql`
-  query PackageData {
-    packageData {
-      Pkam
-      Podkud
-      costPackage
-      delka
-      hmotnost
-      kam
-      odkud
-      packName
-      packgeId
-      sirka
-      vyska
-      supplierId
-    }
-  }
-`;
-
-/**
- * __usePackageDataQuery__
- *
- * To run a query within a React component, call `usePackageDataQuery` and pass it any options that fit your needs.
- * When your component renders, `usePackageDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePackageDataQuery({
- *   variables: {
- *   },
- * });
- */
-export function usePackageDataQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    PackageDataQuery,
-    PackageDataQueryVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<PackageDataQuery, PackageDataQueryVariables>(
-    PackageDataDocument,
-    options,
-  );
-}
-export function usePackageDataLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    PackageDataQuery,
-    PackageDataQueryVariables
-  >,
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<PackageDataQuery, PackageDataQueryVariables>(
-    PackageDataDocument,
-    options,
-  );
-}
-export type PackageDataQueryHookResult = ReturnType<typeof usePackageDataQuery>;
-export type PackageDataLazyQueryHookResult = ReturnType<
-  typeof usePackageDataLazyQuery
->;
-export type PackageDataQueryResult = Apollo.QueryResult<
-  PackageDataQuery,
-  PackageDataQueryVariables
 >;
 export const DeleteSuppDocument = gql`
   mutation DeleteSupp($Id: [String]) {

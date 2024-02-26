@@ -20,7 +20,7 @@ type Props = {
   suppId: string;
 };
 
-const Odstavec = (
+const Paragraph = (
   pickUp: string,
   delivery: string,
   packInBox: string,
@@ -32,58 +32,58 @@ const Odstavec = (
   const odstavec =
     packInBox === 'Ano' ? (
       <p>
-        Zásilku je nutné zabalit <strong>do krabice</strong>
+        The shipment must be packed <strong>in a box</strong>
       </p>
     ) : (
       <p>
-        Zásilku můžete zabalit <strong>do krabice</strong>
+        Shipment does not need to be packed <strong>in a box</strong>
       </p>
     );
 
   const odstavec2 =
     folie === 'Ano' ? (
       <p>
-        Může být zabaleno <strong>ve fólii</strong>
+        Can be in packaged <strong>ve fólii</strong>
       </p>
     ) : (
       <p>
-        Nesmí být zabaleno <strong>ve fólii</strong>
+        Can not be in packaged<strong>folie</strong>
       </p>
     );
 
   const odstavec3 =
     shippingLabel === 'Ano' ? (
-      <p> Přepravní štítek přiveze kurýr</p>
+      <p> Shipping label will be delivered by courier</p>
     ) : (
-      <p> Přepravní štítek nepřiveze kurýr</p>
+      <p> The shipping label will not be delivered by courier</p>
     );
 
   const odstavec4 =
     sendCash === 'Ano' ? (
       <p>
-        Možnost poslat <strong>na dobírku</strong>
+        Possibility to send <strong>cash on delivery</strong>
       </p>
     ) : (
       <p>
-        Není Možnost poslat <strong>na dobírku</strong>
+        It is not possible to send <strong>cash on delivery</strong>
       </p>
     );
 
   return (
     <div>
       <p>
-        Vyzvednutí nejdříve <strong>{pickUp}</strong>
+        Pick up first <strong>{pickUp}</strong>
       </p>
       <p>
-        Doručení nejdříve <strong>{delivery}</strong>
+        Delivery first <strong>{delivery}</strong>
       </p>
       {odstavec}
       {odstavec2}
       {odstavec3}
       <p>
         {insurance > 0
-          ? `Pojištění do ${insurance} Kč v ceně`
-          : 'Bez pojištění'}
+          ? `Insurance up to ${insurance} CZK included`
+          : 'No insurance'}
       </p>
       {odstavec4}
     </div>
@@ -145,7 +145,7 @@ export const AdmPageSuppCard: React.FC<Props> = ({
           variant="body2"
           color="text.secondary"
         >
-          {Odstavec(
+          {Paragraph(
             pickUp,
             delivery,
             packInBox,

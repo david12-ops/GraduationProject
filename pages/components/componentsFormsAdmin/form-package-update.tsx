@@ -74,7 +74,7 @@ const Back = async (ids: string) => {
 };
 
 const MessageUpdatePack = (data: UpdatedPack) => {
-  return `Balíček byl upraven s parametry: Váha: ${data.weight}, Délka: ${data.Plength}, Šířka: ${data.width}, Výška: ${data.height}`;
+  return `Package was modified with parameters: Weight: ${data.weight}, Length: ${data.Plength}, Width: ${data.width}, Height: ${data.height}`;
 };
 
 const MessageUpdateHistory = (message: string) => {
@@ -303,7 +303,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           fontWeight: 'bold',
         }}
       >
-        Nejsi admin!!!!
+        Only admin has acces to this page
       </div>
     );
   }
@@ -345,7 +345,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
               />
             </label>
             <label>
-              <p className={styles.Odstavce}>Cena</p>
+              <p className={styles.Odstavce}>Cost</p>
               <input
                 className={styles.input}
                 onChange={(e) => settersForDataPack.Cost.set(e.target.value)}
@@ -356,10 +356,10 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
               />
             </label>
           </div>
-          <h3 className={styles.Nadpisy}>Parametry baliku</h3>
+          <h3 className={styles.Nadpisy}>Parameters of package</h3>
           <div className={styles.divinput}>
             <label>
-              <p className={styles.Odstavce}>Sirka</p>
+              <p className={styles.Odstavce}>Width</p>
               <input
                 className={styles.input}
                 onChange={(e) => settersForDataPack.Width.set(e.target.value)}
@@ -370,7 +370,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
               />
             </label>
             <label>
-              <p className={styles.Odstavce}>Hmotnost</p>
+              <p className={styles.Odstavce}>Weight</p>
               <input
                 className={styles.input}
                 onChange={(e) => settersForDataPack.Weight.set(e.target.value)}
@@ -383,7 +383,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           </div>
           <div className={styles.divinput}>
             <label>
-              <p className={styles.Odstavce}>Delka</p>
+              <p className={styles.Odstavce}>Length</p>
               <input
                 className={styles.input}
                 onChange={(e) => settersForDataPack.Plength.set(e.target.value)}
@@ -394,7 +394,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
               />
             </label>
             <label>
-              <p className={styles.Odstavce}>Vyska</p>
+              <p className={styles.Odstavce}>Height</p>
               <input
                 className={styles.input}
                 onChange={(e) => settersForDataPack.Height.set(e.target.value)}

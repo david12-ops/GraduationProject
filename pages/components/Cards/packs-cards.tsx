@@ -45,7 +45,7 @@ export const PackCards: React.FC<Props> = ({
           variant="h6"
           component="div"
         >
-          Rozměry
+          Parameters
         </Typography>
 
         <Typography
@@ -54,7 +54,7 @@ export const PackCards: React.FC<Props> = ({
           variant="body1"
           component="div"
         >
-          Výška: {Heiht} cm
+          Height: {Heiht} cm
         </Typography>
 
         <Typography
@@ -63,7 +63,7 @@ export const PackCards: React.FC<Props> = ({
           variant="body1"
           component="div"
         >
-          Šířka: {Width} cm
+          Width: {Width} cm
         </Typography>
 
         <Typography
@@ -72,7 +72,7 @@ export const PackCards: React.FC<Props> = ({
           variant="body1"
           component="div"
         >
-          Délka: {Length} cm
+          Length: {Length} cm
         </Typography>
 
         <Typography
@@ -81,7 +81,7 @@ export const PackCards: React.FC<Props> = ({
           variant="body1"
           component="div"
         >
-          Hmotnost: {Weight} Kg
+          Wight: {Weight} Kg
         </Typography>
 
         <Typography
@@ -90,7 +90,7 @@ export const PackCards: React.FC<Props> = ({
           variant="h6"
           component="div"
         >
-          Cena
+          Cost
         </Typography>
 
         <Typography

@@ -145,20 +145,20 @@ const Valid = (
 };
 
 const MessageCreateSupp = (data: DataCreatedSupp) => {
-  return `Dodavatel byl vytvořen s parametry: Doručení: ${data.delivery},
-  Zabalení do folie: ${data.foil},
-  Pojištění: ${data.insurance > 0 ? data.insurance : 'bez pojištění'},
-  Balíček do krabice: ${data.packInBox},
-  Vyzvednutí: ${data.pickUp},
-  Na dobírku: ${data.sendCashDelivery},
-  Štítek přiveze kurýr: ${data.shippingLabel},
-  Jméno dopravce: ${data.suppName}`;
+  return `Supplier was created with parameters: Delivery: ${data.delivery} \n
+  Cant be in packaged folie: ${data.foil} \n
+  Insurance: ${data.insurance > 0 ? data.insurance : 'bez pojištění'} \n
+  Shipment must be packed in a box: ${data.packInBox} \n
+  Pick up: ${data.pickUp} \n
+  On cash on delivery: ${data.sendCashDelivery} \n
+  The label will be delivered by courier: ${data.shippingLabel} \n
+  Courier name: ${data.suppName}`;
 };
 
 export const FormSupplier = () => {
   const options = [
-    { value: 'Ano', label: 'Ano' },
-    { value: 'Ne', label: 'Ne' },
+    { value: 'Yes', label: 'Yes' },
+    { value: 'No', label: 'No' },
   ];
 
   const statesOfDataSupp = useHookstate({
@@ -186,7 +186,6 @@ export const FormSupplier = () => {
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
   const [newSupp] = useNewSupplierToFirestoreMutation();
-  const [suppId, SetSuppId] = React.useState('');
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
@@ -209,7 +208,7 @@ export const FormSupplier = () => {
             state.set(selectedOption ? selectedOption.value : '')
           }
           options={options}
-          placeholder={'Ano/Ne'}
+          placeholder={'Yes/No'}
           required
         />
       </label>
@@ -248,7 +247,7 @@ export const FormSupplier = () => {
         },
         refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
-      }).catch((error: string) => alert(error));
+      }).catch((error: string) => console.error(error));
 
       const appErr: string | undefined =
         result?.data?.SupplierToFirestore?.message;
@@ -262,7 +261,6 @@ export const FormSupplier = () => {
       }
 
       if (data) {
-        SetSuppId(data.supplierId);
         setterForAlertMesssage.succesCreate.set(MessageCreateSupp(data));
       } else {
         setterForAlertMesssage.succesCreate.set('Any');
@@ -280,7 +278,7 @@ export const FormSupplier = () => {
           fontWeight: 'bold',
         }}
       >
-        Nejsi admin!!!!
+        Only admin has acces to this page
       </div>
     );
   }
@@ -320,7 +318,7 @@ export const FormSupplier = () => {
           </div>
           <div className={styles.divinput}>
             <label>
-              <p className={styles.Odstavce}>Doručení</p>
+              <p className={styles.Odstavce}>Delivery</p>
               <input
                 className={styles.inputDate}
                 onChange={(e) => statesOfDataSupp.Delivery.set(e.target.value)}
@@ -329,7 +327,7 @@ export const FormSupplier = () => {
               />
             </label>
             <label>
-              <p className={styles.Odstavce}>Vyzvednutí</p>
+              <p className={styles.Odstavce}>Pick up</p>
               <input
                 className={styles.inputDate}
                 onChange={(e) => statesOfDataSupp.PickUp.set(e.target.value)}
@@ -338,10 +336,10 @@ export const FormSupplier = () => {
               />
             </label>
           </div>
-          <h3 className={styles.Nadpisy}>Info dopravce</h3>
+          <h3 className={styles.Nadpisy}>Info about courier</h3>
           <div className={styles.divinput}>
             <label>
-              <p className={styles.Odstavce}>Pojištění</p>
+              <p className={styles.Odstavce}>Insurance</p>
               <input
                 className={styles.inputForSupp}
                 onChange={(e) => statesOfDataSupp.Insurance.set(e.target.value)}
@@ -352,14 +350,17 @@ export const FormSupplier = () => {
             </label>
           </div>
           <div className={styles.divinput}>
-            {MyComponent(statesOfDataSupp.SendCashDelivery, 'Na dobírku')}
-            {MyComponent(statesOfDataSupp.ShippingLabel, 'Přepravní štítek')}
+            {MyComponent(statesOfDataSupp.SendCashDelivery, 'Cash on delivery')}
+            {MyComponent(
+              statesOfDataSupp.ShippingLabel,
+              'Shipping label will be delivered by courier',
+            )}
           </div>
           <div className={styles.divinput}>
-            {MyComponent(statesOfDataSupp.Foil, 'Folie')}
-            {MyComponent(statesOfDataSupp.PackInBox, 'Do krabice')}
+            {MyComponent(statesOfDataSupp.Foil, 'Must not be packed in foil')}
+            {MyComponent(statesOfDataSupp.PackInBox, 'Must be packed in a box')}
           </div>
-          <h3 className={styles.Nadpisy}>Ceny způsobu dopravení/předání</h3>
+          <h3 className={styles.Nadpisy}>Shipping/transfer method prices</h3>
           <div className={styles.divinput}>
             <div className={styles.divinput}>
               <label>

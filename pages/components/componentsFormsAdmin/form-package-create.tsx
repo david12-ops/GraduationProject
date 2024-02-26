@@ -72,7 +72,7 @@ const Back = async (ids: string) => {
 };
 
 const MessageCreatePack = (data: CreatedPackage) => {
-  return `Balíček byl vytvořen s parametry: Váha: ${data.weight}, Délka: ${data.Plength}, Šířka: ${data.width}, Výška: ${data.height}`;
+  return `Package was created with parameters: Weight: ${data.weight}, Length: ${data.Plength}, Width: ${data.width}, Height: ${data.height}`;
 };
 
 const MyAlert = (
@@ -208,7 +208,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
           fontWeight: 'bold',
         }}
       >
-        Nejsi admin!!!!
+        Only admin has acces to this page
       </div>
     );
   }
@@ -247,7 +247,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
               />
             </label>
             <label>
-              <p className={styles.Odstavce}>Cena</p>
+              <p className={styles.Odstavce}>Cost</p>
               <input
                 className={styles.input}
                 onChange={(e) => statesOfDataPack.Cost.set(e.target.value)}
@@ -257,10 +257,10 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
               />
             </label>
           </div>
-          <h3 className={styles.Nadpisy}>Parametry baliku</h3>
+          <h3 className={styles.Nadpisy}>Parameters of package</h3>
           <div className={styles.divinput}>
             <label>
-              <p className={styles.Odstavce}>Sirka</p>
+              <p className={styles.Odstavce}>Width</p>
               <input
                 className={styles.input}
                 onChange={(e) => statesOfDataPack.Width.set(e.target.value)}
@@ -270,7 +270,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
               />
             </label>
             <label>
-              <p className={styles.Odstavce}>Hmotnost</p>
+              <p className={styles.Odstavce}>Weight</p>
               <input
                 className={styles.input}
                 onChange={(e) => statesOfDataPack.Weight.set(e.target.value)}
@@ -282,7 +282,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
           </div>
           <div className={styles.divinput}>
             <label>
-              <p className={styles.Odstavce}>Delka</p>
+              <p className={styles.Odstavce}>Length</p>
               <input
                 className={styles.input}
                 onChange={(e) => statesOfDataPack.Plength.set(e.target.value)}
@@ -292,7 +292,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
               />
             </label>
             <label>
-              <p className={styles.Odstavce}>Vyska</p>
+              <p className={styles.Odstavce}>Height</p>
               <input
                 className={styles.input}
                 onChange={(e) => statesOfDataPack.Height.set(e.target.value)}

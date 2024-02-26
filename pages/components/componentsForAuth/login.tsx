@@ -31,7 +31,6 @@ export const PageFormLogin = () => {
       <div className={styles.container}>
         <h1>Login</h1>
         <form onSubmit={handleForm} className={styles.form}>
-          {/* <hr> */}
           <label htmlFor="email">
             <p>Email</p>
             <input
@@ -56,7 +55,7 @@ export const PageFormLogin = () => {
               placeholder="password"
             />
           </label>
-          {/* </hr> */}
+
           <button className={styles.registerbtn} type="submit">
             Sign up
           </button>

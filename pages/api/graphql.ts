@@ -17,7 +17,6 @@ const NotFoundMsg = (headerOfMsg: string) => {
 
 const typeDefs = gql`
   type Query {
-    packageData: [QueryPackD!]!
     suplierData: [QuerySuppD!]!
     historyUserData: [QueryHistoryData!]!
   }
@@ -149,21 +148,6 @@ const typeDefs = gql`
 
   union Supplier = Supp | SupplierError
 
-  type QueryPackD {
-    Pkam: String!
-    Podkud: String!
-    costPackage: Int!
-    delka: Int!
-    hmotnost: Int!
-    kam: String!
-    odkud: String!
-    packName: String!
-    packgeId: String!
-    sirka: Int!
-    vyska: Int!
-    supplierId: String!
-  }
-
   type QuerySuppD {
     sendCashDelivery: String!
     packInBox: String!
@@ -274,25 +258,17 @@ const ConverBool = (
   stringnU3: string,
   stringnU4: string,
 ) => {
-  console.log(stringnU1);
-  console.log(stringnU2);
-  console.log(stringnU3);
-  console.log(stringnU4);
-
-  if (!['Ano', 'Ne'].includes(stringnU1)) {
-    console.log('co kontroliujeme1?', stringnU1);
+  if (!['Yes', 'No'].includes(stringnU1)) {
     return true;
   }
-  if (!['Ano', 'Ne'].includes(stringnU2)) {
-    console.log('co kontroliujeme2?', stringnU2);
+  if (!['Yes', 'No'].includes(stringnU2)) {
     return true;
   }
-  if (!['Ano', 'Ne'].includes(stringnU3)) {
-    console.log('co kontroliujeme3?', stringnU3);
+  if (!['Yes', 'No'].includes(stringnU3)) {
     return true;
   }
-  if (!['Ano', 'Ne'].includes(stringnU4)) {
-    console.log('co kontroliujeme4?', stringnU4);
+  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+  if (!['Yes', 'No'].includes(stringnU4)) {
     return true;
   }
   return false;
@@ -668,50 +644,6 @@ const doMatchForOptionsDelivery = async (
 
 const resolvers = {
   Query: {
-    packageData: async (_context: Context) => {
-      try {
-        const result = await db.collection('Package').get();
-
-        const data: Array<{
-          Pkam: any;
-          Podkud: any;
-          costPackage: any;
-          delka: any;
-          hmotnost: any;
-          kam: any;
-          odkud: any;
-          packName: any;
-          packgeId: any;
-          sirka: any;
-          vyska: any;
-          supplierId: any;
-        }> = [];
-
-        result.forEach((doc) => {
-          const docData = doc.data();
-
-          data.push({
-            Pkam: docData.where_PSC,
-            Podkud: docData.fromWhere_PSC,
-            costPackage: docData.cost,
-            delka: docData.Plength,
-            hmotnost: docData.weight,
-            kam: docData.where_address,
-            odkud: docData.fromWhere_address,
-            packName: docData.name_package,
-            packgeId: docData.packgeId,
-            sirka: docData.width,
-            vyska: docData.weight,
-            supplierId: docData.supplier_id,
-          });
-        });
-        console.log('package data', data.values());
-        return data;
-      } catch (error) {
-        console.error('Error while getting package data', error);
-        throw error;
-      }
-    },
     suplierData: async (_context: Context) => {
       try {
         const result = await db.collection('Supplier').get();

@@ -65,7 +65,7 @@ export const PageRegisterForm = () => {
         </form>
         <div className={styles.signin}>
           <p>
-            Already have an account?{' '}
+            Already have an account?
             <Link
               className={styles.reference}
               key="login-page"

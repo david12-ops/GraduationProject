@@ -189,6 +189,7 @@ export default function SuitableSupp() {
     Cost: '',
   });
 
+  // pouzit callBack
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
   const [dataS, SetData] = useState(Array<DataS>);
 
@@ -225,10 +226,9 @@ export default function SuitableSupp() {
         const data: Array<DataS> = JSON.parse(
           result.data?.BingoSupPac?.suitable,
         );
-        console.log('datatataat', data);
+
         SetData(data);
       } else {
-        // eslint-disable-next-line no-alert
         alert(result?.data?.BingoSupPac?.message);
       }
     }

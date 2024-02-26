@@ -58,20 +58,20 @@ const IsYesOrNo = (
   console.log(stringnU3);
   console.log(stringnU4);
 
-  if (!['Ano', 'Ne'].includes(stringnU1)) {
+  if (!['Yes', 'No'].includes(stringnU1)) {
     // eslint-disable-next-line sonarjs/no-duplicate-string
     console.log('co kontroliujeme?', stringnU1);
     return true;
   }
-  if (!['Ano', 'Ne'].includes(stringnU2)) {
+  if (!['Yes', 'No'].includes(stringnU2)) {
     console.log('co kontroliujeme?', stringnU2);
     return true;
   }
-  if (!['Ano', 'Ne'].includes(stringnU3)) {
+  if (!['Yes', 'No'].includes(stringnU3)) {
     console.log('co kontroliujeme?', stringnU3);
     return true;
   }
-  if (!['Ano', 'Ne'].includes(stringnU4)) {
+  if (!['Yes', 'No'].includes(stringnU4)) {
     console.log('co kontroliujeme?', stringnU4);
     return true;
   }
@@ -104,15 +104,14 @@ const Back = async (ids: string) => {
 };
 
 const MessageUpdateSupp = (data: DataUpdateSupp) => {
-  return `Dodavatel byl upraven s parametry: Doručení: ${data.delivery},
-  Zabalení do folie: ${data.foil},
-  Pojištění: ${data.insurance > 0 ?? 'bez pojištění'},
-  Balíček do krabice: ${data.packInBox},
-  Vyzvednutí: ${data.pickUp},
-  Na dobírku: ${data.sendCashDelivery},
-  Štítek přiveze kurýr: ${data.shippingLabel},
-  Jméno dopravce: ${data.suppName}
-  `;
+  return `Courier was modified with parameters: Delivery: ${data.delivery},
+  Cant be in packaged folie: ${data.foil} \n
+  Insurance: ${data.insurance > 0 ? data.insurance : 'bez pojištění'} \n
+  Shipment must be packed in a box: ${data.packInBox} \n
+  Pick up: ${data.pickUp} \n
+  On cash on delivery: ${data.sendCashDelivery} \n
+  The label will be delivered by courier: ${data.shippingLabel} \n
+  Courier name: ${data.suppName}`;
 };
 
 const MessageUpdateHistory = (message: string) => {
@@ -231,8 +230,8 @@ const setDataDatabase = (
 
 export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const options = [
-    { value: 'Ano', label: 'Ano' },
-    { value: 'Ne', label: 'Ne' },
+    { value: 'Yes', label: 'Yes' },
+    { value: 'No', label: 'No' },
   ];
 
   // ukladat jako utc, pouziti timestamp
@@ -297,7 +296,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           onChange={(selectedOption) => state.set(selectedOption?.value ?? '')}
           options={options}
           value={options.find((opt) => opt.value === state.get())}
-          placeholder={'Ano/Ne'}
+          placeholder={'Yes/No'}
           required
         />
       </label>
@@ -395,7 +394,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           fontWeight: 'bold',
         }}
       >
-        Nejsi admin!!!!
+        Only admin has acces to this page
       </div>
     );
   }
@@ -439,7 +438,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           </div>
           <div className={styles.divinput}>
             <label>
-              <p className={styles.Odstavce}>Doručení</p>
+              <p className={styles.Odstavce}>Delivery</p>
               <input
                 className={styles.inputDate}
                 onChange={(e) => statesOfDataSupp.Delivery.set(e.target.value)}
@@ -449,7 +448,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               />
             </label>
             <label>
-              <p className={styles.Odstavce}>Vyzvednutí</p>
+              <p className={styles.Odstavce}>Pick up</p>
               <input
                 className={styles.inputDate}
                 onChange={(e) => statesOfDataSupp.PickUp.set(e.target.value)}
@@ -459,10 +458,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               />
             </label>
           </div>
-          <h3 className={styles.Nadpisy}>Info dopravce</h3>
+          <h3 className={styles.Nadpisy}>Info about courier</h3>
           <div className={styles.divinput}>
             <label>
-              <p className={styles.Odstavce}>Pojištění</p>
+              <p className={styles.Odstavce}>Insurance</p>
               <input
                 className={styles.inputForSupp}
                 onChange={(e) => statesOfDataSupp.Insurance.set(e.target.value)}
@@ -474,32 +473,17 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             </label>
           </div>
           <div className={styles.divinput}>
-            {MyComponent(statesOfDataSupp.SendCashDelivery, 'Na dobírku')}
-            {/* <label>
-              <p className={styles.Odstavce}>Na dobírku</p>
-              {MyComponentSendCash()}
-            </label> */}
-            {MyComponent(statesOfDataSupp.ShippingLabel, 'Přepravní štítek')}
-            {/* <label>
-              <p className={styles.Odstavce}>Přepravní štítek</p>
-              {MyComponentShippingL()}
-            </label> */}
+            {MyComponent(statesOfDataSupp.SendCashDelivery, 'Cash on delivery')}
+            {MyComponent(
+              statesOfDataSupp.ShippingLabel,
+              'Shipping label will be delivered by courier',
+            )}
           </div>
           <div className={styles.divinput}>
-            {MyComponent(statesOfDataSupp.Foil, 'Folie')}
-
-            {/* <label>
-              <p className={styles.Odstavce}>Folie</p>
-              {MyComponentFoil()}
-            </label> */}
-            {MyComponent(statesOfDataSupp.PackInBox, 'Do krabice')}
-
-            {/* <label>
-              <p className={styles.Odstavce}>Do krabice</p>
-              {MyComponentPackInB()}
-            </label> */}
+            {MyComponent(statesOfDataSupp.Foil, 'Must not be packed in foil')}
+            {MyComponent(statesOfDataSupp.PackInBox, 'Must be packed in a box')}
           </div>
-          <h3 className={styles.Nadpisy}>Ceny způsobu dopravení/předání</h3>
+          <h3 className={styles.Nadpisy}>Shipping/transfer method prices</h3>
           <div className={styles.divinput}>
             <div className={styles.divinput}>
               <label>
