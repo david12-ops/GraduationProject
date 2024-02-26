@@ -1,4 +1,5 @@
 import { State, useHookstate } from '@hookstate/core';
+import { Alert, Button } from '@mui/material';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
@@ -35,18 +36,15 @@ type Item = {
 };
 
 type DataUpdateSupp = {
-  data: {
-    __typename?: 'SupplierData' | undefined;
-    sendCashDelivery: string;
-    supplierId: string;
-    packInBox: string;
-    suppName: string;
-    pickUp: string;
-    delivery: string;
-    insurance: number;
-    shippingLabel: string;
-    foil: string;
-  };
+  sendCashDelivery: string;
+  packInBox: string;
+  suppName: string;
+  pickUp: string;
+  delivery: string;
+  insurance: number;
+  shippingLabel: string;
+  foil: string;
+  supplierId: string;
 };
 
 const IsYesOrNo = (
@@ -101,6 +99,69 @@ const isInt = (numArg: string, min: number) => {
   return parsed !== false && parsed >= min;
 };
 
+const Back = async (ids: string) => {
+  await router.push(`/../../admpage/${ids}`);
+};
+
+const MessageUpdateSupp = (data: DataUpdateSupp) => {
+  return `Dodavatel byl upraven s parametry: Doručení: ${data.delivery},
+  Zabalení do folie: ${data.foil},
+  Pojištění: ${data.insurance > 0 ?? 'bez pojištění'},
+  Balíček do krabice: ${data.packInBox},
+  Vyzvednutí: ${data.pickUp},
+  Na dobírku: ${data.sendCashDelivery},
+  Štítek přiveze kurýr: ${data.shippingLabel},
+  Jméno dopravce: ${data.suppName}
+  `;
+};
+
+const MessageUpdateHistory = (message: string) => {
+  return `Status of update History : ${message}`;
+};
+
+const MyAlert = (
+  messages: {
+    succesUpade: string;
+    errUpdate: string;
+    msgHisotry: string;
+    msgValidation: string;
+  },
+  sId: string,
+) => {
+  console.log('messages', messages);
+  let alert = <div></div>;
+
+  if (messages.errUpdate !== 'Any') {
+    alert = (
+      <div>
+        <Alert severity="error">{messages.errUpdate}</Alert>
+        <Button onClick={() => Back(sId)}>Back</Button>
+      </div>
+    );
+  }
+
+  if (messages.succesUpade !== 'Any' && messages.msgHisotry !== 'Any') {
+    alert = (
+      <div>
+        <Alert severity="success">{messages.succesUpade}</Alert>
+        <Alert severity="success">{messages.msgHisotry}</Alert>
+        <Button onClick={() => Back(sId)}>Back</Button>
+      </div>
+    );
+  }
+
+  if (messages.msgValidation !== 'Any') {
+    alert = (
+      <div>
+        <Alert severity="error">{messages.msgValidation}</Alert>
+        <Button onClick={() => Back(sId)}>Back</Button>
+      </div>
+    );
+  }
+
+  return alert;
+};
+
 const ValidDateForm = (dateU1: string) => {
   const option = /^\d{4}(?:-\d{1,2}){2}$/;
   return !!option.test(dateU1);
@@ -122,10 +183,6 @@ const Valid = (
     !isInt(depoCostarg, 0) ||
     !isInt(personalCostarg, 0)
   ) {
-    console.log('costs1', parseIntReliable(Insurancearg));
-    console.log('costs2', parseIntReliable(depoCostarg));
-    console.log('costs3', parseIntReliable(personalCostarg));
-
     return new Error('Invalid argument');
   }
 
@@ -194,13 +251,19 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     PersonalCost: '',
   });
 
-  // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
+  const setterForAlertMesssage = useHookstate({
+    errUpdate: 'Any',
+    succesUpdate: 'Any',
+    msgHistory: 'Any',
+    msgValidation: 'Any',
+  });
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
 
   const supData = useSuppDataQuery();
   const [UpdateHistory] = useUpdateHistoryMutation();
   const [UpdateSupp] = useUpdateSupplierMutation();
+  const [suppId, SetSuppId] = React.useState('');
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
@@ -219,6 +282,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       );
 
       if (actualSupp) {
+        SetSuppId(actualSupp.supplierId);
         setDataDatabase(actualSupp, statesOfDataSupp);
       }
     }
@@ -254,8 +318,9 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       statesOfDataSupp.PersonalCost.get(),
     )?.message;
     if (valid) {
-      alert(valid);
+      setterForAlertMesssage.msgValidation.set(valid);
     } else {
+      setterForAlertMesssage.msgValidation.set('Any');
       const result = await UpdateSupp({
         variables: {
           SupName: statesOfDataSupp.SupplierName.get(),
@@ -273,17 +338,21 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         },
         refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
-      }).catch((error: string) => alert(error));
+      }).catch((error: string) => console.error(error));
 
-      const err = result?.data?.updateSup?.message;
-      const data = result?.data?.updateSup?.data;
+      const appErr: string | undefined = result?.data?.updateSup?.message;
+      const data: DataUpdateSupp | undefined = result?.data?.updateSup?.data;
 
-      if (err) {
-        alert(err);
+      if (appErr) {
+        setterForAlertMesssage.errUpdate.set(appErr);
+      } else {
+        setterForAlertMesssage.errUpdate.set('Any');
       }
 
+      let updateHistory;
       if (data) {
-        const message = await UpdateHistory({
+        setterForAlertMesssage.succesUpdate.set(MessageUpdateSupp(data));
+        updateHistory = await UpdateHistory({
           variables: {
             SuppData: {
               delivery: statesOfDataSupp.Delivery.get(),
@@ -301,17 +370,17 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           },
           refetchQueries: [{ query: HistoryDataDocument }],
           awaitRefetchQueries: true,
-        });
-        alert(`Dodavatel byl upraven s parametry: Doručení: ${data.delivery},
-            Zabalení do folie: ${data.foil},
-            Pojištění: ${data.insurance > 0 ?? 'bez pojištění'},
-            Balíček do krabice: ${data.packInBox},
-            Vyzvednutí: ${data.pickUp},
-            Na dobírku: ${data.sendCashDelivery},
-            Štítek přiveze kurýr: ${data.shippingLabel},
-            Jméno dopravce: ${data.suppName}
-            status of history: ${message.data?.updateHistory?.message}`);
-        return router.push(`/../../admpage/${data.supplierId}`);
+        }).catch((error) => console.error(error));
+      } else {
+        setterForAlertMesssage.succesUpdate.set('Any');
+      }
+
+      if (updateHistory?.data?.updateHistory?.message) {
+        setterForAlertMesssage.msgHistory.set(
+          MessageUpdateHistory(updateHistory?.data?.updateHistory?.message),
+        );
+      } else {
+        setterForAlertMesssage.msgHistory.set('Any');
       }
     }
   };
@@ -333,6 +402,15 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   return (
     <div>
       <div className={styles.container}>
+        {MyAlert(
+          {
+            succesUpade: setterForAlertMesssage.succesUpdate.value,
+            errUpdate: setterForAlertMesssage.errUpdate.value,
+            msgHisotry: setterForAlertMesssage.msgHistory.value,
+            msgValidation: setterForAlertMesssage.msgValidation.value,
+          },
+          suppId,
+        )}
         <h1
           style={{
             textAlign: 'center',

@@ -381,8 +381,9 @@ const doMathForPackage = async (
       new firestore.FieldPath('suppData', 'packName'),
       nameOfPack,
     );
+    msg = 'Update in history';
   } else {
-    msg = 'Nothing to update in history';
+    msg = 'Nothing to update';
     return msg;
   }
 
@@ -659,7 +660,7 @@ const doMatchForOptionsDelivery = async (
     return msg;
   }
 
-  msg = 'Users history not updated successfully';
+  // msg = 'Users history not updated successfully';
 
   console.log('message', msg);
   return msg;

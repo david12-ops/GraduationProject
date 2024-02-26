@@ -221,7 +221,7 @@ export default function SuitableSupp() {
 
       console.log('datatataat');
 
-      if (result.data?.BingoSupPac?.suitable) {
+      if (result?.data?.BingoSupPac?.suitable) {
         const data: Array<DataS> = JSON.parse(
           result.data?.BingoSupPac?.suitable,
         );
@@ -229,7 +229,7 @@ export default function SuitableSupp() {
         SetData(data);
       } else {
         // eslint-disable-next-line no-alert
-        alert(result.data?.BingoSupPac?.message);
+        alert(result?.data?.BingoSupPac?.message);
       }
     }
   };

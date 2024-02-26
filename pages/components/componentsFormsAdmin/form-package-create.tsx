@@ -1,4 +1,5 @@
 import { useHookstate } from '@hookstate/core';
+import { Alert, Button } from '@mui/material';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
@@ -14,6 +15,16 @@ import styles from '../../../styles/stylesForm/styleForms.module.css';
 
 type Props = {
   id: string;
+};
+
+type CreatedPackage = {
+  weight: number;
+  cost: number;
+  Plength: number;
+  height: number;
+  width: number;
+  name_package: string;
+  supplier_id: string;
 };
 
 const parseIntReliable = (numArg: string) => {
@@ -56,6 +67,55 @@ const Valid = (
   return undefined;
 };
 
+const Back = async (ids: string) => {
+  await router.push(`/../../admpage/${ids}`);
+};
+
+const MessageCreatePack = (data: CreatedPackage) => {
+  return `Balíček byl vytvořen s parametry: Váha: ${data.weight}, Délka: ${data.Plength}, Šířka: ${data.width}, Výška: ${data.height}`;
+};
+
+const MyAlert = (
+  messages: {
+    succesCreate: string;
+    errCreate: string;
+    msgValidation: string;
+  },
+  sId: string,
+) => {
+  console.log('messages', messages);
+  let alert = <div></div>;
+
+  if (messages.errCreate !== 'Any') {
+    alert = (
+      <div>
+        <Alert severity="error">{messages.errCreate}</Alert>
+        <Button onClick={() => Back(sId)}>Back</Button>
+      </div>
+    );
+  }
+
+  if (messages.succesCreate !== 'Any') {
+    alert = (
+      <div>
+        <Alert severity="success">{messages.succesCreate}</Alert>
+        <Button onClick={() => Back(sId)}>Back</Button>
+      </div>
+    );
+  }
+
+  if (messages.msgValidation !== 'Any') {
+    alert = (
+      <div>
+        <Alert severity="error">{messages.msgValidation}</Alert>
+        <Button onClick={() => Back(sId)}>Back</Button>
+      </div>
+    );
+  }
+
+  return alert;
+};
+
 export const FormPackage: React.FC<Props> = ({ id }) => {
   const statesOfDataPack = useHookstate({
     Weight: '',
@@ -66,13 +126,20 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     PackName: '',
   });
 
-  // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
+  const setterForAlertMesssage = useHookstate({
+    errCreate: 'Any',
+    succesCreate: 'Any',
+    msgValidation: 'Any',
+  });
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
 
   const [newPackage] = useNewPackageToFirestoreMutation();
+  const [suppId, SetSuppId] = React.useState('');
 
   useEffect(() => {
+    SetSuppId(id);
+
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
     const auth = getAuth();
     if (auth.currentUser) {
@@ -94,8 +161,9 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
       statesOfDataPack.Width.get(),
     )?.message;
     if (valid) {
-      alert(valid);
+      setterForAlertMesssage.msgValidation.set(valid);
     } else {
+      setterForAlertMesssage.msgValidation.set('Any');
       const result = await newPackage({
         variables: {
           Weight: Number(statesOfDataPack.Weight.get()),
@@ -109,22 +177,23 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
         },
         refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
-      }).catch((error: string) => alert(error));
+      }).catch((error: string) => console.error(error));
 
-      const err = result?.data?.PackageToFirestore?.message;
-      const data = result?.data?.PackageToFirestore?.data;
+      const appErr: string | undefined =
+        result?.data?.PackageToFirestore?.message;
+      const data: CreatedPackage | undefined =
+        result?.data?.PackageToFirestore?.data;
 
-      if (err) {
-        alert(err);
+      if (appErr) {
+        setterForAlertMesssage.errCreate.set(appErr);
+      } else {
+        setterForAlertMesssage.errCreate.set('Any');
       }
 
       if (data) {
-        alert(`Balíček byl vytvořen s parametry: Váha: ${data.weight},
-            Délka: ${data.Plength},
-            Šířka: ${data.width},
-            Výška: ${data.height},
-            Označení: ${data.name_package}`);
-        return router.push(`/../../admpage/${data.supplier_id}`);
+        setterForAlertMesssage.succesCreate.set(MessageCreatePack(data));
+      } else {
+        setterForAlertMesssage.succesCreate.set('Any');
       }
     }
   };
@@ -146,6 +215,14 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
   return (
     <div>
       <div className={styles.container}>
+        {MyAlert(
+          {
+            succesCreate: setterForAlertMesssage.succesCreate.value,
+            errCreate: setterForAlertMesssage.errCreate.value,
+            msgValidation: setterForAlertMesssage.msgValidation.value,
+          },
+          suppId,
+        )}
         <h1
           style={{
             textAlign: 'center',

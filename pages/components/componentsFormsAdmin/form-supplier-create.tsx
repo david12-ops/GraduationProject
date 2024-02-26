@@ -1,4 +1,5 @@
 import { State, useHookstate } from '@hookstate/core';
+import { Alert, Button } from '@mui/material';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
@@ -12,6 +13,20 @@ import {
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
 
+const Back = async () => {
+  await router.push(`/../../admin-page`);
+};
+type DataCreatedSupp = {
+  sendCashDelivery: string;
+  packInBox: string;
+  suppName: string;
+  pickUp: string;
+  delivery: string;
+  insurance: number;
+  shippingLabel: string;
+  foil: string;
+  supplierId: string;
+};
 const IsYesOrNo = (
   stringnU1: string,
   stringnU2: string,
@@ -56,6 +71,44 @@ const isInt = (numArg: string, min: number) => {
   return parsed !== false && parsed >= min;
 };
 
+const MyAlert = (messages: {
+  succesCreate: string;
+  errCreate: string;
+  msgValidation: string;
+}) => {
+  console.log('messages', messages);
+  let alert = <div></div>;
+
+  if (messages.errCreate !== 'Any') {
+    alert = (
+      <div>
+        <Alert severity="error">{messages.errCreate}</Alert>
+        <Button onClick={() => Back()}>Back</Button>
+      </div>
+    );
+  }
+
+  if (messages.succesCreate !== 'Any') {
+    alert = (
+      <div>
+        <Alert severity="success">{messages.succesCreate}</Alert>
+        <Button onClick={() => Back()}>Back</Button>
+      </div>
+    );
+  }
+
+  if (messages.msgValidation !== 'Any') {
+    alert = (
+      <div>
+        <Alert severity="error">{messages.msgValidation}</Alert>
+        <Button onClick={() => Back()}>Back</Button>
+      </div>
+    );
+  }
+
+  return alert;
+};
+
 const ValidDateForm = (dateU1: string) => {
   const option = /^\d{4}(?:-\d{1,2}){2}$/;
   return !!option.test(dateU1);
@@ -91,6 +144,17 @@ const Valid = (
   return undefined;
 };
 
+const MessageCreateSupp = (data: DataCreatedSupp) => {
+  return `Dodavatel byl vytvořen s parametry: Doručení: ${data.delivery},
+  Zabalení do folie: ${data.foil},
+  Pojištění: ${data.insurance > 0 ? data.insurance : 'bez pojištění'},
+  Balíček do krabice: ${data.packInBox},
+  Vyzvednutí: ${data.pickUp},
+  Na dobírku: ${data.sendCashDelivery},
+  Štítek přiveze kurýr: ${data.shippingLabel},
+  Jméno dopravce: ${data.suppName}`;
+};
+
 export const FormSupplier = () => {
   const options = [
     { value: 'Ano', label: 'Ano' },
@@ -112,10 +176,17 @@ export const FormSupplier = () => {
     PersonalCost: '',
   });
 
+  const setterForAlertMesssage = useHookstate({
+    errCreate: 'Any',
+    succesCreate: 'Any',
+    msgValidation: 'Any',
+  });
+
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
   const [newSupp] = useNewSupplierToFirestoreMutation();
+  const [suppId, SetSuppId] = React.useState('');
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
@@ -159,8 +230,9 @@ export const FormSupplier = () => {
       statesOfDataSupp.PersonalCost.get(),
     )?.message;
     if (valid) {
-      alert(valid);
+      setterForAlertMesssage.msgValidation.set(valid);
     } else {
+      setterForAlertMesssage.msgValidation.set('Any');
       const result = await newSupp({
         variables: {
           SupName: statesOfDataSupp.SupplierName.get(),
@@ -178,25 +250,22 @@ export const FormSupplier = () => {
         awaitRefetchQueries: true,
       }).catch((error: string) => alert(error));
 
-      const err = result?.data?.SupplierToFirestore?.message;
-      const data = result?.data?.SupplierToFirestore?.data;
+      const appErr: string | undefined =
+        result?.data?.SupplierToFirestore?.message;
+      const data: DataCreatedSupp | undefined =
+        result?.data?.SupplierToFirestore?.data;
 
-      if (err) {
-        alert(err);
+      if (appErr) {
+        setterForAlertMesssage.errCreate.set(appErr);
+      } else {
+        setterForAlertMesssage.errCreate.set('Any');
       }
 
       if (data) {
-        alert(`Dodavatel byl vytvořen s parametry: Doručení: ${data.delivery},
-              Zabalení do folie: ${data.foil},
-              Pojištění: ${
-                data.insurance > 0 ? data.insurance : 'bez pojištění'
-              },
-              Balíček do krabice: ${data.packInBox},
-              Vyzvednutí: ${data.pickUp},
-              Na dobírku: ${data.sendCashDelivery},
-              Štítek přiveze kurýr: ${data.shippingLabel},
-              Jméno dopravce: ${data.suppName}`);
-        return router.push(`/../../admin-page`);
+        SetSuppId(data.supplierId);
+        setterForAlertMesssage.succesCreate.set(MessageCreateSupp(data));
+      } else {
+        setterForAlertMesssage.succesCreate.set('Any');
       }
     }
   };
@@ -218,6 +287,11 @@ export const FormSupplier = () => {
   return (
     <div>
       <div className={styles.container}>
+        {MyAlert({
+          succesCreate: setterForAlertMesssage.succesCreate.value,
+          errCreate: setterForAlertMesssage.errCreate.value,
+          msgValidation: setterForAlertMesssage.msgValidation.value,
+        })}
         <h1
           style={{
             textAlign: 'center',

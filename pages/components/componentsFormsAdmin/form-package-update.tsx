@@ -43,6 +43,17 @@ type UpdatedPack = {
   supplier_id: string;
 };
 
+type Package = {
+  [name: string]: {
+    weight: number;
+    height: number;
+    width: number;
+    Plength: number;
+    name_package: string;
+    cost: number;
+  };
+};
+
 const parseIntReliable = (numArg: string) => {
   if (numArg.length > 0) {
     const parsed = Number.parseInt(numArg, 10);
@@ -58,17 +69,59 @@ const parseIntReliable = (numArg: string) => {
   return false;
 };
 
-const Back = async function Back(ids: string) {
+const Back = async (ids: string) => {
   await router.push(`/../../admpage/${ids}`);
 };
 
-const MessageUpdatePack = (data: UpdatedPack, error: string | undefined) => {
-  return `Balíček byl upraven s parametry: Váha: ${data.weight}, Délka: ${data.Plength}, Šířka: ${data.width}, Výška: ${data.height},
-  Označení: ${data.name_package}`;
+const MessageUpdatePack = (data: UpdatedPack) => {
+  return `Balíček byl upraven s parametry: Váha: ${data.weight}, Délka: ${data.Plength}, Šířka: ${data.width}, Výška: ${data.height}`;
 };
 
 const MessageUpdateHistory = (message: string) => {
-  return `Status of update History ${message}`;
+  return `Status of update History : ${message}`;
+};
+
+const MyAlert = (
+  messages: {
+    succesUpade: string;
+    errUpdate: string;
+    msgHisotry: string;
+    msgValidation: string;
+  },
+  sId: string,
+) => {
+  console.log('messages', messages);
+  let alert = <div></div>;
+
+  if (messages.errUpdate !== 'Any') {
+    alert = (
+      <div>
+        <Alert severity="error">{messages.errUpdate}</Alert>
+        <Button onClick={() => Back(sId)}>Back</Button>
+      </div>
+    );
+  }
+
+  if (messages.succesUpade !== 'Any' && messages.msgHisotry !== 'Any') {
+    alert = (
+      <div>
+        <Alert severity="success">{messages.succesUpade}</Alert>
+        <Alert severity="success">{messages.msgHisotry}</Alert>
+        <Button onClick={() => Back(sId)}>Back</Button>
+      </div>
+    );
+  }
+
+  if (messages.msgValidation !== 'Any') {
+    alert = (
+      <div>
+        <Alert severity="error">{messages.msgValidation}</Alert>
+        <Button onClick={() => Back(sId)}>Back</Button>
+      </div>
+    );
+  }
+
+  return alert;
 };
 
 const isInt = (numArg: string, min: number) => {
@@ -78,17 +131,6 @@ const isInt = (numArg: string, min: number) => {
 };
 
 const setDataDatabase = (pId: string, data: Item): DataFrServer | undefined => {
-  type Package = {
-    [name: string]: {
-      weight: number;
-      height: number;
-      width: number;
-      Plength: number;
-      name_package: string;
-      cost: number;
-    };
-  };
-
   for (const item of data) {
     const packs: Array<Package> = item.package as Array<Package>;
     for (const pack of packs) {
@@ -110,8 +152,29 @@ const setDataDatabase = (pId: string, data: Item): DataFrServer | undefined => {
   return undefined;
 };
 
+const Valid = (
+  weightarg: string,
+  costarg: string,
+  pLemgtharg: string,
+  heightarg: string,
+  widtharg: string,
+) => {
+  if (
+    !isInt(weightarg, 0) ||
+    !isInt(costarg, 0) ||
+    !isInt(pLemgtharg, 0) ||
+    !isInt(heightarg, 0) ||
+    !isInt(widtharg, 0)
+  ) {
+    return new Error('Invalid argument');
+  }
+
+  return undefined;
+};
+
 export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
-  const statesOfDataPack = useHookstate({
+  // const BackButtn = React.useCallback(() => Back(id), [id]);
+  const settersForDataPack = useHookstate({
     Weight: '',
     Cost: '',
     Plength: ' ',
@@ -121,17 +184,22 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     SuppId: '',
   });
 
+  const setterForAlertMesssage = useHookstate({
+    errUpdate: 'Any',
+    succesUpdate: 'Any',
+    msgHistory: 'Any',
+    msgValidation: 'Any',
+  });
+
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
 
   const [UpdatePackage] = useUpdatePackageMutation();
-  const [myAlert, SetAlert] = React.useState(<div></div>);
-  const [error, SetErr] = React.useState('' || undefined);
-
   const [UpdateHistory] = useUpdateHistoryMutation();
   const SuppPackages = useSuppDataQuery();
   const [oldPackName, SetOldPackName] = React.useState('');
+  const [suppId, SetSuppId] = React.useState('');
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
@@ -145,8 +213,9 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     if (id && SuppPackages.data && SuppPackages) {
       const data = setDataDatabase(id, SuppPackages.data.suplierData);
       if (data) {
+        SetSuppId(data.SuppId);
         SetOldPackName(data.PackName);
-        statesOfDataPack.set({
+        settersForDataPack.set({
           SuppId: data.SuppId,
           PackName: data.PackName,
           Cost: data.Cost,
@@ -159,62 +228,48 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
     }
   }, [id, SuppPackages]);
 
-  const Valid = (
-    weightarg: string,
-    costarg: string,
-    pLemgtharg: string,
-    heightarg: string,
-    widtharg: string,
-  ) => {
-    if (
-      !isInt(weightarg, 0) ||
-      !isInt(costarg, 0) ||
-      !isInt(pLemgtharg, 0) ||
-      !isInt(heightarg, 0) ||
-      !isInt(widtharg, 0)
-    ) {
-      return new Error('Invalid argument');
-    }
-
-    return undefined;
-  };
-
   const handleForm = async (event?: React.FormEvent) => {
     event?.preventDefault();
-    const valid = Valid(
-      statesOfDataPack.Weight.get(),
-      statesOfDataPack.Cost.get(),
-      statesOfDataPack.Plength.get(),
-      statesOfDataPack.Height.get(),
-      statesOfDataPack.Width.get(),
+    const valid: string | undefined = Valid(
+      settersForDataPack.Weight.get(),
+      settersForDataPack.Cost.get(),
+      settersForDataPack.Plength.get(),
+      settersForDataPack.Height.get(),
+      settersForDataPack.Width.get(),
     )?.message;
     if (valid) {
-      alert(valid);
+      setterForAlertMesssage.msgValidation.set(valid);
     } else {
+      setterForAlertMesssage.msgValidation.set('Any');
       const result = await UpdatePackage({
         variables: {
-          Weight: Number(statesOfDataPack.Weight.get()),
-          Cost: Number(statesOfDataPack.Cost.get()),
-          Length: Number(statesOfDataPack.Plength.get()),
-          Height: Number(statesOfDataPack.Height.get()),
-          Width: Number(statesOfDataPack.Width.get()),
-          Pack_name: statesOfDataPack.PackName.get(),
+          Weight: Number(settersForDataPack.Weight.get()),
+          Cost: Number(settersForDataPack.Cost.get()),
+          Length: Number(settersForDataPack.Plength.get()),
+          Height: Number(settersForDataPack.Height.get()),
+          Width: Number(settersForDataPack.Width.get()),
+          Pack_name: settersForDataPack.PackName.get(),
           PackKey: id,
-          SuppId: statesOfDataPack.SuppId.get(),
+          SuppId: settersForDataPack.SuppId.get(),
         },
         refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
-      }).catch((error: string) => alert(error));
+      }).catch((error: string) => console.log(error));
 
-      const err = result?.data?.updatePack?.message;
-      const data: UpdatedPack = result?.data?.updatePack?.data;
+      const appErr: string | undefined = result?.data?.updatePack?.message;
+      const data: UpdatedPack | undefined = result?.data?.updatePack?.data;
 
-      if (err) {
-        alert(err);
+      if (appErr) {
+        setterForAlertMesssage.errUpdate.set(appErr);
+      } else {
+        setterForAlertMesssage.errUpdate.set('Any');
       }
 
+      let updateHistory;
       if (data) {
-        await UpdateHistory({
+        SetSuppId(data.supplier_id);
+        setterForAlertMesssage.succesUpdate.set(MessageUpdatePack(data));
+        updateHistory = await UpdateHistory({
           variables: {
             PackageName: data.name_package,
             OldPackName: oldPackName,
@@ -223,16 +278,17 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           },
           refetchQueries: [{ query: HistoryDataDocument }],
           awaitRefetchQueries: true,
-        }).catch((error_: string) =>
-          error_ ? SetErr(error_) : SetErr(undefined),
-        );
+        }).catch((error: string) => console.log(error));
+      } else {
+        setterForAlertMesssage.succesUpdate.set('Any');
+      }
 
-        SetAlert(
-          <Alert severity="success">
-            {MessageUpdatePack(data, error)}
-            <Button onClick={() => Back(data.supplier_id)}>Back</Button>
-          </Alert>,
+      if (updateHistory?.data?.updateHistory?.message) {
+        setterForAlertMesssage.msgHistory.set(
+          MessageUpdateHistory(updateHistory?.data?.updateHistory?.message),
         );
+      } else {
+        setterForAlertMesssage.msgHistory.set('Any');
       }
     }
   };
@@ -254,7 +310,15 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   return (
     <div>
       <div className={styles.container}>
-        {myAlert}
+        {MyAlert(
+          {
+            succesUpade: setterForAlertMesssage.succesUpdate.value,
+            errUpdate: setterForAlertMesssage.errUpdate.value,
+            msgHisotry: setterForAlertMesssage.msgHistory.value,
+            msgValidation: setterForAlertMesssage.msgValidation.value,
+          },
+          suppId,
+        )}
         <h1
           style={{
             textAlign: 'center',
@@ -272,21 +336,23 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
               <p className={styles.Odstavce}>Name</p>
               <input
                 className={styles.input}
-                onChange={(e) => statesOfDataPack.PackName.set(e.target.value)}
+                onChange={(e) =>
+                  settersForDataPack.PackName.set(e.target.value)
+                }
                 required
                 type="text"
-                value={statesOfDataPack.PackName.get()}
+                value={settersForDataPack.PackName.get()}
               />
             </label>
             <label>
               <p className={styles.Odstavce}>Cena</p>
               <input
                 className={styles.input}
-                onChange={(e) => statesOfDataPack.Cost.set(e.target.value)}
+                onChange={(e) => settersForDataPack.Cost.set(e.target.value)}
                 required
                 type="number"
                 placeholder="Kč"
-                value={statesOfDataPack.Cost.get()}
+                value={settersForDataPack.Cost.get()}
               />
             </label>
           </div>
@@ -296,22 +362,22 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
               <p className={styles.Odstavce}>Sirka</p>
               <input
                 className={styles.input}
-                onChange={(e) => statesOfDataPack.Width.set(e.target.value)}
+                onChange={(e) => settersForDataPack.Width.set(e.target.value)}
                 required
                 type="number"
                 placeholder="Cm"
-                value={statesOfDataPack.Width.get()}
+                value={settersForDataPack.Width.get()}
               />
             </label>
             <label>
               <p className={styles.Odstavce}>Hmotnost</p>
               <input
                 className={styles.input}
-                onChange={(e) => statesOfDataPack.Weight.set(e.target.value)}
+                onChange={(e) => settersForDataPack.Weight.set(e.target.value)}
                 required
                 type="number"
                 placeholder="Kg"
-                value={statesOfDataPack.Weight.get()}
+                value={settersForDataPack.Weight.get()}
               />
             </label>
           </div>
@@ -320,22 +386,22 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
               <p className={styles.Odstavce}>Delka</p>
               <input
                 className={styles.input}
-                onChange={(e) => statesOfDataPack.Plength.set(e.target.value)}
+                onChange={(e) => settersForDataPack.Plength.set(e.target.value)}
                 required
                 type="number"
                 placeholder="Cm"
-                value={statesOfDataPack.Plength.get()}
+                value={settersForDataPack.Plength.get()}
               />
             </label>
             <label>
               <p className={styles.Odstavce}>Vyska</p>
               <input
                 className={styles.input}
-                onChange={(e) => statesOfDataPack.Height.set(e.target.value)}
+                onChange={(e) => settersForDataPack.Height.set(e.target.value)}
                 required
                 type="number"
                 placeholder="Cm"
-                value={statesOfDataPack.Height.get()}
+                value={settersForDataPack.Height.get()}
               />
             </label>
           </div>
