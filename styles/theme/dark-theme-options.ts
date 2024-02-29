@@ -4,6 +4,7 @@ const lightThemeOptions: ThemeOptions = {
   palette: {
     mode: 'dark',
   },
+  buttton: {},
 };
 
 export default lightThemeOptions;

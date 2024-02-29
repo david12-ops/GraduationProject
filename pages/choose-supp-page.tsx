@@ -1,5 +1,8 @@
+/* eslint-disable prettier/prettier */
 import { ApolloError } from '@apollo/client';
 import { State, useHookstate } from '@hookstate/core';
+import { Button } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import Head from 'next/head';
 import React, { useState } from 'react';
 
@@ -10,10 +13,14 @@ import {
 } from '@/generated/graphql';
 
 import styles from '../styles/Home.module.css';
-import stylesF from '../styles/stylesForm/styleForms.module.css';
 import { ResSuppCard } from './components/Cards/res-supp';
-import { FormChooseSup } from './components/formChooseSupp';
+import { FormChooseSup } from './components/form-choose-supp';
 import { Navbar } from './components/navbar2';
+
+const Submit = styled(Button)(({ theme }) => ({
+  color: theme.palette.submitButton.dark,
+  backgroundColor: theme.palette.submitButton.light,
+}));
 
 type DataFromForm = {
   width: string;
@@ -164,16 +171,70 @@ const Valid = (
   pLengtharg: string,
   heightarg: string,
   widtharg: string,
+  placeToarg:string,
+  placeFromarg:string,
+  errorsSetters: State<{
+    errWidth: string;
+    errHeight: string;
+    errWeight: string;
+    errLength: string;
+    errCost: string;
+    errPlaceTo: string;
+    errFrom: string;
+}>
 ) => {
-  if (
-    !isInt(weightarg, 0) ||
-    !isInt(costarg, 0) ||
-    !isInt(pLengtharg, 0) ||
-    !isInt(heightarg, 0) ||
-    !isInt(widtharg, 0)
-  ) {
-    return new Error('Invalid argument');
+  const messageForInt = 'Invalid argument, expect number bigger then zero';
+  const messageLoc = 'Invalid argument, expocet value depo/personal'
+  if (!isInt(weightarg, 0)) {
+    errorsSetters.errWeight.set(messageForInt);
+    return new Error(messageForInt);
   }
+
+  errorsSetters.errWeight.set('');
+
+  if (!isInt(costarg, 0)) {
+    errorsSetters.errCost.set(messageForInt);
+    return new Error(messageForInt);
+  }
+
+  errorsSetters.errCost.set('');
+
+  if (!isInt(pLengtharg, 0)) {
+    errorsSetters.errLength.set(messageForInt);
+    return new Error(messageForInt);
+  }
+
+  errorsSetters.errLength.set('');
+
+  if (!isInt(heightarg, 0)) {
+    errorsSetters.errHeight.set(messageForInt);
+    return new Error(messageForInt);
+  }
+
+  errorsSetters.errHeight.set('');
+
+  if (!isInt(widtharg, 0)) {
+    errorsSetters.errWidth.set(messageForInt);
+    return new Error(messageForInt);
+  }
+
+  errorsSetters.errWidth.set('');
+
+  if(!['depo', 'personal'].includes(placeToarg)){
+    errorsSetters.errPlaceTo.set(messageLoc);
+    return new Error(messageLoc);
+
+  }
+
+  errorsSetters.errPlaceTo.set('');
+
+  if(!['depo', 'personal'].includes(placeFromarg)){
+    errorsSetters.errFrom.set(messageLoc);
+    return new Error(messageLoc);
+
+  }
+
+  errorsSetters.errFrom.set('');
 
   return undefined;
 };
@@ -189,11 +250,20 @@ export default function SuitableSupp() {
     Cost: '',
   });
 
+  const errors = useHookstate({
+    errWidth: '',
+    errHeight: '',
+    errWeight: '',
+    errLength: '',
+    errCost: '',
+    errPlaceTo: '',
+    errFrom: '',
+  });
+
   // pouzit callBack
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
   const [dataS, SetData] = useState(Array<DataS>);
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const [suitableSupp] = useMutSuitableSuppMutation();
   const suppData = useSuppDataQuery();
 
@@ -204,9 +274,12 @@ export default function SuitableSupp() {
       statesOfFormPack.Plength.get(),
       statesOfFormPack.Height.get(),
       statesOfFormPack.Width.get(),
+      statesOfFormPack.PlaceTo.get(),
+      statesOfFormPack.PlaceFrom.get(),
+      errors
     )?.message;
     if (valid) {
-      alert(valid);
+      console.error(valid);
     } else {
       const result = await suitableSupp({
         variables: {
@@ -220,8 +293,8 @@ export default function SuitableSupp() {
         },
       }).catch((error: string) => alert(error));
 
-      console.log('datatataat');
 
+      // muiAlerty
       if (result?.data?.BingoSupPac?.suitable) {
         const data: Array<DataS> = JSON.parse(
           result.data?.BingoSupPac?.suitable,
@@ -244,18 +317,15 @@ export default function SuitableSupp() {
       <Navbar />
       <main className={styles.main}>
         <FormChooseSup
-          onChangeSirka={(e) => statesOfFormPack.Width.set(e)}
-          onChangeVyska={(e) => statesOfFormPack.Height.set(e)}
-          onChangeHmotnost={(e) => statesOfFormPack.Weight.set(e)}
-          onChangeDelka={(e) => statesOfFormPack.Plength.set(e)}
-          onChangeCena={(e) => statesOfFormPack.Cost.set(e)}
-          onChangeDo={(e) => statesOfFormPack.PlaceTo.set(e)}
-          onChangeZ={(e) => statesOfFormPack.PlaceFrom.set(e)}
-          buttonEl={
-            <button className={stylesF.crudbtn} onClick={HandleForm}>
-              odeslat
-            </button>
-          }
+          onChangeWidth={(e) => statesOfFormPack.Width.set(e)}
+          onChangeHeight={(e) => statesOfFormPack.Height.set(e)}
+          onChangeWeight={(e) => statesOfFormPack.Weight.set(e)}
+          onChangeLength={(e) => statesOfFormPack.Plength.set(e)}
+          onChangeCost={(e) => statesOfFormPack.Cost.set(e)}
+          onChangeFromWhere={(e) => statesOfFormPack.PlaceTo.set(e)}
+          onChangeFrom={(e) => statesOfFormPack.PlaceFrom.set(e)}
+          buttonEl={<Submit onClick={HandleForm}>Odeslat</Submit>}
+          errors = {errors.get()}
         />
         {RenderSupp(
           dataS,
