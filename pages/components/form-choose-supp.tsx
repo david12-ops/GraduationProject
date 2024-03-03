@@ -1,9 +1,14 @@
 import { ImmutableObject } from '@hookstate/core';
-import { Box, TextField } from '@mui/material';
+import {
+  Box,
+  InputAdornment,
+  MenuItem,
+  TextField,
+  TextFieldProps,
+} from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import * as React from 'react';
-import Select from 'react-select';
 
 type Props = {
   onChangeHeight: (inputVal: string) => void;
@@ -11,8 +16,9 @@ type Props = {
   onChangeLength: (inputVal: string) => void;
   onChangeWidth: (inputVal: string) => void;
   onChangeCost: (inputVal: string) => void;
-  onChangeFrom: (inputVal: string) => void;
+  onChangeWhere: (inputVal: string) => void;
   onChangeFromWhere: (inputVal: string) => void;
+  onChangeForm: () => void;
   buttonEl: any;
   errors: ImmutableObject<{
     errWidth: string;
@@ -30,6 +36,131 @@ type LocErrors = {
   errFrom: string;
 };
 
+type MyInputProps = {
+  onChangeAdd?: React.ChangeEventHandler<
+    HTMLInputElement | HTMLTextAreaElement
+  >;
+} & TextFieldProps;
+
+type Params = {
+  typeComp: string;
+  idComp: string;
+  labelComp: { err: string; withoutErr: string };
+  placeholderComp: string;
+  funcComp: (inputVal: string) => void;
+  errorComp: string;
+};
+
+const ParamComponent = (
+  typeComp: string,
+  idComp: string,
+  labelComp: { err: string; withoutErr: string },
+  placeholderComp: string,
+  funcComp: (inputVal: string) => void,
+  errorComp: string,
+) => {
+  // eslint-disable-next-line sonarjs/prefer-immediate-return
+  const Comp = () => {
+    return errorComp === '' ? (
+      <TextField
+        type={typeComp}
+        label={labelComp.withoutErr}
+        required
+        id={idComp}
+        sx={{ m: 1, width: '25ch' }}
+        onChange={(e) => funcComp(e.target.value)}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">{placeholderComp}</InputAdornment>
+          ),
+        }}
+        helperText={`Write your ${labelComp.withoutErr.toLocaleLowerCase()} limit on package`}
+      />
+    ) : (
+      <TextField
+        type={typeComp}
+        label={labelComp.withoutErr}
+        required
+        id={idComp}
+        helperText={errorComp}
+        error
+        sx={{ m: 1, width: '25ch' }}
+        onChange={(e) => funcComp(e.target.value)}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">{placeholderComp}</InputAdornment>
+          ),
+        }}
+      />
+    );
+  };
+
+  return Comp;
+};
+
+const FromWhereErr: React.FC<MyInputProps> = () => {
+  return (
+    <TextField
+      id="outlined-select-currency"
+      select
+      label="From where"
+      placeholder="depo/personal"
+      required
+      helperText="Expext values depo/personal"
+    >
+      {options.map((option) => (
+        <MenuItem key={option.value} value={option.value}>
+          {option.label}
+        </MenuItem>
+      ))}
+    </TextField>
+  );
+};
+
+const MySelectComp = (
+  labelarg: string,
+  helptexter: { err: string; withoutErr: string },
+  errorarg: string,
+  optionsSelectVal: Array<{ value: string; label: string }>,
+) => {
+  const myComp: React.FC<MyInputProps> = () => {
+    return errorarg === '' ? (
+      <TextField
+        id="outlined-select-currency"
+        select
+        label={labelarg}
+        placeholder="depo/personal"
+        required
+        helperText={helptexter.withoutErr}
+      >
+        {optionsSelectVal.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </TextField>
+    ) : (
+      <TextField
+        id="outlined-select-currency"
+        select
+        label={labelarg}
+        placeholder="depo/personal"
+        required
+        error
+        helperText={helptexter.err}
+      >
+        {optionsSelectVal.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </TextField>
+    );
+  };
+
+  return myComp;
+};
+
 type ParamErrors = {
   errWidth: string;
   errHeight: string;
@@ -44,17 +175,23 @@ export const FormChooseSup: React.FC<Props> = ({
   onChangeLength,
   onChangeWidth,
   onChangeCost,
-  onChangeFrom,
+  onChangeWhere,
   onChangeFromWhere,
+  onChangeForm,
   buttonEl,
   errors,
 }) => {
+  const options = [
+    { value: 'personal', label: 'personal' },
+    { value: 'depo', label: 'depo' },
+  ];
   const LocationPart = (error: LocErrors) => {
-    const options = [
-      { value: 'personal', label: 'personal' },
-      { value: 'depo', label: 'depo' },
-    ];
-
+    // const Zkouska = MySelectComp(
+    //   'zkouska',
+    //   { err: 'error', withoutErr: 'pleaseeee ok!!' },
+    //   'Heleeee!!!',
+    //   options,
+    // );
     return (
       <div>
         <h1
@@ -73,34 +210,98 @@ export const FormChooseSup: React.FC<Props> = ({
             justifyContent: 'space-around',
           }}
         >
-          <div>
-            <label style={{ fontSize: '18px' }}>Where</label>
+          {error.errFrom === '' ? (
             <div>
-              <Select
-                onChange={(selectedOption) =>
-                  onChangeFrom(selectedOption ? selectedOption.value : '')
-                }
-                options={options}
-                required
-                aria-errormessage={error.errPlaceTo}
+              <TextField
+                id="outlined-select-currency"
+                select
+                label="From where"
                 placeholder="depo/personal"
-              />
-            </div>
-          </div>
+                required
+                helperText="Please select option how to want from us retrieve our package"
+                onChange={(selectedOption) =>
+                  onChangeFromWhere(selectedOption.target.value)
+                }
+              >
+                {options.map((option: { value: string; label: string }) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
 
-          <div>
-            <label style={{ fontSize: '18px' }}>From</label>
-            <div>
-              <Select
+              {/* <FromWhere
+                onChangeAdd={() => onchange}
                 onChange={(selectedOption) =>
-                  onChangeFromWhere(selectedOption ? selectedOption.value : '')
+                  onChangeFromWhere(selectedOption.target.value)
                 }
-                options={options}
-                required
-                aria-errormessage={error.errFrom}
-                placeholder="depo/personal"
-              />
+              ></FromWhere> */}
             </div>
+          ) : (
+            <div>
+              <TextField
+                id="outlined-select-currency"
+                select
+                label="From where"
+                placeholder="depo/personal"
+                required
+                error
+                helperText="Please select option how to want from us retrieve our package"
+                onChange={(selectedOption) =>
+                  onChangeFromWhere(selectedOption.target.value)
+                }
+              >
+                {options.map((option: { value: string; label: string }) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          )}
+          <div>
+            {error.errPlaceTo === '' ? (
+              <div>
+                <TextField
+                  id="outlined-select-currency"
+                  select
+                  label="From where"
+                  placeholder="depo/personal"
+                  required
+                  helperText="Please select option how to want from us retrieve our package"
+                  onChange={(selectedOption) =>
+                    onChangeWhere(selectedOption.target.value)
+                  }
+                >
+                  {options.map((option: { value: string; label: string }) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </div>
+            ) : (
+              <div>
+                <TextField
+                  id="outlined-select-currency"
+                  select
+                  label="From where"
+                  placeholder="depo/personal"
+                  required
+                  error
+                  helperText="Please select option how to want from us retrieve our package"
+                  onChange={(selectedOption) =>
+                    onChangeWhere(selectedOption.target.value)
+                  }
+                >
+                  {options.map((option: { value: string; label: string }) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -108,8 +309,55 @@ export const FormChooseSup: React.FC<Props> = ({
   };
 
   const ParamsPart = (error: ParamErrors) => {
+    const idComponent = 'outlined-start-adornment';
+
+    const HeighComp = ParamComponent(
+      'number',
+      idComponent,
+      { err: 'Error', withoutErr: 'Height' },
+      'Cm',
+      onChangeHeight,
+      error.errHeight,
+    );
+
+    const WeightComp = ParamComponent(
+      'number',
+      idComponent,
+      { err: 'Error', withoutErr: 'Weight' },
+      'Kg',
+      onChangeWeight,
+      error.errWeight,
+    );
+
+    const LengthComp = ParamComponent(
+      'number',
+      idComponent,
+      { err: 'Error', withoutErr: 'Length' },
+      'Cm',
+      onChangeLength,
+      error.errLength,
+    );
+
+    const WidthComp = ParamComponent(
+      'number',
+      idComponent,
+      { err: 'Error', withoutErr: 'Width' },
+      'Cm',
+      onChangeWidth,
+      error.errWeight,
+    );
+
+    const CostComp = ParamComponent(
+      'number',
+      idComponent,
+      { err: 'Error', withoutErr: 'Cost' },
+      'Kč',
+      onChangeCost,
+      error.errCost,
+    );
+
     return (
-      <div>
+      <div onChange={onChangeForm}>
         <h1 style={{ textAlign: 'center', paddingBottom: '30px' }}>
           Parameters
         </h1>
@@ -121,7 +369,10 @@ export const FormChooseSup: React.FC<Props> = ({
             justifyContent: 'space-around',
           }}
         >
-          {error.errHeight === '' ? (
+          <div>
+            <HeighComp />
+          </div>
+          {/* {error.errHeight === '' ? (
             <div>
               <TextField
                 type="number"
@@ -143,8 +394,12 @@ export const FormChooseSup: React.FC<Props> = ({
                 helperText={error.errHeight}
               />
             </div>
-          )}
-
+          )} */}
+          {/* onChange={(e) => onChangeWeight(e.target.value)} */}
+          <div>
+            <WeightComp />
+          </div>
+          {/* 
           {error.errWeight === '' ? (
             <div>
               <TextField
@@ -167,9 +422,11 @@ export const FormChooseSup: React.FC<Props> = ({
                 helperText={error.errWeight}
               />
             </div>
-          )}
-
-          {error.errLength === '' ? (
+          )} */}
+          <div>
+            <LengthComp />
+          </div>
+          {/* {error.errLength === '' ? (
             <div>
               <TextField
                 type="number"
@@ -191,9 +448,13 @@ export const FormChooseSup: React.FC<Props> = ({
                 helperText={error.errLength}
               />
             </div>
-          )}
+          )} */}
 
-          {error.errWidth === '' ? (
+          <div>
+            <WidthComp />
+          </div>
+
+          {/* {error.errWidth === '' ? (
             <div>
               <TextField
                 type="number"
@@ -215,8 +476,11 @@ export const FormChooseSup: React.FC<Props> = ({
                 helperText={error.errWidth}
               />
             </div>
-          )}
-          {error.errCost === '' ? (
+          )} */}
+          <div>
+            <CostComp />
+          </div>
+          {/* {error.errCost === '' ? (
             <div>
               <TextField
                 type="number"
@@ -238,7 +502,7 @@ export const FormChooseSup: React.FC<Props> = ({
                 helperText={error.errCost}
               />
             </div>
-          )}
+          )} */}
         </div>
       </div>
     );
@@ -254,21 +518,21 @@ export const FormChooseSup: React.FC<Props> = ({
     >
       <Card style={{ border: '5px solid #F565AD', borderRadius: '10px' }}>
         <CardContent>
-          {ParamsPart({
-            errWidth: errors.errWidth,
-            errHeight: errors.errHeight,
-            errWeight: errors.errWeight,
-            errLength: errors.errLength,
-            errCost: errors.errCost,
-          })}
+          <div onChange={onChangeForm}>
+            {ParamsPart({
+              errWidth: errors.errWidth,
+              errHeight: errors.errHeight,
+              errWeight: errors.errWeight,
+              errLength: errors.errLength,
+              errCost: errors.errCost,
+            })}
+          </div>
         </CardContent>
       </Card>
       <Card
         style={{
           border: '5px solid #F565AD',
           borderRadius: '10px',
-          maxWidth: '700px',
-          height: '260px',
         }}
       >
         <CardContent>
@@ -278,6 +542,7 @@ export const FormChooseSup: React.FC<Props> = ({
           })}
         </CardContent>
       </Card>
+
       {buttonEl}
     </Box>
   );

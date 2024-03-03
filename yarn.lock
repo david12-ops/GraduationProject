@@ -537,6 +537,18 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
+"@date-io/core@^3.0.0":
+  "integrity" "sha512-S3j+IAQVBYNkQzchVVhX40eBkGDreBpScy9RXwTS5j2+k07+62pMVPisQ44Gq76Rqy5AOG/EZXCwBpY/jbemvA=="
+  "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@date-io/core/-/core-3.0.0.tgz"
+  "version" "3.0.0"
+
+"@date-io/dayjs@^3.0.0":
+  "integrity" "sha512-vy7DSwoQiPA2L0stRqW3le7lcEBMjoMMEmbpCNkyoX3xXizKInFvhbnOBmCyusIQ7tL/WsNC4X5bVgdNWX0JLA=="
+  "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@date-io/dayjs/-/dayjs-3.0.0.tgz"
+  "version" "3.0.0"
+  dependencies:
+    "@date-io/core" "^3.0.0"
+
 "@emotion/babel-plugin@^11.11.0":
   "integrity" "sha512-m4HEDZleaaCH+XgDDsPF15Ht6wTLsgDTeR3WYj9Q/k76JtWhrJjcP4+/XlG8LGT/Rol9qUfOIztXeA84ATpqPQ=="
   "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@emotion/babel-plugin/-/babel-plugin-11.11.0.tgz"
@@ -582,7 +594,7 @@
   "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@emotion/memoize/-/memoize-0.8.1.tgz"
   "version" "0.8.1"
 
-"@emotion/react@^11.0.0-rc.0", "@emotion/react@^11.10.5", "@emotion/react@^11.4.1", "@emotion/react@^11.5.0", "@emotion/react@^11.8.1":
+"@emotion/react@^11.0.0-rc.0", "@emotion/react@^11.10.5", "@emotion/react@^11.4.1", "@emotion/react@^11.5.0", "@emotion/react@^11.8.1", "@emotion/react@^11.9.0":
   "integrity" "sha512-Cnn0kuq4DoONOMcnoVsTOR8E+AdnKFf//6kUWc4LCdnxj31pZWn7rIULd6Y7/Js1PiPHzn7SKCM9vB/jBni8eA=="
   "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@emotion/react/-/react-11.11.3.tgz"
   "version" "11.11.3"
@@ -622,7 +634,7 @@
   "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@emotion/sheet/-/sheet-1.2.2.tgz"
   "version" "1.2.2"
 
-"@emotion/styled@^11.10.5", "@emotion/styled@^11.3.0":
+"@emotion/styled@^11.10.5", "@emotion/styled@^11.3.0", "@emotion/styled@^11.8.1":
   "integrity" "sha512-hM5Nnvu9P3midq5aaXj4I+lnSfNi7Pmd4EWk1fOZ3pxookaQTNew6bp4JaCBYM4HVFZF9g7UjJmsUmC2JlxOng=="
   "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@emotion/styled/-/styled-11.11.0.tgz"
   "version" "11.11.0"
@@ -1817,7 +1829,7 @@
   dependencies:
     "lodash" "^4.17.21"
 
-"@mui/base@5.0.0-beta.37":
+"@mui/base@^5.0.0-beta.36", "@mui/base@5.0.0-beta.37":
   "integrity" "sha512-/o3anbb+DeCng8jNsd3704XtmmLDZju1Fo8R2o7ugrVtPQ/QpcqddwKNzKPZwa0J5T8YNW3ZVuHyQgbTnQLisQ=="
   "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@mui/base/-/base-5.0.0-beta.37.tgz"
   "version" "5.0.0-beta.37"
@@ -1842,21 +1854,7 @@
   dependencies:
     "@babel/runtime" "^7.23.9"
 
-"@mui/joy@^5.0.0-beta.29":
-  "integrity" "sha512-23bU7NOSRa6BiWqExEA0p72ttMbzhoISX3qjKI8gcX+gAnk6lKKuhApBc/rD3ORdDQfiPx5LuxxLW0V73atQEg=="
-  "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@mui/joy/-/joy-5.0.0-beta.29.tgz"
-  "version" "5.0.0-beta.29"
-  dependencies:
-    "@babel/runtime" "^7.23.9"
-    "@mui/base" "5.0.0-beta.37"
-    "@mui/core-downloads-tracker" "^5.15.11"
-    "@mui/system" "^5.15.11"
-    "@mui/types" "^7.2.13"
-    "@mui/utils" "^5.15.11"
-    "clsx" "^2.1.0"
-    "prop-types" "^15.8.1"
-
-"@mui/material@^5.0.0", "@mui/material@^5.11.0", "@mui/material@^5.11.7", "@mui/material@^5.4.1":
+"@mui/material@^5.0.0", "@mui/material@^5.11.0", "@mui/material@^5.11.7", "@mui/material@^5.15.0", "@mui/material@^5.4.1":
   "integrity" "sha512-FA3eEuEZaDaxgN3CgfXezMWbCZ4VCeU/sv0F0/PK5n42qIgsPVD6q+j71qS7/62sp6wRFMHtDMpXRlN+tT/7NA=="
   "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@mui/material/-/material-5.15.11.tgz"
   "version" "5.15.11"
@@ -1893,7 +1891,7 @@
     "csstype" "^3.1.3"
     "prop-types" "^15.8.1"
 
-"@mui/system@^5.15.11", "@mui/system@^5.4.1":
+"@mui/system@^5.15.11", "@mui/system@^5.15.9", "@mui/system@^5.4.1":
   "integrity" "sha512-9j35suLFq+MgJo5ktVSHPbkjDLRMBCV17NMBdEQurh6oWyGnLM4uhU4QGZZQ75o0vuhjJghOCA1jkO3+79wKsA=="
   "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@mui/system/-/system-5.15.11.tgz"
   "version" "5.15.11"
@@ -1912,7 +1910,7 @@
   "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@mui/types/-/types-7.2.13.tgz"
   "version" "7.2.13"
 
-"@mui/utils@^5.14.16", "@mui/utils@^5.15.11":
+"@mui/utils@^5.14.16", "@mui/utils@^5.15.11", "@mui/utils@^5.15.9":
   "integrity" "sha512-D6bwqprUa9Stf8ft0dcMqWyWDKEo7D+6pB1k8WajbqlYIRA8J8Kw9Ra7PSZKKePGBGWO+/xxrX1U8HpG/aXQCw=="
   "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@mui/utils/-/utils-5.15.11.tgz"
   "version" "5.15.11"
@@ -1932,6 +1930,20 @@
     "clsx" "^2.0.0"
     "prop-types" "^15.8.1"
     "reselect" "^4.1.8"
+
+"@mui/x-date-pickers@^7.0.0-beta.5":
+  "integrity" "sha512-zywc3+TN1r0AA3iizxs3hLKL3C/Flp5zBdW9gNPhOI2UIwmtsXD3uD/5zjYQ6Q5Pz3m6o8qmqk9hc0ZB5qBT+A=="
+  "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/@mui/x-date-pickers/-/x-date-pickers-7.0.0-beta.5.tgz"
+  "version" "7.0.0-beta.5"
+  dependencies:
+    "@babel/runtime" "^7.23.9"
+    "@mui/base" "^5.0.0-beta.36"
+    "@mui/system" "^5.15.9"
+    "@mui/utils" "^5.15.9"
+    "@types/react-transition-group" "^4.4.10"
+    "clsx" "^2.1.0"
+    "prop-types" "^15.8.1"
+    "react-transition-group" "^4.4.5"
 
 "@next/env@13.1.5":
   "integrity" "sha512-0Ry4NhJy6qLbXhvxPRUQ1H6RzgtryGdUto7hfgAK0Iw/bScgeVjwLZdfhm2iT7qsOS32apo9cWzLCxjc6iGPsA=="
@@ -3615,6 +3627,16 @@
   "integrity" "sha512-8YnDaaf7N3k/q5HnTJVuzSyLETjoZjVmHc4AeKAzOvKHEFQKcn64OKBfzHYtE9zGjctNM7V9I0MfnUVLpi7M5g=="
   "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/dataloader/-/dataloader-2.2.2.tgz"
   "version" "2.2.2"
+
+"date-fns@^2.25.0 || ^3.2.0", "date-fns@^3.3.1":
+  "integrity" "sha512-y8e109LYGgoQDveiEBD3DYXKba1jWf5BA8YU1FL5Tvm0BTdEfy54WLCwnuYWZNnzzvALy/QQ4Hov+Q9RVRv+Zw=="
+  "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/date-fns/-/date-fns-3.3.1.tgz"
+  "version" "3.3.1"
+
+"dayjs@^1.10.7", "dayjs@^1.11.10", "dayjs@^1.8.17":
+  "integrity" "sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ=="
+  "resolved" "https://repo.plus4u.net/operatorGate/repository/public-javascript/dayjs/-/dayjs-1.11.10.tgz"
+  "version" "1.11.10"
 
 "debounce@^1.2.0":
   "integrity" "sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug=="

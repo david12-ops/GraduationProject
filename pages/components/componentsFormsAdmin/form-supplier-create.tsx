@@ -1,10 +1,19 @@
 import { State, useHookstate } from '@hookstate/core';
-import { Alert, Button } from '@mui/material';
+import {
+  Alert,
+  Button,
+  InputAdornment,
+  MenuItem,
+  TextField,
+} from '@mui/material';
+import { DateValidationError, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
 import { useEffect } from 'react';
-import Select from 'react-select';
 
 import {
   SuppDataDocument,
@@ -16,6 +25,17 @@ import styles from '../../../styles/stylesForm/styleForms.module.css';
 const Back = async () => {
   await router.push(`/../../admin-page`);
 };
+
+type ErrSettersProperties = {
+  errInsurance: string;
+  errSendCashDelivery: string;
+  errFoil: string;
+  errShippingLabel: string;
+  errpackInBox: string;
+  errDepoCost: string;
+  errPersonalCost: string;
+};
+
 type DataCreatedSupp = {
   sendCashDelivery: string;
   packInBox: string;
@@ -33,21 +53,24 @@ const IsYesOrNo = (
   stringnU3: string,
   stringnU4: string,
 ) => {
-  console.log(stringnU1);
-  console.log(stringnU2);
-  console.log(stringnU3);
-  console.log(stringnU4);
+  const message = 'Value not in valid format (Yes/No)';
+  if (!['Yes', 'No'].includes(stringnU1)) {
+    return { msg: message, from: 'sendCashDelivery' };
+  }
 
-  if (!['Ano', 'Ne'].includes(stringnU1)) {
-    return true;
+  if (!['Yes', 'No'].includes(stringnU2)) {
+    return { msg: message, from: 'foil' };
   }
-  if (!['Ano', 'Ne'].includes(stringnU2)) {
-    return true;
+
+  if (!['Yes', 'No'].includes(stringnU3)) {
+    return { msg: message, from: 'shippingLabel' };
   }
-  if (!['Ano', 'Ne'].includes(stringnU3)) {
-    return true;
+
+  if (!['Yes', 'No'].includes(stringnU4)) {
+    return { msg: message, from: 'packInBox' };
   }
-  return !['Ano', 'Ne'].includes(stringnU4);
+
+  return undefined;
 };
 
 const parseIntReliable = (numArg: string) => {
@@ -109,37 +132,83 @@ const MyAlert = (messages: {
   return alert;
 };
 
-const ValidDateForm = (dateU1: string) => {
-  const option = /^\d{4}(?:-\d{1,2}){2}$/;
-  return !!option.test(dateU1);
-};
-
 const Valid = (
   pickUparg: string,
-  Deliveryarg: string,
-  Insurancearg: string,
-  SendCashDeliveryarg: string,
+  deliveryarg: string,
+  insurancearg: string,
+  sendCashDeliveryarg: string,
   Foilarg: string,
-  ShippingLabelarg: string,
+  shippingLabelarg: string,
   packInBoxarg: string,
   depoCostarg: string,
   personalCostarg: string,
+  setterErr: State<ErrSettersProperties>,
 ) => {
-  if (
-    !isInt(Insurancearg, 0) ||
-    !isInt(depoCostarg, 0) ||
-    !isInt(personalCostarg, 0)
-  ) {
-    console.log('costs', parseIntReliable(depoCostarg));
-    return new Error('Invalid argument');
+  const messageForInt =
+    'Invalid argument, expect number bigger or equal to zero';
+
+  if (!isInt(insurancearg, 0)) {
+    setterErr.errInsurance.set(messageForInt);
+    return new Error(messageForInt);
   }
 
-  if (IsYesOrNo(SendCashDeliveryarg, Foilarg, ShippingLabelarg, packInBoxarg)) {
-    return new Error('Provided data is not in valid format (Ano/Ne)');
+  setterErr.errInsurance.set('Any');
+
+  if (!isInt(depoCostarg, 0)) {
+    setterErr.errDepoCost.set(messageForInt);
+    return new Error(messageForInt);
   }
 
-  if (!ValidDateForm(Deliveryarg) || !ValidDateForm(pickUparg)) {
-    return new Error('Date is not valid');
+  setterErr.errDepoCost.set('Any');
+
+  if (!isInt(personalCostarg, 0)) {
+    setterErr.errPersonalCost.set(messageForInt);
+    return new Error(messageForInt);
+  }
+
+  setterErr.errPersonalCost.set('Any');
+
+  const yesRoNo = IsYesOrNo(
+    sendCashDeliveryarg,
+    Foilarg,
+    shippingLabelarg,
+    packInBoxarg,
+  );
+
+  if (yesRoNo) {
+    switch (yesRoNo.from) {
+      case 'packInBox': {
+        setterErr.errpackInBox.set(yesRoNo.msg);
+        return new Error(yesRoNo.msg);
+      }
+      case 'shippingLabel': {
+        setterErr.errShippingLabel.set(yesRoNo.msg);
+        return new Error(yesRoNo.msg);
+      }
+      case 'foil': {
+        setterErr.errFoil.set(yesRoNo.msg);
+        return new Error(yesRoNo.msg);
+      }
+      case 'sendCashDelivery': {
+        setterErr.errSendCashDelivery.set(yesRoNo.msg);
+        return new Error(yesRoNo.msg);
+      }
+      default: {
+        setterErr.errSendCashDelivery.set('Any');
+        setterErr.errFoil.set('Any');
+        setterErr.errShippingLabel.set('Any');
+        setterErr.errpackInBox.set('Any');
+        return undefined;
+      }
+    }
+  }
+
+  if (deliveryarg !== 'Any') {
+    return new Error('Delivery date is not valid');
+  }
+
+  if (pickUparg !== 'Any') {
+    return new Error('Pickup date is not valid');
   }
   return undefined;
 };
@@ -161,7 +230,7 @@ export const FormSupplier = () => {
     { value: 'No', label: 'No' },
   ];
 
-  const statesOfDataSupp = useHookstate({
+  const settersOfDataSupp = useHookstate({
     SuppId: '',
     SupplierName: '',
     ActualSupplierName: '',
@@ -182,6 +251,21 @@ export const FormSupplier = () => {
     msgValidation: 'Any',
   });
 
+  const setterDateErr = useHookstate({
+    errPickUp: 'Any',
+    errDelivery: 'Any',
+  });
+
+  const setterErrors = useHookstate({
+    errInsurance: 'Any',
+    errSendCashDelivery: 'Any',
+    errFoil: 'Any',
+    errShippingLabel: 'Any',
+    errpackInBox: 'Any',
+    errDepoCost: 'Any',
+    errPersonalCost: 'Any',
+  });
+
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
@@ -200,33 +284,40 @@ export const FormSupplier = () => {
 
   const MyComponent = (state: State<string>, paragraph: string) => {
     return (
-      <label>
-        <p className={styles.Odstavce}>{paragraph}</p>
-        <Select
-          className={styles.selectInput}
-          onChange={(selectedOption) =>
-            state.set(selectedOption ? selectedOption.value : '')
-          }
-          options={options}
-          placeholder={'Yes/No'}
-          required
-        />
-      </label>
+      <TextField
+        id="outlined-select"
+        select
+        label={paragraph}
+        placeholder={'Yes/No'}
+        required
+        // error
+        helperText={`Please select option Yes/No`}
+        onChange={(selectedOption) =>
+          state.set(selectedOption ? selectedOption.target.value : '')
+        }
+      >
+        {options.map((option: { value: string; label: string }) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </TextField>
     );
   };
 
   const handleForm = async (event: React.FormEvent) => {
     event.preventDefault();
     const valid = Valid(
-      statesOfDataSupp.PickUp.get(),
-      statesOfDataSupp.Delivery.get(),
-      statesOfDataSupp.Insurance.get(),
-      statesOfDataSupp.SendCashDelivery.get(),
-      statesOfDataSupp.Foil.get(),
-      statesOfDataSupp.ShippingLabel.get(),
-      statesOfDataSupp.PackInBox.get(),
-      statesOfDataSupp.DepoCost.get(),
-      statesOfDataSupp.PersonalCost.get(),
+      setterDateErr.errPickUp.get(),
+      setterDateErr.errDelivery.get(),
+      settersOfDataSupp.Insurance.get(),
+      settersOfDataSupp.SendCashDelivery.get(),
+      settersOfDataSupp.Foil.get(),
+      settersOfDataSupp.ShippingLabel.get(),
+      settersOfDataSupp.PackInBox.get(),
+      settersOfDataSupp.DepoCost.get(),
+      settersOfDataSupp.PersonalCost.get(),
+      setterErrors,
     )?.message;
     if (valid) {
       setterForAlertMesssage.msgValidation.set(valid);
@@ -234,16 +325,16 @@ export const FormSupplier = () => {
       setterForAlertMesssage.msgValidation.set('Any');
       const result = await newSupp({
         variables: {
-          SupName: statesOfDataSupp.SupplierName.get(),
-          PickUp: statesOfDataSupp.PickUp.get(),
-          Delivery: statesOfDataSupp.Delivery.get(),
-          Insurance: Number(statesOfDataSupp.Insurance.get()),
-          SendCashDelivery: statesOfDataSupp.SendCashDelivery.get(),
-          Foil: statesOfDataSupp.Foil.get(),
-          ShippingLabel: statesOfDataSupp.ShippingLabel.get(),
-          PackInBox: statesOfDataSupp.PackInBox.get(),
-          DepoCost: Number(statesOfDataSupp.DepoCost.get()),
-          PersonalCost: Number(statesOfDataSupp.PersonalCost.get()),
+          SupName: settersOfDataSupp.SupplierName.get(),
+          PickUp: settersOfDataSupp.PickUp.get(),
+          Delivery: settersOfDataSupp.Delivery.get(),
+          Insurance: Number(settersOfDataSupp.Insurance.get()),
+          SendCashDelivery: settersOfDataSupp.SendCashDelivery.get(),
+          Foil: settersOfDataSupp.Foil.get(),
+          ShippingLabel: settersOfDataSupp.ShippingLabel.get(),
+          PackInBox: settersOfDataSupp.PackInBox.get(),
+          DepoCost: Number(settersOfDataSupp.DepoCost.get()),
+          PersonalCost: Number(settersOfDataSupp.PersonalCost.get()),
         },
         refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
@@ -285,117 +376,149 @@ export const FormSupplier = () => {
   return (
     <div>
       <div className={styles.container}>
-        {MyAlert({
-          succesCreate: setterForAlertMesssage.succesCreate.value,
-          errCreate: setterForAlertMesssage.errCreate.value,
-          msgValidation: setterForAlertMesssage.msgValidation.value,
-        })}
-        <h1
-          style={{
-            textAlign: 'center',
-            paddingBottom: '20px',
-            fontWeight: 'bold',
-            fontFamily: 'serif',
-            color: 'orangered',
-          }}
+        <form
+          onSubmit={handleForm}
+          className={styles.form}
+          onChange={() =>
+            setterForAlertMesssage.set({
+              msgValidation: 'Any',
+              errCreate: 'Any',
+              succesCreate: 'Any',
+            })
+          }
         >
-          Create supplier
-        </h1>
-        <form onSubmit={handleForm} className={styles.form}>
-          <div className={styles.divinput}>
-            <label>
-              <p className={styles.Odstavce}>Supplier name</p>
-              <input
-                className={styles.inputForSupp}
-                onChange={(e) =>
-                  statesOfDataSupp.SupplierName.set(e.target.value)
+          <fieldset>
+            {MyAlert({
+              succesCreate: setterForAlertMesssage.succesCreate.value,
+              errCreate: setterForAlertMesssage.errCreate.value,
+              msgValidation: setterForAlertMesssage.msgValidation.value,
+            })}
+          </fieldset>
+          <fieldset>
+            <legend>Supplier information</legend>
+            <TextField
+              type="text"
+              label="Supplier name"
+              required
+              id="outlined-required"
+              sx={{ m: 1, width: '25ch' }}
+              onChange={(e) =>
+                settersOfDataSupp.SupplierName.set(e.target.value)
+              }
+              helperText={`Write supplier name`}
+            />
+            <TextField
+              type="number"
+              label="Insurance"
+              required
+              id="outlined-basic"
+              sx={{ m: 1, width: '25ch' }}
+              onChange={(e) => settersOfDataSupp.Insurance.set(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">Kč</InputAdornment>
+                ),
+              }}
+              helperText={`Write your insurance package`}
+            />
+          </fieldset>
+
+          <fieldset>
+            <legend>Dates for package</legend>{' '}
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Delivery"
+                disablePast
+                minDate={dayjs()}
+                onError={(e: DateValidationError) =>
+                  setterDateErr.errDelivery.set(e ? e.toString() : 'Any')
                 }
-                required
-                type="text"
-                placeholder="Name"
+                onChange={(e: dayjs.Dayjs | null) =>
+                  settersOfDataSupp.Delivery.set(
+                    e ? e.toDate().toDateString() : '',
+                  )
+                }
+                slotProps={{
+                  textField: {
+                    helperText:
+                      'Enter the date of package delivery in format (MM/DD/YYYY)',
+                  },
+                }}
               />
-            </label>
-          </div>
-          <div className={styles.divinput}>
-            <label>
-              <p className={styles.Odstavce}>Delivery</p>
-              <input
-                className={styles.inputDate}
-                onChange={(e) => statesOfDataSupp.Delivery.set(e.target.value)}
-                required
-                type="date"
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Pick up"
+                disablePast
+                minDate={dayjs()}
+                onError={(e: DateValidationError) =>
+                  setterDateErr.errPickUp.set(e ? e.toString() : 'Any')
+                }
+                onChange={(e: dayjs.Dayjs | null) =>
+                  settersOfDataSupp.PickUp.set(
+                    e ? e.toDate().toDateString() : '',
+                  )
+                }
+                slotProps={{
+                  textField: {
+                    helperText:
+                      'Enter the date of package pickup in format (MM/DD/YYYY)',
+                  },
+                }}
               />
-            </label>
-            <label>
-              <p className={styles.Odstavce}>Pick up</p>
-              <input
-                className={styles.inputDate}
-                onChange={(e) => statesOfDataSupp.PickUp.set(e.target.value)}
-                required
-                type="date"
-              />
-            </label>
-          </div>
-          <h3 className={styles.Nadpisy}>Info about courier</h3>
-          <div className={styles.divinput}>
-            <label>
-              <p className={styles.Odstavce}>Insurance</p>
-              <input
-                className={styles.inputForSupp}
-                onChange={(e) => statesOfDataSupp.Insurance.set(e.target.value)}
-                required
-                type="number"
-                placeholder="Kč"
-              />
-            </label>
-          </div>
-          <div className={styles.divinput}>
-            {MyComponent(statesOfDataSupp.SendCashDelivery, 'Cash on delivery')}
+            </LocalizationProvider>
+          </fieldset>
+
+          <fieldset>
+            <legend>Details</legend>
             {MyComponent(
-              statesOfDataSupp.ShippingLabel,
-              'Shipping label will be delivered by courier',
+              settersOfDataSupp.SendCashDelivery,
+              'Cash on delivery',
             )}
-          </div>
-          <div className={styles.divinput}>
-            {MyComponent(statesOfDataSupp.Foil, 'Must not be packed in foil')}
-            {MyComponent(statesOfDataSupp.PackInBox, 'Must be packed in a box')}
-          </div>
-          <h3 className={styles.Nadpisy}>Shipping/transfer method prices</h3>
-          <div className={styles.divinput}>
-            <div className={styles.divinput}>
-              <label>
-                <p className={styles.Odstavce}>Depo</p>
-                <input
-                  className={styles.inputForSupp}
-                  onChange={(e) =>
-                    statesOfDataSupp.DepoCost.set(e.target.value)
-                  }
-                  required
-                  type="number"
-                  placeholder="Kč"
-                />
-              </label>
-            </div>
-            <div className={styles.divinput}>
-              <label>
-                <p className={styles.Odstavce}>Personal</p>
-                <input
-                  className={styles.inputForSupp}
-                  onChange={(e) =>
-                    statesOfDataSupp.PersonalCost.set(e.target.value)
-                  }
-                  required
-                  type="number"
-                  placeholder="Kč"
-                />
-              </label>
-            </div>
-          </div>
-          <div className={styles.divinput}>
-            <button className={styles.crudbtn} type="submit">
-              Create
-            </button>
-          </div>
+            {MyComponent(
+              settersOfDataSupp.ShippingLabel,
+              'Shipping delivered by courier',
+            )}
+            {MyComponent(settersOfDataSupp.Foil, 'Packed in foil')}
+            {MyComponent(settersOfDataSupp.PackInBox, 'Packed in a box')}
+          </fieldset>
+          <fieldset>
+            <legend>Shipping/transfer method prices</legend>{' '}
+            <TextField
+              type="number"
+              label="Depo cost"
+              required
+              id="outlined-basic"
+              sx={{ m: 1, width: '25ch' }}
+              onChange={(e) => settersOfDataSupp.DepoCost.set(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">Kč</InputAdornment>
+                ),
+              }}
+              helperText={`Write your cost for deliver/pick up to depo`}
+            />{' '}
+            <TextField
+              type="number"
+              label="Personal cost"
+              required
+              id="outlined-basic"
+              sx={{ m: 1, width: '25ch' }}
+              onChange={(e) =>
+                settersOfDataSupp.PersonalCost.set(e.target.value)
+              }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">Kč</InputAdornment>
+                ),
+              }}
+              helperText={`Write your cost for deliver/pick up to you personaly`}
+            />
+          </fieldset>
+
+          <button className={styles.crudbtn} type="submit">
+            Create
+          </button>
         </form>
       </div>
     </div>

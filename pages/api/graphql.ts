@@ -1,6 +1,7 @@
 import 'firebase/compat/storage';
 
 import { Context } from '@apollo/client';
+import { isValid } from 'date-fns';
 import { DecodedIdToken } from 'firebase-admin/auth';
 import { gql } from 'graphql-tag';
 import { createSchema, createYoga } from 'graphql-yoga';
@@ -1453,10 +1454,17 @@ const resolvers = {
           };
         }
 
-        if (ConverDate(PickupPoint, isDelivered)?.message) {
+        if (!isValid(new Date(isDelivered))) {
           return {
             __typename: 'SupplierError',
-            message: 'Provided date is not valid',
+            message: 'Date of delivery is not valid',
+          };
+        }
+
+        if (!isValid(new Date(PickupPoint))) {
+          return {
+            __typename: 'SupplierError',
+            message: 'Date of pick up is not valid',
           };
         }
 
@@ -1470,7 +1478,7 @@ const resolvers = {
         ) {
           return {
             __typename: 'SupplierError',
-            message: 'Provided data is not in valid format (Ano/Ne)',
+            message: 'Provided data is not in valid format (Yes/No)',
           };
         }
 
@@ -1491,7 +1499,8 @@ const resolvers = {
         if (PickupPoint < isDelivered) {
           return {
             __typename: 'SupplierError',
-            message: 'Pickup cant be longer then delivery',
+            message:
+              'The pick-up date cannot be earlier than the delivery date',
           };
         }
 
@@ -1777,10 +1786,18 @@ const resolvers = {
             message: admMessage,
           };
         }
-        if (ConverDate(PickupPoint, isDelivered)?.message) {
+
+        if (!isValid(new Date(isDelivered))) {
           return {
             __typename: 'SupplierError',
-            message: 'Provided date is not valid',
+            message: 'Date of delivery is not valid',
+          };
+        }
+
+        if (!isValid(new Date(PickupPoint))) {
+          return {
+            __typename: 'SupplierError',
+            message: 'Date of pick up is not valid',
           };
         }
 
@@ -1794,7 +1811,7 @@ const resolvers = {
         ) {
           return {
             __typename: 'SupplierError',
-            message: 'Provided data is not in valid format (Ano/Ne)',
+            message: 'Provided data is not in valid format (Yes/No)',
           };
         }
 
@@ -1832,7 +1849,8 @@ const resolvers = {
         if (PickupPoint < isDelivered) {
           return {
             __typename: 'SupplierError',
-            message: 'Pickup cant be longer then delivery',
+            message:
+              'The pick-up date cannot be earlier than the delivery date',
           };
         }
 
