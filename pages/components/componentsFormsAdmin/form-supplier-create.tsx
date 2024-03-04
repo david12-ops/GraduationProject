@@ -137,7 +137,7 @@ const Valid = (
   deliveryarg: string,
   insurancearg: string,
   sendCashDeliveryarg: string,
-  Foilarg: string,
+  foilarg: string,
   shippingLabelarg: string,
   packInBoxarg: string,
   depoCostarg: string,
@@ -170,7 +170,7 @@ const Valid = (
 
   const yesRoNo = IsYesOrNo(
     sendCashDeliveryarg,
-    Foilarg,
+    foilarg,
     shippingLabelarg,
     packInBoxarg,
   );
@@ -266,6 +266,7 @@ export const FormSupplier = () => {
     errPersonalCost: 'Any',
   });
 
+  // nepouzivat alerty errr u button
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
@@ -375,152 +376,215 @@ export const FormSupplier = () => {
   }
   return (
     <div>
-      <div className={styles.container}>
-        <form
-          onSubmit={handleForm}
-          className={styles.form}
-          onChange={() =>
-            setterForAlertMesssage.set({
-              msgValidation: 'Any',
-              errCreate: 'Any',
-              succesCreate: 'Any',
-            })
-          }
+      <form
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+        }}
+        onSubmit={handleForm}
+        onChange={() =>
+          setterForAlertMesssage.set({
+            msgValidation: 'Any',
+            errCreate: 'Any',
+            succesCreate: 'Any',
+          })
+        }
+      >
+        {MyAlert({
+          succesCreate: setterForAlertMesssage.succesCreate.value,
+          errCreate: setterForAlertMesssage.errCreate.value,
+          msgValidation: setterForAlertMesssage.msgValidation.value,
+        })}
+        <fieldset
+          style={{
+            border: '5px solid #F565AD',
+            borderRadius: '10px',
+            display: 'flex',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            justifyContent: 'space-around',
+            padding: '1rem',
+          }}
         >
-          <fieldset>
-            {MyAlert({
-              succesCreate: setterForAlertMesssage.succesCreate.value,
-              errCreate: setterForAlertMesssage.errCreate.value,
-              msgValidation: setterForAlertMesssage.msgValidation.value,
-            })}
-          </fieldset>
-          <fieldset>
-            <legend>Supplier information</legend>
-            <TextField
-              type="text"
-              label="Supplier name"
-              required
-              id="outlined-required"
-              sx={{ m: 1, width: '25ch' }}
-              onChange={(e) =>
-                settersOfDataSupp.SupplierName.set(e.target.value)
+          <legend
+            style={{
+              textAlign: 'center',
+              fontSize: '30px',
+              fontWeight: 'bold',
+            }}
+          >
+            Supplier information
+          </legend>
+          <TextField
+            type="text"
+            label="Supplier name"
+            required
+            id="outlined-required"
+            sx={{ m: 1, width: '25ch' }}
+            onChange={(e) => settersOfDataSupp.SupplierName.set(e.target.value)}
+            helperText={`Enter supplier name`}
+          />
+          <TextField
+            type="number"
+            label="Insurance"
+            required
+            id="outlined-basic"
+            sx={{ m: 1, width: '25ch' }}
+            onChange={(e) => settersOfDataSupp.Insurance.set(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">Kč</InputAdornment>
+              ),
+            }}
+            helperText={`Enter insurance on package`}
+          />
+        </fieldset>
+
+        <fieldset
+          style={{
+            border: '5px solid #F565AD',
+            borderRadius: '10px',
+            display: 'flex',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            justifyContent: 'space-around',
+            padding: '1rem',
+          }}
+        >
+          <legend
+            style={{
+              textAlign: 'center',
+              fontSize: '30px',
+              fontWeight: 'bold',
+            }}
+          >
+            Dates for package
+          </legend>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Delivery"
+              disablePast
+              minDate={dayjs()}
+              onError={(e: DateValidationError) =>
+                setterDateErr.errDelivery.set(e ? e.toString() : 'Any')
               }
-              helperText={`Write supplier name`}
-            />
-            <TextField
-              type="number"
-              label="Insurance"
-              required
-              id="outlined-basic"
-              sx={{ m: 1, width: '25ch' }}
-              onChange={(e) => settersOfDataSupp.Insurance.set(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">Kč</InputAdornment>
-                ),
-              }}
-              helperText={`Write your insurance package`}
-            />
-          </fieldset>
-
-          <fieldset>
-            <legend>Dates for package</legend>{' '}
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Delivery"
-                disablePast
-                minDate={dayjs()}
-                onError={(e: DateValidationError) =>
-                  setterDateErr.errDelivery.set(e ? e.toString() : 'Any')
-                }
-                onChange={(e: dayjs.Dayjs | null) =>
-                  settersOfDataSupp.Delivery.set(
-                    e ? e.toDate().toDateString() : '',
-                  )
-                }
-                slotProps={{
-                  textField: {
-                    helperText:
-                      'Enter the date of package delivery in format (MM/DD/YYYY)',
-                  },
-                }}
-              />
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Pick up"
-                disablePast
-                minDate={dayjs()}
-                onError={(e: DateValidationError) =>
-                  setterDateErr.errPickUp.set(e ? e.toString() : 'Any')
-                }
-                onChange={(e: dayjs.Dayjs | null) =>
-                  settersOfDataSupp.PickUp.set(
-                    e ? e.toDate().toDateString() : '',
-                  )
-                }
-                slotProps={{
-                  textField: {
-                    helperText:
-                      'Enter the date of package pickup in format (MM/DD/YYYY)',
-                  },
-                }}
-              />
-            </LocalizationProvider>
-          </fieldset>
-
-          <fieldset>
-            <legend>Details</legend>
-            {MyComponent(
-              settersOfDataSupp.SendCashDelivery,
-              'Cash on delivery',
-            )}
-            {MyComponent(
-              settersOfDataSupp.ShippingLabel,
-              'Shipping delivered by courier',
-            )}
-            {MyComponent(settersOfDataSupp.Foil, 'Packed in foil')}
-            {MyComponent(settersOfDataSupp.PackInBox, 'Packed in a box')}
-          </fieldset>
-          <fieldset>
-            <legend>Shipping/transfer method prices</legend>{' '}
-            <TextField
-              type="number"
-              label="Depo cost"
-              required
-              id="outlined-basic"
-              sx={{ m: 1, width: '25ch' }}
-              onChange={(e) => settersOfDataSupp.DepoCost.set(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">Kč</InputAdornment>
-                ),
-              }}
-              helperText={`Write your cost for deliver/pick up to depo`}
-            />{' '}
-            <TextField
-              type="number"
-              label="Personal cost"
-              required
-              id="outlined-basic"
-              sx={{ m: 1, width: '25ch' }}
-              onChange={(e) =>
-                settersOfDataSupp.PersonalCost.set(e.target.value)
+              onChange={(e: dayjs.Dayjs | null) =>
+                settersOfDataSupp.Delivery.set(
+                  e ? e.toDate().toDateString() : '',
+                )
               }
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">Kč</InputAdornment>
-                ),
+              slotProps={{
+                textField: {
+                  helperText:
+                    'Enter the date of package delivery in format (MM/DD/YYYY)',
+                },
               }}
-              helperText={`Write your cost for deliver/pick up to you personaly`}
             />
-          </fieldset>
+          </LocalizationProvider>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Pick up"
+              disablePast
+              minDate={dayjs()}
+              onError={(e: DateValidationError) =>
+                setterDateErr.errPickUp.set(e ? e.toString() : 'Any')
+              }
+              onChange={(e: dayjs.Dayjs | null) =>
+                settersOfDataSupp.PickUp.set(e ? e.toDate().toDateString() : '')
+              }
+              slotProps={{
+                textField: {
+                  helperText:
+                    'Enter the date of package pickup in format (MM/DD/YYYY)',
+                },
+              }}
+            />
+          </LocalizationProvider>
+        </fieldset>
 
-          <button className={styles.crudbtn} type="submit">
-            Create
-          </button>
-        </form>
-      </div>
+        <fieldset
+          style={{
+            border: '5px solid #F565AD',
+            borderRadius: '10px',
+            display: 'flex',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            justifyContent: 'space-around',
+            padding: '1rem',
+          }}
+        >
+          <legend
+            style={{
+              textAlign: 'center',
+              fontSize: '30px',
+              fontWeight: 'bold',
+            }}
+          >
+            Details
+          </legend>
+          {MyComponent(settersOfDataSupp.SendCashDelivery, 'Cash on delivery')}
+          {MyComponent(
+            settersOfDataSupp.ShippingLabel,
+            'Shipping delivered by courier',
+          )}
+          {MyComponent(settersOfDataSupp.Foil, 'Packed in foil')}
+          {MyComponent(settersOfDataSupp.PackInBox, 'Packed in a box')}
+        </fieldset>
+        <fieldset
+          style={{
+            border: '5px solid #F565AD',
+            borderRadius: '10px',
+            display: 'flex',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            justifyContent: 'space-around',
+            padding: '1rem',
+          }}
+        >
+          <legend
+            style={{
+              textAlign: 'center',
+              fontSize: '30px',
+              fontWeight: 'bold',
+            }}
+          >
+            Shipping/transfer method prices
+          </legend>
+          <TextField
+            type="number"
+            label="Depo cost"
+            required
+            id="outlined-basic"
+            sx={{ m: 1, width: '25ch' }}
+            onChange={(e) => settersOfDataSupp.DepoCost.set(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">Kč</InputAdornment>
+              ),
+            }}
+            helperText={`Enter cost for deliver/pick up to depo`}
+          />
+          <TextField
+            type="number"
+            label="Personal cost"
+            required
+            id="outlined-basic"
+            sx={{ m: 1, width: '25ch' }}
+            onChange={(e) => settersOfDataSupp.PersonalCost.set(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">Kč</InputAdornment>
+              ),
+            }}
+            helperText={`Enter cost for deliver/pick up to you personaly`}
+          />
+        </fieldset>
+
+        <button className={styles.crudbtn} type="submit">
+          Create
+        </button>
+      </form>
     </div>
   );
 };

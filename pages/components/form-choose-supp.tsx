@@ -513,7 +513,7 @@ export const FormChooseSup: React.FC<Props> = ({
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '25px',
+        gap: '20px',
       }}
     >
       <Card style={{ border: '5px solid #F565AD', borderRadius: '10px' }}>

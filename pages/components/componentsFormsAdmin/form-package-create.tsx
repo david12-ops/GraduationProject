@@ -1,5 +1,5 @@
-import { useHookstate } from '@hookstate/core';
-import { Alert, Button } from '@mui/material';
+import { State, useHookstate } from '@hookstate/core';
+import { Alert, Button, InputAdornment, TextField } from '@mui/material';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
@@ -27,6 +27,14 @@ type CreatedPackage = {
   supplier_id: string;
 };
 
+type ErrSetterProperties = {
+  errWeight: string;
+  errCost: string;
+  errpLength: string;
+  errHeight: string;
+  errWidth: string;
+};
+
 const parseIntReliable = (numArg: string) => {
   if (numArg.length > 0) {
     const parsed = Number.parseInt(numArg, 10);
@@ -51,19 +59,37 @@ const isInt = (numArg: string, min: number) => {
 const Valid = (
   weightarg: string,
   costarg: string,
-  pLemgtharg: string,
+  pLengtharg: string,
   heightarg: string,
   widtharg: string,
+  errSetter: State<ErrSetterProperties>,
 ) => {
-  if (
-    !isInt(weightarg, 0) ||
-    !isInt(costarg, 0) ||
-    !isInt(pLemgtharg, 0) ||
-    !isInt(heightarg, 0) ||
-    !isInt(widtharg, 0)
-  ) {
-    return new Error('Invalid argument');
+  const messageInt = 'Expect number bigger or equal to zero';
+  if (!isInt(weightarg, 0)) {
+    errSetter.errWeight.set(messageInt);
+    return new Error(messageInt);
   }
+
+  if (!isInt(costarg, 0)) {
+    errSetter.errCost.set(messageInt);
+    return new Error(messageInt);
+  }
+
+  if (!isInt(pLengtharg, 0)) {
+    errSetter.errpLength.set(messageInt);
+    return new Error(messageInt);
+  }
+
+  if (!isInt(heightarg, 0)) {
+    errSetter.errHeight.set(messageInt);
+    return new Error(messageInt);
+  }
+
+  if (!isInt(widtharg, 0)) {
+    errSetter.errWidth.set(messageInt);
+    return new Error(messageInt);
+  }
+
   return undefined;
 };
 
@@ -117,7 +143,7 @@ const MyAlert = (
 };
 
 export const FormPackage: React.FC<Props> = ({ id }) => {
-  const statesOfDataPack = useHookstate({
+  const settersForDataPack = useHookstate({
     Weight: '',
     Cost: '',
     Plength: ' ',
@@ -130,6 +156,14 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     errCreate: 'Any',
     succesCreate: 'Any',
     msgValidation: 'Any',
+  });
+
+  const setterErrors = useHookstate({
+    errWeight: 'Any',
+    errCost: 'Any',
+    errpLength: 'Any',
+    errHeight: 'Any',
+    errWidth: 'Any',
   });
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
@@ -154,11 +188,12 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     event?.preventDefault();
     const pID = uuidv4();
     const valid = Valid(
-      statesOfDataPack.Weight.get(),
-      statesOfDataPack.Cost.get(),
-      statesOfDataPack.Plength.get(),
-      statesOfDataPack.Height.get(),
-      statesOfDataPack.Width.get(),
+      settersForDataPack.Weight.get(),
+      settersForDataPack.Cost.get(),
+      settersForDataPack.Plength.get(),
+      settersForDataPack.Height.get(),
+      settersForDataPack.Width.get(),
+      setterErrors,
     )?.message;
     if (valid) {
       setterForAlertMesssage.msgValidation.set(valid);
@@ -166,12 +201,12 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
       setterForAlertMesssage.msgValidation.set('Any');
       const result = await newPackage({
         variables: {
-          Weight: Number(statesOfDataPack.Weight.get()),
-          Cost: Number(statesOfDataPack.Cost.get()),
-          Length: Number(statesOfDataPack.Plength.get()),
-          Height: Number(statesOfDataPack.Height.get()),
-          Width: Number(statesOfDataPack.Width.get()),
-          Pack_name: statesOfDataPack.PackName.get(),
+          Weight: Number(settersForDataPack.Weight.get()),
+          Cost: Number(settersForDataPack.Cost.get()),
+          Length: Number(settersForDataPack.Plength.get()),
+          Height: Number(settersForDataPack.Height.get()),
+          Width: Number(settersForDataPack.Width.get()),
+          Pack_name: settersForDataPack.PackName.get(),
           SuppID: id,
           PackId: pID,
         },
@@ -214,101 +249,165 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
   }
   return (
     <div>
-      <div className={styles.container}>
-        {MyAlert(
-          {
-            succesCreate: setterForAlertMesssage.succesCreate.value,
-            errCreate: setterForAlertMesssage.errCreate.value,
-            msgValidation: setterForAlertMesssage.msgValidation.value,
-          },
-          suppId,
-        )}
-        <h1
+      {MyAlert(
+        {
+          succesCreate: setterForAlertMesssage.succesCreate.value,
+          errCreate: setterForAlertMesssage.errCreate.value,
+          msgValidation: setterForAlertMesssage.msgValidation.value,
+        },
+        suppId,
+      )}
+
+      <form
+        onSubmit={handleForm}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+        }}
+        onChange={() =>
+          setterErrors.set({
+            errCost: 'Any',
+            errHeight: 'Any',
+            errpLength: 'Any',
+            errWeight: 'Any',
+            errWidth: 'Any',
+          })
+        }
+      >
+        <fieldset
           style={{
-            textAlign: 'center',
-            paddingBottom: '20px',
-            fontWeight: 'bold',
-            fontFamily: 'serif',
-            color: 'orangered',
+            border: '5px solid #F565AD',
+            borderRadius: '10px',
+            display: 'flex',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            justifyContent: 'space-around',
+            padding: '1rem',
           }}
         >
-          Create package
-        </h1>
-        <form onSubmit={handleForm} className={styles.form}>
-          <div className={styles.divinput}>
-            <label>
-              <p className={styles.Odstavce}>Name</p>
-              <input
-                className={styles.input}
-                onChange={(e) => statesOfDataPack.PackName.set(e.target.value)}
-                required
-                type="text"
-                placeholder="Name"
-              />
-            </label>
-            <label>
-              <p className={styles.Odstavce}>Cost</p>
-              <input
-                className={styles.input}
-                onChange={(e) => statesOfDataPack.Cost.set(e.target.value)}
-                required
-                type="number"
-                placeholder="Kč"
-              />
-            </label>
-          </div>
-          <h3 className={styles.Nadpisy}>Parameters of package</h3>
-          <div className={styles.divinput}>
-            <label>
-              <p className={styles.Odstavce}>Width</p>
-              <input
-                className={styles.input}
-                onChange={(e) => statesOfDataPack.Width.set(e.target.value)}
-                required
-                type="number"
-                placeholder="Cm"
-              />
-            </label>
-            <label>
-              <p className={styles.Odstavce}>Weight</p>
-              <input
-                className={styles.input}
-                onChange={(e) => statesOfDataPack.Weight.set(e.target.value)}
-                required
-                type="number"
-                placeholder="Kg"
-              />
-            </label>
-          </div>
-          <div className={styles.divinput}>
-            <label>
-              <p className={styles.Odstavce}>Length</p>
-              <input
-                className={styles.input}
-                onChange={(e) => statesOfDataPack.Plength.set(e.target.value)}
-                required
-                type="number"
-                placeholder="Cm"
-              />
-            </label>
-            <label>
-              <p className={styles.Odstavce}>Height</p>
-              <input
-                className={styles.input}
-                onChange={(e) => statesOfDataPack.Height.set(e.target.value)}
-                required
-                type="number"
-                placeholder="Cm"
-              />
-            </label>
-          </div>
-          <div className={styles.divinput}>
-            <button className={styles.crudbtn} type="submit">
-              Create
-            </button>
-          </div>
-        </form>
-      </div>
+          <legend
+            style={{
+              textAlign: 'center',
+              fontSize: '30px',
+              fontWeight: 'bold',
+            }}
+          >
+            Package
+          </legend>
+          <TextField
+            type="text"
+            label="Package name"
+            required
+            id="outlined-required"
+            sx={{ m: 1, width: '25ch' }}
+            onChange={(e) => settersForDataPack.PackName.set(e.target.value)}
+            helperText={`Enter package label`}
+            value={settersForDataPack.PackName.get()}
+          />
+          <TextField
+            type="number"
+            label="Cost"
+            required
+            id="outlined-basic"
+            sx={{ m: 1, width: '25ch' }}
+            onChange={(e) => settersForDataPack.Cost.set(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">Kč</InputAdornment>
+              ),
+            }}
+            helperText={`Enter cost of package`}
+            value={settersForDataPack.Cost.get()}
+          />
+        </fieldset>
+
+        <fieldset
+          style={{
+            border: '5px solid #F565AD',
+            borderRadius: '10px',
+            display: 'flex',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            justifyContent: 'space-around',
+            padding: '1rem',
+          }}
+        >
+          <legend
+            style={{
+              textAlign: 'center',
+              fontSize: '30px',
+              fontWeight: 'bold',
+            }}
+          >
+            Parameters of package
+          </legend>
+          <TextField
+            type="number"
+            label="Width"
+            required
+            id="outlined-basic"
+            sx={{ m: 1, width: '25ch' }}
+            onChange={(e) => settersForDataPack.Width.set(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">Cm</InputAdornment>
+              ),
+            }}
+            helperText={`Enter width of package`}
+            value={settersForDataPack.Width.get()}
+          />
+          <TextField
+            type="number"
+            label="Weight"
+            required
+            id="outlined-basic"
+            sx={{ m: 1, width: '25ch' }}
+            onChange={(e) => settersForDataPack.Weight.set(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">Cm</InputAdornment>
+              ),
+            }}
+            helperText={`Enter weight of package`}
+            value={settersForDataPack.Weight.get()}
+          />
+          <TextField
+            type="number"
+            label="Length"
+            required
+            id="outlined-basic"
+            sx={{ m: 1, width: '25ch' }}
+            onChange={(e) => settersForDataPack.Plength.set(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">Cm</InputAdornment>
+              ),
+            }}
+            helperText={`Enter length of package`}
+            value={settersForDataPack.Plength.get()}
+          />
+          <TextField
+            type="number"
+            label="Height"
+            required
+            id="outlined-basic"
+            sx={{ m: 1, width: '25ch' }}
+            onChange={(e) => settersForDataPack.Height.set(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">Cm</InputAdornment>
+              ),
+            }}
+            helperText={`Enter height of package`}
+            value={settersForDataPack.Height.get()}
+          />
+        </fieldset>
+
+        <button className={styles.crudbtn} type="submit">
+          Upadte
+        </button>
+      </form>
     </div>
   );
 };
