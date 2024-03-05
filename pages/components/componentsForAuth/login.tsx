@@ -64,7 +64,9 @@
 //     </div>
 //   );
 // };
+import { State, useHookstate } from '@hookstate/core';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { Alert } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
@@ -76,14 +78,70 @@ import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import { FirebaseError } from 'firebase-admin';
+import router from 'next/router';
 import * as React from 'react';
 
-const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
-  const data = new FormData(event.currentTarget);
-  console.log({
-    email: data.get('email'),
-    password: data.get('password'),
+import { authUtils } from '@/firebase/auth-utils';
+
+const MyAlert = (message: string, type: string) => {
+  switch (type) {
+    case 'success': {
+      return <Alert severity="success">{message}</Alert>;
+    }
+    case 'error': {
+      return <Alert severity="error">{message}</Alert>;
+    }
+    default: {
+      return <div></div>;
+    }
+  }
+};
+
+const Submit = async (
+  // event: React.FormEvent<HTMLFormElement>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  errSetter: State<{
+    errEmail: string;
+    errPassword: string;
+  }>,
+) => {
+  // event.preventDefault();
+  // const data = new FormData(event.currentTarget);
+  // window.localStorage.setItem()
+  // window.localStorage.removeItem()
+
+  try {
+    await authUtils.login(email, password);
+    SetAlert(MyAlert('User login successfully', 'success'));
+    return await router.push('/');
+  } catch (error) {
+    const err = error as FirebaseError;
+    if (err.code === 'auth/user-not-found') {
+      SetAlert(
+        MyAlert(
+          'Bad password or user name or you do not have account',
+          'error',
+        ),
+      );
+    }
+    if (err.code === 'auth/invalid-email') {
+      errSetter.errEmail.set('Email is not valid');
+    }
+  }
+};
+
+const onChangeForm = (
+  errSetter: State<{
+    errEmail: string;
+    errPassword: string;
+  }>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+) => {
+  SetAlert(<div></div>);
+  errSetter.set({
+    errEmail: 'Any',
+    errPassword: 'Any',
   });
 };
 
@@ -91,6 +149,18 @@ const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 const defaultTheme = createTheme();
 
 export const PageFormLogin = () => {
+  const [myAlert, SetmyAlert] = React.useState(<div></div>);
+
+  const errCredentials = useHookstate({
+    errEmail: 'Any',
+    errPassword: 'Any',
+  });
+
+  const credentials = useHookstate({
+    email: '',
+    password: '',
+  });
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
@@ -102,16 +172,18 @@ export const PageFormLogin = () => {
             flexDirection: 'column',
             alignItems: 'center',
           }}
+          onChange={() => onChangeForm(errCredentials, SetmyAlert)}
         >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
+          {myAlert}
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
           <Box
             component="form"
-            onSubmit={handleSubmit}
+            onChange={() => onChangeForm(errCredentials, SetmyAlert)}
             noValidate
             sx={{ mt: 1 }}
           >
@@ -121,7 +193,7 @@ export const PageFormLogin = () => {
               fullWidth
               id="email"
               label="Email Address"
-              name="email"
+              onChange={(e) => credentials.email.set(e.target.value)}
               autoComplete="email"
               autoFocus
             />
@@ -129,9 +201,9 @@ export const PageFormLogin = () => {
               margin="normal"
               required
               fullWidth
-              name="password"
               label="Password"
               type="password"
+              onChange={(e) => credentials.password.set(e.target.value)}
               id="password"
               autoComplete="current-password"
             />
@@ -142,12 +214,12 @@ export const PageFormLogin = () => {
 
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
+                <Link href="change-pass-page" variant="body2">
                   Forgot password?
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="register-page" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>

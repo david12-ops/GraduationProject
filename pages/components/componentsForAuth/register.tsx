@@ -36,9 +36,12 @@ const ValidCredentials = (
   const data = { pass: password, em: email };
   const hasSymbol = /[!"#$%&()*,.:<>?@^{|}]/.test(password);
   const hasNumber = /\d/.test(password);
-  // email - validace
-  if (data.em === '') {
+  if (data.em.length === 0) {
     return { where: 'email', errMesage: 'Email was not provided' };
+  }
+
+  if (data.pass.length === 0) {
+    return { where: 'password', errMesage: 'Password was not provided' };
   }
 
   if (data.pass.length < 8) {
@@ -54,7 +57,10 @@ const ValidCredentials = (
 
   const getPartEmIndex = data.em.indexOf('@');
 
-  if (password.includes(data.em.slice(0, getPartEmIndex))) {
+  if (
+    password.includes(data.em.slice(0, getPartEmIndex)) &&
+    getPartEmIndex > 0
+  ) {
     return {
       where: 'password',
       errMesage: 'Password includes emeail account',
@@ -94,13 +100,9 @@ const RequirementsPass = (
       <Button style={{ float: 'right' }} onClick={() => setClose(true)}>
         <ClearOutlinedIcon />
       </Button>
-      <p style={{ margin: '8px' }}>Password lenght must be min 8 characters</p>
-      <p style={{ margin: '8px' }}>
-        Must include combination of symbol, number and character
-      </p>
-      <p style={{ margin: '8px' }}>
-        Email accaount can not be part of passsword
-      </p>
+      <p>Length bigger or equal to 8</p>
+      <p>Combination of symbol, number, character</p>
+      <p>Part of email not included in password</p>
     </div>
   );
 };
@@ -115,7 +117,6 @@ const Submit = async (
     errEmail: string;
     errPassword: string;
   }>,
-  // event: React.FormEvent<HTMLFormElement>,
 ) => {
   const validation = ValidCredentials(data.password, data.email);
 
@@ -146,6 +147,9 @@ const Submit = async (
     if (err.code === 'auth/email-already-in-use') {
       SetAlert(MyAlert('User is already in use', 'error'));
     }
+    if (err.code === 'auth/invalid-email') {
+      errSetter.errEmail.set('Email is not valid');
+    }
   }
 };
 
@@ -157,8 +161,7 @@ const Credentials = async (
     errPassword: string;
   }>,
 ) => {
-  // const data = new FormData(event.currentTarget) ?? (undefined || null);
-  if (data) {
+  if (data.emeil.length > 0 && data.password.length > 0) {
     await Submit(
       {
         password: data.password,
