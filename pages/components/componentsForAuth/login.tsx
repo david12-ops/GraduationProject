@@ -66,7 +66,7 @@
 // };
 import { State, useHookstate } from '@hookstate/core';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { Alert } from '@mui/material';
+import { Alert, Button } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
@@ -78,8 +78,12 @@ import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import {
+  browserSessionPersistence,
+  getAuth,
+  setPersistence,
+} from 'firebase/auth';
 import { FirebaseError } from 'firebase-admin';
-import router from 'next/router';
 import * as React from 'react';
 
 import { authUtils } from '@/firebase/auth-utils';
@@ -99,34 +103,115 @@ const MyAlert = (message: string, type: string) => {
 };
 
 const Submit = async (
-  // event: React.FormEvent<HTMLFormElement>,
   SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
   errSetter: State<{
     errEmail: string;
     errPassword: string;
   }>,
+  data: { password: string; email: string },
+  isCheck: boolean,
+  // eslint-disable-next-line sonarjs/cognitive-complexity
 ) => {
   // event.preventDefault();
   // const data = new FormData(event.currentTarget);
-  // window.localStorage.setItem()
   // window.localStorage.removeItem()
+  const errMsgEmail = 'Email is not valid';
+  const errMsgLogin = 'Bad password or user name or you do not have account';
+  const errMsgPassword =
+    'Password is not valid (must be a string with at least six characters)';
+  if (data.email.length === 0) {
+    errSetter.errEmail.set('Email was not provided');
+    return;
+  }
 
-  try {
-    await authUtils.login(email, password);
-    SetAlert(MyAlert('User login successfully', 'success'));
-    return await router.push('/');
-  } catch (error) {
-    const err = error as FirebaseError;
-    if (err.code === 'auth/user-not-found') {
-      SetAlert(
-        MyAlert(
-          'Bad password or user name or you do not have account',
-          'error',
-        ),
-      );
+  if (data.password.length === 0) {
+    errSetter.errPassword.set('Password was not provided');
+    return;
+  }
+
+  const login = async () => {
+    const auth = getAuth();
+    const response: {
+      email: string;
+      password: string;
+      errMsg: { login: string; password: string; email: string };
+    } = {
+      email: 'Any',
+      password: 'Any',
+      errMsg: { login: 'Any', password: 'Any', email: 'Any' },
+    };
+
+    return setPersistence(auth, browserSessionPersistence).then(async () => {
+      // New sign-in will be persisted with session persistence.
+      try {
+        await authUtils.login(data.email, data.password);
+        response.email = data.email;
+        response.password = data.password;
+        // response.errMsg.login = 'Any';
+        // response.errMsg.email = 'Any';
+        // response.errMsg.password = 'Any';
+        // SetAlert(MyAlert('User registration succesfull', 'success'));
+      } catch (error) {
+        const err = error as FirebaseError;
+        if (err.code === 'auth/user-not-found') {
+          // response.email = 'Any';
+          // response.password = 'Any';
+          // SetAlert(
+          //   MyAlert(
+          //     'Bad password or user name or you do not have account',
+          //     'error',
+          //   ),
+          // );
+          // response.errMsg.email = 'Any';
+          // response.errMsg.password = 'Any';
+          response.errMsg.login = errMsgLogin;
+        }
+        if (err.code === 'auth/invalid-email') {
+          response.errMsg.email = errMsgEmail;
+          // errSetter.errEmail.set('Email is not valid');
+        }
+        if (err.code === 'auth/invalid-password') {
+          response.errMsg.password = errMsgPassword;
+          // errSetter.errPassword.set('Password is not valid');
+        }
+      }
+
+      return response;
+    });
+  };
+
+  let response;
+  if (isCheck) {
+    response = login();
+    console.error('respooonse', await response);
+    const { errMsg, email, password } = await response;
+    if (errMsg.login !== 'Any') {
+      SetAlert(MyAlert(errMsg.login, 'error'));
     }
-    if (err.code === 'auth/invalid-email') {
-      errSetter.errEmail.set('Email is not valid');
+    if (errMsg.password !== 'Any') {
+      errSetter.errPassword.set(errMsg.password);
+    }
+    if (email !== 'Any' && password !== 'Any') {
+      SetAlert(MyAlert('User registration succesfull', 'success'));
+    }
+  } else {
+    try {
+      await authUtils.login(data.email, data.password);
+      SetAlert(MyAlert('User registration succesfull', 'success'));
+    } catch (error) {
+      const err = error as FirebaseError;
+      // eslint-disable-next-line max-depth
+      if (err.code === 'auth/user-not-found') {
+        SetAlert(MyAlert(errMsgLogin, 'error'));
+      }
+      // eslint-disable-next-line max-depth
+      if (err.code === 'auth/invalid-email') {
+        errSetter.errEmail.set(errMsgEmail);
+      }
+      // eslint-disable-next-line max-depth
+      if (err.code === 'auth/invalid-password') {
+        errSetter.errPassword.set(errMsgPassword);
+      }
     }
   }
 };
@@ -149,7 +234,10 @@ const onChangeForm = (
 const defaultTheme = createTheme();
 
 export const PageFormLogin = () => {
+  // const storage = window.localStorage;
+
   const [myAlert, SetmyAlert] = React.useState(<div></div>);
+  const [isChecked, SetIsChecked] = React.useState(false);
 
   const errCredentials = useHookstate({
     errEmail: 'Any',
@@ -187,31 +275,68 @@ export const PageFormLogin = () => {
             noValidate
             sx={{ mt: 1 }}
           >
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              onChange={(e) => credentials.email.set(e.target.value)}
-              autoComplete="email"
-              autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Password"
-              type="password"
-              onChange={(e) => credentials.password.set(e.target.value)}
-              id="password"
-              autoComplete="current-password"
-            />
+            {errCredentials.errEmail.get() === 'Any' ? (
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                onChange={(e) => credentials.email.set(e.target.value)}
+                autoComplete="email"
+                autoFocus
+                helperText="Enter new email"
+              />
+            ) : (
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                error
+                label="Email Address"
+                onChange={(e) => credentials.email.set(e.target.value)}
+                autoComplete="email"
+                autoFocus
+                helperText={errCredentials.errEmail.get()}
+              />
+            )}
+            {errCredentials.errPassword.get() === 'Any' ? (
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                onChange={(e) => credentials.password.set(e.target.value)}
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+                helperText="Enter new password"
+              />
+            ) : (
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                error
+                onChange={(e) => credentials.password.set(e.target.value)}
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+                helperText={errCredentials.errPassword.get()}
+              />
+            )}
             <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
+              control={
+                <Checkbox
+                  value="remember"
+                  onChange={(e) => SetIsChecked(e.target.checked)}
+                  color="primary"
+                />
+              }
               label="Remember me"
             />
-
             <Grid container>
               <Grid item xs>
                 <Link href="change-pass-page" variant="body2">
@@ -224,6 +349,24 @@ export const PageFormLogin = () => {
                 </Link>
               </Grid>
             </Grid>
+            <Button
+              onClick={() =>
+                Submit(
+                  SetmyAlert,
+                  errCredentials,
+                  {
+                    email: credentials.email.get(),
+                    password: credentials.password.get(),
+                  },
+                  isChecked,
+                )
+              }
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Login{' '}
+            </Button>
           </Box>
         </Box>
       </Container>
