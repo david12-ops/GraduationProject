@@ -2,13 +2,19 @@
 
 'use client';
 
+import {
+  Box,
+  Button,
+  Container,
+  CssBaseline,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { getAuth } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import React from 'react';
 
 import { authUtils } from '@/firebase/auth-utils';
-
-import styles from '../../../styles/stylesForm/style.module.css';
 
 export const PageFormChangePass = () => {
   const [newPassword, setNewPassword] = React.useState('');
@@ -54,10 +60,8 @@ export const PageFormChangePass = () => {
     //   alert('User password update successfull');
     //   return await router.push('/');
     // }
-    alert('jooo');
     // event.preventDefault();
     // nefunkcni
-    alert('noooo');
     console.log(auth.currentUser);
     // const changePass = authUtils.changeUsPass(auth.currentUser, newPassword);
     console.log(authUtils.changeUsPass(auth.currentUser, newPassword));
@@ -74,44 +78,104 @@ export const PageFormChangePass = () => {
     // }
   };
   return (
-    <div>
-      <div className={styles.container}>
-        <h1>Change password acount</h1>
-        {/* <form onSubmit={handleForm} className={styles.form}> */}
-        <form>
-          <label htmlFor="newPassword">
-            <p>New password</p>
-            <input
-              className={styles.password}
-              onChange={(e) => setNewPassword(e.target.value)}
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        {myAlert}
+        <Typography component="h1" variant="h5">
+          Sign in
+        </Typography>
+        <Box
+          component="form"
+          onChange={() => onChangeForm(errCredentials, SetmyAlert)}
+          noValidate
+          sx={{ mt: 1 }}
+        >
+          {errCredentials.errPassword.get() === 'Any' ? (
+            <TextField
+              margin="normal"
               required
-              type="newPassword"
-              name="newPassword"
-              id="newPassword"
-              placeholder="newPassword"
+              fullWidth
+              onChange={(e) => credentials.password.set(e.target.value)}
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              helperText="Enter new password"
             />
-          </label>
-          <label htmlFor="confirmPassword">
-            <p>Confirm new password</p>
-            <input
-              className={styles.password}
-              onChange={(e) => setConfirmNewPassword(e.target.value)}
+          ) : (
+            <TextField
+              margin="normal"
               required
-              type="confirmPassword"
-              name="confirmPassword"
-              id="confirmPassword"
-              placeholder="Confirm new password"
+              fullWidth
+              error
+              onChange={(e) => credentials.password.set(e.target.value)}
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              helperText={errCredentials.errPassword.get()}
+              value={credentials.password.get()}
             />
-          </label>
-          <button
-            onClick={handleForm}
-            className={styles.registerbtn}
-            // type="submit"
+          )}
+
+          {errCredentials.errPassword.get() === 'Any' ? (
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              onChange={(e) => credentials.password.set(e.target.value)}
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              helperText="Enter new password"
+            />
+          ) : (
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              error
+              onChange={(e) => credentials.password.set(e.target.value)}
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              helperText={errCredentials.errPassword.get()}
+              value={credentials.password.get()}
+            />
+          )}
+
+          <Button
+            onClick={() =>
+              Submit(
+                SetmyAlert,
+                errCredentials,
+                {
+                  email: credentials.email.get(),
+                  password: credentials.password.get(),
+                },
+                isChecked,
+                credentials,
+                SetIsChecked,
+              )
+            }
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
           >
-            Change password
-          </button>
-        </form>
-      </div>
-    </div>
+            Login{' '}
+          </Button>
+        </Box>
+      </Box>
+    </Container>
   );
 };

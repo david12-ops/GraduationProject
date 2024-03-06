@@ -1,69 +1,3 @@
-// 'use client';
-
-// import { FirebaseError } from 'firebase-admin';
-// import { useRouter } from 'next/router';
-// import React, { FormEvent } from 'react';
-
-// import { authUtils } from '@/firebase/auth-utils';
-
-// import styles from '../../../styles/stylesForm/style.module.css';
-
-// export const PageFormLogin = () => {
-//   const [email, setEmail] = React.useState('');
-//   const [password, setPassword] = React.useState('');
-//   const router = useRouter();
-//   const handleForm = async (event: FormEvent) => {
-//     try {
-//       event.preventDefault();
-//       await authUtils.login(email, password);
-//       alert('User login successfully');
-//       return await router.push('/');
-//     } catch (error) {
-//       // nechyta error
-//       const err = error as FirebaseError;
-//       if (err.code === 'auth/user-not-found') {
-//         alert('Bad password or user name or you do not have account');
-//       }
-//     }
-//   };
-//   return (
-//     <div>
-//       <div className={styles.container}>
-//         <h1>Login</h1>
-//         <form onSubmit={handleForm} className={styles.form}>
-//           <label htmlFor="email">
-//             <p>Email</p>
-//             <input
-//               className={styles.email}
-//               onChange={(e) => setEmail(e.target.value)}
-//               required
-//               type="email"
-//               name="email"
-//               id="email"
-//               placeholder="example@mail.com"
-//             />
-//           </label>
-//           <label htmlFor="password">
-//             <p>Password</p>
-//             <input
-//               className={styles.password}
-//               onChange={(e) => setPassword(e.target.value)}
-//               required
-//               type="password"
-//               name="password"
-//               id="password"
-//               placeholder="password"
-//             />
-//           </label>
-
-//           <button className={styles.registerbtn} type="submit">
-//             Sign up
-//           </button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
 import { State, useHookstate } from '@hookstate/core';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Alert, Button } from '@mui/material';
@@ -110,6 +44,12 @@ const Submit = async (
   }>,
   data: { password: string; email: string },
   isCheck: boolean,
+  credentialsSetter: State<{
+    email: string;
+    password: string;
+  }>,
+  SetIsChecked: React.Dispatch<React.SetStateAction<boolean>>,
+
   // eslint-disable-next-line sonarjs/cognitive-complexity
 ) => {
   // event.preventDefault();
@@ -130,7 +70,6 @@ const Submit = async (
   }
 
   const login = async () => {
-    const auth = getAuth();
     const response: {
       email: string;
       password: string;
@@ -141,43 +80,54 @@ const Submit = async (
       errMsg: { login: 'Any', password: 'Any', email: 'Any' },
     };
 
-    return setPersistence(auth, browserSessionPersistence).then(async () => {
-      // New sign-in will be persisted with session persistence.
-      try {
-        await authUtils.login(data.email, data.password);
-        response.email = data.email;
-        response.password = data.password;
-        // response.errMsg.login = 'Any';
+    // return setPersistence(auth, browserSessionPersistence).then(async () => {
+    // New sign-in will be persisted with session persistence.
+    try {
+      // nufunkcni rememer me
+      await authUtils.login(data.email, data.password);
+      response.email = data.email;
+      response.password = data.password;
+      const auth = getAuth();
+      await setPersistence(auth, browserSessionPersistence);
+      SetIsChecked(true);
+
+      return {
+        email: data.email,
+        password: data.password,
+        errMsg: { login: 'Any', password: 'Any', email: 'Any' },
+      };
+
+      // response.errMsg.login = 'Any';
+      // response.errMsg.email = 'Any';
+      // response.errMsg.password = 'Any';
+      // SetAlert(MyAlert('User registration succesfull', 'success'));
+    } catch (error) {
+      const err = error as FirebaseError;
+      if (err.code === 'auth/user-not-found') {
+        // response.email = 'Any';
+        // response.password = 'Any';
+        // SetAlert(
+        //   MyAlert(
+        //     'Bad password or user name or you do not have account',
+        //     'error',
+        //   ),
+        // );
         // response.errMsg.email = 'Any';
         // response.errMsg.password = 'Any';
-        // SetAlert(MyAlert('User registration succesfull', 'success'));
-      } catch (error) {
-        const err = error as FirebaseError;
-        if (err.code === 'auth/user-not-found') {
-          // response.email = 'Any';
-          // response.password = 'Any';
-          // SetAlert(
-          //   MyAlert(
-          //     'Bad password or user name or you do not have account',
-          //     'error',
-          //   ),
-          // );
-          // response.errMsg.email = 'Any';
-          // response.errMsg.password = 'Any';
-          response.errMsg.login = errMsgLogin;
-        }
-        if (err.code === 'auth/invalid-email') {
-          response.errMsg.email = errMsgEmail;
-          // errSetter.errEmail.set('Email is not valid');
-        }
-        if (err.code === 'auth/invalid-password') {
-          response.errMsg.password = errMsgPassword;
-          // errSetter.errPassword.set('Password is not valid');
-        }
+        response.errMsg.login = errMsgLogin;
       }
+      if (err.code === 'auth/invalid-email') {
+        response.errMsg.email = errMsgEmail;
+        // errSetter.errEmail.set('Email is not valid');
+      }
+      if (err.code === 'auth/invalid-password') {
+        response.errMsg.password = errMsgPassword;
+        // errSetter.errPassword.set('Password is not valid');
+      }
+    }
 
-      return response;
-    });
+    return response;
+    // });
   };
 
   let response;
@@ -192,6 +142,8 @@ const Submit = async (
       errSetter.errPassword.set(errMsg.password);
     }
     if (email !== 'Any' && password !== 'Any') {
+      credentialsSetter.email.set(email);
+      credentialsSetter.password.set(password);
       SetAlert(MyAlert('User registration succesfull', 'success'));
     }
   } else {
@@ -260,7 +212,6 @@ export const PageFormLogin = () => {
             flexDirection: 'column',
             alignItems: 'center',
           }}
-          onChange={() => onChangeForm(errCredentials, SetmyAlert)}
         >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
@@ -299,6 +250,7 @@ export const PageFormLogin = () => {
                 autoComplete="email"
                 autoFocus
                 helperText={errCredentials.errEmail.get()}
+                value={credentials.email.get()}
               />
             )}
             {errCredentials.errPassword.get() === 'Any' ? (
@@ -325,6 +277,7 @@ export const PageFormLogin = () => {
                 id="password"
                 autoComplete="current-password"
                 helperText={errCredentials.errPassword.get()}
+                value={credentials.password.get()}
               />
             )}
             <FormControlLabel
@@ -359,6 +312,8 @@ export const PageFormLogin = () => {
                     password: credentials.password.get(),
                   },
                   isChecked,
+                  credentials,
+                  SetIsChecked,
                 )
               }
               fullWidth
