@@ -1,8 +1,8 @@
-// eslint-disable-next-line unicorn/filename-case
-
 'use client';
 
+import { State, useHookstate } from '@hookstate/core';
 import {
+  Alert,
   Box,
   Button,
   Container,
@@ -11,72 +11,138 @@ import {
   Typography,
 } from '@mui/material';
 import { getAuth } from 'firebase/auth';
-import { useRouter } from 'next/router';
+import { FirebaseError } from 'firebase-admin';
 import React from 'react';
 
 import { authUtils } from '@/firebase/auth-utils';
 
-export const PageFormChangePass = () => {
-  const [newPassword, setNewPassword] = React.useState('');
-  const [ConfirmPass, setConfirmNewPassword] = React.useState('');
-  // const { user, loading } = useAuthContext();
-  // const ValidPass = (pass: string) => {
-  //   // eslint-disable-next-line unicorn/better-regex
-  //   // const option = /[A-Z -@*#a-z0-9-]{6,}/;
-  //   // if (!option.test(pass)) {
-  //   //   return false;
-  //   // }
-  //   // return true;
-  //   const match = pass.match(/[A-Z-#|@|-a-z0-9-]{6,}/);
+const MyAlert = (message: string, type: string) => {
+  switch (type) {
+    case 'success': {
+      return <Alert severity="success">{message}</Alert>;
+    }
+    case 'error': {
+      return <Alert severity="error">{message}</Alert>;
+    }
+    default: {
+      return <div></div>;
+    }
+  }
+};
 
-  //   if (match) {
-  //     return true; // Output: 1#2-@9
-  //   }
-  //   return false;
-  // };
-  const auth = getAuth();
+const ValidPassword = (
+  newPassword: string,
+  confirmPassword: string,
+): { where: string | undefined; errMesage: string | undefined } => {
+  const hasSymbol = /[!"#$%&()*,.:<>?@^{|}]/.test(newPassword);
 
-  console.log(auth.currentUser);
+  const hasNumber = /\d/.test(newPassword);
+  if (newPassword.length === 0) {
+    return { where: 'newPass', errMesage: 'New password was not provided' };
+  }
 
-  const router = useRouter();
-  // eslint-disable-next-line consistent-return
-  const handleForm = async () => {
-    // try {
+  if (newPassword.length < 8) {
+    return {
+      where: 'newPass',
+      errMesage: 'New password length must be longer than 8 characters',
+    };
+  }
+
+  if (!hasSymbol || !hasNumber) {
+    return {
+      where: 'newPass',
+      errMesage:
+        'New password is not combination of chars, numbers and symbols',
+    };
+  }
+
+  if (confirmPassword.length === 0) {
+    return {
+      where: 'confirmPass',
+      errMesage: 'Confirm password was not provided',
+    };
+  }
+
+  if (newPassword !== confirmPassword) {
+    return {
+      where: 'confirmPass',
+      errMesage: 'Confirm password is not same as new password',
+    };
+  }
+
+  return { where: undefined, errMesage: undefined };
+};
+const onChangeForm = (
+  errSetter: State<{
+    errConfirmPassword: string;
+    errNewPassword: string;
+  }>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+) => {
+  SetAlert(<div></div>);
+  errSetter.set({
+    errConfirmPassword: '',
+    errNewPassword: '',
+  });
+};
+const Submit = async (
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  passwords: { newPassword: string; confirmPassword: string },
+  errSetter: State<{
+    errConfirmPassword: string;
+    errNewPassword: string;
+  }>,
+) => {
+  const validation = ValidPassword(
+    passwords.newPassword,
+    passwords.confirmPassword,
+  );
+
+  if (validation.where && validation.errMesage) {
+    switch (validation.where) {
+      case 'newPass': {
+        errSetter.errNewPassword.set(validation.errMesage);
+        return;
+      }
+      case 'confirmPass': {
+        errSetter.errConfirmPassword.set(validation.errMesage);
+        return;
+      }
+      default: {
+        return;
+      }
+    }
+  }
+  try {
+    const auth = getAuth();
     if (!auth.currentUser) {
-      throw new Error('Not logged!');
+      SetAlert(MyAlert('User not logged to change ', 'error'));
+      return;
     }
 
-    // const valid = ValidPass(newPassword);
-    // alert(valid);
-    // validace hesla, minimalni pozadavky
-    if (ConfirmPass !== newPassword) {
-      throw new Error('Passwords are not same!');
+    await authUtils.changeUsPass(auth.currentUser, passwords.newPassword);
+    SetAlert(MyAlert('User password update successfull', 'success'));
+  } catch (error) {
+    const err = error as FirebaseError;
+    if (err.code) {
+      SetAlert(MyAlert('User password not updated successfully', 'error'));
     }
+  }
+};
 
-    // if (valid) {
-    //   event.preventDefault();
-    //   await authUtils.changeUsPass(auth.currentUser, newPassword);
-    //   // eslint-disable-next-line no-alert
-    //   alert('User password update successfull');
-    //   return await router.push('/');
-    // }
-    // event.preventDefault();
-    // nefunkcni
-    console.log(auth.currentUser);
-    // const changePass = authUtils.changeUsPass(auth.currentUser, newPassword);
-    console.log(authUtils.changeUsPass(auth.currentUser, newPassword));
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    await authUtils.changeUsPass(auth.currentUser, newPassword);
-    // eslint-disable-next-line no-alert
-    alert('User password update successfull');
-    return router.push('/');
-    // } catch (error) {
-    //   const err = error as FirebaseError;
-    //   if (err.code === 'auth/user-not-found') {
-    //     alert('Bad password or user name or you do not have account');
-    //   }
-    // }
-  };
+export const PageFormChangePass = () => {
+  const setterPassword = useHookstate({
+    confirmPassword: '',
+    newPassword: '',
+  });
+
+  const setterErrPassword = useHookstate({
+    errConfirmPassword: '',
+    errNewPassword: '',
+  });
+
+  const [myAlert, SetmyAlert] = React.useState(<div></div>);
+
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -88,23 +154,23 @@ export const PageFormChangePass = () => {
           alignItems: 'center',
         }}
       >
-        {myAlert}
         <Typography component="h1" variant="h5">
-          Sign in
+          Change password
         </Typography>
+        {myAlert}
         <Box
           component="form"
-          onChange={() => onChangeForm(errCredentials, SetmyAlert)}
+          onChange={() => onChangeForm(setterErrPassword, SetmyAlert)}
           noValidate
           sx={{ mt: 1 }}
         >
-          {errCredentials.errPassword.get() === 'Any' ? (
+          {setterErrPassword.errNewPassword.get() === '' ? (
             <TextField
               margin="normal"
               required
               fullWidth
-              onChange={(e) => credentials.password.set(e.target.value)}
-              label="Password"
+              onChange={(e) => setterPassword.newPassword.set(e.target.value)}
+              label="New password"
               type="password"
               id="password"
               autoComplete="current-password"
@@ -116,27 +182,28 @@ export const PageFormChangePass = () => {
               required
               fullWidth
               error
-              onChange={(e) => credentials.password.set(e.target.value)}
-              label="Password"
+              onChange={(e) => setterPassword.newPassword.set(e.target.value)}
+              label="New password"
               type="password"
               id="password"
               autoComplete="current-password"
-              helperText={errCredentials.errPassword.get()}
-              value={credentials.password.get()}
+              helperText={setterErrPassword.errNewPassword.get()}
             />
           )}
 
-          {errCredentials.errPassword.get() === 'Any' ? (
+          {setterErrPassword.errConfirmPassword.get() === '' ? (
             <TextField
               margin="normal"
               required
               fullWidth
-              onChange={(e) => credentials.password.set(e.target.value)}
-              label="Password"
+              onChange={(e) =>
+                setterPassword.confirmPassword.set(e.target.value)
+              }
+              label="Confirm password"
               type="password"
               id="password"
               autoComplete="current-password"
-              helperText="Enter new password"
+              helperText="Confirm new password"
             />
           ) : (
             <TextField
@@ -144,13 +211,14 @@ export const PageFormChangePass = () => {
               required
               fullWidth
               error
-              onChange={(e) => credentials.password.set(e.target.value)}
-              label="Password"
+              onChange={(e) =>
+                setterPassword.confirmPassword.set(e.target.value)
+              }
+              label="Confirm password"
               type="password"
               id="password"
               autoComplete="current-password"
-              helperText={errCredentials.errPassword.get()}
-              value={credentials.password.get()}
+              helperText={setterErrPassword.errConfirmPassword.get()}
             />
           )}
 
@@ -158,21 +226,18 @@ export const PageFormChangePass = () => {
             onClick={() =>
               Submit(
                 SetmyAlert,
-                errCredentials,
                 {
-                  email: credentials.email.get(),
-                  password: credentials.password.get(),
+                  newPassword: setterPassword.newPassword.get(),
+                  confirmPassword: setterPassword.confirmPassword.get(),
                 },
-                isChecked,
-                credentials,
-                SetIsChecked,
+                setterErrPassword,
               )
             }
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Login{' '}
+            Submit
           </Button>
         </Box>
       </Box>

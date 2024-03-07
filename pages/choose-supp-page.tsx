@@ -345,7 +345,11 @@ export default function SuitableSupp() {
           onChangeCost={(e) => statesOfFormPack.Cost.set(e)}
           onChangeWhere={(e) => statesOfFormPack.PlaceTo.set(e)}
           onChangeFromWhere={(e) => statesOfFormPack.PlaceFrom.set(e)}
-          buttonEl={<Submit onClick={HandleForm}>Odeslat</Submit>}
+          buttonEl={
+            <Button className={styles.crudbtn} onClick={HandleForm}>
+              Submit
+            </Button>
+          }
           errors={errors.get()}
         />
         {RenderSupp(

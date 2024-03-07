@@ -75,9 +75,9 @@ const Submit = async (
       password: string;
       errMsg: { login: string; password: string; email: string };
     } = {
-      email: 'Any',
-      password: 'Any',
-      errMsg: { login: 'Any', password: 'Any', email: 'Any' },
+      email: '',
+      password: '',
+      errMsg: { login: '', password: '', email: '' },
     };
 
     // return setPersistence(auth, browserSessionPersistence).then(async () => {
@@ -96,33 +96,16 @@ const Submit = async (
         password: data.password,
         errMsg: { login: 'Any', password: 'Any', email: 'Any' },
       };
-
-      // response.errMsg.login = 'Any';
-      // response.errMsg.email = 'Any';
-      // response.errMsg.password = 'Any';
-      // SetAlert(MyAlert('User registration succesfull', 'success'));
     } catch (error) {
       const err = error as FirebaseError;
       if (err.code === 'auth/user-not-found') {
-        // response.email = 'Any';
-        // response.password = 'Any';
-        // SetAlert(
-        //   MyAlert(
-        //     'Bad password or user name or you do not have account',
-        //     'error',
-        //   ),
-        // );
-        // response.errMsg.email = 'Any';
-        // response.errMsg.password = 'Any';
         response.errMsg.login = errMsgLogin;
       }
       if (err.code === 'auth/invalid-email') {
         response.errMsg.email = errMsgEmail;
-        // errSetter.errEmail.set('Email is not valid');
       }
       if (err.code === 'auth/invalid-password') {
         response.errMsg.password = errMsgPassword;
-        // errSetter.errPassword.set('Password is not valid');
       }
     }
 
@@ -133,15 +116,14 @@ const Submit = async (
   let response;
   if (isCheck) {
     response = login();
-    console.error('respooonse', await response);
     const { errMsg, email, password } = await response;
-    if (errMsg.login !== 'Any') {
+    if (errMsg.login !== '') {
       SetAlert(MyAlert(errMsg.login, 'error'));
     }
-    if (errMsg.password !== 'Any') {
+    if (errMsg.password !== '') {
       errSetter.errPassword.set(errMsg.password);
     }
-    if (email !== 'Any' && password !== 'Any') {
+    if (email !== '' && password !== '') {
       credentialsSetter.email.set(email);
       credentialsSetter.password.set(password);
       SetAlert(MyAlert('User registration succesfull', 'success'));
@@ -160,10 +142,15 @@ const Submit = async (
       if (err.code === 'auth/invalid-email') {
         errSetter.errEmail.set(errMsgEmail);
       }
+      // password a too many atemps
       // eslint-disable-next-line max-depth
-      if (err.code === 'auth/invalid-password') {
-        errSetter.errPassword.set(errMsgPassword);
-      }
+      // if (err.code === 'auth/invalid-password') {
+      //   errSetter.errPassword.set(errMsgPassword);
+      // }
+      // // eslint-disable-next-line max-depth
+      // if (err.message === 'INVALID_PASSWORD') {
+      //   errSetter.errPassword.set(errMsgPassword);
+      // }
     }
   }
 };
@@ -177,8 +164,8 @@ const onChangeForm = (
 ) => {
   SetAlert(<div></div>);
   errSetter.set({
-    errEmail: 'Any',
-    errPassword: 'Any',
+    errEmail: '',
+    errPassword: '',
   });
 };
 
@@ -192,8 +179,8 @@ export const PageFormLogin = () => {
   const [isChecked, SetIsChecked] = React.useState(false);
 
   const errCredentials = useHookstate({
-    errEmail: 'Any',
-    errPassword: 'Any',
+    errEmail: '',
+    errPassword: '',
   });
 
   const credentials = useHookstate({
@@ -216,17 +203,17 @@ export const PageFormLogin = () => {
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
-          {myAlert}
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
+          {myAlert}
           <Box
             component="form"
             onChange={() => onChangeForm(errCredentials, SetmyAlert)}
             noValidate
             sx={{ mt: 1 }}
           >
-            {errCredentials.errEmail.get() === 'Any' ? (
+            {errCredentials.errEmail.get() === '' ? (
               <TextField
                 margin="normal"
                 required
@@ -236,7 +223,7 @@ export const PageFormLogin = () => {
                 onChange={(e) => credentials.email.set(e.target.value)}
                 autoComplete="email"
                 autoFocus
-                helperText="Enter new email"
+                helperText="Enter your email"
               />
             ) : (
               <TextField
@@ -250,10 +237,10 @@ export const PageFormLogin = () => {
                 autoComplete="email"
                 autoFocus
                 helperText={errCredentials.errEmail.get()}
-                value={credentials.email.get()}
+                // value={credentials.email.get()}
               />
             )}
-            {errCredentials.errPassword.get() === 'Any' ? (
+            {errCredentials.errPassword.get() === '' ? (
               <TextField
                 margin="normal"
                 required
@@ -263,7 +250,7 @@ export const PageFormLogin = () => {
                 type="password"
                 id="password"
                 autoComplete="current-password"
-                helperText="Enter new password"
+                helperText="Enter your password"
               />
             ) : (
               <TextField
@@ -277,7 +264,7 @@ export const PageFormLogin = () => {
                 id="password"
                 autoComplete="current-password"
                 helperText={errCredentials.errPassword.get()}
-                value={credentials.password.get()}
+                // value={credentials.password.get()}
               />
             )}
             <FormControlLabel
@@ -320,7 +307,7 @@ export const PageFormLogin = () => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Login{' '}
+              Login
             </Button>
           </Box>
         </Box>

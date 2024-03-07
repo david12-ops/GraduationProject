@@ -1,11 +1,5 @@
 import { State, useHookstate } from '@hookstate/core';
-import {
-  Alert,
-  Button,
-  InputAdornment,
-  MenuItem,
-  TextField,
-} from '@mui/material';
+import { Alert, Button, MenuItem, TextField } from '@mui/material';
 import { DateValidationError, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -21,6 +15,7 @@ import {
 } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
+import { MyCompTextField } from '../text-field';
 
 const Back = async () => {
   await router.push(`/../../admin-page`);
@@ -31,9 +26,10 @@ type ErrSettersProperties = {
   errSendCashDelivery: string;
   errFoil: string;
   errShippingLabel: string;
-  errpackInBox: string;
+  errPackInBox: string;
   errDepoCost: string;
   errPersonalCost: string;
+  errName: string;
 };
 
 type DataCreatedSupp = {
@@ -94,15 +90,11 @@ const isInt = (numArg: string, min: number) => {
   return parsed !== false && parsed >= min;
 };
 
-const MyAlert = (messages: {
-  succesCreate: string;
-  errCreate: string;
-  msgValidation: string;
-}) => {
+const MyAlert = (messages: { succesCreate: string; errCreate: string }) => {
   console.log('messages', messages);
   let alert = <div></div>;
 
-  if (messages.errCreate !== 'Any') {
+  if (messages.errCreate !== '') {
     alert = (
       <div>
         <Alert severity="error">{messages.errCreate}</Alert>
@@ -111,19 +103,10 @@ const MyAlert = (messages: {
     );
   }
 
-  if (messages.succesCreate !== 'Any') {
+  if (messages.succesCreate !== '') {
     alert = (
       <div>
         <Alert severity="success">{messages.succesCreate}</Alert>
-        <Button onClick={() => Back()}>Back</Button>
-      </div>
-    );
-  }
-
-  if (messages.msgValidation !== 'Any') {
-    alert = (
-      <div>
-        <Alert severity="error">{messages.msgValidation}</Alert>
         <Button onClick={() => Back()}>Back</Button>
       </div>
     );
@@ -152,21 +135,15 @@ const Valid = (
     return new Error(messageForInt);
   }
 
-  setterErr.errInsurance.set('Any');
-
   if (!isInt(depoCostarg, 0)) {
     setterErr.errDepoCost.set(messageForInt);
     return new Error(messageForInt);
   }
 
-  setterErr.errDepoCost.set('Any');
-
   if (!isInt(personalCostarg, 0)) {
     setterErr.errPersonalCost.set(messageForInt);
     return new Error(messageForInt);
   }
-
-  setterErr.errPersonalCost.set('Any');
 
   const yesRoNo = IsYesOrNo(
     sendCashDeliveryarg,
@@ -178,7 +155,7 @@ const Valid = (
   if (yesRoNo) {
     switch (yesRoNo.from) {
       case 'packInBox': {
-        setterErr.errpackInBox.set(yesRoNo.msg);
+        setterErr.errPackInBox.set(yesRoNo.msg);
         return new Error(yesRoNo.msg);
       }
       case 'shippingLabel': {
@@ -194,20 +171,16 @@ const Valid = (
         return new Error(yesRoNo.msg);
       }
       default: {
-        setterErr.errSendCashDelivery.set('Any');
-        setterErr.errFoil.set('Any');
-        setterErr.errShippingLabel.set('Any');
-        setterErr.errpackInBox.set('Any');
         return undefined;
       }
     }
   }
 
-  if (deliveryarg !== 'Any') {
+  if (deliveryarg !== '') {
     return new Error('Delivery date is not valid');
   }
 
-  if (pickUparg !== 'Any') {
+  if (pickUparg !== '') {
     return new Error('Pickup date is not valid');
   }
   return undefined;
@@ -246,25 +219,32 @@ export const FormSupplier = () => {
   });
 
   const setterForAlertMesssage = useHookstate({
-    errCreate: 'Any',
-    succesCreate: 'Any',
-    msgValidation: 'Any',
+    errCreate: '',
+    succesCreate: '',
   });
 
   const setterDateErr = useHookstate({
-    errPickUp: 'Any',
-    errDelivery: 'Any',
+    errPickUp: '',
+    errDelivery: '',
   });
 
   const setterErrors = useHookstate({
-    errInsurance: 'Any',
-    errSendCashDelivery: 'Any',
-    errFoil: 'Any',
-    errShippingLabel: 'Any',
-    errpackInBox: 'Any',
-    errDepoCost: 'Any',
-    errPersonalCost: 'Any',
+    errInsurance: '',
+    errSendCashDelivery: '',
+    errFoil: '',
+    errShippingLabel: '',
+    errPackInBox: '',
+    errDepoCost: '',
+    errPersonalCost: '',
+    errName: '',
   });
+
+  const idComp = 'outlined-required';
+
+  const labelPersonalCost = { err: 'Error', withoutErr: 'Personal cost' };
+  const labelDepoCost = { err: 'Error', withoutErr: 'Depo cost' };
+  const labelInsurance = { err: 'Error', withoutErr: 'Insurance' };
+  const labelName = { err: 'Error', withoutErr: 'Name' };
 
   // nepouzivat alerty errr u button
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
@@ -283,15 +263,37 @@ export const FormSupplier = () => {
     }
   });
 
-  const MyComponent = (state: State<string>, paragraph: string) => {
-    return (
+  const MyComponent = (
+    state: State<string>,
+    paragraph: string,
+    error: string,
+  ) => {
+    return error === '' ? (
       <TextField
         id="outlined-select"
         select
         label={paragraph}
         placeholder={'Yes/No'}
         required
-        // error
+        helperText={`Please select option Yes/No`}
+        onChange={(selectedOption) =>
+          state.set(selectedOption ? selectedOption.target.value : '')
+        }
+      >
+        {options.map((option: { value: string; label: string }) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </TextField>
+    ) : (
+      <TextField
+        id="outlined-select"
+        select
+        error
+        label={'Error'}
+        placeholder={'Yes/No'}
+        required
         helperText={`Please select option Yes/No`}
         onChange={(selectedOption) =>
           state.set(selectedOption ? selectedOption.target.value : '')
@@ -321,9 +323,8 @@ export const FormSupplier = () => {
       setterErrors,
     )?.message;
     if (valid) {
-      setterForAlertMesssage.msgValidation.set(valid);
+      console.error(valid);
     } else {
-      setterForAlertMesssage.msgValidation.set('Any');
       const result = await newSupp({
         variables: {
           SupName: settersOfDataSupp.SupplierName.get(),
@@ -346,16 +347,16 @@ export const FormSupplier = () => {
       const data: DataCreatedSupp | undefined =
         result?.data?.SupplierToFirestore?.data;
 
-      if (appErr) {
+      if (appErr && /Supplier name is already in use/.test(appErr) === false) {
         setterForAlertMesssage.errCreate.set(appErr);
-      } else {
-        setterForAlertMesssage.errCreate.set('Any');
+      }
+
+      if (appErr && /Supplier name is already in use/.test(appErr)) {
+        setterErrors.errName.set(appErr);
       }
 
       if (data) {
         setterForAlertMesssage.succesCreate.set(MessageCreateSupp(data));
-      } else {
-        setterForAlertMesssage.succesCreate.set('Any');
       }
     }
   };
@@ -383,18 +384,26 @@ export const FormSupplier = () => {
           gap: '1rem',
         }}
         onSubmit={handleForm}
-        onChange={() =>
+        onChange={() => {
           setterForAlertMesssage.set({
-            msgValidation: 'Any',
-            errCreate: 'Any',
-            succesCreate: 'Any',
-          })
-        }
+            errCreate: '',
+            succesCreate: '',
+          });
+          setterErrors.set({
+            errInsurance: '',
+            errSendCashDelivery: '',
+            errFoil: '',
+            errShippingLabel: '',
+            errPackInBox: '',
+            errDepoCost: '',
+            errPersonalCost: '',
+            errName: '',
+          });
+        }}
       >
         {MyAlert({
           succesCreate: setterForAlertMesssage.succesCreate.value,
           errCreate: setterForAlertMesssage.errCreate.value,
-          msgValidation: setterForAlertMesssage.msgValidation.value,
         })}
         <fieldset
           style={{
@@ -416,28 +425,24 @@ export const FormSupplier = () => {
           >
             Supplier information
           </legend>
-          <TextField
-            type="text"
-            label="Supplier name"
-            required
-            id="outlined-required"
-            sx={{ m: 1, width: '25ch' }}
-            onChange={(e) => settersOfDataSupp.SupplierName.set(e.target.value)}
-            helperText={`Enter supplier name`}
+
+          <MyCompTextField
+            typeComp="text"
+            idComp={idComp}
+            labelComp={labelName}
+            errorComp={setterErrors.errName.get()}
+            funcComp={(e) => settersOfDataSupp.SupplierName.set(e)}
+            helpTexterComp={'Enter supplier name'}
           />
-          <TextField
-            type="number"
-            label="Insurance"
-            required
-            id="outlined-basic"
-            sx={{ m: 1, width: '25ch' }}
-            onChange={(e) => settersOfDataSupp.Insurance.set(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">Kč</InputAdornment>
-              ),
-            }}
-            helperText={`Enter insurance on package`}
+
+          <MyCompTextField
+            typeComp="number"
+            idComp={idComp}
+            labelComp={labelInsurance}
+            errorComp={setterErrors.errInsurance.get()}
+            funcComp={(e) => settersOfDataSupp.Insurance.set(e)}
+            helpTexterComp={'Enter insurance on package'}
+            placeholderComp="Kč"
           />
         </fieldset>
 
@@ -467,7 +472,7 @@ export const FormSupplier = () => {
               disablePast
               minDate={dayjs()}
               onError={(e: DateValidationError) =>
-                setterDateErr.errDelivery.set(e ? e.toString() : 'Any')
+                setterDateErr.errDelivery.set(e ? e.toString() : '')
               }
               onChange={(e: dayjs.Dayjs | null) =>
                 settersOfDataSupp.Delivery.set(
@@ -488,7 +493,7 @@ export const FormSupplier = () => {
               disablePast
               minDate={dayjs()}
               onError={(e: DateValidationError) =>
-                setterDateErr.errPickUp.set(e ? e.toString() : 'Any')
+                setterDateErr.errPickUp.set(e ? e.toString() : '')
               }
               onChange={(e: dayjs.Dayjs | null) =>
                 settersOfDataSupp.PickUp.set(e ? e.toDate().toDateString() : '')
@@ -523,13 +528,26 @@ export const FormSupplier = () => {
           >
             Details
           </legend>
-          {MyComponent(settersOfDataSupp.SendCashDelivery, 'Cash on delivery')}
+          {MyComponent(
+            settersOfDataSupp.SendCashDelivery,
+            'Cash on delivery',
+            setterErrors.errSendCashDelivery.get(),
+          )}
           {MyComponent(
             settersOfDataSupp.ShippingLabel,
             'Shipping delivered by courier',
+            setterErrors.errShippingLabel.get(),
           )}
-          {MyComponent(settersOfDataSupp.Foil, 'Packed in foil')}
-          {MyComponent(settersOfDataSupp.PackInBox, 'Packed in a box')}
+          {MyComponent(
+            settersOfDataSupp.Foil,
+            'Packed in foil',
+            setterErrors.errFoil.get(),
+          )}
+          {MyComponent(
+            settersOfDataSupp.PackInBox,
+            'Packed in a box',
+            setterErrors.errPackInBox.get(),
+          )}
         </fieldset>
         <fieldset
           style={{
@@ -551,39 +569,30 @@ export const FormSupplier = () => {
           >
             Shipping/transfer method prices
           </legend>
-          <TextField
-            type="number"
-            label="Depo cost"
-            required
-            id="outlined-basic"
-            sx={{ m: 1, width: '25ch' }}
-            onChange={(e) => settersOfDataSupp.DepoCost.set(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">Kč</InputAdornment>
-              ),
-            }}
-            helperText={`Enter cost for deliver/pick up to depo`}
+          <MyCompTextField
+            typeComp="number"
+            idComp={idComp}
+            labelComp={labelDepoCost}
+            errorComp={setterErrors.errDepoCost.get()}
+            funcComp={(e) => settersOfDataSupp.DepoCost.set(e)}
+            helpTexterComp={'Enter cost for deliver/pick up to depo'}
+            placeholderComp="Kč"
           />
-          <TextField
-            type="number"
-            label="Personal cost"
-            required
-            id="outlined-basic"
-            sx={{ m: 1, width: '25ch' }}
-            onChange={(e) => settersOfDataSupp.PersonalCost.set(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">Kč</InputAdornment>
-              ),
-            }}
-            helperText={`Enter cost for deliver/pick up to you personaly`}
+
+          <MyCompTextField
+            typeComp="number"
+            idComp={idComp}
+            labelComp={labelPersonalCost}
+            errorComp={setterErrors.errPersonalCost.get()}
+            funcComp={(e) => settersOfDataSupp.PersonalCost.set(e)}
+            helpTexterComp={'Enter cost for deliver/pick up to you personaly'}
+            placeholderComp="Kč"
           />
         </fieldset>
 
-        <button className={styles.crudbtn} type="submit">
+        <Button className={styles.crudbtn} type="submit">
           Create
-        </button>
+        </Button>
       </form>
     </div>
   );

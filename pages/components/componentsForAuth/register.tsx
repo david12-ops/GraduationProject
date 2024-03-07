@@ -79,8 +79,8 @@ const onChangeForm = (
 ) => {
   SetAlert(<div></div>);
   errSetter.set({
-    errEmail: 'Any',
-    errPassword: 'Any',
+    errEmail: '',
+    errPassword: '',
   });
 };
 
@@ -131,10 +131,6 @@ const Submit = async (
         return;
       }
       default: {
-        errSetter.set({
-          errEmail: 'Any',
-          errPassword: 'Any',
-        });
         return;
       }
     }
@@ -184,8 +180,8 @@ export const PageRegisterForm = () => {
   });
 
   const errCredentials = useHookstate({
-    errEmail: 'Any',
-    errPassword: 'Any',
+    errEmail: '',
+    errPassword: '',
   });
 
   return (
@@ -204,13 +200,13 @@ export const PageRegisterForm = () => {
           <Typography component="h1" variant="h5">
             Register
           </Typography>
-          <div>{myAlert}</div>
+          {myAlert}
           <Box
             component="form"
             onChange={() => onChangeForm(errCredentials, SetmyAlert)}
             sx={{ mt: 1 }}
           >
-            {errCredentials.errEmail.get() === 'Any' ? (
+            {errCredentials.errEmail.get() === '' ? (
               <TextField
                 margin="normal"
                 required
@@ -252,7 +248,7 @@ export const PageRegisterForm = () => {
               {close === true ? <div></div> : RequirementsPass(SetClose)}
             </div>
 
-            {errCredentials.errPassword.get() === 'Any' ? (
+            {errCredentials.errPassword.get() === '' ? (
               <TextField
                 margin="normal"
                 required

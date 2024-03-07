@@ -1,5 +1,5 @@
 import { State, useHookstate } from '@hookstate/core';
-import { Button, InputAdornment, TextField } from '@mui/material';
+import { Button } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
@@ -16,6 +16,7 @@ import {
 } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
+import { MyCompTextField } from '../text-field';
 
 type Props = {
   id: string;
@@ -60,6 +61,7 @@ type ErrSetterProperties = {
   errpLength: string;
   errHeight: string;
   errWidth: string;
+  errLabel: string;
 };
 
 const parseIntReliable = (numArg: string) => {
@@ -94,14 +96,12 @@ const MyAlert = (
     succesUpade: string;
     errUpdate: string;
     msgHisotry: string;
-    msgValidation: string;
   },
   sId: string,
 ) => {
-  console.log('messages', messages);
   let alert = <div></div>;
 
-  if (messages.errUpdate !== 'Any') {
+  if (messages.errUpdate !== '') {
     alert = (
       <div>
         <Alert severity="error">{messages.errUpdate}</Alert>
@@ -110,20 +110,11 @@ const MyAlert = (
     );
   }
 
-  if (messages.succesUpade !== 'Any' && messages.msgHisotry !== 'Any') {
+  if (messages.succesUpade !== '' && messages.msgHisotry !== '') {
     alert = (
       <div>
         <Alert severity="success">{messages.succesUpade}</Alert>
         <Alert severity="success">{messages.msgHisotry}</Alert>
-        <Button onClick={() => Back(sId)}>Back</Button>
-      </div>
-    );
-  }
-
-  if (messages.msgValidation !== 'Any') {
-    alert = (
-      <div>
-        <Alert severity="error">{messages.msgValidation}</Alert>
         <Button onClick={() => Back(sId)}>Back</Button>
       </div>
     );
@@ -210,19 +201,28 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   });
 
   const setterForAlertMesssage = useHookstate({
-    errUpdate: 'Any',
-    succesUpdate: 'Any',
-    msgHistory: 'Any',
-    msgValidation: 'Any',
+    errUpdate: '',
+    succesUpdate: '',
+    msgHistory: '',
   });
 
   const setterErrors = useHookstate({
-    errWeight: 'Any',
-    errCost: 'Any',
-    errpLength: 'Any',
-    errHeight: 'Any',
-    errWidth: 'Any',
+    errWeight: '',
+    errCost: '',
+    errpLength: '',
+    errHeight: '',
+    errWidth: '',
+    errLabel: '',
   });
+
+  const idComp = 'outlined-required';
+
+  const labelHeight = { err: 'Error', withoutErr: 'Height' };
+  const labelWeigth = { err: 'Error', withoutErr: 'Weight' };
+  const labelLength = { err: 'Error', withoutErr: 'Length' };
+  const labelWidth = { err: 'Error', withoutErr: 'Width' };
+  const labelCost = { err: 'Error', withoutErr: 'Cost' };
+  const labelName = { err: 'Error', withoutErr: 'Label' };
 
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
 
@@ -272,9 +272,8 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       setterErrors,
     )?.message;
     if (valid) {
-      setterForAlertMesssage.msgValidation.set(valid);
+      console.error(valid);
     } else {
-      setterForAlertMesssage.msgValidation.set('Any');
       const result = await UpdatePackage({
         variables: {
           Weight: Number(settersForDataPack.Weight.get()),
@@ -293,10 +292,12 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       const appErr: string | undefined = result?.data?.updatePack?.message;
       const data: UpdatedPack | undefined = result?.data?.updatePack?.data;
 
-      if (appErr) {
+      if (appErr && /Label is already in use/.test(appErr) === false) {
         setterForAlertMesssage.errUpdate.set(appErr);
-      } else {
-        setterForAlertMesssage.errUpdate.set('Any');
+      }
+
+      if (appErr && /Label is already in use/.test(appErr)) {
+        setterErrors.errLabel.set(appErr);
       }
 
       let updateHistory;
@@ -313,16 +314,12 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           refetchQueries: [{ query: HistoryDataDocument }],
           awaitRefetchQueries: true,
         }).catch((error: string) => console.log(error));
-      } else {
-        setterForAlertMesssage.succesUpdate.set('Any');
       }
 
       if (updateHistory?.data?.updateHistory?.message) {
         setterForAlertMesssage.msgHistory.set(
           MessageUpdateHistory(updateHistory?.data?.updateHistory?.message),
         );
-      } else {
-        setterForAlertMesssage.msgHistory.set('Any');
       }
     }
   };
@@ -348,7 +345,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           succesUpade: setterForAlertMesssage.succesUpdate.value,
           errUpdate: setterForAlertMesssage.errUpdate.value,
           msgHisotry: setterForAlertMesssage.msgHistory.value,
-          msgValidation: setterForAlertMesssage.msgValidation.value,
         },
         suppId,
       )}
@@ -360,15 +356,21 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           flexDirection: 'column',
           gap: '1rem',
         }}
-        onChange={() =>
+        onChange={() => {
+          setterForAlertMesssage.set({
+            errUpdate: '',
+            succesUpdate: '',
+            msgHistory: '',
+          });
           setterErrors.set({
-            errCost: 'Any',
-            errHeight: 'Any',
-            errpLength: 'Any',
-            errWeight: 'Any',
-            errWidth: 'Any',
-          })
-        }
+            errCost: '',
+            errHeight: '',
+            errpLength: '',
+            errWeight: '',
+            errWidth: '',
+            errLabel: '',
+          });
+        }}
       >
         <fieldset
           style={{
@@ -390,30 +392,25 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           >
             Package
           </legend>
-          <TextField
-            type="text"
-            label="Package name"
-            required
-            id="outlined-required"
-            sx={{ m: 1, width: '25ch' }}
-            onChange={(e) => settersForDataPack.PackName.set(e.target.value)}
-            helperText={`Enter package label`}
-            value={settersForDataPack.PackName.get()}
+          <MyCompTextField
+            typeComp="text"
+            idComp={idComp}
+            labelComp={labelName}
+            errorComp={setterErrors.errLabel.get()}
+            funcComp={(e) => settersForDataPack.PackName.set(e)}
+            helpTexterComp="Enter the label of the package."
+            valueComp={settersForDataPack.PackName.get()}
           />
-          <TextField
-            type="number"
-            label="Cost"
-            required
-            id="outlined-basic"
-            sx={{ m: 1, width: '25ch' }}
-            onChange={(e) => settersForDataPack.Cost.set(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">Kč</InputAdornment>
-              ),
-            }}
-            helperText={`Enter cost of package`}
-            value={settersForDataPack.Cost.get()}
+
+          <MyCompTextField
+            typeComp="number"
+            idComp={idComp}
+            labelComp={labelCost}
+            errorComp={setterErrors.errCost.get()}
+            funcComp={(e) => settersForDataPack.Cost.set(e)}
+            helpTexterComp="Enter the cost of the package."
+            placeholderComp="Kč"
+            valueComp={settersForDataPack.Cost.get()}
           />
         </fieldset>
 
@@ -437,71 +434,54 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           >
             Parameters of package
           </legend>
-          <TextField
-            type="number"
-            label="Width"
-            required
-            id="outlined-basic"
-            sx={{ m: 1, width: '25ch' }}
-            onChange={(e) => settersForDataPack.Width.set(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">Cm</InputAdornment>
-              ),
-            }}
-            helperText={`Enter width of package`}
-            value={settersForDataPack.Width.get()}
+          <MyCompTextField
+            typeComp="number"
+            idComp={idComp}
+            labelComp={labelWidth}
+            errorComp={setterErrors.errWidth.get()}
+            funcComp={(e) => settersForDataPack.Width.set(e)}
+            helpTexterComp="Enter the width of the package."
+            placeholderComp="Cm"
+            valueComp={settersForDataPack.Width.get()}
           />
-          <TextField
-            type="number"
-            label="Weight"
-            required
-            id="outlined-basic"
-            sx={{ m: 1, width: '25ch' }}
-            onChange={(e) => settersForDataPack.Weight.set(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">Cm</InputAdornment>
-              ),
-            }}
-            helperText={`Enter weight of package`}
-            value={settersForDataPack.Weight.get()}
+
+          <MyCompTextField
+            typeComp="number"
+            idComp={idComp}
+            labelComp={labelWeigth}
+            errorComp={setterErrors.errWeight.get()}
+            funcComp={(e) => settersForDataPack.Weight.set(e)}
+            helpTexterComp="Enter the weight of the package."
+            placeholderComp="Cm"
+            valueComp={settersForDataPack.Weight.get()}
           />
-          <TextField
-            type="number"
-            label="Length"
-            required
-            id="outlined-basic"
-            sx={{ m: 1, width: '25ch' }}
-            onChange={(e) => settersForDataPack.Plength.set(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">Cm</InputAdornment>
-              ),
-            }}
-            helperText={`Enter length of package`}
-            value={settersForDataPack.Plength.get()}
+
+          <MyCompTextField
+            typeComp="number"
+            idComp={idComp}
+            labelComp={labelLength}
+            errorComp={setterErrors.errpLength.get()}
+            funcComp={(e) => settersForDataPack.Plength.set(e)}
+            helpTexterComp="Enter the length of the package."
+            placeholderComp="Cm"
+            valueComp={settersForDataPack.Plength.get()}
           />
-          <TextField
-            type="number"
-            label="Height"
-            required
-            id="outlined-basic"
-            sx={{ m: 1, width: '25ch' }}
-            onChange={(e) => settersForDataPack.Height.set(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">Cm</InputAdornment>
-              ),
-            }}
-            helperText={`Enter height of package`}
-            value={settersForDataPack.Height.get()}
+
+          <MyCompTextField
+            typeComp="number"
+            idComp={idComp}
+            labelComp={labelHeight}
+            errorComp={setterErrors.errHeight.get()}
+            funcComp={(e) => settersForDataPack.Height.set(e)}
+            helpTexterComp="Enter the height of the package."
+            placeholderComp="Cm"
+            valueComp={settersForDataPack.Height.get()}
           />
         </fieldset>
 
-        <button className={styles.crudbtn} type="submit">
+        <Button className={styles.crudbtn} type="submit">
           Upadte
-        </button>
+        </Button>
       </form>
     </div>
   );

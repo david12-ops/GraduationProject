@@ -36,15 +36,12 @@ const Submit = async (
   const auth = getAuth();
   try {
     if (!auth.currentUser) {
-      // zeptat se jestli to neudelat verejny
       SetAlert(MyAlert('User not logged to change ', 'error'));
       return;
     }
 
     await authUtils.channgeUsEmail(auth.currentUser, email);
     SetAlert(MyAlert('User password update successfull', 'success'));
-
-    // return await router.push('/');
   } catch (error) {
     const err = error as FirebaseError;
     if (err.code === 'auth/user-not-found') {
@@ -55,6 +52,9 @@ const Submit = async (
         ),
       );
     }
+    if (err.code === 'auth/invalid-email') {
+      SetAlert(MyAlert('Email is not valid', 'error'));
+    }
   }
 };
 
@@ -63,13 +63,14 @@ const onChangeForm = (
   SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
 ) => {
   SetAlert(<div></div>);
-  SetEmErr('Any');
+  SetEmErr('');
 };
 export const PageFormChangeEm = () => {
   const [newEm, SetNewEm] = useState('');
-  const [erroEmail, SetEmailErr] = useState('Any');
+  const [erroEmail, SetEmailErr] = useState('');
   const [myAlert, SetmyAlert] = React.useState(<div></div>);
   // const router = useRouter();
+  // bude treba i password
 
   return (
     // <ThemeProvider>
@@ -83,17 +84,17 @@ export const PageFormChangeEm = () => {
           alignItems: 'center',
         }}
       >
-        {myAlert}
         <Typography component="h1" variant="h5">
           Change email
         </Typography>
+        {myAlert}
         <Box
           component="form"
           onChange={() => onChangeForm(SetEmailErr, SetmyAlert)}
           noValidate
           sx={{ mt: 1 }}
         >
-          {erroEmail === 'Any' ? (
+          {erroEmail === '' ? (
             <TextField
               margin="normal"
               required

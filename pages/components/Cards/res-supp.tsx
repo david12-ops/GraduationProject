@@ -159,7 +159,6 @@ export const ResSuppCard: React.FC<Props> = ({
         refetchQueries: [{ query: HistoryDataDocument }],
         awaitRefetchQueries: true,
       }).catch((error: string) => console.error(error));
-      alert(`${JSON.stringify(data)} \n ${price}`);
     }
   };
 

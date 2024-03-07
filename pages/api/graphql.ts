@@ -1326,7 +1326,7 @@ const resolvers = {
         if (dupName.length > 0) {
           return {
             __typename: 'PackageError',
-            message: 'Name is already in use',
+            message: 'Label is already in use',
           };
         }
 
@@ -1674,7 +1674,7 @@ const resolvers = {
         if (dupName.length > 0) {
           return {
             __typename: 'PackageUpdateError',
-            message: 'Name is already in use',
+            message: 'Label is already in use',
           };
         }
 
