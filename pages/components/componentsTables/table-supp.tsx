@@ -21,6 +21,7 @@ const Counter = (ids: Array<string>) => {
 
 export const DataGridSupplier = () => {
   // refresh tabulky
+
   const suppD = useSuppDataQuery();
   const [deleteSuppD] = useDeleteSuppMutation();
   const [selection, setSelection] = React.useState<GridRowSelectionModel>([]);

@@ -7,7 +7,6 @@ import Container from '@mui/material/Container';
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { FirebaseError } from 'firebase-admin';
@@ -107,8 +106,22 @@ const onChangeForm = (
   });
 };
 
+const ForgotenPass = async (
+  email: string,
+  errSetter: State<{
+    errEmail: string;
+    errPassword: string;
+  }>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+) => {
+  if (errSetter.errEmail.get() === '') {
+    await authUtils.fotgotenPass(email);
+  } else {
+    SetAlert(MyAlert('Invalid email or email does not exist', 'error'));
+  }
+};
 // TODO remove, this demo shouldn't need to reset the theme.
-const defaultTheme = createTheme();
+// const defaultTheme = createTheme();
 
 export const PageFormLogin = () => {
   const [myAlert, SetmyAlert] = React.useState(<div></div>);
@@ -124,111 +137,119 @@ export const PageFormLogin = () => {
   });
 
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
+    // <ThemeProvider theme={defaultTheme}>
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Sign in
+        </Typography>
+        {myAlert}
         <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
+          component="form"
+          onChange={() => onChangeForm(errCredentials, SetmyAlert)}
+          noValidate
+          sx={{ mt: 1 }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
-          {myAlert}
-          <Box
-            component="form"
-            onChange={() => onChangeForm(errCredentials, SetmyAlert)}
-            noValidate
-            sx={{ mt: 1 }}
-          >
-            {errCredentials.errEmail.get() === '' ? (
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                onChange={(e) => credentials.email.set(e.target.value)}
-                autoComplete="email"
-                autoFocus
-                helperText="Enter your email"
-              />
-            ) : (
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                error
-                label="Email Address"
-                onChange={(e) => credentials.email.set(e.target.value)}
-                autoComplete="email"
-                autoFocus
-                helperText={errCredentials.errEmail.get()}
-              />
-            )}
-            {errCredentials.errPassword.get() === '' ? (
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                onChange={(e) => credentials.password.set(e.target.value)}
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                helperText="Enter your password"
-              />
-            ) : (
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                error
-                onChange={(e) => credentials.password.set(e.target.value)}
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                helperText={errCredentials.errPassword.get()}
-              />
-            )}
-
-            <Grid container>
-              <Grid item xs>
-                <Link href="change-pass-page" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="register-page" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
-            <Button
-              onClick={() =>
-                Submit(SetmyAlert, errCredentials, {
-                  email: credentials.email.get(),
-                  password: credentials.password.get(),
-                })
-              }
+          {errCredentials.errEmail.get() === '' ? (
+            <TextField
+              margin="normal"
+              required
               fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Login
-            </Button>
-          </Box>
+              id="email"
+              label="Email Address"
+              onChange={(e) => credentials.email.set(e.target.value)}
+              autoComplete="email"
+              autoFocus
+              helperText="Enter your email"
+            />
+          ) : (
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              error
+              label="Email Address"
+              onChange={(e) => credentials.email.set(e.target.value)}
+              autoComplete="email"
+              autoFocus
+              helperText={errCredentials.errEmail.get()}
+            />
+          )}
+          {errCredentials.errPassword.get() === '' ? (
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              onChange={(e) => credentials.password.set(e.target.value)}
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              helperText="Enter your password"
+            />
+          ) : (
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              error
+              onChange={(e) => credentials.password.set(e.target.value)}
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              helperText={errCredentials.errPassword.get()}
+            />
+          )}
+
+          <Grid container>
+            <Grid>
+              <Button
+                onClick={() =>
+                  ForgotenPass(
+                    credentials.email.get(),
+                    errCredentials,
+                    SetmyAlert,
+                  )
+                }
+              >
+                Forgot password?
+              </Button>
+            </Grid>
+            <Grid item>
+              <Link href="register-page" variant="body2">
+                {"Don't have an account? Sign Up"}
+              </Link>
+            </Grid>
+          </Grid>
+          <Button
+            onClick={() =>
+              Submit(SetmyAlert, errCredentials, {
+                email: credentials.email.get(),
+                password: credentials.password.get(),
+              })
+            }
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Login
+          </Button>
         </Box>
-      </Container>
-    </ThemeProvider>
+      </Box>
+    </Container>
+    // </ThemeProvider>
   );
 };
