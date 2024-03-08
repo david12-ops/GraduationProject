@@ -3,13 +3,20 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Alert, Button } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
 import Container from '@mui/material/Container';
 import CssBaseline from '@mui/material/CssBaseline';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import {
+  browserSessionPersistence,
+  getAuth,
+  setPersistence,
+} from 'firebase/auth';
 import { FirebaseError } from 'firebase-admin';
 import * as React from 'react';
 
@@ -59,10 +66,7 @@ const handleErros = (
       SetAlert(MyAlert('Too many attemps for login, try again later', 'error'));
       break;
     }
-    default: {
-      SetAlert(MyAlert('User registration failed', 'error'));
-      break;
-    }
+    default:
   }
 };
 
@@ -73,7 +77,22 @@ const Submit = async (
     errPassword: string;
   }>,
   data: { password: string; email: string },
+  isCheck: boolean,
+  credentialsSetter: State<{
+    email: string;
+    password: string;
+  }>,
+  SetIsChecked: React.Dispatch<React.SetStateAction<boolean>>,
+
+  // eslint-disable-next-line sonarjs/cognitive-complexity
 ) => {
+  // event.preventDefault();
+  // const data = new FormData(event.currentTarget);
+  // window.localStorage.removeItem()
+  const errMsgEmail = 'Email is not valid';
+  const errMsgLogin = 'Bad password or user name or you do not have account';
+  const errMsgPassword =
+    'Password is not valid (must be a string with at least six characters)';
   if (data.email.length === 0) {
     errSetter.errEmail.set('Email was not provided');
     return;
@@ -84,12 +103,73 @@ const Submit = async (
     return;
   }
 
-  try {
-    await authUtils.login(data.email, data.password);
-    SetAlert(MyAlert('User registration succesfull', 'success'));
-  } catch (error) {
-    const err = error as FirebaseError;
-    handleErros(err.code, SetAlert, errSetter);
+  const loginRememberMe = async () => {
+    const response: {
+      email: string;
+      password: string;
+      errMsg: { login: string; password: string; email: string };
+    } = {
+      email: '',
+      password: '',
+      errMsg: { login: '', password: '', email: '' },
+    };
+
+    // return setPersistence(auth, browserSessionPersistence).then(async () => {
+    // New sign-in will be persisted with session persistence.
+    try {
+      // nufunkcni rememer me
+      await authUtils.login(data.email, data.password);
+      response.email = data.email;
+      response.password = data.password;
+      const auth = getAuth();
+      await setPersistence(auth, browserSessionPersistence);
+      SetIsChecked(true);
+
+      return {
+        email: data.email,
+        password: data.password,
+        errMsg: { login: '', password: '', email: '' },
+      };
+    } catch (error) {
+      const err = error as FirebaseError;
+      if (err.code === 'auth/user-not-found') {
+        response.errMsg.login = errMsgLogin;
+      }
+      if (err.code === 'auth/invalid-email') {
+        response.errMsg.email = errMsgEmail;
+      }
+      if (err.code === 'auth/invalid-password') {
+        response.errMsg.password = errMsgPassword;
+      }
+    }
+
+    return response;
+    // });
+  };
+
+  let response;
+  if (isCheck) {
+    response = loginRememberMe();
+    const { errMsg, email, password } = await response;
+    if (errMsg.login !== '') {
+      SetAlert(MyAlert(errMsg.login, 'error'));
+    }
+    if (errMsg.password !== '') {
+      errSetter.errPassword.set(errMsg.password);
+    }
+    if (email !== '' && password !== '') {
+      credentialsSetter.email.set(email);
+      credentialsSetter.password.set(password);
+      SetAlert(MyAlert('User registration succesfull', 'success'));
+    }
+  } else {
+    try {
+      await authUtils.login(data.email, data.password);
+      SetAlert(MyAlert('User registration succesfull', 'success'));
+    } catch (error) {
+      const err = error as FirebaseError;
+      handleErros(err.code, SetAlert, errSetter);
+    }
   }
 };
 
@@ -111,7 +191,10 @@ const onChangeForm = (
 const defaultTheme = createTheme();
 
 export const PageFormLogin = () => {
+  // const storage = window.localStorage;
+
   const [myAlert, SetmyAlert] = React.useState(<div></div>);
+  const [isChecked, SetIsChecked] = React.useState(false);
 
   const errCredentials = useHookstate({
     errEmail: '',
@@ -172,6 +255,7 @@ export const PageFormLogin = () => {
                 autoComplete="email"
                 autoFocus
                 helperText={errCredentials.errEmail.get()}
+                // value={credentials.email.get()}
               />
             )}
             {errCredentials.errPassword.get() === '' ? (
@@ -198,9 +282,19 @@ export const PageFormLogin = () => {
                 id="password"
                 autoComplete="current-password"
                 helperText={errCredentials.errPassword.get()}
+                // value={credentials.password.get()}
               />
             )}
-
+            <FormControlLabel
+              control={
+                <Checkbox
+                  value="remember"
+                  onChange={(e) => SetIsChecked(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label="Remember me"
+            />
             <Grid container>
               <Grid item xs>
                 <Link href="change-pass-page" variant="body2">
@@ -215,10 +309,17 @@ export const PageFormLogin = () => {
             </Grid>
             <Button
               onClick={() =>
-                Submit(SetmyAlert, errCredentials, {
-                  email: credentials.email.get(),
-                  password: credentials.password.get(),
-                })
+                Submit(
+                  SetmyAlert,
+                  errCredentials,
+                  {
+                    email: credentials.email.get(),
+                    password: credentials.password.get(),
+                  },
+                  isChecked,
+                  credentials,
+                  SetIsChecked,
+                )
               }
               fullWidth
               variant="contained"

@@ -287,7 +287,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
         },
         refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
-      }).catch((error: string) => console.log(error));
+      }).catch((error: string) => console.error(error));
 
       const appErr: string | undefined = result?.data?.updatePack?.message;
       const data: UpdatedPack | undefined = result?.data?.updatePack?.data;
@@ -313,7 +313,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           },
           refetchQueries: [{ query: HistoryDataDocument }],
           awaitRefetchQueries: true,
-        }).catch((error: string) => console.log(error));
+        }).catch((error: string) => console.error(error));
       }
 
       if (updateHistory?.data?.updateHistory?.message) {

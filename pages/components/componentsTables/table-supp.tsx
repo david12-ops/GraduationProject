@@ -71,7 +71,7 @@ export const DataGridSupplier = () => {
         // .then((res) => {
         //   return res.data;
         // })
-        .catch((error: string) => alert(error));
+        .catch((error: string) => console.error(error));
 
       const err = result?.data?.deleteSupp?.error;
       const deleted = result?.data?.deleteSupp?.deletion;

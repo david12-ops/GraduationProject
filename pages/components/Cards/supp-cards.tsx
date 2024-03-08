@@ -29,8 +29,8 @@ const Paragraph = (
   insurance: number,
   sendCash: string,
 ) => {
-  const odstavec =
-    packInBox === 'Ano' ? (
+  const paragraph =
+    packInBox === 'Yes' ? (
       <p>
         The shipment must be packed <strong>in a box</strong>
       </p>
@@ -40,8 +40,8 @@ const Paragraph = (
       </p>
     );
 
-  const odstavec2 =
-    folie === 'Ano' ? (
+  const paragraph2 =
+    folie === 'Yes' ? (
       <p>
         Can be in packaged <strong>ve fólii</strong>
       </p>
@@ -51,15 +51,15 @@ const Paragraph = (
       </p>
     );
 
-  const odstavec3 =
-    shippingLabel === 'Ano' ? (
+  const paragraph3 =
+    shippingLabel === 'Yes' ? (
       <p> Shipping label will be delivered by courier</p>
     ) : (
       <p> The shipping label will not be delivered by courier</p>
     );
 
-  const odstavec4 =
-    sendCash === 'Ano' ? (
+  const paragraph4 =
+    sendCash === 'Yes' ? (
       <p>
         Possibility to send <strong>cash on delivery</strong>
       </p>
@@ -77,15 +77,15 @@ const Paragraph = (
       <p>
         Delivery first <strong>{delivery}</strong>
       </p>
-      {odstavec}
-      {odstavec2}
-      {odstavec3}
+      {paragraph}
+      {paragraph2}
+      {paragraph3}
       <p>
         {insurance > 0
           ? `Insurance up to ${insurance} CZK included`
           : 'No insurance'}
       </p>
-      {odstavec4}
+      {paragraph4}
     </div>
   );
 };

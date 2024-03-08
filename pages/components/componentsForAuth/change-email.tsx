@@ -35,25 +35,25 @@ const Submit = async (
 ) => {
   const auth = getAuth();
   try {
-    if (!auth.currentUser) {
-      SetAlert(MyAlert('User not logged to change ', 'error'));
-      return;
+    if (auth.currentUser) {
+      await authUtils.channgeUsEmail(auth.currentUser, email);
+      SetAlert(MyAlert('User password update successfull', 'success'));
     }
-
-    await authUtils.channgeUsEmail(auth.currentUser, email);
-    SetAlert(MyAlert('User password update successfull', 'success'));
   } catch (error) {
     const err = error as FirebaseError;
-    if (err.code === 'auth/user-not-found') {
-      SetAlert(
-        MyAlert(
-          'Bad password or user name or you do not have account',
-          'error',
-        ),
-      );
-    }
-    if (err.code === 'auth/invalid-email') {
-      SetAlert(MyAlert('Email is not valid', 'error'));
+    switch (err.code) {
+      case 'auth/user-not-found': {
+        SetAlert(MyAlert('Email does not exist', 'error'));
+        break;
+      }
+      case 'auth/invalid-email': {
+        SetAlert(MyAlert('Email is not valid', 'error'));
+        break;
+      }
+      default: {
+        SetAlert(MyAlert('User password update failed', 'error'));
+        break;
+      }
     }
   }
 };

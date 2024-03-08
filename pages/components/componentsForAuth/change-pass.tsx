@@ -115,17 +115,21 @@ const Submit = async (
   }
   try {
     const auth = getAuth();
-    if (!auth.currentUser) {
-      SetAlert(MyAlert('User not logged to change ', 'error'));
-      return;
+    if (auth.currentUser) {
+      await authUtils.changeUsPass(auth.currentUser, passwords.newPassword);
+      SetAlert(MyAlert('User password update successfull', 'success'));
     }
-
-    await authUtils.changeUsPass(auth.currentUser, passwords.newPassword);
-    SetAlert(MyAlert('User password update successfull', 'success'));
   } catch (error) {
     const err = error as FirebaseError;
-    if (err.code) {
-      SetAlert(MyAlert('User password not updated successfully', 'error'));
+    switch (err.code) {
+      case 'auth/requires-recent-login': {
+        SetAlert(MyAlert('User password not updated successfully', 'error'));
+        break;
+      }
+      default: {
+        SetAlert(MyAlert('User password update failed', 'error'));
+        break;
+      }
     }
   }
 };
@@ -170,9 +174,9 @@ export const PageFormChangePass = () => {
               required
               fullWidth
               onChange={(e) => setterPassword.newPassword.set(e.target.value)}
+              id="newPass"
               label="New password"
               type="password"
-              id="password"
               autoComplete="current-password"
               helperText="Enter new password"
             />
@@ -182,10 +186,10 @@ export const PageFormChangePass = () => {
               required
               fullWidth
               error
+              id="newPass"
               onChange={(e) => setterPassword.newPassword.set(e.target.value)}
               label="New password"
               type="password"
-              id="password"
               autoComplete="current-password"
               helperText={setterErrPassword.errNewPassword.get()}
             />
@@ -199,9 +203,9 @@ export const PageFormChangePass = () => {
               onChange={(e) =>
                 setterPassword.confirmPassword.set(e.target.value)
               }
+              id="confPass"
               label="Confirm password"
               type="password"
-              id="password"
               autoComplete="current-password"
               helperText="Confirm new password"
             />
@@ -214,9 +218,9 @@ export const PageFormChangePass = () => {
               onChange={(e) =>
                 setterPassword.confirmPassword.set(e.target.value)
               }
+              id="confPass"
               label="Confirm password"
               type="password"
-              id="password"
               autoComplete="current-password"
               helperText={setterErrPassword.errConfirmPassword.get()}
             />

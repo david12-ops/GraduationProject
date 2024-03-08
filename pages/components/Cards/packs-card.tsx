@@ -1,4 +1,4 @@
-import { CardActions, Link } from '@mui/material';
+import { Alert, CardActions, Link } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -20,6 +20,20 @@ type Props = {
   sId: string;
 };
 
+const MyAlert = (message: string, type: string) => {
+  switch (type) {
+    case 'success': {
+      return <Alert severity="success">{message}</Alert>;
+    }
+    case 'error': {
+      return <Alert severity="error">{message}</Alert>;
+    }
+    default: {
+      return <div></div>;
+    }
+  }
+};
+
 export const PackCard: React.FC<Props> = ({
   Heiht,
   Weight,
@@ -30,6 +44,8 @@ export const PackCard: React.FC<Props> = ({
   keyPac,
   sId,
 }) => {
+  const [myAlert, SetmyAlert] = React.useState(<div></div>);
+
   const [del] = useDeletePacMutation();
   const Del = async (key: string, suppId: string) => {
     const deleted = await del({
@@ -39,17 +55,18 @@ export const PackCard: React.FC<Props> = ({
       },
       refetchQueries: [{ query: SuppDataDocument }],
       awaitRefetchQueries: true,
-    }).catch((error: string) => alert(error));
+    }).catch((error: string) => console.error(error));
     if (deleted?.data?.deletePack?.error) {
-      alert(`${deleted?.data?.deletePack?.error}`);
+      SetmyAlert(MyAlert(`${deleted?.data?.deletePack?.error}`, 'error'));
     }
     if (!deleted?.data?.deletePack?.deletion) {
-      alert('Balíček smazán nebyl');
+      SetmyAlert(MyAlert('Package was not deleted', 'error'));
     }
-    alert('Balíček byl smazán');
+    SetmyAlert(MyAlert('Package was deleted', 'succes'));
   };
   return (
     <Card sx={{ maxWidth: 290 }}>
+      {/* {myAlert} */}
       <CardMedia
         component="img"
         alt={Name}

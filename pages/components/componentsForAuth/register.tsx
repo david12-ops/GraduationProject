@@ -140,11 +140,18 @@ const Submit = async (
     SetAlert(MyAlert('User registration succesfull', 'success'));
   } catch (error) {
     const err = error as FirebaseError;
-    if (err.code === 'auth/email-already-in-use') {
-      SetAlert(MyAlert('User is already in use', 'error'));
-    }
-    if (err.code === 'auth/invalid-email') {
-      errSetter.errEmail.set('Email is not valid');
+    switch (err.code) {
+      case 'auth/email-already-in-use': {
+        SetAlert(MyAlert('User is already in use', 'error'));
+        break;
+      }
+      case 'auth/invalid-email': {
+        errSetter.errEmail.set('Email is not valid');
+        break;
+      }
+      default: {
+        SetAlert(MyAlert('User registration failed', 'error'));
+      }
     }
   }
 };
