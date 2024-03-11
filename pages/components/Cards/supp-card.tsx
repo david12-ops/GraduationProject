@@ -43,11 +43,11 @@ const Paragraph = (
   const paragraph2 =
     folie === 'Yes' ? (
       <p>
-        Can be in packaged <strong>ve fólii</strong>
+        Can be packaged in <strong>folie</strong>
       </p>
     ) : (
       <p>
-        Can not be in packaged<strong>folie</strong>
+        Can not be packaged in <strong>folie</strong>
       </p>
     );
 

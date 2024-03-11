@@ -1,15 +1,15 @@
 import { State, useHookstate } from '@hookstate/core';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { Alert, Button } from '@mui/material';
+import { Alert, Button, styled } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { FirebaseError } from 'firebase-admin';
+import router from 'next/router';
 import * as React from 'react';
 
 import { authUtils } from '@/firebase/auth-utils';
@@ -92,6 +92,12 @@ const Submit = async (
   }
 };
 
+const MenuButton = styled(Button)({
+  color: 'blue',
+  backgroundColor: 'transparent',
+  fontSize: '14px',
+});
+
 const onChangeForm = (
   errSetter: State<{
     errEmail: string;
@@ -108,20 +114,30 @@ const onChangeForm = (
 
 const ForgotenPass = async (
   email: string,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
   errSetter: State<{
     errEmail: string;
     errPassword: string;
   }>,
-  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
 ) => {
-  if (errSetter.errEmail.get() === '') {
+  try {
     await authUtils.fotgotenPass(email);
-  } else {
-    SetAlert(MyAlert('Invalid email or email does not exist', 'error'));
+    SetAlert(
+      MyAlert(
+        'Your request for reset password was succesfull. Look to your eamil account',
+        'success',
+      ),
+    );
+  } catch (error) {
+    const err = error as FirebaseError;
+    if (err.code === 'auth/missing-email') {
+      errSetter.errEmail.set('Eamil is required');
+    }
+    if (err.code === 'auth/invalid-email') {
+      errSetter.errEmail.set('Eamil is not valid');
+    }
   }
 };
-// TODO remove, this demo shouldn't need to reset the theme.
-// const defaultTheme = createTheme();
 
 export const PageFormLogin = () => {
   const [myAlert, SetmyAlert] = React.useState(<div></div>);
@@ -213,27 +229,41 @@ export const PageFormLogin = () => {
               helperText={errCredentials.errPassword.get()}
             />
           )}
-
           <Grid container>
-            <Grid>
-              <Button
-                onClick={() =>
-                  ForgotenPass(
-                    credentials.email.get(),
-                    errCredentials,
-                    SetmyAlert,
-                  )
-                }
-              >
-                Forgot password?
-              </Button>
-            </Grid>
+            <Grid item></Grid>
+
             <Grid item>
-              <Link href="register-page" variant="body2">
+              {/* <Link href="register-page" variant="body2">
                 {"Don't have an account? Sign Up"}
-              </Link>
+              </Link> */}
             </Grid>
           </Grid>
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+            }}
+          >
+            <MenuButton
+              onClick={async () => {
+                await router.push(`../../Forms/register-page`);
+              }}
+            >
+              Register
+            </MenuButton>
+            <MenuButton
+              onClick={() =>
+                ForgotenPass(
+                  credentials.email.get(),
+                  SetmyAlert,
+                  errCredentials,
+                )
+              }
+            >
+              Forgot password
+            </MenuButton>
+          </Box>
           <Button
             onClick={() =>
               Submit(SetmyAlert, errCredentials, {

@@ -1069,6 +1069,36 @@ const resolvers = {
       context: MyContext,
     ) => {
       const { uId: id, data: dataS } = args;
+      type Data = {
+        formData: {
+          width: string;
+          height: string;
+          weight: string;
+          plength: string;
+          placeFrom: string;
+          placeTo: string;
+        };
+        data: {
+          suppData: {
+            __typename: string;
+            sendCashDelivery: string;
+            packInBox: string;
+            supplierId: string;
+            suppName: string;
+            pickUp: string;
+            delivery: string;
+            insurance: number;
+            shippingLabel: string;
+            foil: string;
+            package: any;
+            location: any;
+          };
+          priceS: number;
+          packName: string;
+        };
+      };
+      console.log('sdsdsdsd user', dataS);
+
       type HistoryDoc = {
         uId: string;
         dataForm: {
@@ -1104,7 +1134,8 @@ const resolvers = {
         }
 
         const newHistoryDoc = db.collection('History').doc();
-        const data = JSON.parse(dataS);
+        const data = JSON.parse(dataS) as Data;
+        console.log('dataaaa', data.data.packName);
 
         const sData = data.data.suppData;
         const sPrice = data.data.priceS;
@@ -1126,7 +1157,7 @@ const resolvers = {
 
         const newHistory = {
           uId: id,
-          dataForm: data.formData.dataFrForm,
+          dataForm: data.formData,
           historyId: newHistoryDoc.id,
           suppData: toFirestore,
         };
@@ -1134,22 +1165,10 @@ const resolvers = {
         const dataInColl = await db.collection('History').get();
 
         const duplicateByParam = dataInColl.docs.map((item) => {
-          // return ?
-          // spise kontrola dle jmena
           const itm = item.data() as HistoryDoc;
-          const byForm = itm.dataForm;
-          const byCost = itm.suppData.cost;
           const userId = itm.uId;
           if (itm.suppData.id === sData.supplierId && userId === id) {
-            return itm.suppData.packName === data.formData.dataFrForm.width &&
-              byForm.height === data.formData.dataFrForm.height &&
-              byForm.weight === data.formData.dataFrForm.weight &&
-              byForm.plength === data.formData.dataFrForm.plength &&
-              byForm.placeTo === data.formData.dataFrForm.placeTo &&
-              byForm.placeFrom === data.formData.dataFrForm.placeFrom &&
-              Number(byCost) === Number(sPrice)
-              ? item
-              : undefined;
+            return itm.suppData.packName === packName ? item : undefined;
           }
           return undefined;
         });

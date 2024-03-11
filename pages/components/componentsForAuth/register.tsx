@@ -1,5 +1,5 @@
 import { State, useHookstate } from '@hookstate/core';
-import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
+// import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Alert } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
@@ -84,28 +84,29 @@ const onChangeForm = (
   });
 };
 
-const RequirementsPass = (
-  setClose: React.Dispatch<React.SetStateAction<boolean>>,
-) => {
-  return (
-    <div
-      style={{
-        border: '3px solid #FADF79',
-        borderRadius: '10px',
-        background: '#FADF79',
-        margin: '10px',
-        padding: '10px',
-      }}
-    >
-      <Button style={{ float: 'right' }} onClick={() => setClose(true)}>
+const RequirementsPass = () =>
+  // setClose: React.Dispatch<React.SetStateAction<boolean>>,
+  {
+    return (
+      <div
+        style={{
+          border: '3px solid #FADF79',
+          borderRadius: '10px',
+          background: '#FADF79',
+          padding: '10px',
+        }}
+      >
+        {/* <Button style={{ float: 'right' }} onClick={() => setClose(true)}>
         <ClearOutlinedIcon />
-      </Button>
-      <p>Length bigger or equal to 8</p>
-      <p>Combination of symbol, number, character</p>
-      <p>Part of email not included in password</p>
-    </div>
-  );
-};
+      </Button> */}
+        <p style={{ margin: '6px' }}>Length bigger or equal to 8</p>
+        <p style={{ margin: '6px' }}>
+          Combination of symbol, number, character
+        </p>
+        <p style={{ margin: '6px' }}>Part of email not included in password</p>
+      </div>
+    );
+  };
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
@@ -142,7 +143,7 @@ const Submit = async (
     const err = error as FirebaseError;
     switch (err.code) {
       case 'auth/email-already-in-use': {
-        SetAlert(MyAlert('User is already in use', 'error'));
+        errSetter.errEmail.set('User is already in use');
         break;
       }
       case 'auth/invalid-email': {
@@ -251,9 +252,7 @@ export const PageRegisterForm = () => {
               </p>
             </div>
 
-            <div>
-              {close === true ? <div></div> : RequirementsPass(SetClose)}
-            </div>
+            <div>{close === true ? <div></div> : RequirementsPass()}</div>
 
             {errCredentials.errPassword.get() === '' ? (
               <TextField
