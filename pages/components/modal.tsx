@@ -43,7 +43,7 @@ export const CustomDialog: React.FC<Props> = ({ title, description }) => {
         }}
         onClick={handleClickOpen}
       >
-        Open dialog
+        Information
       </Button>
       <BootstrapDialog
         onClose={handleClose}

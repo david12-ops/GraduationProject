@@ -1187,6 +1187,8 @@ const resolvers = {
 
         await newHistoryDoc.set(newHistory);
 
+        // pri prvnim vytvoreni to napise jen to druhe
+        console.log('zmena', dataInColl.size);
         if (dataInColl.docChanges() && dataInColl.docChanges().length > 0) {
           return { message: 'Save successful' };
         }

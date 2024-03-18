@@ -1,4 +1,4 @@
-import { Button, CardActions, styled } from '@mui/material';
+import { Alert, Button, CardActions, styled } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -14,10 +14,18 @@ import {
 
 import { CustomDialog } from '../modal';
 
-const CusotmBtn = styled(Button)(({ theme }) => ({
+const CusotmBtn = styled(Button)({
   color: 'white',
   backgroundColor: '#F565AD',
-}));
+});
+
+const MyAlert = (message: string) => {
+  return message.includes('successful') ? (
+    <Alert severity="success">{message}</Alert>
+  ) : (
+    <Alert severity="error">{message}</Alert>
+  );
+};
 
 type Props = {
   name: string;
@@ -62,56 +70,60 @@ const Paragraph = (
 ) => {
   const paragraph =
     packInBox === 'Yes' ? (
-      <p>
+      <p style={{ margin: '10px' }}>
         The shipment must be packed <strong>in a box</strong>
       </p>
     ) : (
-      <p>
+      <p style={{ margin: '10px' }}>
         Shipment does not need to be packed <strong>in a box</strong>
       </p>
     );
 
   const paragraph2 =
     folie === 'Yes' ? (
-      <p>
+      <p style={{ margin: '10px' }}>
         Can be packaged in <strong>folie</strong>
       </p>
     ) : (
-      <p>
+      <p style={{ margin: '10px' }}>
         Can not be packaged in <strong>folie</strong>
       </p>
     );
 
   const paragraph3 =
     shippingLabel === 'Yes' ? (
-      <p> Shipping label will be delivered by courier</p>
+      <p style={{ margin: '10px' }}>
+        Shipping label will be delivered by courier
+      </p>
     ) : (
-      <p> The shipping label will not be delivered by courier</p>
+      <p style={{ margin: '10px' }}>
+        The shipping label will not be delivered by courier
+      </p>
     );
 
   const paragraph4 =
     sendCash === 'Yes' ? (
-      <p>
+      <p style={{ margin: '10px' }}>
         Possibility to send <strong>cash on delivery</strong>
       </p>
     ) : (
-      <p>
+      <p style={{ margin: '10px' }}>
         It is not possible to send <strong>cash on delivery</strong>
       </p>
     );
 
   return (
-    <div>
-      <p>
+    <div style={{ margin: '10px' }}>
+      <p style={{ margin: '10px' }}>
         Pick up first <strong>{pickUp}</strong>
       </p>
-      <p>
+      <p style={{ margin: '10px' }}>
         Delivery first <strong>{delivery}</strong>
       </p>
       {paragraph}
       {paragraph2}
       {paragraph3}
-      <p>
+      <p style={{ margin: '10px' }}>
         Insurance <strong>up to {insurance} CZK included</strong>
       </p>
       {paragraph4}
@@ -134,6 +146,7 @@ export const ResSuppCard: React.FC<Props> = ({
   packName,
 }) => {
   const dataS = useSuppDataQuery();
+  const [alert, SetAlert] = React.useState(<div></div>);
   const [history] = useAddHistoryToFirestoreMutation();
   console.log(typeof history);
   const supplier = dataS.data?.suplierData.find((sup) => {
@@ -151,7 +164,8 @@ export const ResSuppCard: React.FC<Props> = ({
     const user = authUtils.getCurrentUser()?.uid;
 
     if (user) {
-      await mutation({
+      // ?Alert
+      const result = await mutation({
         variables: {
           Id: user,
           Data: JSON.stringify({
@@ -162,6 +176,11 @@ export const ResSuppCard: React.FC<Props> = ({
         refetchQueries: [{ query: HistoryDataDocument }],
         awaitRefetchQueries: true,
       }).catch((error: string) => console.error(error));
+      if (result?.data?.AddHistory?.message) {
+        SetAlert(MyAlert(result?.data?.AddHistory?.message));
+      }
+    } else {
+      SetAlert(MyAlert('User must have account'));
     }
   };
 
@@ -182,6 +201,7 @@ export const ResSuppCard: React.FC<Props> = ({
         >
           <strong>{name}</strong>
         </Typography>
+        {alert}
         <div
           style={{
             display: 'flex',
@@ -190,29 +210,20 @@ export const ResSuppCard: React.FC<Props> = ({
             justifyContent: 'space-between',
           }}
         >
-          {/* <Typography
-            sx={{
-              fontSize: '16px',
-              textAlign: 'center',
-              margin: 'auto',
-            }}
-            variant="body2"
-            color="text.secondary"
-          >
-            
-          </Typography> */}
-          <CustomDialog
-            title={name}
-            description={Paragraph(
-              pickUp,
-              delivery,
-              packInBox,
-              folie,
-              shippingLabel,
-              insurance,
-              sendCash,
-            )}
-          />
+          <div style={{ margin: 'auto' }}>
+            <CustomDialog
+              title={name}
+              description={Paragraph(
+                pickUp,
+                delivery,
+                packInBox,
+                folie,
+                shippingLabel,
+                insurance,
+                sendCash,
+              )}
+            />
+          </div>
 
           <Typography
             sx={{ fontSize: '16px', margin: 'auto' }}
