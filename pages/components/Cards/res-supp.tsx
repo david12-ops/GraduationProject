@@ -1,8 +1,6 @@
-import { Button } from '@mui/material';
+import { Button, CardActions, styled } from '@mui/material';
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Link from 'next/link';
 import * as React from 'react';
@@ -14,7 +12,12 @@ import {
   useSuppDataQuery,
 } from '@/generated/graphql';
 
-import styles from '../../../styles/stylesForm/style.module.css';
+import { CustomDialog } from '../modal';
+
+const CusotmBtn = styled(Button)(({ theme }) => ({
+  color: 'white',
+  backgroundColor: '#F565AD',
+}));
 
 type Props = {
   name: string;
@@ -165,81 +168,80 @@ export const ResSuppCard: React.FC<Props> = ({
   return (
     <Card
       sx={{
-        minWidth: 300,
-        width: 750,
-        maxHeight: 500,
-        backgroundColor: '#DDD8BD',
+        backgroundColor: 'whitesmoke',
         margin: '20px',
+        border: '5px solid #F565AD',
       }}
     >
-      <CardContent
-        sx={{
-          display: 'grid',
-          columnGap: '50px',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-        }}
-      >
+      <CardContent>
         <Typography
-          sx={{ gridColumnStart: 1, padding: '20px', fontSize: '30px' }}
+          sx={{ textAlign: 'center', fontSize: '30px' }}
           gutterBottom
           variant="h5"
           component="div"
         >
           <strong>{name}</strong>
         </Typography>
-        <CardMedia
-          sx={{
-            gridColumnStart: 2,
-            width: '100',
-            height: '50px',
-            padding: '20px',
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '35px',
+            justifyContent: 'space-between',
           }}
-          image="/static/images/cards/contemplative-reptile.jpg"
-        />
-        <Typography
-          sx={{
-            gridColumnStart: 1,
-            gridColumnEnd: 3,
-            padding: '20px',
-            fontSize: '16px',
-          }}
-          variant="body2"
-          color="text.secondary"
         >
-          {Paragraph(
-            pickUp,
-            delivery,
-            packInBox,
-            folie,
-            shippingLabel,
-            insurance,
-            sendCash,
-          )}
-        </Typography>
-        <Typography
-          sx={{ gridColumnStart: 3, padding: '20px', fontSize: '16px' }}
-          variant="body2"
-          color="text.secondary"
-        >
-          <div style={{ textAlign: 'center' }}>Price: {price}</div>
-          <CardActions style={{ justifyContent: 'center' }}>
-            {name === 'dpd' ? (
-              <Link href="https://zrukydoruky.dpd.cz/">
-                <Button className={styles.crudbtnTable}>Order</Button>
-              </Link>
-            ) : (
-              <Link key="orderPage" href={`../../orderPage`}>
-                <Button className={styles.crudbtnTable}>Order</Button>
-              </Link>
+          {/* <Typography
+            sx={{
+              fontSize: '16px',
+              textAlign: 'center',
+              margin: 'auto',
+            }}
+            variant="body2"
+            color="text.secondary"
+          >
+            
+          </Typography> */}
+          <CustomDialog
+            title={name}
+            description={Paragraph(
+              pickUp,
+              delivery,
+              packInBox,
+              folie,
+              shippingLabel,
+              insurance,
+              sendCash,
             )}
-            <Button
-              onClick={() => Save(dataFrPage, supplier, price, history)}
-              className={styles.crudbtnTable}
-            >
-              Save
-            </Button>
-          </CardActions>
-        </Typography>
+          />
+
+          <Typography
+            sx={{ fontSize: '16px', margin: 'auto' }}
+            variant="body2"
+            color="text.secondary"
+          >
+            <p style={{ textAlign: 'center' }}>Price: {price}</p>
+            <p style={{ textAlign: 'center' }}>
+              Without DPH : {price - Math.round((price / 100) * 21)}
+            </p>
+
+            <CardActions>
+              {name === 'dpd' ? (
+                <Link href="https://zrukydoruky.dpd.cz/">
+                  <CusotmBtn>Order</CusotmBtn>
+                </Link>
+              ) : (
+                <Link key="orderPage" href={`../../orderPage`}>
+                  <CusotmBtn>Order</CusotmBtn>
+                </Link>
+              )}
+              <CusotmBtn
+                onClick={() => Save(dataFrPage, supplier, price, history)}
+              >
+                Save
+              </CusotmBtn>
+            </CardActions>
+          </Typography>
+        </div>
       </CardContent>
     </Card>
   );

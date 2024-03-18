@@ -1,5 +1,7 @@
 import { ApolloError } from '@apollo/client';
 import { State, useHookstate } from '@hookstate/core';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { Alert, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Head from 'next/head';
@@ -17,8 +19,15 @@ import { FormChooseSup } from './components/form-choose-supp';
 import { Navbar } from './components/navbar2';
 
 const Submit = styled(Button)(({ theme }) => ({
-  color: theme.palette.submitButton.dark,
-  backgroundColor: theme.palette.submitButton.light,
+  color: 'white',
+  backgroundColor: '#F565AD',
+  width: '20%',
+  alignSelf: 'center',
+}));
+
+const DropDownBtn = styled(Button)(({ theme }) => ({
+  color: 'white',
+  backgroundColor: '#F565AD',
 }));
 
 type DataFromForm = {
@@ -238,6 +247,28 @@ const Valid = (
   return undefined;
 };
 
+const DisplayResult = (
+  close: boolean,
+  dataFromResolver: Array<DataS>,
+  QueryData: SuppData,
+  setters: State<SetterDataProperties>,
+) => {
+  // pouziti callback
+  return close ? (
+    <div></div>
+  ) : (
+    RenderSupp(
+      dataFromResolver,
+      {
+        data: QueryData.data,
+        loading: QueryData.loading,
+        error: QueryData.error,
+      },
+      SetAndReturnDataForm(setters),
+    )
+  );
+};
+
 const onChangeForm = (
   setters: State<ErrSettersProperties>,
   stateAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
@@ -281,6 +312,7 @@ export default function SuitableSupp() {
 
   // pouzit callBack
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
+  const [close, SetClose] = useState(true);
   const [dataS, SetData] = useState(Array<DataS>);
   const [myAlert, SetAlert] = useState(<div></div>);
 
@@ -345,22 +377,25 @@ export default function SuitableSupp() {
           onChangeCost={(e) => statesOfFormPack.Cost.set(e)}
           onChangeWhere={(e) => statesOfFormPack.PlaceTo.set(e)}
           onChangeFromWhere={(e) => statesOfFormPack.PlaceFrom.set(e)}
-          buttonEl={
-            <Button className={styles.crudbtn} onClick={HandleForm}>
-              Submit
-            </Button>
-          }
+          buttonEl={<Submit onClick={HandleForm}>Submit</Submit>}
           errors={errors.get()}
         />
-        {RenderSupp(
-          dataS,
-          {
-            data: suppData.data,
-            loading: suppData.loading,
-            error: suppData.error,
-          },
-          SetAndReturnDataForm(statesOfFormPack),
-        )}
+
+        <DropDownBtn onClick={() => SetClose((prev) => !prev)}>
+          {close ? <ArrowDropDownIcon /> : <ArrowDropUpIcon />}
+        </DropDownBtn>
+        <div>
+          {DisplayResult(
+            close,
+            dataS,
+            {
+              data: suppData.data,
+              loading: suppData.loading,
+              error: suppData.error,
+            },
+            statesOfFormPack,
+          )}
+        </div>
       </main>
 
       <footer className={styles.footer}></footer>
