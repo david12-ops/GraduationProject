@@ -16,7 +16,7 @@ import { CustomDialog } from '../modal';
 
 const CusotmBtn = styled(Button)({
   color: 'white',
-  backgroundColor: '#F565AD',
+  backgroundColor: '#5CA6EB',
 });
 
 const MyAlert = (message: string) => {
@@ -189,7 +189,7 @@ export const ResSuppCard: React.FC<Props> = ({
       sx={{
         backgroundColor: 'whitesmoke',
         margin: '20px',
-        border: '5px solid #F565AD',
+        border: '5px solid #0E95EB',
       }}
     >
       <CardContent>

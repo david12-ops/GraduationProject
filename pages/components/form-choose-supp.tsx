@@ -256,7 +256,7 @@ export const FormChooseSup: React.FC<Props> = ({
         gap: '20px',
       }}
     >
-      <Card style={{ border: '5px solid #F565AD', borderRadius: '10px' }}>
+      <Card style={{ border: '5px solid #0E95EB', borderRadius: '10px' }}>
         <CardContent>
           <div onChange={onChangeForm}>
             {ParamsPart({
@@ -271,7 +271,7 @@ export const FormChooseSup: React.FC<Props> = ({
       </Card>
       <Card
         style={{
-          border: '5px solid #F565AD',
+          border: '5px solid #0E95EB',
           borderRadius: '10px',
         }}
       >

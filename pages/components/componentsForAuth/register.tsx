@@ -11,6 +11,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { FirebaseError } from 'firebase-admin';
+import router from 'next/router';
 import * as React from 'react';
 
 import { authUtils } from '@/firebase/auth-utils';
@@ -138,7 +139,8 @@ const Submit = async (
   }
   try {
     await authUtils.register(data.email, data.password);
-    SetAlert(MyAlert('User registration succesfull', 'success'));
+    await router.push('../../');
+    // SetAlert(MyAlert('User registration succesfull', 'success'));
   } catch (error) {
     const err = error as FirebaseError;
     switch (err.code) {

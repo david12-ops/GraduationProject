@@ -275,28 +275,6 @@ const ConverBool = (
   return false;
 };
 
-const ConverDate = (dateU1: string, dateU2: string) => {
-  console.log(dateU1);
-  // eslint-disable-next-line unicorn/better-regex
-  const option = /^[0-9]{4}[-][0-9]{1,2}[-][0-9]{1,2}$/;
-  if (!option.test(dateU1) || !option.test(dateU2)) {
-    return new Error('Invalid argument of date');
-  }
-
-  const dateParts = dateU1.split('-');
-  const DateParts2 = dateU2.split('-');
-  const middleNumber = Number.parseInt(dateParts[1], 10);
-  const middleNumber2 = Number.parseInt(DateParts2[1], 10);
-  if (
-    middleNumber > 12 ||
-    middleNumber2 > 12 ||
-    Number.parseInt(dateParts[2], 10) > 32 ||
-    Number.parseInt(DateParts2[2], 10) > 32
-  ) {
-    return new Error('Invalid argument of month in date or day');
-  }
-};
-
 type DataUpdateSupp = {
   sendCashDelivery: string;
   packInBox: string;
@@ -641,6 +619,25 @@ const doMatchForOptionsDelivery = async (
 
   console.log('message', msg);
   return msg;
+};
+
+const checkIfisThereDoc = (
+  idDoc: string,
+  collection: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
+  userId: string,
+) => {
+  let doc:
+    | FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+    | undefined;
+  for (const document of collection.docs) {
+    if (document.id === idDoc && userId && document.data().uId === userId) {
+      doc = document;
+    }
+    // if (document.id === idDoc) {
+    //   doc = document;
+    // }
+  }
+  return doc;
 };
 
 const resolvers = {
@@ -1187,9 +1184,21 @@ const resolvers = {
 
         await newHistoryDoc.set(newHistory);
 
-        // pri prvnim vytvoreni to napise jen to druhe
-        console.log('zmena', dataInColl.size);
-        if (dataInColl.docChanges() && dataInColl.docChanges().length > 0) {
+        console.log(
+          'je tammmm',
+          checkIfisThereDoc(
+            newHistory.historyId,
+            await db.collection('History').get(),
+            id,
+          )?.data(),
+        );
+        if (
+          checkIfisThereDoc(
+            newHistory.historyId,
+            await db.collection('History').get(),
+            id,
+          )?.data()
+        ) {
           return { message: 'Save successful' };
         }
         return { message: 'Save error, please try again later' };
