@@ -17,7 +17,7 @@ import {
 import styles from '../styles/Home.module.css';
 import { ResSuppCard } from './components/Cards/res-supp';
 import { FormChooseSup } from './components/form-choose-supp';
-import { Navbar } from './components/navbar2';
+import { Navbar } from './components/navbar';
 
 const Submit = styled(Button)(({ theme }) => ({
   color: 'white',
@@ -311,7 +311,7 @@ export default function SuitableSupp() {
     errFrom: '',
   });
 
-  // pouzit callBack
+  // pouzit callBack - jen kdyz je funkce pouzivana v komponenete kvuli pristupu propsu
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
   const [close, SetClose] = useState(true);
   const [dataS, SetData] = useState(Array<DataS>);

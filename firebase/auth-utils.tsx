@@ -2,6 +2,8 @@ import {
   confirmPasswordReset,
   createUserWithEmailAndPassword,
   getAuth,
+  NextOrObserver,
+  onAuthStateChanged,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   updateEmail,
@@ -33,6 +35,9 @@ export const authUtils = {
   },
   confrimPassReset: async (email: string, newPass: string) => {
     await confirmPasswordReset(auth, email, newPass);
+  },
+  onAuthStateChange: (callbackFunc: NextOrObserver<User>) => {
+    return onAuthStateChanged(auth, callbackFunc);
   },
   getCurrentUser: () => auth.currentUser,
 };

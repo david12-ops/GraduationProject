@@ -6,7 +6,7 @@ import { authUtils } from '@/firebase/auth-utils';
 
 import stylesM from '../styles/Main.module.css';
 import { CardOffer } from './components/Cards/card-index-page';
-import { Navbar } from './components/navbar2';
+import { Navbar } from './components/navbar';
 
 export default function Home() {
   return (

@@ -4,7 +4,7 @@ import { authUtils } from '@/firebase/auth-utils';
 
 import styles from '../../styles/Home.module.css';
 import { PageFormLogin } from '../components/componentsForAuth/login';
-import { Navbar } from '../components/navbar2';
+import { Navbar } from '../components/navbar';
 
 export default function LoginPage() {
   return (

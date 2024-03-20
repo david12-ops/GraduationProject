@@ -229,11 +229,14 @@ export const ResSuppCard: React.FC<Props> = ({
             sx={{ fontSize: '16px', margin: 'auto' }}
             variant="body2"
             color="text.secondary"
+            component={'div'}
           >
-            <p style={{ textAlign: 'center' }}>Price: {price}</p>
-            <p style={{ textAlign: 'center' }}>
+            <Typography component="p" style={{ textAlign: 'center' }}>
+              Price: {price}
+            </Typography>
+            <Typography component="p" style={{ textAlign: 'center' }}>
               Without DPH : {price - Math.round((price / 100) * 21)}
-            </p>
+            </Typography>
 
             <CardActions>
               {name === 'dpd' ? (

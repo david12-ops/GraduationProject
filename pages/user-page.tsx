@@ -6,7 +6,7 @@ import { authUtils } from '@/firebase/auth-utils';
 import { useHistoryDataQuery } from '@/generated/graphql';
 
 import styles from '../styles/Home.module.css';
-import { Navbar } from './components/navbar2';
+import { Navbar } from './components/navbar';
 
 const buttonPart = (name: string) => {
   if (name === 'dpd') {

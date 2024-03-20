@@ -7,7 +7,7 @@ import { authUtils } from '@/firebase/auth-utils';
 import styles from '../styles/Home.module.css';
 import { useAuthContext } from './components/auth-context-provider';
 import { DataGridSupplier } from './components/componentsTables/table-supp';
-import { Navbar } from './components/navbar2';
+import { Navbar } from './components/navbar';
 
 const Page = (logged: boolean, admin: boolean) => {
   if (!logged || !admin) {

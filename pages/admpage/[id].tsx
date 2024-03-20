@@ -11,7 +11,7 @@ import styles from '../../styles/Home.module.css';
 import stylesF from '../../styles/stylesForm/style.module.css';
 import { PackCard } from '../components/Cards/packs-card';
 import { AdmPageSuppCard } from '../components/Cards/supp-card';
-import { Navbar } from '../components/navbar2';
+import { Navbar } from '../components/navbar';
 
 type Package = {
   [name: string]: {

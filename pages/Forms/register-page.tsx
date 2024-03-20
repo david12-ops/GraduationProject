@@ -4,7 +4,7 @@ import { authUtils } from '@/firebase/auth-utils';
 
 import styles from '../../styles/Home.module.css';
 import { PageRegisterForm } from '../components/componentsForAuth/register';
-import { Navbar } from '../components/navbar2';
+import { Navbar } from '../components/navbar';
 
 export default function RegisterPage() {
   return (

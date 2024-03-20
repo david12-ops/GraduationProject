@@ -5,7 +5,7 @@ import { authUtils } from '@/firebase/auth-utils';
 import { FormPackage } from '@/pages/components/componentsFormsAdmin/form-package-create';
 
 import styles from '../../../styles/Home.module.css';
-import { Navbar } from '../../components/navbar2';
+import { Navbar } from '../../components/navbar';
 
 export default function CreateForm() {
   const { query } = useRouter();

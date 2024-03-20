@@ -4,7 +4,7 @@ import { authUtils } from '@/firebase/auth-utils';
 
 import styles from '../../styles/Home.module.css';
 import { PageFormChangePass } from '../components/componentsForAuth/change-pass';
-import { Navbar } from '../components/navbar2';
+import { Navbar } from '../components/navbar';
 
 export default function ChangePassPage() {
   return (

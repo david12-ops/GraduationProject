@@ -5,7 +5,7 @@ import { authUtils } from '@/firebase/auth-utils';
 
 import styles from '../styles/Home.module.css';
 // import { StepperComp } from './components/multiForm';
-import { Navbar } from './components/navbar2';
+import { Navbar } from './components/navbar';
 
 export default function Stepper() {
   return (

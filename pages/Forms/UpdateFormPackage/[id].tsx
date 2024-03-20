@@ -5,7 +5,7 @@ import { authUtils } from '@/firebase/auth-utils';
 
 import styles from '../../../styles/Home.module.css';
 import { FormPackageUpdate } from '../../components/componentsFormsAdmin/form-package-update';
-import { Navbar } from '../../components/navbar2';
+import { Navbar } from '../../components/navbar';
 
 export default function Update() {
   const router = useRouter();

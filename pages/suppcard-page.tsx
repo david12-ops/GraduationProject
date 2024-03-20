@@ -6,7 +6,7 @@ import { SuppDataQuery, useSuppDataQuery } from '@/generated/graphql';
 
 import styles from '../styles/Home.module.css';
 import { DetailSupps } from './components/Cards/supp-cards';
-import { Navbar } from './components/navbar2';
+import { Navbar } from './components/navbar';
 
 type Item = SuppDataQuery | undefined;
 

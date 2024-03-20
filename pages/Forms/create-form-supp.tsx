@@ -4,7 +4,7 @@ import { authUtils } from '@/firebase/auth-utils';
 
 import styles from '../../styles/Home.module.css';
 import { FormSupplier } from '../components/componentsFormsAdmin/form-supplier-create';
-import { Navbar } from '../components/navbar2';
+import { Navbar } from '../components/navbar';
 
 export default function CreateFormSupp() {
   return (

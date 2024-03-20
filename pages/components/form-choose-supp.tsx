@@ -88,6 +88,7 @@ export const FormChooseSup: React.FC<Props> = ({
                 onChange={(selectedOption) =>
                   onChangeFromWhere(selectedOption.target.value)
                 }
+                defaultValue={''}
               >
                 {options.map((option: { value: string; label: string }) => (
                   <MenuItem key={option.value} value={option.value}>
@@ -109,6 +110,7 @@ export const FormChooseSup: React.FC<Props> = ({
                 onChange={(selectedOption) =>
                   onChangeFromWhere(selectedOption.target.value)
                 }
+                defaultValue={''}
               >
                 {options.map((option: { value: string; label: string }) => (
                   <MenuItem key={option.value} value={option.value}>
@@ -131,6 +133,7 @@ export const FormChooseSup: React.FC<Props> = ({
                   onChange={(selectedOption) =>
                     onChangeWhere(selectedOption.target.value)
                   }
+                  defaultValue={''}
                 >
                   {options.map((option: { value: string; label: string }) => (
                     <MenuItem key={option.value} value={option.value}>
@@ -152,6 +155,7 @@ export const FormChooseSup: React.FC<Props> = ({
                   onChange={(selectedOption) =>
                     onChangeWhere(selectedOption.target.value)
                   }
+                  defaultValue={''}
                 >
                   {options.map((option: { value: string; label: string }) => (
                     <MenuItem key={option.value} value={option.value}>
