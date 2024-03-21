@@ -1,7 +1,9 @@
-import { Typography } from '@mui/material';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import { Button, styled, Typography } from '@mui/material';
 import Head from 'next/head';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { useHistoryDataQuery } from '@/generated/graphql';
 
@@ -9,7 +11,13 @@ import styles from '../styles/Home.module.css';
 import { useAuthContext } from './components/auth-context-provider';
 import { PageFormChangeEm } from './components/componentsForAuth/change-email';
 import { PageFormChangePass } from './components/componentsForAuth/change-pass';
+// import { CustomDialog } from './components/modal';
 import { Navbar } from './components/navbar';
+
+const DropDownBtn = styled(Button)({
+  color: 'white',
+  backgroundColor: '#5CA6EB',
+});
 
 const buttonPart = (name: string) => {
   if (name === 'dpd') {
@@ -70,10 +78,30 @@ const buttonPart = (name: string) => {
   );
 };
 
+const DisplayResult = (close: boolean) => {
+  return close ? (
+    <div></div>
+  ) : (
+    // RenderSupp(
+    //   dataFromResolver,
+    //   {
+    //     data: QueryData.data,
+    //     loading: QueryData.loading,
+    //     error: QueryData.error,
+    //   },
+    //   SetAndReturnDataForm(setters),
+    // )
+    <div>jeee</div>
+  );
+};
+
+const DescriptionToDialog = () => {};
+
 export default function UserPage() {
   const { user } = useAuthContext();
-  const email = user?.email;
   const hitoryD = useHistoryDataQuery();
+  const [close, SetClose] = useState(true);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -82,15 +110,29 @@ export default function UserPage() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar user={user} />
+      {/* <CustomDialog></CustomDialog> */}
 
       <main className={styles.main}>
-        <Typography style={{ textAlign: 'center' }} variant="h4" component="h1">
-          {email}
+        <Typography
+          component={'div'}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-around',
+          }}
+        >
+          <Typography
+            style={{ textAlign: 'center' }}
+            variant="h5"
+            component="h1"
+          >
+            History
+          </Typography>
+          <DropDownBtn onClick={() => SetClose((prev) => !prev)}>
+            {close ? <ArrowDropDownIcon /> : <ArrowDropUpIcon />}
+          </DropDownBtn>
         </Typography>
 
-        <Typography style={{ textAlign: 'center' }} variant="h5" component="h1">
-          History
-        </Typography>
         {hitoryD.data?.historyUserData.map((historyItm) => {
           return (
             // Využití modalu
@@ -179,14 +221,13 @@ export default function UserPage() {
           component={'div'}
           style={{
             display: 'flex',
-            // gap: '40px',
-            // margin: '20px',
-            // flexWrap: 'wrap',
             flexDirection: 'row',
+            justifyContent: 'space-around',
+            flexWrap: 'wrap',
           }}
         >
-          {<PageFormChangePass />}
-          {<PageFormChangeEm />}
+          <Typography component={'div'}>{<PageFormChangePass />}</Typography>
+          <Typography component={'div'}>{<PageFormChangeEm />}</Typography>
         </Typography>
       </main>
     </div>
