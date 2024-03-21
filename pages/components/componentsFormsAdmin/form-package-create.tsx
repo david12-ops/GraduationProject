@@ -134,7 +134,7 @@ const MyAlert = (
 };
 
 export const FormPackage: React.FC<Props> = ({ id }) => {
-  const { userApp } = useAuthContext();
+  const { user } = useAuthContext();
   const settersForDataPack = useHookstate({
     Weight: '',
     Cost: '',
@@ -167,7 +167,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
   const labelCost = { err: 'Chyba', withoutErr: 'Cena' };
   const labelName = { err: 'Chyba', withoutErr: 'Označení' };
 
-  const user = useHookstate({ Admin: false, LoggedIn: false });
+  const userApp = useHookstate({ Admin: false, LoggedIn: false });
 
   const [newPackage] = useNewPackageToFirestoreMutation();
   const [suppId, SetSuppId] = React.useState('');
@@ -176,11 +176,11 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     SetSuppId(id);
 
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
-    if (userApp) {
-      user.LoggedIn.set(true);
+    if (user) {
+      userApp.LoggedIn.set(true);
     }
-    if (userApp?.email === Admin) {
-      user.Admin.set(true);
+    if (user?.email === Admin) {
+      userApp.Admin.set(true);
     }
   });
 
@@ -231,7 +231,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     }
   };
 
-  if (!user.LoggedIn.get() || !user.Admin.get()) {
+  if (!userApp.LoggedIn.get() || !userApp.Admin.get()) {
     return (
       <div
         style={{

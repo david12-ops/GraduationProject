@@ -273,7 +273,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     { value: 'Yes', label: 'Ano' },
     { value: 'No', label: 'Ne' },
   ];
-  const { userApp } = useAuthContext();
+  const { user } = useAuthContext();
 
   const settersOfDataSupp = useHookstate({
     SuppId: '',
@@ -325,7 +325,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const labelInsurance = { err: 'Chyba', withoutErr: 'Pojištění' };
   const labelName = { err: 'Chyba', withoutErr: 'Jméno' };
 
-  const user = useHookstate({ Admin: false, LoggedIn: false });
+  const userApp = useHookstate({ Admin: false, LoggedIn: false });
 
   const supData = useSuppDataQuery();
   const [UpdateHistory] = useUpdateHistoryMutation();
@@ -334,11 +334,11 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
-    if (userApp) {
-      user.LoggedIn.set(true);
+    if (user) {
+      userApp.LoggedIn.set(true);
     }
-    if (userApp?.email === Admin) {
-      user.Admin.set(true);
+    if (user?.email === Admin) {
+      userApp.Admin.set(true);
     }
 
     if (id && supData.data && supData) {
@@ -477,7 +477,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     }
   };
 
-  if (!user.Admin.get() || !user.LoggedIn.get()) {
+  if (!userApp.Admin.get() || !userApp.LoggedIn.get()) {
     return (
       <div
         style={{
@@ -649,7 +649,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               fontWeight: 'bold',
             }}
           >
-            Details
+            Detaily
           </legend>
           {MyComponent(
             settersOfDataSupp.SendCashDelivery,

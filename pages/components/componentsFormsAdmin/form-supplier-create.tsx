@@ -197,7 +197,7 @@ const MessageCreateSupp = (data: DataCreatedSupp) => {
 };
 
 export const FormSupplier = () => {
-  const { userApp } = useAuthContext();
+  const { user } = useAuthContext();
   const options = [
     { value: 'Yes', label: 'Ano' },
     { value: 'No', label: 'Ne' },
@@ -254,16 +254,16 @@ export const FormSupplier = () => {
 
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
 
-  const user = useHookstate({ Admin: false, LoggedIn: false });
+  const userApp = useHookstate({ Admin: false, LoggedIn: false });
   const [newSupp] = useNewSupplierToFirestoreMutation();
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
-    if (userApp) {
-      user.LoggedIn.set(true);
+    if (user) {
+      userApp.LoggedIn.set(true);
     }
-    if (userApp?.email === Admin) {
-      user.Admin.set(true);
+    if (user?.email === Admin) {
+      userApp.Admin.set(true);
     }
   });
 
@@ -365,7 +365,7 @@ export const FormSupplier = () => {
     }
   };
 
-  if (!user.Admin.get() || !user.LoggedIn.get()) {
+  if (!userApp.Admin.get() || !userApp.LoggedIn.get()) {
     return (
       <div
         style={{

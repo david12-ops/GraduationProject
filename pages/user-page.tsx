@@ -87,26 +87,7 @@ export default function UserPage() {
         <Typography style={{ textAlign: 'center' }} variant="h4" component="h1">
           {email}
         </Typography>
-        <Typography
-          component={'div'}
-          style={{
-            display: 'flex',
-            gap: '40px',
-            margin: '20px',
-          }}
-        >
-          <Typography
-            component="div"
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'space-between',
-            }}
-          >
-            {<PageFormChangePass />}
-            {<PageFormChangeEm />}
-          </Typography>
-        </Typography>
+
         <Typography style={{ textAlign: 'center' }} variant="h5" component="h1">
           History
         </Typography>
@@ -194,6 +175,19 @@ export default function UserPage() {
             </Typography>
           );
         })}
+        <Typography
+          component={'div'}
+          style={{
+            display: 'flex',
+            // gap: '40px',
+            // margin: '20px',
+            // flexWrap: 'wrap',
+            flexDirection: 'row',
+          }}
+        >
+          {<PageFormChangePass />}
+          {<PageFormChangeEm />}
+        </Typography>
       </main>
     </div>
   );
