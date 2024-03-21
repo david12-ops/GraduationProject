@@ -7,7 +7,6 @@ import {
 } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
 import { useEffect } from 'react';
@@ -21,6 +20,7 @@ import {
 } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
+import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
 
 type Props = {
@@ -86,7 +86,7 @@ const IsYesOrNo = (
   stringnU3: string,
   stringnU4: string,
 ) => {
-  const message = 'Value not in valid format (Yes/No)';
+  const message = 'Očekává se hodnota (Yes/No)';
   if (!['Yes', 'No'].includes(stringnU1)) {
     return { msg: message, from: 'sendCashDelivery' };
   }
@@ -193,8 +193,7 @@ const Valid = (
   personalCostarg: string,
   setterErr: State<ErrSettersProperties>,
 ) => {
-  const messageForInt =
-    'Invalid argument, expect number bigger or equal to zero';
+  const messageForInt = 'Očekává se číslo větší nebo rovné nule';
 
   if (!isInt(insurancearg, 0)) {
     setterErr.errInsurance.set(messageForInt);
@@ -243,11 +242,11 @@ const Valid = (
   }
 
   if (deliveryarg !== '') {
-    return new Error('Delivery date is not valid');
+    return new Error('Datum dodání není ve správném formátu');
   }
 
   if (pickUparg !== '') {
-    return new Error('Pickup date is not valid');
+    return new Error('Datum vyzvednutí není ve správném formátu');
   }
   return undefined;
 };
@@ -271,9 +270,10 @@ const setDataDatabase = (data: Item, stateSeter: State<DataFromDB>) => {
 
 export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const options = [
-    { value: 'Yes', label: 'Yes' },
-    { value: 'No', label: 'No' },
+    { value: 'Yes', label: 'Ano' },
+    { value: 'No', label: 'Ne' },
   ];
+  const { userApp } = useAuthContext();
 
   const settersOfDataSupp = useHookstate({
     SuppId: '',
@@ -314,10 +314,16 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
 
   const idComp = 'outlined-required';
 
-  const labelPersonalCost = { err: 'Error', withoutErr: 'Personal cost' };
-  const labelDepoCost = { err: 'Error', withoutErr: 'Depo cost' };
-  const labelInsurance = { err: 'Error', withoutErr: 'Insurance' };
-  const labelName = { err: 'Error', withoutErr: 'Name' };
+  const labelPersonalCost = {
+    err: 'Chyba',
+    withoutErr: 'Cena za osobní vyzvednutí/dodání',
+  };
+  const labelDepoCost = {
+    err: 'Chyba',
+    withoutErr: 'Cena vyzvednutí/dodání na depo',
+  };
+  const labelInsurance = { err: 'Chyba', withoutErr: 'Pojištění' };
+  const labelName = { err: 'Chyba', withoutErr: 'Jméno' };
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
 
@@ -328,12 +334,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
-    const auth = getAuth();
-    console.log('ada', auth.currentUser?.email);
-    if (auth.currentUser) {
+    if (userApp) {
       user.LoggedIn.set(true);
     }
-    if (auth.currentUser?.email === Admin) {
+    if (userApp?.email === Admin) {
       user.Admin.set(true);
     }
 
@@ -359,10 +363,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         id="outlined-select"
         select
         label={paragraph}
-        placeholder={'Yes/No'}
+        placeholder={'Ano/Ne'}
         value={state.get()}
         required
-        helperText={`Please select option Yes/No`}
+        helperText={`Vyberte prosím z možností Ano/Ne`}
         onChange={(selectedOption) =>
           state.set(selectedOption ? selectedOption.target.value : '')
         }
@@ -378,10 +382,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         id="outlined-select"
         select
         error
-        label={'Error'}
-        placeholder={'Yes/No'}
+        label={'Chyba'}
+        placeholder={'Ano/Ne'}
         required
-        helperText={`Please select option Yes/No`}
+        helperText={`Vyberte prosím z možností Ano/Ne`}
         onChange={(selectedOption) =>
           state.set(selectedOption ? selectedOption.target.value : '')
         }
@@ -541,7 +545,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               fontWeight: 'bold',
             }}
           >
-            Supplier information
+            Informace o dodavateli
           </legend>
           <MyCompTextField
             typeComp="text"
@@ -549,7 +553,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             labelComp={labelName}
             errorComp={setterErrors.errName.get()}
             funcComp={(e) => settersOfDataSupp.SupplierName.set(e)}
-            helpTexterComp={'Enter supplier name'}
+            helpTexterComp={'Zadejte jméno'}
             valueComp={settersOfDataSupp.SupplierName.get()}
           />
 
@@ -559,7 +563,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             labelComp={labelInsurance}
             errorComp={setterErrors.errInsurance.get()}
             funcComp={(e) => settersOfDataSupp.Insurance.set(e)}
-            helpTexterComp={'Enter insurance on package'}
+            helpTexterComp={'Zadejte pojištění na balík'}
             placeholderComp="Kč"
             valueComp={settersOfDataSupp.Insurance.get()}
           />
@@ -582,11 +586,11 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               fontWeight: 'bold',
             }}
           >
-            Dates for package
+            Datumy
           </legend>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              label="Delivery"
+              label="Dodání"
               disablePast
               minDate={dayjs()}
               onError={(e: DateValidationError) =>
@@ -600,8 +604,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               value={dayjs(settersOfDataSupp.Delivery.get())}
               slotProps={{
                 textField: {
-                  helperText:
-                    'Enter the date of package delivery in format (MM/DD/YYYY)',
+                  helperText: 'Zadejte datum dodání ve formatu (MM/DD/YYYY)',
                 },
               }}
             />
@@ -621,7 +624,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               slotProps={{
                 textField: {
                   helperText:
-                    'Enter the date of package pickup in format (MM/DD/YYYY)',
+                    'Zadejte datum vyzvednutí ve formatu (MM/DD/YYYY)',
                 },
               }}
             />
@@ -650,22 +653,22 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           </legend>
           {MyComponent(
             settersOfDataSupp.SendCashDelivery,
-            'Cash on delivery',
+            'Na dobírku',
             setterErrors.errSendCashDelivery.get(),
           )}
           {MyComponent(
             settersOfDataSupp.ShippingLabel,
-            'Shipping delivered by courier',
+            'Štítek přiveze kurýr',
             setterErrors.errShippingLabel.get(),
           )}
           {MyComponent(
             settersOfDataSupp.Foil,
-            'Packed in foil',
+            'Zabalení do fólie (nepovinné)',
             setterErrors.errFoil.get(),
           )}
           {MyComponent(
             settersOfDataSupp.PackInBox,
-            'Packed in a box',
+            'Zabalení do krabice',
             setterErrors.errPackInBox.get(),
           )}
         </fieldset>
@@ -687,7 +690,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               fontWeight: 'bold',
             }}
           >
-            Shipping/transfer method prices
+            Ceny způsobu dopravy
           </legend>
           <MyCompTextField
             typeComp="number"
@@ -695,7 +698,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             labelComp={labelDepoCost}
             errorComp={setterErrors.errDepoCost.get()}
             funcComp={(e) => settersOfDataSupp.DepoCost.set(e)}
-            helpTexterComp={'Enter cost for deliver/pick up to depo'}
+            helpTexterComp={'Cena vyzvednutí/dodání do depa'}
             placeholderComp="Kč"
             valueComp={settersOfDataSupp.DepoCost.get()}
           />
@@ -706,14 +709,14 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             labelComp={labelPersonalCost}
             errorComp={setterErrors.errPersonalCost.get()}
             funcComp={(e) => settersOfDataSupp.PersonalCost.set(e)}
-            helpTexterComp={'Enter cost for deliver/pick up to you personaly'}
+            helpTexterComp={'Cena za osobní vyzvednutí/dodání'}
             placeholderComp="Kč"
             valueComp={settersOfDataSupp.PersonalCost.get()}
           />
         </fieldset>
 
         <Button className={styles.crudbtn} type="submit">
-          Update
+          Upravit
         </Button>
       </form>
     </Typography>

@@ -150,7 +150,7 @@ export const DataGridSupplier = () => {
             color: 'gray',
           }}
         >
-          Actions
+          upravit Actions
         </h1>
         <button onClick={DeleteS} className={styles.crudbtDel}>
           Delete

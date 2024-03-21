@@ -1,6 +1,5 @@
 import { State, useHookstate } from '@hookstate/core';
 import { Alert, Button, Typography } from '@mui/material';
-import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
 import { useEffect } from 'react';
@@ -12,6 +11,7 @@ import {
 } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
+import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
 
 type Props = {
@@ -134,6 +134,7 @@ const MyAlert = (
 };
 
 export const FormPackage: React.FC<Props> = ({ id }) => {
+  const { userApp } = useAuthContext();
   const settersForDataPack = useHookstate({
     Weight: '',
     Cost: '',
@@ -159,12 +160,12 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
 
   const idComp = 'outlined-required';
 
-  const labelHeight = { err: 'Error', withoutErr: 'Height' };
-  const labelWeigth = { err: 'Error', withoutErr: 'Weight' };
-  const labelLength = { err: 'Error', withoutErr: 'Length' };
-  const labelWidth = { err: 'Error', withoutErr: 'Width' };
-  const labelCost = { err: 'Error', withoutErr: 'Cost' };
-  const labelName = { err: 'Error', withoutErr: 'Label' };
+  const labelHeight = { err: 'Chyba', withoutErr: 'Výška' };
+  const labelWeigth = { err: 'Chyba', withoutErr: 'Hmotnost' };
+  const labelLength = { err: 'Chyba', withoutErr: 'Délka' };
+  const labelWidth = { err: 'Chyba', withoutErr: 'Šířka' };
+  const labelCost = { err: 'Chyba', withoutErr: 'Cena' };
+  const labelName = { err: 'Chyba', withoutErr: 'Označení' };
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
 
@@ -175,11 +176,10 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     SetSuppId(id);
 
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
-    const auth = getAuth();
-    if (auth.currentUser) {
+    if (userApp) {
       user.LoggedIn.set(true);
     }
-    if (auth.currentUser?.email === Admin) {
+    if (userApp?.email === Admin) {
       user.Admin.set(true);
     }
   });
@@ -380,7 +380,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
         </fieldset>
 
         <Button className={styles.crudbtn} type="submit">
-          Upravit
+          Vytvořit
         </Button>
       </form>
     </Typography>

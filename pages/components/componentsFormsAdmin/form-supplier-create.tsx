@@ -4,7 +4,6 @@ import { DateValidationError, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
-import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
 import { useEffect } from 'react';
@@ -15,6 +14,7 @@ import {
 } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/styleForms.module.css';
+import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
 
 const Back = async () => {
@@ -197,6 +197,7 @@ const MessageCreateSupp = (data: DataCreatedSupp) => {
 };
 
 export const FormSupplier = () => {
+  const { userApp } = useAuthContext();
   const options = [
     { value: 'Yes', label: 'Ano' },
     { value: 'No', label: 'Ne' },
@@ -241,15 +242,15 @@ export const FormSupplier = () => {
   const idComp = 'outlined-required';
 
   const labelPersonalCost = {
-    err: 'Error',
+    err: 'Chyba',
     withoutErr: 'Cena za osobní vyzvednutí/dodání',
   };
   const labelDepoCost = {
-    err: 'Error',
+    err: 'Chyba',
     withoutErr: 'Cena vyzvednutí/dodání na depo',
   };
-  const labelInsurance = { err: 'Error', withoutErr: 'Pojištění' };
-  const labelName = { err: 'Error', withoutErr: 'Jméno' };
+  const labelInsurance = { err: 'Chyba', withoutErr: 'Pojištění' };
+  const labelName = { err: 'Chyba', withoutErr: 'Jméno' };
 
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
 
@@ -258,11 +259,10 @@ export const FormSupplier = () => {
 
   useEffect(() => {
     const Admin = process.env.NEXT_PUBLIC_AdminEm;
-    const auth = getAuth();
-    if (auth.currentUser) {
+    if (userApp) {
       user.LoggedIn.set(true);
     }
-    if (auth.currentUser?.email === Admin) {
+    if (userApp?.email === Admin) {
       user.Admin.set(true);
     }
   });
@@ -578,7 +578,7 @@ export const FormSupplier = () => {
             labelComp={labelDepoCost}
             errorComp={setterErrors.errDepoCost.get()}
             funcComp={(e) => settersOfDataSupp.DepoCost.set(e)}
-            helpTexterComp={'Cena za osobní vyzvednutí/dodání'}
+            helpTexterComp={'Cena vyzvednutí/dodání do depa'}
             placeholderComp="Kč"
           />
 
@@ -594,7 +594,7 @@ export const FormSupplier = () => {
         </fieldset>
 
         <Button className={styles.crudbtn} type="submit">
-          Create
+          Vytvořit
         </Button>
       </form>
     </Typography>

@@ -61,9 +61,9 @@ export const PackCard: React.FC<Props> = ({
       SetmyAlert(MyAlert(`${deleted?.data?.deletePack?.error}`, 'error'));
     }
     if (!deleted?.data?.deletePack?.deletion) {
-      SetmyAlert(MyAlert('Package was not deleted', 'error'));
+      SetmyAlert(MyAlert('Smazaní balíku nebylo úspěšné', 'error'));
     }
-    SetmyAlert(MyAlert('Package was deleted', 'succes'));
+    SetmyAlert(MyAlert('Balík byl smazán', 'succes'));
   };
   return (
     <Card sx={{ maxWidth: 290 }}>
@@ -90,7 +90,7 @@ export const PackCard: React.FC<Props> = ({
           variant="h6"
           component="div"
         >
-          Parameters
+          Parametry
         </Typography>
 
         <Typography
@@ -99,7 +99,7 @@ export const PackCard: React.FC<Props> = ({
           variant="body1"
           component="div"
         >
-          Height: {Heiht} cm
+          Výška: {Heiht} cm
         </Typography>
 
         <Typography
@@ -108,7 +108,7 @@ export const PackCard: React.FC<Props> = ({
           variant="body1"
           component="div"
         >
-          Width: {Width} cm
+          Šířka: {Width} cm
         </Typography>
 
         <Typography
@@ -117,7 +117,7 @@ export const PackCard: React.FC<Props> = ({
           variant="body1"
           component="div"
         >
-          Length: {Length} cm
+          Délka: {Length} cm
         </Typography>
 
         <Typography
@@ -126,7 +126,7 @@ export const PackCard: React.FC<Props> = ({
           variant="body1"
           component="div"
         >
-          Weight: {Weight} Kg
+          Hmotnost: {Weight} Kg
         </Typography>
 
         <Typography
@@ -135,7 +135,7 @@ export const PackCard: React.FC<Props> = ({
           variant="h6"
           component="div"
         >
-          Cost
+          Cena
         </Typography>
 
         <Typography
@@ -154,14 +154,14 @@ export const PackCard: React.FC<Props> = ({
         }}
       >
         <button onClick={() => Del(keyPac, sId)} className={styles.crudbtDel}>
-          Delete
+          Smazat
         </button>
 
         <Link
           key="UpdateFormPackage"
           href={`../../Forms/UpdateFormPackage/${keyPac}`}
         >
-          <button className={styles.crudbtnTable}>Update</button>
+          <button className={styles.crudbtnTable}>Upravit</button>
         </Link>
       </CardActions>
     </Card>

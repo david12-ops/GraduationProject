@@ -65,7 +65,7 @@ const PageBody = (
           fontWeight: 'bold',
         }}
       >
-        Nejsi admin!!!!
+        Nejsi admin!!
       </div>
     );
   }
@@ -109,6 +109,7 @@ const PageBody = (
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           maxWidth: '800px',
+          margin: 'auto',
         }}
       >
         {packages.map((item) => {
@@ -152,7 +153,7 @@ export default function PacksCards() {
 
   const { query } = router;
   const { id } = query;
-  const title = `Welocome to package detail of supplier ${
+  const title = `Vítejte na detailní strance balíčků ${
     user ? user.email ?? '' : ''
   }`;
 
@@ -176,7 +177,7 @@ export default function PacksCards() {
         element: PageBody(errSup, errPack, selectedSupp, admin, logged),
       });
     }
-  }, [suppD.loading, id, suppD.data?.suplierData, logged]);
+  }, [suppD.loading, suppD.data?.suplierData, logged]);
 
   return (
     <div className={styles.container}>
@@ -195,7 +196,7 @@ export default function PacksCards() {
             textAlign: 'center',
           }}
         >
-          Packages
+          Balíčky
         </h2>
         {body.element}
       </main>

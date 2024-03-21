@@ -32,7 +32,7 @@ const buttonPart = (name: string) => {
             border: ' solid red',
           }}
         >
-          Delete
+          Smazat
         </button>
         <Link href="https://zrukydoruky.dpd.cz/">
           <button
@@ -85,7 +85,7 @@ export default function UserPage() {
 
       <main className={styles.main}>
         <Typography style={{ textAlign: 'center' }} variant="h4" component="h1">
-          Moznosti pro uzivatele {email}
+          {email}
         </Typography>
         <Typography
           component={'div'}
@@ -184,7 +184,7 @@ export default function UserPage() {
                 </Typography>
 
                 <Typography component={'div'}>
-                  <strong>Balíček</strong>
+                  <strong>Balík</strong>
                   <Typography component={'p'}>
                     Oznaceni: {historyItm.suppData.packName}
                   </Typography>

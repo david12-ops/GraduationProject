@@ -53,7 +53,7 @@ export const FormChooseSup: React.FC<Props> = ({
   errors,
 }) => {
   const options = [
-    { value: 'personal', label: 'personal' },
+    { value: 'personal', label: 'osobně' },
     { value: 'depo', label: 'depo' },
   ];
 
@@ -66,7 +66,7 @@ export const FormChooseSup: React.FC<Props> = ({
             paddingBottom: '20px',
           }}
         >
-          Location
+          Lokace
         </h1>
         <div
           style={{
@@ -81,10 +81,10 @@ export const FormChooseSup: React.FC<Props> = ({
               <TextField
                 id="outlined-select-currency"
                 select
-                label="From where"
-                placeholder="depo/personal"
+                label="Odkud"
+                placeholder="depo/osobně"
                 required
-                helperText="Please select option how to want from us retrieve our package"
+                helperText="Prosím vyberte odkud jak chcete balík doručit"
                 onChange={(selectedOption) =>
                   onChangeFromWhere(selectedOption.target.value)
                 }
@@ -102,11 +102,11 @@ export const FormChooseSup: React.FC<Props> = ({
               <TextField
                 id="outlined-select-currency"
                 select
-                label="From where"
-                placeholder="depo/personal"
+                label="Chyba"
+                placeholder="depo/osobně"
                 required
                 error
-                helperText="Please select option how to want from us retrieve our package"
+                helperText="Prosím vyberte z možností (depo/osobně)"
                 onChange={(selectedOption) =>
                   onChangeFromWhere(selectedOption.target.value)
                 }
@@ -126,10 +126,10 @@ export const FormChooseSup: React.FC<Props> = ({
                 <TextField
                   id="outlined-select-currency"
                   select
-                  label="From where"
-                  placeholder="depo/personal"
+                  label="Kam"
+                  placeholder="depo/osobně"
                   required
-                  helperText="Please select option how to want from us retrieve our package"
+                  helperText="Prosím vyberte kam jak chcete balík doručit"
                   onChange={(selectedOption) =>
                     onChangeWhere(selectedOption.target.value)
                   }
@@ -147,11 +147,11 @@ export const FormChooseSup: React.FC<Props> = ({
                 <TextField
                   id="outlined-select-currency"
                   select
-                  label="From where"
-                  placeholder="depo/personal"
+                  label="Chyba"
+                  placeholder="depo/osobně"
                   required
                   error
-                  helperText="Please select option how to want from us retrieve our package"
+                  helperText="Prosím vyberte z možností (depo/osobně)"
                   onChange={(selectedOption) =>
                     onChangeWhere(selectedOption.target.value)
                   }
@@ -174,16 +174,16 @@ export const FormChooseSup: React.FC<Props> = ({
   const ParamsPart = (error: ParamErrors) => {
     const idComponent = 'outlined-start-adornment';
 
-    const labelHeight = { err: 'Error', withoutErr: 'Height' };
-    const labelWeigth = { err: 'Error', withoutErr: 'Weight' };
-    const labelLength = { err: 'Error', withoutErr: 'Length' };
-    const labelWidth = { err: 'Error', withoutErr: 'Width' };
-    const labelCost = { err: 'Error', withoutErr: 'Cost' };
+    const labelHeight = { err: 'Chyba', withoutErr: 'Výška' };
+    const labelWeigth = { err: 'Chyba', withoutErr: 'Hmotnost' };
+    const labelLength = { err: 'Chyba', withoutErr: 'Délka' };
+    const labelWidth = { err: 'Chyba', withoutErr: 'Šířka' };
+    const labelCost = { err: 'Chyba', withoutErr: 'Cena' };
 
     return (
       <div onChange={onChangeForm}>
         <h1 style={{ textAlign: 'center', paddingBottom: '30px' }}>
-          Parameters
+          Parametry
         </h1>
         <div
           style={{

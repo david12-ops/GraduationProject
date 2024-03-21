@@ -35,7 +35,7 @@ export const MyCompTextField: React.FC<Params> = ({
       }}
       helperText={
         helpTexterComp ||
-        `Write your ${labelComp.withoutErr.toLocaleLowerCase()} limit on package`
+        `Napište váš ${labelComp.withoutErr.toLocaleLowerCase()} limit na balík`
       }
       value={valueComp}
     />

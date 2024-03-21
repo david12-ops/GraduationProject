@@ -26,10 +26,10 @@ type PropsUs = {
 
 const drawerWidth = 240;
 const label = {
-  settings: 'Account settings',
-  home: 'Home',
-  login: 'Login',
-  logOut: 'Logout',
+  settings: 'Nastavení účtu',
+  home: 'Domů',
+  login: 'Přihlásit se',
+  logOut: 'Odhlásit se',
 };
 
 const Method = async (item: string) => {
