@@ -38,21 +38,21 @@ const ValidCredentials = (
   const hasSymbol = /[!"#$%&()*,.:<>?@^{|}]/.test(password);
   const hasNumber = /\d/.test(password);
   if (data.em.length === 0) {
-    return { where: 'email', errMesage: 'Email was not provided' };
+    return { where: 'email', errMesage: 'E-mail nebyl poskytnut' };
   }
 
   if (data.pass.length === 0) {
-    return { where: 'password', errMesage: 'Password was not provided' };
+    return { where: 'password', errMesage: 'Nebylo poskytnuto heslo    ' };
   }
 
   if (data.pass.length < 8) {
-    return { where: 'password', errMesage: 'Password length is small' };
+    return { where: 'password', errMesage: 'Délka hesla je malá' };
   }
 
   if (!hasSymbol || !hasNumber) {
     return {
       where: 'password',
-      errMesage: 'Password is not combination of chars, numbers and symbols',
+      errMesage: 'Heslo není kombinací znaků, čísel a symbolů      ',
     };
   }
 
@@ -64,7 +64,7 @@ const ValidCredentials = (
   ) {
     return {
       where: 'password',
-      errMesage: 'Password includes emeail account',
+      errMesage: 'Heslo obsahuje e-mailový účet      ',
     };
   }
 
@@ -95,9 +95,9 @@ const RequirementsPass = () => {
         padding: '10px',
       }}
     >
-      <p style={{ margin: '6px' }}>Length bigger or equal to 8</p>
-      <p style={{ margin: '6px' }}>Combination of symbol, number, character</p>
-      <p style={{ margin: '6px' }}>Part of email not included in password</p>
+      <p style={{ margin: '6px' }}>Délka větší nebo rovna 8</p>
+      <p style={{ margin: '6px' }}>Kombinace symbolu, čísla, znaku</p>
+      <p style={{ margin: '6px' }}>Část e-mailu není součástí hesla</p>
     </div>
   );
 };
@@ -136,15 +136,15 @@ const Submit = async (
     const err = error as FirebaseError;
     switch (err.code) {
       case 'auth/email-already-in-use': {
-        errSetter.errEmail.set('User is already in use');
+        errSetter.errEmail.set('E-mail používá jiný uživatel');
         break;
       }
       case 'auth/invalid-email': {
-        errSetter.errEmail.set('Email is not valid');
+        errSetter.errEmail.set('E-mail není valid');
         break;
       }
       default: {
-        SetAlert(MyAlert('User registration failed', 'error'));
+        SetAlert(MyAlert('Registrace uživatelé nebyla úspěšná', 'error'));
       }
     }
   }
@@ -168,7 +168,12 @@ const Credentials = async (
       errSetter,
     );
   } else {
-    SetAlert(MyAlert('Credentials of your new account not provided', 'error'));
+    SetAlert(
+      MyAlert(
+        'Nebyly poskytnuty přihlašovací údaje k vašemu novému účtu    ',
+        'error',
+      ),
+    );
   }
 };
 
@@ -199,7 +204,7 @@ export const PageRegisterForm = () => {
         >
           <Avatar src="/broken-image.jpg" />
           <Typography component="h1" variant="h5">
-            Register
+            Registrace
           </Typography>
           {myAlert}
           <Box
@@ -212,21 +217,19 @@ export const PageRegisterForm = () => {
                 margin="normal"
                 required
                 fullWidth
-                id="email"
-                label="Email Address"
+                label="E-mail"
                 onChange={(e) => credentials.email.set(e.target.value)}
                 autoComplete="email"
                 autoFocus
-                helperText="Enter new email"
+                helperText="Zadej nový e-mail"
               />
             ) : (
               <TextField
                 margin="normal"
                 required
                 fullWidth
-                id="email"
                 error
-                label="Email Address"
+                label="E-mail"
                 onChange={(e) => credentials.email.set(e.target.value)}
                 autoComplete="email"
                 autoFocus
@@ -241,7 +244,7 @@ export const PageRegisterForm = () => {
                 />
               </Button>
               <p style={{ textAlign: 'center', margin: '10px' }}>
-                Password requirements
+                Požadavky na heslo
               </p>
             </div>
 
@@ -253,11 +256,10 @@ export const PageRegisterForm = () => {
                 required
                 fullWidth
                 onChange={(e) => credentials.password.set(e.target.value)}
-                label="Password"
+                label="Heslo"
                 type="password"
-                id="password"
                 autoComplete="current-password"
-                helperText="Enter new password"
+                helperText="Zadej nové heslo"
               />
             ) : (
               <TextField
@@ -266,9 +268,8 @@ export const PageRegisterForm = () => {
                 fullWidth
                 error
                 onChange={(e) => credentials.password.set(e.target.value)}
-                label="Password"
+                label="Heslo"
                 type="password"
-                id="password"
                 autoComplete="current-password"
                 helperText={errCredentials.errPassword.get()}
               />
@@ -289,7 +290,7 @@ export const PageRegisterForm = () => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Register
+              Zaregistrovat se
             </Button>
           </Box>
         </Box>

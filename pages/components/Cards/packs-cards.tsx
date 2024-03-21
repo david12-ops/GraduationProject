@@ -105,5 +105,3 @@ export const PackCards: React.FC<Props> = ({
     </Card>
   );
 };
-
-// Upravit opacity na button

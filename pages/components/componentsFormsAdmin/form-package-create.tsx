@@ -1,5 +1,5 @@
 import { State, useHookstate } from '@hookstate/core';
-import { Alert, Button } from '@mui/material';
+import { Alert, Button, Typography } from '@mui/material';
 import { getAuth } from 'firebase/auth';
 import router from 'next/router';
 import * as React from 'react';
@@ -66,7 +66,7 @@ const Valid = (
   widtharg: string,
   errSetter: State<ErrSetterProperties>,
 ) => {
-  const messageInt = 'Expect number bigger or equal to zero';
+  const messageInt = 'Očekává se číslo větší nebo rovné nule';
   if (!isInt(weightarg, 0)) {
     errSetter.errWeight.set(messageInt);
     return new Error(messageInt);
@@ -100,7 +100,7 @@ const Back = async (ids: string) => {
 };
 
 const MessageCreatePack = (data: CreatedPackage) => {
-  return `Package was created with parameters: Weight: ${data.weight}, Length: ${data.Plength}, Width: ${data.width}, Height: ${data.height}`;
+  return `Balíček byl vytvořen s parametry: hmotnost: ${data.weight}, délka: ${data.Plength}, šířka: ${data.width}, výška: ${data.height}`;
 };
 
 const MyAlert = (
@@ -239,14 +239,15 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
           color: 'red',
           fontSize: '30px',
           fontWeight: 'bold',
+          margin: 'auto',
         }}
       >
-        Only admin has acces to this page
+        Nejsi admin!!
       </div>
     );
   }
   return (
-    <div>
+    <Typography component={'div'}>
       {MyAlert(
         {
           succesCreate: setterForAlertMesssage.succesCreate.value,
@@ -303,7 +304,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
             labelComp={labelName}
             errorComp={setterErrors.errLabel.get()}
             funcComp={(e) => settersForDataPack.PackName.set(e)}
-            helpTexterComp="Enter the label of the package."
+            helpTexterComp="Zadejte označení balíku"
           />
 
           <MyCompTextField
@@ -312,7 +313,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
             labelComp={labelCost}
             errorComp={setterErrors.errCost.get()}
             funcComp={(e) => settersForDataPack.Cost.set(e)}
-            helpTexterComp="Enter the cost of the package."
+            helpTexterComp="Zadejte cenu balíčku"
             placeholderComp="Kč"
           />
         </fieldset>
@@ -335,7 +336,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
               fontWeight: 'bold',
             }}
           >
-            Parameters of package
+            Parametry balíku
           </legend>
           <MyCompTextField
             typeComp="number"
@@ -343,7 +344,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
             labelComp={labelWidth}
             errorComp={setterErrors.errWidth.get()}
             funcComp={(e) => settersForDataPack.Width.set(e)}
-            helpTexterComp="Enter the width of the package."
+            helpTexterComp="Zadejte šířku balíku"
             placeholderComp="Cm"
           />
 
@@ -353,7 +354,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
             labelComp={labelWeigth}
             errorComp={setterErrors.errWeight.get()}
             funcComp={(e) => settersForDataPack.Weight.set(e)}
-            helpTexterComp="Enter the weight of the package."
+            helpTexterComp="Zadejte hmotnost balíku"
             placeholderComp="Cm"
           />
 
@@ -363,7 +364,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
             labelComp={labelLength}
             errorComp={setterErrors.errpLength.get()}
             funcComp={(e) => settersForDataPack.Plength.set(e)}
-            helpTexterComp="Enter the length of the package."
+            helpTexterComp="Zadejte délku balíku"
             placeholderComp="Cm"
           />
 
@@ -373,15 +374,15 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
             labelComp={labelHeight}
             errorComp={setterErrors.errHeight.get()}
             funcComp={(e) => settersForDataPack.Height.set(e)}
-            helpTexterComp="Enter the height of the package."
+            helpTexterComp="Zadejte výšku balíku"
             placeholderComp="Cm"
           />
         </fieldset>
 
         <Button className={styles.crudbtn} type="submit">
-          Update
+          Upravit
         </Button>
       </form>
-    </div>
+    </Typography>
   );
 };

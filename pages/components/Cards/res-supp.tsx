@@ -70,64 +70,64 @@ const Paragraph = (
 ) => {
   const paragraph =
     packInBox === 'Yes' ? (
-      <p style={{ margin: '10px' }}>
-        The shipment must be packed <strong>in a box</strong>
-      </p>
+      <Typography component={'p'} style={{ margin: '10px' }}>
+        Zásilku je nutné <strong>zabalit do krabice</strong>
+      </Typography>
     ) : (
-      <p style={{ margin: '10px' }}>
-        Shipment does not need to be packed <strong>in a box</strong>
-      </p>
+      <Typography component={'p'} style={{ margin: '10px' }}>
+        Zásilku není nutné <strong>zabalit do krabice</strong>
+      </Typography>
     );
 
   const paragraph2 =
     folie === 'Yes' ? (
-      <p style={{ margin: '10px' }}>
-        Can be packaged in <strong>folie</strong>
-      </p>
+      <Typography component={'p'} style={{ margin: '10px' }}>
+        Může být zabaleno ve <strong>fólii</strong>
+      </Typography>
     ) : (
-      <p style={{ margin: '10px' }}>
-        Can not be packaged in <strong>folie</strong>
-      </p>
+      <Typography component={'p'} style={{ margin: '10px' }}>
+        Nesmí být zabaleno ve <strong>fólii</strong>
+      </Typography>
     );
 
   const paragraph3 =
     shippingLabel === 'Yes' ? (
-      <p style={{ margin: '10px' }}>
-        Shipping label will be delivered by courier
-      </p>
+      <Typography component={'p'} style={{ margin: '10px' }}>
+        Přepravní štítek kurýr <strong>přiveze</strong>
+      </Typography>
     ) : (
-      <p style={{ margin: '10px' }}>
-        The shipping label will not be delivered by courier
-      </p>
+      <Typography component={'p'} style={{ margin: '10px' }}>
+        Přepravní štítek kurýr <strong>nepřiveze</strong>
+      </Typography>
     );
 
   const paragraph4 =
     sendCash === 'Yes' ? (
-      <p style={{ margin: '10px' }}>
-        Possibility to send <strong>cash on delivery</strong>
-      </p>
+      <Typography component={'p'} style={{ margin: '10px' }}>
+        Možnost zaslání <strong>na dobírku</strong>
+      </Typography>
     ) : (
-      <p style={{ margin: '10px' }}>
-        It is not possible to send <strong>cash on delivery</strong>
-      </p>
+      <Typography component={'p'} style={{ margin: '10px' }}>
+        Zaslání <strong>na dobírku</strong> není možné
+      </Typography>
     );
 
   return (
-    <div style={{ margin: '10px' }}>
-      <p style={{ margin: '10px' }}>
-        Pick up first <strong>{pickUp}</strong>
-      </p>
-      <p style={{ margin: '10px' }}>
-        Delivery first <strong>{delivery}</strong>
-      </p>
+    <Typography component={'div'} style={{ margin: '10px' }}>
+      <Typography component={'p'} style={{ margin: '10px' }}>
+        Vyzvednutí nejdříve<strong>{pickUp}</strong>
+      </Typography>
+      <Typography component={'p'} style={{ margin: '10px' }}>
+        Doručení nejdřive <strong>{delivery}</strong>
+      </Typography>
       {paragraph}
       {paragraph2}
       {paragraph3}
-      <p style={{ margin: '10px' }}>
-        Insurance <strong>up to {insurance} CZK included</strong>
-      </p>
+      <Typography component={'p'} style={{ margin: '10px' }}>
+        Pojištění <strong> do {insurance} Kč v ceně</strong>
+      </Typography>
       {paragraph4}
-    </div>
+    </Typography>
   );
 };
 
@@ -162,7 +162,6 @@ export const ResSuppCard: React.FC<Props> = ({
     mutation: MutationHistory,
   ) => {
     if (user) {
-      // ?Alert
       const result = await mutation({
         variables: {
           Id: user.uid,
@@ -230,26 +229,26 @@ export const ResSuppCard: React.FC<Props> = ({
             component={'div'}
           >
             <Typography component="p" style={{ textAlign: 'center' }}>
-              Price: {price}
+              Cena: {price}
             </Typography>
             <Typography component="p" style={{ textAlign: 'center' }}>
-              Without DPH : {price - Math.round((price / 100) * 21)}
+              Bez DPH : {price - Math.round((price / 100) * 21)}
             </Typography>
 
             <CardActions>
               {name === 'dpd' ? (
                 <Link href="https://zrukydoruky.dpd.cz/">
-                  <CusotmBtn>Order</CusotmBtn>
+                  <CusotmBtn>Objednat</CusotmBtn>
                 </Link>
               ) : (
                 <Link key="orderPage" href={`../../orderPage`}>
-                  <CusotmBtn>Order</CusotmBtn>
+                  <CusotmBtn>Objedant</CusotmBtn>
                 </Link>
               )}
               <CusotmBtn
                 onClick={() => Save(dataFrPage, supplier, price, history)}
               >
-                Save
+                Uložit
               </CusotmBtn>
             </CardActions>
           </Typography>

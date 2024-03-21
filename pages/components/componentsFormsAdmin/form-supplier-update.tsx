@@ -1,5 +1,5 @@
 import { State, useHookstate } from '@hookstate/core';
-import { Alert, Button, MenuItem, TextField } from '@mui/material';
+import { Alert, Button, MenuItem, TextField, Typography } from '@mui/material';
 import {
   DatePicker,
   DateValidationError,
@@ -488,7 +488,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
     );
   }
   return (
-    <div>
+    <Typography component={'div'}>
       {MyAlert(
         {
           succesUpade: setterForAlertMesssage.succesUpdate.value,
@@ -716,6 +716,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           Update
         </Button>
       </form>
-    </div>
+    </Typography>
   );
 };

@@ -1,5 +1,5 @@
 import { State, useHookstate } from '@hookstate/core';
-import { Alert, Button, MenuItem, TextField } from '@mui/material';
+import { Alert, Button, MenuItem, TextField, Typography } from '@mui/material';
 import { DateValidationError, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -49,7 +49,7 @@ const IsYesOrNo = (
   stringnU3: string,
   stringnU4: string,
 ) => {
-  const message = 'Value not in valid format (Yes/No)';
+  const message = 'Očekává se hodnota (Yes/No)';
   if (!['Yes', 'No'].includes(stringnU1)) {
     return { msg: message, from: 'sendCashDelivery' };
   }
@@ -127,8 +127,7 @@ const Valid = (
   personalCostarg: string,
   setterErr: State<ErrSettersProperties>,
 ) => {
-  const messageForInt =
-    'Invalid argument, expect number bigger or equal to zero';
+  const messageForInt = 'Očekává se číslo větší nebo rovné nule';
 
   if (!isInt(insurancearg, 0)) {
     setterErr.errInsurance.set(messageForInt);
@@ -177,30 +176,30 @@ const Valid = (
   }
 
   if (deliveryarg !== '') {
-    return new Error('Delivery date is not valid');
+    return new Error('Datum dodání není ve správném formátu');
   }
 
   if (pickUparg !== '') {
-    return new Error('Pickup date is not valid');
+    return new Error('Datum vyzvednutí není ve správném formátu');
   }
   return undefined;
 };
 
 const MessageCreateSupp = (data: DataCreatedSupp) => {
-  return `Supplier was created with parameters: Delivery: ${data.delivery} \n
-  Cant be in packaged folie: ${data.foil} \n
-  Insurance: ${data.insurance > 0 ? data.insurance : 'bez pojištění'} \n
-  Shipment must be packed in a box: ${data.packInBox} \n
-  Pick up: ${data.pickUp} \n
-  On cash on delivery: ${data.sendCashDelivery} \n
-  The label will be delivered by courier: ${data.shippingLabel} \n
-  Courier name: ${data.suppName}`;
+  return `Dodavatel byl vytvořen s parametry: Dodání: ${data.delivery} \n
+  Zabalení do folie: ${data.foil} \n
+  Pojištění: ${data.insurance > 0 ? data.insurance : 'bez pojištění'} \n
+  Zabalení do krabice: ${data.packInBox} \n
+  Vyzvednutí: ${data.pickUp} \n
+  Na dobírku: ${data.sendCashDelivery} \n
+  Štítek přiveze kurýr: ${data.shippingLabel} \n
+  Jméno: ${data.suppName}`;
 };
 
 export const FormSupplier = () => {
   const options = [
-    { value: 'Yes', label: 'Yes' },
-    { value: 'No', label: 'No' },
+    { value: 'Yes', label: 'Ano' },
+    { value: 'No', label: 'Ne' },
   ];
 
   const settersOfDataSupp = useHookstate({
@@ -241,12 +240,17 @@ export const FormSupplier = () => {
 
   const idComp = 'outlined-required';
 
-  const labelPersonalCost = { err: 'Error', withoutErr: 'Personal cost' };
-  const labelDepoCost = { err: 'Error', withoutErr: 'Depo cost' };
-  const labelInsurance = { err: 'Error', withoutErr: 'Insurance' };
-  const labelName = { err: 'Error', withoutErr: 'Name' };
+  const labelPersonalCost = {
+    err: 'Error',
+    withoutErr: 'Cena za osobní vyzvednutí/dodání',
+  };
+  const labelDepoCost = {
+    err: 'Error',
+    withoutErr: 'Cena vyzvednutí/dodání na depo',
+  };
+  const labelInsurance = { err: 'Error', withoutErr: 'Pojištění' };
+  const labelName = { err: 'Error', withoutErr: 'Jméno' };
 
-  // nepouzivat alerty errr u button
   // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
 
   const user = useHookstate({ Admin: false, LoggedIn: false });
@@ -273,9 +277,9 @@ export const FormSupplier = () => {
         id="outlined-select"
         select
         label={paragraph}
-        placeholder={'Yes/No'}
+        placeholder={'Ano/Ne'}
         required
-        helperText={`Please select option Yes/No`}
+        helperText={`Vyberte prosím z možností Ano/Ne`}
         onChange={(selectedOption) =>
           state.set(selectedOption ? selectedOption.target.value : '')
         }
@@ -292,9 +296,9 @@ export const FormSupplier = () => {
         select
         error
         label={'Error'}
-        placeholder={'Yes/No'}
+        placeholder={'Ano/Ne'}
         required
-        helperText={`Please select option Yes/No`}
+        helperText={`Vyberte prosím z možností Ano/Ne`}
         onChange={(selectedOption) =>
           state.set(selectedOption ? selectedOption.target.value : '')
         }
@@ -369,14 +373,15 @@ export const FormSupplier = () => {
           color: 'red',
           fontSize: '30px',
           fontWeight: 'bold',
+          margin: 'auto',
         }}
       >
-        Only admin has acces to this page
+        Nejsi admin!!
       </div>
     );
   }
   return (
-    <div>
+    <Typography component={'div'}>
       <form
         style={{
           display: 'flex',
@@ -423,7 +428,7 @@ export const FormSupplier = () => {
               fontWeight: 'bold',
             }}
           >
-            Supplier information
+            Informace o dodavateli
           </legend>
 
           <MyCompTextField
@@ -432,7 +437,7 @@ export const FormSupplier = () => {
             labelComp={labelName}
             errorComp={setterErrors.errName.get()}
             funcComp={(e) => settersOfDataSupp.SupplierName.set(e)}
-            helpTexterComp={'Enter supplier name'}
+            helpTexterComp={'Zadej jméno dodavatele'}
           />
 
           <MyCompTextField
@@ -441,7 +446,7 @@ export const FormSupplier = () => {
             labelComp={labelInsurance}
             errorComp={setterErrors.errInsurance.get()}
             funcComp={(e) => settersOfDataSupp.Insurance.set(e)}
-            helpTexterComp={'Enter insurance on package'}
+            helpTexterComp={'Zadej pojištění na balík'}
             placeholderComp="Kč"
           />
         </fieldset>
@@ -464,11 +469,11 @@ export const FormSupplier = () => {
               fontWeight: 'bold',
             }}
           >
-            Dates for package
+            Datum
           </legend>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              label="Delivery"
+              label="Dodání"
               disablePast
               minDate={dayjs()}
               onError={(e: DateValidationError) =>
@@ -481,15 +486,14 @@ export const FormSupplier = () => {
               }
               slotProps={{
                 textField: {
-                  helperText:
-                    'Enter the date of package delivery in format (MM/DD/YYYY)',
+                  helperText: 'Zadej datum dodaní ve formátu (MM/DD/YYYY)',
                 },
               }}
             />
           </LocalizationProvider>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              label="Pick up"
+              label="Vyzvednutí"
               disablePast
               minDate={dayjs()}
               onError={(e: DateValidationError) =>
@@ -500,8 +504,7 @@ export const FormSupplier = () => {
               }
               slotProps={{
                 textField: {
-                  helperText:
-                    'Enter the date of package pickup in format (MM/DD/YYYY)',
+                  helperText: 'Zadej datum vyzvednutí ve formátu (MM/DD/YYYY)',
                 },
               }}
             />
@@ -526,26 +529,26 @@ export const FormSupplier = () => {
               fontWeight: 'bold',
             }}
           >
-            Details
+            Detaily
           </legend>
           {MyComponent(
             settersOfDataSupp.SendCashDelivery,
-            'Cash on delivery',
+            'Na dobírku',
             setterErrors.errSendCashDelivery.get(),
           )}
           {MyComponent(
             settersOfDataSupp.ShippingLabel,
-            'Shipping delivered by courier',
+            'Štítek přiveze kurýr',
             setterErrors.errShippingLabel.get(),
           )}
           {MyComponent(
             settersOfDataSupp.Foil,
-            'Packed in foil',
+            'Zabalení do fólie (nepovinné)',
             setterErrors.errFoil.get(),
           )}
           {MyComponent(
             settersOfDataSupp.PackInBox,
-            'Packed in a box',
+            'Zabalení do krabice',
             setterErrors.errPackInBox.get(),
           )}
         </fieldset>
@@ -567,7 +570,7 @@ export const FormSupplier = () => {
               fontWeight: 'bold',
             }}
           >
-            Shipping/transfer method prices
+            Ceny způsobu dopravy
           </legend>
           <MyCompTextField
             typeComp="number"
@@ -575,7 +578,7 @@ export const FormSupplier = () => {
             labelComp={labelDepoCost}
             errorComp={setterErrors.errDepoCost.get()}
             funcComp={(e) => settersOfDataSupp.DepoCost.set(e)}
-            helpTexterComp={'Enter cost for deliver/pick up to depo'}
+            helpTexterComp={'Cena za osobní vyzvednutí/dodání'}
             placeholderComp="Kč"
           />
 
@@ -585,7 +588,7 @@ export const FormSupplier = () => {
             labelComp={labelPersonalCost}
             errorComp={setterErrors.errPersonalCost.get()}
             funcComp={(e) => settersOfDataSupp.PersonalCost.set(e)}
-            helpTexterComp={'Enter cost for deliver/pick up to you personaly'}
+            helpTexterComp={'Cena za osobní vyzvednutí/dodání'}
             placeholderComp="Kč"
           />
         </fieldset>
@@ -594,6 +597,6 @@ export const FormSupplier = () => {
           Create
         </Button>
       </form>
-    </div>
+    </Typography>
   );
 };

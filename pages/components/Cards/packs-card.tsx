@@ -44,6 +44,7 @@ export const PackCard: React.FC<Props> = ({
   keyPac,
   sId,
 }) => {
+  // ?
   const [myAlert, SetmyAlert] = React.useState(<div></div>);
 
   const [del] = useDeletePacMutation();
@@ -166,5 +167,3 @@ export const PackCard: React.FC<Props> = ({
     </Card>
   );
 };
-
-// Upravit opacity na button

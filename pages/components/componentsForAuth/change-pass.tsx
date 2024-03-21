@@ -40,35 +40,34 @@ const ValidPassword = (
 
   const hasNumber = /\d/.test(newPassword);
   if (newPassword.length === 0) {
-    return { where: 'newPass', errMesage: 'New password was not provided' };
+    return { where: 'newPass', errMesage: 'Nebylo poskytnuto nové heslo' };
   }
 
   if (newPassword.length < 8) {
     return {
       where: 'newPass',
-      errMesage: 'New password length must be longer than 8 characters',
+      errMesage: 'Nové heslo musí být delší než 8 znaků',
     };
   }
 
   if (!hasSymbol || !hasNumber) {
     return {
       where: 'newPass',
-      errMesage:
-        'New password is not combination of chars, numbers and symbols',
+      errMesage: 'Nové heslo není kombinací znaků, čísel a symbolů',
     };
   }
 
   if (confirmPassword.length === 0) {
     return {
       where: 'confirmPass',
-      errMesage: 'Confirm password was not provided',
+      errMesage: 'Nebylo zadáno potvrzení hesla      ',
     };
   }
 
   if (newPassword !== confirmPassword) {
     return {
       where: 'confirmPass',
-      errMesage: 'Confirm password is not same as new password',
+      errMesage: 'Heslo pro potvrzení není stejné jako nové heslo',
     };
   }
 
@@ -119,19 +118,19 @@ const Submit = async (
   try {
     if (user) {
       await authUtils.changeUsPass(user, passwords.newPassword);
-      SetAlert(MyAlert('User password update successfull', 'success'));
+      SetAlert(MyAlert('Úprava hesla uživatele byla úspěšná', 'success'));
     } else {
-      SetAlert(MyAlert('User must be loged in', 'error'));
+      SetAlert(MyAlert('Uživatel musí být přihlášen', 'error'));
     }
   } catch (error) {
     const err = error as FirebaseError;
     switch (err.code) {
       case 'auth/requires-recent-login': {
-        SetAlert(MyAlert('User password not updated successfully', 'error'));
+        SetAlert(MyAlert('Znovu se přihlšte', 'error'));
         break;
       }
       default: {
-        SetAlert(MyAlert('User password update failed', 'error'));
+        SetAlert(MyAlert('Úprava hesla uživatele nebyla úspěšná', 'error'));
         break;
       }
     }
@@ -164,7 +163,7 @@ export const PageFormChangePass = () => {
         }}
       >
         <Typography component="h1" variant="h5">
-          Change password
+          Změna hesla
         </Typography>
         {myAlert}
         <Box
@@ -180,10 +179,10 @@ export const PageFormChangePass = () => {
               fullWidth
               onChange={(e) => setterPassword.newPassword.set(e.target.value)}
               id="newPass"
-              label="New password"
+              label="Nové heslo"
               type="password"
               autoComplete="current-password"
-              helperText="Enter new password"
+              helperText="Zadejte nové heslo"
             />
           ) : (
             <TextField
@@ -193,7 +192,7 @@ export const PageFormChangePass = () => {
               error
               id="newPass"
               onChange={(e) => setterPassword.newPassword.set(e.target.value)}
-              label="New password"
+              label="Nové heslo"
               type="password"
               autoComplete="current-password"
               helperText={setterErrPassword.errNewPassword.get()}
@@ -209,10 +208,10 @@ export const PageFormChangePass = () => {
                 setterPassword.confirmPassword.set(e.target.value)
               }
               id="confPass"
-              label="Confirm password"
+              label="Heslo k potvrzení"
               type="password"
               autoComplete="current-password"
-              helperText="Confirm new password"
+              helperText="Potvrďte nové heslo"
             />
           ) : (
             <TextField
@@ -224,7 +223,7 @@ export const PageFormChangePass = () => {
                 setterPassword.confirmPassword.set(e.target.value)
               }
               id="confPass"
-              label="Confirm password"
+              label="Heslo k potvrzení"
               type="password"
               autoComplete="current-password"
               helperText={setterErrPassword.errConfirmPassword.get()}
@@ -247,7 +246,7 @@ export const PageFormChangePass = () => {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Submit
+            Odeslat
           </Button>
         </Box>
       </Box>

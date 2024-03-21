@@ -5,7 +5,6 @@ import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import CssBaseline from '@mui/material/CssBaseline';
-import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { FirebaseError } from 'firebase-admin';
@@ -38,28 +37,28 @@ const handleErros = (
 ) => {
   switch (errCode) {
     case 'auth/invalid-email': {
-      errSetter.errEmail.set('Email is not valid');
+      errSetter.errEmail.set('E-mail není validní');
       break;
     }
     case 'auth/wrong-password': {
-      errSetter.errPassword.set('Password is incorrect');
+      SetAlert(MyAlert('Špatné heslo nebo e-mail', 'error'));
       break;
     }
     case 'auth/user-not-found': {
+      SetAlert(MyAlert('Špatné heslo nebo email nebo nemáte účet', 'error'));
+      break;
+    }
+    case 'auth/too-many-requests': {
       SetAlert(
         MyAlert(
-          'Bad password or user name or you do not have account',
+          'Příliš mnoho pokusů o přihlášení, zkuste to znovu později',
           'error',
         ),
       );
       break;
     }
-    case 'auth/too-many-requests': {
-      SetAlert(MyAlert('Too many attemps for login, try again later', 'error'));
-      break;
-    }
     default: {
-      SetAlert(MyAlert('User registration failed', 'error'));
+      SetAlert(MyAlert('Přihlášení uživatele nebylo úspěšné', 'error'));
       break;
     }
   }
@@ -124,17 +123,17 @@ const ForgotenPass = async (
     await authUtils.fotgotenPass(email);
     SetAlert(
       MyAlert(
-        'Your request for reset password was succesfull. Look to your eamil account',
+        'Vaše žádost o resetování hesla byla úspěšná. Podívejte se na svůj e-mailový účet',
         'success',
       ),
     );
   } catch (error) {
     const err = error as FirebaseError;
     if (err.code === 'auth/missing-email') {
-      errSetter.errEmail.set('Eamil is required');
+      errSetter.errEmail.set('E-mail je povinný');
     }
     if (err.code === 'auth/invalid-email') {
-      errSetter.errEmail.set('Eamil is not valid');
+      errSetter.errEmail.set('E-mail není validní');
     }
   }
 };
@@ -153,7 +152,6 @@ export const PageFormLogin = () => {
   });
 
   return (
-    // <ThemeProvider theme={defaultTheme}>
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <Box
@@ -168,7 +166,7 @@ export const PageFormLogin = () => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign in
+          Přihlásit se
         </Typography>
         {myAlert}
         <Box
@@ -182,21 +180,19 @@ export const PageFormLogin = () => {
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
+              label="E-mail"
               onChange={(e) => credentials.email.set(e.target.value)}
               autoComplete="email"
               autoFocus
-              helperText="Enter your email"
+              helperText="Zadej svůj e-mail"
             />
           ) : (
             <TextField
               margin="normal"
               required
               fullWidth
-              id="email"
               error
-              label="Email Address"
+              label="E-mail"
               onChange={(e) => credentials.email.set(e.target.value)}
               autoComplete="email"
               autoFocus
@@ -209,11 +205,10 @@ export const PageFormLogin = () => {
               required
               fullWidth
               onChange={(e) => credentials.password.set(e.target.value)}
-              label="Password"
+              label="Heslo"
               type="password"
-              id="password"
               autoComplete="current-password"
-              helperText="Enter your password"
+              helperText="Zadej své heslo"
             />
           ) : (
             <TextField
@@ -222,22 +217,13 @@ export const PageFormLogin = () => {
               fullWidth
               error
               onChange={(e) => credentials.password.set(e.target.value)}
-              label="Password"
+              label="Heslo"
               type="password"
-              id="password"
               autoComplete="current-password"
               helperText={errCredentials.errPassword.get()}
             />
           )}
-          <Grid container>
-            <Grid item></Grid>
 
-            <Grid item>
-              {/* <Link href="register-page" variant="body2">
-                {"Don't have an account? Sign Up"}
-              </Link> */}
-            </Grid>
-          </Grid>
           <Box
             sx={{
               display: 'flex',
@@ -250,7 +236,7 @@ export const PageFormLogin = () => {
                 await router.push(`../../Forms/register-page`);
               }}
             >
-              Register
+              Zaregistruj se
             </MenuButton>
             <MenuButton
               onClick={() =>
@@ -261,7 +247,7 @@ export const PageFormLogin = () => {
                 )
               }
             >
-              Forgot password
+              Zapomenuté heslo
             </MenuButton>
           </Box>
           <Button
@@ -275,11 +261,10 @@ export const PageFormLogin = () => {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Login
+            Přihlásit
           </Button>
         </Box>
       </Box>
     </Container>
-    // </ThemeProvider>
   );
 };

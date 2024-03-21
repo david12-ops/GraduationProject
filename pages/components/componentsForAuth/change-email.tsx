@@ -39,21 +39,21 @@ const Submit = async (
   try {
     if (user) {
       await authUtils.channgeUsEmail(user, email);
-      SetAlert(MyAlert('User password update successfull', 'success'));
+      SetAlert(MyAlert('Změna hesla byla úspěšná', 'success'));
     }
   } catch (error) {
     const err = error as FirebaseError;
     switch (err.code) {
       case 'auth/user-not-found': {
-        SetAlert(MyAlert('Email does not exist', 'error'));
+        SetAlert(MyAlert('E-mail neexistuje', 'error'));
         break;
       }
       case 'auth/invalid-email': {
-        SetAlert(MyAlert('Email is not valid', 'error'));
+        SetAlert(MyAlert('E-mail není validní', 'error'));
         break;
       }
       default: {
-        SetAlert(MyAlert('User password update failed', 'error'));
+        SetAlert(MyAlert('Úprava hesla uživatele nebyla úspěšná', 'error'));
         break;
       }
     }
@@ -85,7 +85,7 @@ export const PageFormChangeEm = () => {
         }}
       >
         <Typography component="h1" variant="h5">
-          Change email
+          Změna emailu
         </Typography>
         {myAlert}
         <Box
@@ -99,21 +99,19 @@ export const PageFormChangeEm = () => {
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
+              label="E-mail"
               onChange={(e) => SetNewEm(e.target.value)}
               autoComplete="email"
               autoFocus
-              helperText="Enter new email"
+              helperText="Zadej nový e-mail"
             />
           ) : (
             <TextField
               margin="normal"
               required
               fullWidth
-              id="email"
               error
-              label="Email Address"
+              label="E-mail"
               onChange={(e) => SetNewEm(e.target.value)}
               autoComplete="email"
               autoFocus
@@ -127,7 +125,7 @@ export const PageFormChangeEm = () => {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Submit
+            Odeslat
           </Button>
         </Box>
       </Box>
