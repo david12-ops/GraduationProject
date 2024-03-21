@@ -48,12 +48,12 @@ export default function AdmPage() {
     return <div>{loading ?? user?.email}</div>;
   };
   useEffect(() => {
-    const Admin = process.env.NEXT_PUBLIC_AdminEm;
+    const adminEm = process.env.NEXT_PUBLIC_AdminEm;
 
     if (user) {
       SetLogin(true);
     }
-    if (user?.email === Admin) {
+    if (user?.email === adminEm) {
       SetAdmin(true);
     }
   }, [logged, admin]);

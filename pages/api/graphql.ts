@@ -252,6 +252,8 @@ const db = firestore();
 //   return error;
 // }
 
+const adminEm = process.env.NEXT_PUBLIC_AdminEm;
+
 // validace pro supplier
 const ConverBool = (
   stringnU1: string,
@@ -689,11 +691,7 @@ const resolvers = {
         throw error;
       }
     },
-    historyUserData: async (
-      parent_: unknown,
-      args: unknown,
-      context: MyContext,
-    ) => {
+    historyUserData: async (context: MyContext) => {
       const data: Array<{
         dataForm: any;
         historyId: string;
@@ -1254,9 +1252,8 @@ const resolvers = {
         name_package: string;
         cost: number;
       };
-      const Admin = process.env.NEXT_PUBLIC_AdminEm;
       console.log('databaze user', context.user);
-      if (context.user?.email !== Admin) {
+      if (context.user?.email !== adminEm) {
         return {
           __typename: 'PackageError',
           message: admMessage,
@@ -1451,8 +1448,7 @@ const resolvers = {
 
       try {
         const namesOfSup: Array<string> = [];
-        const Admin = process.env.NEXT_PUBLIC_AdminEm;
-        if (context.user?.email !== Admin) {
+        if (context.user?.email !== adminEm) {
           return {
             __typename: 'SupplierError',
             message: admMessage,
@@ -1615,8 +1611,7 @@ const resolvers = {
       };
 
       try {
-        const Admin = process.env.NEXT_PUBLIC_AdminEm;
-        if (context.user?.email !== Admin) {
+        if (context.user?.email !== adminEm) {
           return {
             __typename: 'PackageUpdateError',
             message: admMessage,
@@ -1809,8 +1804,7 @@ const resolvers = {
       };
 
       try {
-        const Admin = process.env.NEXT_PUBLIC_AdminEm;
-        if (context.user?.email !== Admin) {
+        if (context.user?.email !== adminEm) {
           return {
             __typename: 'SupplierError',
             message: admMessage,
@@ -1968,15 +1962,7 @@ const resolvers = {
       // zmena hesla
 
       try {
-        const Admin = process.env.NEXT_PUBLIC_AdminEm;
         let msg = '';
-        console.log('proces env', Admin === context.user?.email);
-        console.log(
-          'context user',
-          context.user?.email_verified,
-          context.user?.email,
-        );
-        console.log('named', oldNameOfpack, nameOfpack);
         const getDoc = (
           doc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
           sID: string,
@@ -1994,7 +1980,7 @@ const resolvers = {
           return undefined;
         };
 
-        if (context.user?.email !== Admin) {
+        if (context.user?.email !== adminEm) {
           return {
             __typename: 'HistoryMessage',
             message: admMessage,
@@ -2063,8 +2049,7 @@ const resolvers = {
       let find = false;
       let newArray: Array<Package> = [];
 
-      const Admin = process.env.NEXT_PUBLIC_AdminEm;
-      if (context.user?.email !== Admin) {
+      if (context.user?.email !== adminEm) {
         err = admMessage;
         deleted = false;
         return { deletion: deleted, error: err };
@@ -2110,8 +2095,7 @@ const resolvers = {
     ) => {
       let deleted = false;
       let err = '';
-      const Admin = process.env.NEXT_PUBLIC_AdminEm;
-      if (context.user?.email !== Admin) {
+      if (context.user?.email !== adminEm) {
         err = admMessage;
         deleted = false;
         return { deletion: deleted, error: err };
@@ -2119,7 +2103,6 @@ const resolvers = {
       const { id: SupIdar } = args;
 
       try {
-        console.log('pole', SupIdar);
         const collection = db.collection('Supplier');
         SupIdar.forEach(async (Idsup) => {
           const snapshot = await collection

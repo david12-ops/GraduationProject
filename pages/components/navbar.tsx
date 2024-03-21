@@ -30,11 +30,13 @@ const label = {
   home: 'Domů',
   login: 'Přihlásit se',
   logOut: 'Odhlásit se',
+  adminSettings: 'Stránka admina',
 };
 
 const Method = async (item: string) => {
   if (item === label.logOut) {
     await authUtils.logout();
+    await router.push(`/../../`);
   }
   if (item === label.home) {
     await router.push(`/../../`);
@@ -45,15 +47,29 @@ const Method = async (item: string) => {
   if (item === label.login) {
     await router.push(`/../Forms/login-page`);
   }
+  if (item === label.adminSettings) {
+    await router.push(`/../admin-page`);
+  }
 };
 
-const NavItems = (user: User | null | undefined) => {
+const NavItems = (
+  user: User | null | undefined,
+  adminEmail: string | undefined,
+) => {
   if (user) {
-    return [label.home, label.settings, label.logOut].map((item) => (
-      <Button onClick={() => Method(item)} key={item}>
-        {item}
-      </Button>
-    ));
+    return user.email === adminEmail
+      ? [label.home, label.settings, label.logOut, label.adminSettings].map(
+          (item) => (
+            <Button onClick={() => Method(item)} key={item}>
+              {item}
+            </Button>
+          ),
+        )
+      : [label.home, label.settings, label.logOut].map((item) => (
+          <Button onClick={() => Method(item)} key={item}>
+            {item}
+          </Button>
+        ));
   }
   return [label.home, label.login].map((item) => (
     <Button onClick={() => Method(item)} key={item}>
@@ -62,19 +78,36 @@ const NavItems = (user: User | null | undefined) => {
   ));
 };
 
-const navItemsDraver = (user: User | null | undefined) => {
+const navItemsDraver = (
+  user: User | null | undefined,
+  adminEmail: string | undefined,
+) => {
   if (user) {
-    return [label.home, label.settings, label.logOut].map((item) => (
-      <ListItem key={item} disablePadding>
-        <ListItemButton sx={{ textAlign: 'center' }}>
-          <ListItemText
-            onClick={() => Method(item)}
-            primary={item}
-            sx={{ color: '#0F95F5' }}
-          />
-        </ListItemButton>
-      </ListItem>
-    ));
+    return user.email === adminEmail
+      ? [label.home, label.settings, label.logOut, label.adminSettings].map(
+          (item) => (
+            <ListItem key={item} disablePadding>
+              <ListItemButton sx={{ textAlign: 'center' }}>
+                <ListItemText
+                  onClick={() => Method(item)}
+                  primary={item}
+                  sx={{ color: '#0F95F5' }}
+                />
+              </ListItemButton>
+            </ListItem>
+          ),
+        )
+      : [label.home, label.settings, label.logOut].map((item) => (
+          <ListItem key={item} disablePadding>
+            <ListItemButton sx={{ textAlign: 'center' }}>
+              <ListItemText
+                onClick={() => Method(item)}
+                primary={item}
+                sx={{ color: '#0F95F5' }}
+              />
+            </ListItemButton>
+          </ListItem>
+        ));
   }
   return [label.home, label.login].map((item) => (
     <ListItem key={item} disablePadding>
@@ -90,18 +123,9 @@ const navItemsDraver = (user: User | null | undefined) => {
 };
 
 export const Navbar: React.FC<PropsUs> = ({ user }) => {
-  // zkusit getAuth
-  // const [stateAuth, SetAuth] = useState(Boolean(user));
+  const adminEm = process.env.NEXT_PUBLIC_AdminEm;
 
-  // const onStateChanged = React.useCallback(() => {
-  //   SetAuth((prev) => !prev);
-  // }, []);
-
-  // useEffect(() => {
-  //   authUtils.onAuthStateChange(onStateChanged);
-  // }, [onStateChanged]);
-
-  const navItm = NavItems(user);
+  const navItm = NavItems(user, adminEm);
 
   const container =
     window === undefined ? undefined : () => window.document.body;
@@ -118,7 +142,7 @@ export const Navbar: React.FC<PropsUs> = ({ user }) => {
         Menu
       </Typography>
       <Divider />
-      <List>{navItemsDraver(user)}</List>
+      <List>{navItemsDraver(user, adminEm)}</List>
     </Box>
   );
 

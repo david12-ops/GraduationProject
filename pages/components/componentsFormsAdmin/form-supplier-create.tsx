@@ -258,11 +258,11 @@ export const FormSupplier = () => {
   const [newSupp] = useNewSupplierToFirestoreMutation();
 
   useEffect(() => {
-    const Admin = process.env.NEXT_PUBLIC_AdminEm;
+    const adminEm = process.env.NEXT_PUBLIC_AdminEm;
     if (user) {
       userApp.LoggedIn.set(true);
     }
-    if (user?.email === Admin) {
+    if (user?.email === adminEm) {
       userApp.Admin.set(true);
     }
   });

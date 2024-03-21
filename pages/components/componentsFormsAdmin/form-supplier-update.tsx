@@ -333,11 +333,11 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const [suppId, SetSuppId] = React.useState('');
 
   useEffect(() => {
-    const Admin = process.env.NEXT_PUBLIC_AdminEm;
+    const adminEm = process.env.NEXT_PUBLIC_AdminEm;
     if (user) {
       userApp.LoggedIn.set(true);
     }
-    if (user?.email === Admin) {
+    if (user?.email === adminEm) {
       userApp.Admin.set(true);
     }
 
