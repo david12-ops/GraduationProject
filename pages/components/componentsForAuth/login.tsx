@@ -86,7 +86,6 @@ const Submit = async (
   try {
     await authUtils.login(data.email, data.password);
     await router.push('../../');
-    // SetAlert(MyAlert('User registration succesfull', 'success'));
   } catch (error) {
     const err = error as FirebaseError;
     handleErros(err.code, SetAlert, errSetter);

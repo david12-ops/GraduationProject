@@ -85,31 +85,23 @@ const onChangeForm = (
   });
 };
 
-const RequirementsPass = () =>
-  // setClose: React.Dispatch<React.SetStateAction<boolean>>,
-  {
-    return (
-      <div
-        style={{
-          border: '3px solid #FADF79',
-          borderRadius: '10px',
-          background: '#FADF79',
-          padding: '10px',
-        }}
-      >
-        {/* <Button style={{ float: 'right' }} onClick={() => setClose(true)}>
-        <ClearOutlinedIcon />
-      </Button> */}
-        <p style={{ margin: '6px' }}>Length bigger or equal to 8</p>
-        <p style={{ margin: '6px' }}>
-          Combination of symbol, number, character
-        </p>
-        <p style={{ margin: '6px' }}>Part of email not included in password</p>
-      </div>
-    );
-  };
+const RequirementsPass = () => {
+  return (
+    <div
+      style={{
+        border: '3px solid #FADF79',
+        borderRadius: '10px',
+        background: '#FADF79',
+        padding: '10px',
+      }}
+    >
+      <p style={{ margin: '6px' }}>Length bigger or equal to 8</p>
+      <p style={{ margin: '6px' }}>Combination of symbol, number, character</p>
+      <p style={{ margin: '6px' }}>Part of email not included in password</p>
+    </div>
+  );
+};
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 const Submit = async (
@@ -140,7 +132,6 @@ const Submit = async (
   try {
     await authUtils.register(data.email, data.password);
     await router.push('../../');
-    // SetAlert(MyAlert('User registration succesfull', 'success'));
   } catch (error) {
     const err = error as FirebaseError;
     switch (err.code) {

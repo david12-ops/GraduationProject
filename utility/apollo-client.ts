@@ -34,11 +34,8 @@ const logoutLink = (logout: VoidFunction) =>
   });
 //!
 const oAuthLink = () =>
-  // @ts-ignore
   setContext(async ({ operationName }, { headers }) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const user = authUtils.getCurrentUser() || null;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const jwtToken = user ? await user.getIdToken() : null;
     console.log('USER', user);
     return {

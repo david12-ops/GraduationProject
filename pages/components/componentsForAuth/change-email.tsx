@@ -9,11 +9,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { getAuth } from 'firebase/auth';
+import { User } from 'firebase/auth';
 import { FirebaseError } from 'firebase-admin';
 import React, { useState } from 'react';
 
 import { authUtils } from '@/firebase/auth-utils';
+
+import { useAuthContext } from '../auth-context-provider';
 
 const MyAlert = (message: string, type: string) => {
   switch (type) {
@@ -32,11 +34,11 @@ const MyAlert = (message: string, type: string) => {
 const Submit = async (
   email: string,
   SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  user: User | null | undefined,
 ) => {
-  const auth = getAuth();
   try {
-    if (auth.currentUser) {
-      await authUtils.channgeUsEmail(auth.currentUser, email);
+    if (user) {
+      await authUtils.channgeUsEmail(user, email);
       SetAlert(MyAlert('User password update successfull', 'success'));
     }
   } catch (error) {
@@ -69,11 +71,9 @@ export const PageFormChangeEm = () => {
   const [newEm, SetNewEm] = useState('');
   const [erroEmail, SetEmailErr] = useState('');
   const [myAlert, SetmyAlert] = React.useState(<div></div>);
-  // const router = useRouter();
-  // bude treba i password
+  const { user } = useAuthContext();
 
   return (
-    // <ThemeProvider>
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <Box
@@ -122,7 +122,7 @@ export const PageFormChangeEm = () => {
           )}
 
           <Button
-            onClick={() => Submit(newEm, SetmyAlert)}
+            onClick={() => Submit(newEm, SetmyAlert, user)}
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
@@ -132,6 +132,5 @@ export const PageFormChangeEm = () => {
         </Box>
       </Box>
     </Container>
-    // </ThemeProvider>
   );
 };

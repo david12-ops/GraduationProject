@@ -10,11 +10,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { getAuth } from 'firebase/auth';
+import { User } from 'firebase/auth';
 import { FirebaseError } from 'firebase-admin';
 import React from 'react';
 
 import { authUtils } from '@/firebase/auth-utils';
+
+import { useAuthContext } from '../auth-context-provider';
 
 const MyAlert = (message: string, type: string) => {
   switch (type) {
@@ -92,6 +94,7 @@ const Submit = async (
     errConfirmPassword: string;
     errNewPassword: string;
   }>,
+  user: User | null | undefined,
 ) => {
   const validation = ValidPassword(
     passwords.newPassword,
@@ -114,10 +117,11 @@ const Submit = async (
     }
   }
   try {
-    const auth = getAuth();
-    if (auth.currentUser) {
-      await authUtils.changeUsPass(auth.currentUser, passwords.newPassword);
+    if (user) {
+      await authUtils.changeUsPass(user, passwords.newPassword);
       SetAlert(MyAlert('User password update successfull', 'success'));
+    } else {
+      SetAlert(MyAlert('User must be loged in', 'error'));
     }
   } catch (error) {
     const err = error as FirebaseError;
@@ -135,6 +139,7 @@ const Submit = async (
 };
 
 export const PageFormChangePass = () => {
+  const { user } = useAuthContext();
   const setterPassword = useHookstate({
     confirmPassword: '',
     newPassword: '',
@@ -235,6 +240,7 @@ export const PageFormChangePass = () => {
                   confirmPassword: setterPassword.confirmPassword.get(),
                 },
                 setterErrPassword,
+                user,
               )
             }
             fullWidth

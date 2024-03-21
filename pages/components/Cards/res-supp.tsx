@@ -5,13 +5,13 @@ import Typography from '@mui/material/Typography';
 import Link from 'next/link';
 import * as React from 'react';
 
-import { authUtils } from '@/firebase/auth-utils';
 import {
   HistoryDataDocument,
   useAddHistoryToFirestoreMutation,
   useSuppDataQuery,
 } from '@/generated/graphql';
 
+import { useAuthContext } from '../auth-context-provider';
 import { CustomDialog } from '../modal';
 
 const CusotmBtn = styled(Button)({
@@ -148,7 +148,7 @@ export const ResSuppCard: React.FC<Props> = ({
   const dataS = useSuppDataQuery();
   const [alert, SetAlert] = React.useState(<div></div>);
   const [history] = useAddHistoryToFirestoreMutation();
-  console.log(typeof history);
+  const { user } = useAuthContext();
   const supplier = dataS.data?.suplierData.find((sup) => {
     return sup.supplierId === sId ? sup : null;
   });
@@ -161,13 +161,11 @@ export const ResSuppCard: React.FC<Props> = ({
     priceS: number,
     mutation: MutationHistory,
   ) => {
-    const user = authUtils.getCurrentUser()?.uid;
-
     if (user) {
       // ?Alert
       const result = await mutation({
         variables: {
-          Id: user,
+          Id: user.uid,
           Data: JSON.stringify({
             formData: data,
             data: { suppData, priceS, packName },

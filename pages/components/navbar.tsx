@@ -14,14 +14,14 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { getAuth, User } from 'firebase/auth';
+import { User } from 'firebase/auth';
 import router from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 import { authUtils } from '@/firebase/auth-utils';
 
 type PropsUs = {
-  user: User | null;
+  user: User | null | undefined;
 };
 
 const drawerWidth = 240;
@@ -32,10 +32,9 @@ const label = {
   logOut: 'Logout',
 };
 
-const Method = async (item: string, onAuthStateChange: () => void) => {
+const Method = async (item: string) => {
   if (item === label.logOut) {
     await authUtils.logout();
-    onAuthStateChange();
   }
   if (item === label.home) {
     await router.push(`/../../`);
@@ -48,29 +47,28 @@ const Method = async (item: string, onAuthStateChange: () => void) => {
   }
 };
 
-const NavItems = (isLoged: boolean, onAuthStateChange: () => void) => {
-  console.log(isLoged);
-  if (isLoged) {
+const NavItems = (user: User | null | undefined) => {
+  if (user) {
     return [label.home, label.settings, label.logOut].map((item) => (
-      <Button onClick={() => Method(item, onAuthStateChange)} key={item}>
+      <Button onClick={() => Method(item)} key={item}>
         {item}
       </Button>
     ));
   }
   return [label.home, label.login].map((item) => (
-    <Button onClick={() => Method(item, onAuthStateChange)} key={item}>
+    <Button onClick={() => Method(item)} key={item}>
       {item}
     </Button>
   ));
 };
 
-const navItemsDraver = (isLoged: boolean, onAuthStateChange: () => void) => {
-  if (isLoged) {
+const navItemsDraver = (user: User | null | undefined) => {
+  if (user) {
     return [label.home, label.settings, label.logOut].map((item) => (
       <ListItem key={item} disablePadding>
         <ListItemButton sx={{ textAlign: 'center' }}>
           <ListItemText
-            onClick={() => Method(item, onAuthStateChange)}
+            onClick={() => Method(item)}
             primary={item}
             sx={{ color: '#0F95F5' }}
           />
@@ -82,7 +80,7 @@ const navItemsDraver = (isLoged: boolean, onAuthStateChange: () => void) => {
     <ListItem key={item} disablePadding>
       <ListItemButton sx={{ textAlign: 'center' }}>
         <ListItemText
-          onClick={() => Method(item, onAuthStateChange)}
+          onClick={() => Method(item)}
           primary={item}
           sx={{ color: '#0F95F5' }}
         />
@@ -93,17 +91,17 @@ const navItemsDraver = (isLoged: boolean, onAuthStateChange: () => void) => {
 
 export const Navbar: React.FC<PropsUs> = ({ user }) => {
   // zkusit getAuth
-  const [stateAuth, SetAuth] = useState(Boolean(getAuth().currentUser));
+  // const [stateAuth, SetAuth] = useState(Boolean(user));
 
-  const onStateChanged = React.useCallback(() => {
-    SetAuth((prev) => !prev);
-  }, []);
+  // const onStateChanged = React.useCallback(() => {
+  //   SetAuth((prev) => !prev);
+  // }, []);
 
-  useEffect(() => {
-    authUtils.onAuthStateChange(onStateChanged);
-  }, [onStateChanged]);
+  // useEffect(() => {
+  //   authUtils.onAuthStateChange(onStateChanged);
+  // }, [onStateChanged]);
 
-  const navItm = NavItems(stateAuth, onStateChanged);
+  const navItm = NavItems(user);
 
   const container =
     window === undefined ? undefined : () => window.document.body;
@@ -120,7 +118,7 @@ export const Navbar: React.FC<PropsUs> = ({ user }) => {
         Menu
       </Typography>
       <Divider />
-      <List>{navItemsDraver(stateAuth, onStateChanged)}</List>
+      <List>{navItemsDraver(user)}</List>
     </Box>
   );
 
