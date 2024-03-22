@@ -96,6 +96,7 @@ const typeDefs = gql`
 
     deletePack(suppId: String!, key: String!): Delete
     deleteSupp(id: [String]): Delete
+    deleteHistoryItem(id: String!): Delete
   }
 
   input DataUpdateSupp {
@@ -644,7 +645,11 @@ const checkIfisThereDoc = (
 
 const resolvers = {
   Query: {
-    suplierData: async (_context: Context) => {
+    suplierData: async (
+      _parent: unknown,
+      args: unknown,
+      context: MyContext,
+    ) => {
       try {
         const result = await db.collection('Supplier').get();
 
@@ -691,7 +696,11 @@ const resolvers = {
         throw error;
       }
     },
-    historyUserData: async (context: MyContext) => {
+    historyUserData: async (
+      _parent: unknown,
+      args: unknown,
+      context: MyContext,
+    ) => {
       const data: Array<{
         dataForm: any;
         historyId: string;
@@ -699,6 +708,7 @@ const resolvers = {
         userId: string;
       }> = [];
       try {
+        console.error(context.user?.uid);
         const userData = await db
           .collection('History')
           .where('uId', '==', context.user?.uid)
@@ -2119,7 +2129,38 @@ const resolvers = {
         throw error;
       }
     },
-    // deleteHistoryItem: async (parent_:any, args:{}, context:MyContext) =>{},
+    deleteHistoryItem: async (
+      parent_: any,
+      args: { id: string },
+      context: MyContext,
+    ) => {
+      const { id: historyId } = args;
+      let deleted = false;
+      let err = '';
+      if (context.user?.email !== adminEm) {
+        err = admMessage;
+        deleted = false;
+        return { deletion: deleted, error: err };
+      }
+
+      try {
+        const collection = db.collection('History');
+        const snapshot = await collection
+          .where('uId', '==', context.user?.uid)
+          .where('historyId', '==', historyId)
+          .get();
+        if (snapshot) {
+          console.error(snapshot.docs);
+          await snapshot.docs[0].ref.delete();
+        }
+
+        deleted = true;
+        return { deletion: deleted, error: err };
+      } catch (error) {
+        console.error('Chyba při mazání záznamu z historie', error);
+        throw error;
+      }
+    },
   },
 };
 

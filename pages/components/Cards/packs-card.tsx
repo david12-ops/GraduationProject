@@ -1,4 +1,13 @@
-import { Alert, CardActions, Link } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import {
+  CardActions,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Link,
+  styled,
+} from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -8,6 +17,49 @@ import * as React from 'react';
 import { SuppDataDocument, useDeletePacMutation } from '@/generated/graphql';
 
 import styles from '../../../styles/stylesForm/style.module.css';
+
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(2),
+  },
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1),
+  },
+}));
+
+const ErrDialog = (title: string, description: JSX.Element) => {
+  const [open, setOpen] = React.useState(false);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+  return (
+    <BootstrapDialog
+      onClose={handleClose}
+      aria-labelledby="customized-dialog-title"
+      open={open}
+    >
+      <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+        {title}
+      </DialogTitle>
+      <IconButton
+        aria-label="close"
+        onClick={handleClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: (theme) => theme.palette.grey[500],
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+      <DialogContent dividers>
+        <Typography gutterBottom>{description}</Typography>
+      </DialogContent>
+    </BootstrapDialog>
+  );
+};
 
 type Props = {
   Heiht: number;
@@ -20,18 +72,24 @@ type Props = {
   sId: string;
 };
 
-const MyAlert = (message: string, type: string) => {
-  switch (type) {
-    case 'success': {
-      return <Alert severity="success">{message}</Alert>;
-    }
-    case 'error': {
-      return <Alert severity="error">{message}</Alert>;
-    }
-    default: {
-      return <div></div>;
-    }
+const Description = (deleteion: boolean, error: string | null | undefined) => {
+  let description: JSX.Element | undefined;
+  if (!deleteion) {
+    description = (
+      <Typography component={'p'}>Smazaní balíku nebylo úspěšné</Typography>
+    );
   }
+  if (error) {
+    description = <Typography component={'p'}>{error}</Typography>;
+  }
+  if (!deleteion && error) {
+    description = (
+      <Typography component={'p'}>
+        Smazaní balíku nebylo úspěšné : {error}
+      </Typography>
+    );
+  }
+  return description;
 };
 
 export const PackCard: React.FC<Props> = ({
@@ -44,9 +102,6 @@ export const PackCard: React.FC<Props> = ({
   keyPac,
   sId,
 }) => {
-  // ?
-  const [myAlert, SetmyAlert] = React.useState(<div></div>);
-
   const [del] = useDeletePacMutation();
   const Del = async (key: string, suppId: string) => {
     const deleted = await del({
@@ -57,17 +112,16 @@ export const PackCard: React.FC<Props> = ({
       refetchQueries: [{ query: SuppDataDocument }],
       awaitRefetchQueries: true,
     }).catch((error: string) => console.error(error));
-    if (deleted?.data?.deletePack?.error) {
-      SetmyAlert(MyAlert(`${deleted?.data?.deletePack?.error}`, 'error'));
+    const description = Description(
+      !!deleted?.data?.deletePack?.deletion,
+      deleted?.data?.deletePack?.error,
+    );
+    if (description) {
+      ErrDialog('Chyba při mazání', description);
     }
-    if (!deleted?.data?.deletePack?.deletion) {
-      SetmyAlert(MyAlert('Smazaní balíku nebylo úspěšné', 'error'));
-    }
-    SetmyAlert(MyAlert('Balík byl smazán', 'succes'));
   };
   return (
     <Card sx={{ maxWidth: 290 }}>
-      {/* {myAlert} */}
       <CardMedia
         component="img"
         alt={Name}

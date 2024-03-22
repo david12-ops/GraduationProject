@@ -1,17 +1,31 @@
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { Button, styled, Typography } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  styled,
+  Typography,
+} from '@mui/material';
 import Head from 'next/head';
 import Link from 'next/link';
 import React, { useState } from 'react';
 
-import { useHistoryDataQuery } from '@/generated/graphql';
+import {
+  HistoryDataDocument,
+  useDeleteHistoryItmMutation,
+  useHistoryDataQuery,
+} from '@/generated/graphql';
 
 import styles from '../styles/Home.module.css';
 import { useAuthContext } from './components/auth-context-provider';
 import { PageFormChangeEm } from './components/componentsForAuth/change-email';
 import { PageFormChangePass } from './components/componentsForAuth/change-pass';
-// import { CustomDialog } from './components/modal';
+import { CustomDialog } from './components/modal';
 import { Navbar } from './components/navbar';
 
 const DropDownBtn = styled(Button)({
@@ -19,88 +33,103 @@ const DropDownBtn = styled(Button)({
   backgroundColor: '#5CA6EB',
 });
 
-const buttonPart = (name: string) => {
-  if (name === 'dpd') {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-around',
+const CustomBox = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-around',
+});
+
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(2),
+  },
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1),
+  },
+}));
+
+const ErrDialog = (title: string, description: JSX.Element) => {
+  const [open, setOpen] = React.useState(false);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+  return (
+    <BootstrapDialog
+      onClose={handleClose}
+      aria-labelledby="customized-dialog-title"
+      open={open}
+    >
+      <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+        {title}
+      </DialogTitle>
+      <IconButton
+        aria-label="close"
+        onClick={handleClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: (theme) => theme.palette.grey[500],
         }}
       >
-        <button
-          style={{
-            width: '80px',
-            height: '60px',
-            borderRadius: '10px',
-            backgroundColor: 'red',
-            color: 'white',
-            fontWeight: 'bold',
-            border: ' solid red',
-          }}
-        >
-          Smazat
-        </button>
-        <Link href="https://zrukydoruky.dpd.cz/">
-          <button
-            style={{
-              width: '80px',
-              height: '60px',
-              borderRadius: '10px',
-              backgroundColor: '#23B8FA',
-              color: 'white',
-              fontWeight: 'bold',
-              border: ' solid #23B8FA',
-            }}
-          >
-            Přejít na stránku
-          </button>
-        </Link>
-      </div>
+        <CloseIcon />
+      </IconButton>
+      <DialogContent dividers>
+        <Typography gutterBottom>{description}</Typography>
+      </DialogContent>
+    </BootstrapDialog>
+  );
+};
+const Description = (deleteion: boolean, error: string | null | undefined) => {
+  let description: JSX.Element | undefined;
+  if (!deleteion) {
+    description = (
+      <Typography component={'p'}>Smazaní balíku nebylo úspěšné</Typography>
     );
   }
-
-  return (
-    <button
-      style={{
-        width: '80px',
-        height: '60px',
-        borderRadius: '10px',
-        backgroundColor: 'red',
-        color: 'white',
-        fontWeight: 'bold',
-        border: ' solid red',
-      }}
-    >
-      Delete
-    </button>
-  );
+  if (error) {
+    description = <Typography component={'p'}>{error}</Typography>;
+  }
+  if (!deleteion && error) {
+    description = (
+      <Typography component={'p'}>
+        Smazaní balíku nebylo úspěšné : {error}
+      </Typography>
+    );
+  }
+  return description;
 };
-
-const DisplayResult = (close: boolean) => {
-  return close ? (
-    <div></div>
-  ) : (
-    // RenderSupp(
-    //   dataFromResolver,
-    //   {
-    //     data: QueryData.data,
-    //     loading: QueryData.loading,
-    //     error: QueryData.error,
-    //   },
-    //   SetAndReturnDataForm(setters),
-    // )
-    <div>jeee</div>
-  );
-};
-
-const DescriptionToDialog = () => {};
+const CustomBoxBtnPart = styled(Box)({
+  display: 'flex',
+  flexDirection: 'row',
+  gap: '20px',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+});
 
 export default function UserPage() {
+  const [deleteHisItm] = useDeleteHistoryItmMutation();
   const { user } = useAuthContext();
-  const hitoryD = useHistoryDataQuery();
+  const historyData = useHistoryDataQuery();
   const [close, SetClose] = useState(true);
+
+  const DeleteItm = async (historyId: string) => {
+    const result = await deleteHisItm({
+      variables: {
+        Id: historyId || '',
+      },
+      refetchQueries: [{ query: HistoryDataDocument }],
+      awaitRefetchQueries: true,
+    });
+    const description = Description(
+      !!result.data?.deleteHistoryItem?.deletion,
+      result.data?.deleteHistoryItem?.error,
+    );
+    if (description) {
+      ErrDialog('Chyba při mazání', description);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -110,17 +139,9 @@ export default function UserPage() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar user={user} />
-      {/* <CustomDialog></CustomDialog> */}
 
       <main className={styles.main}>
-        <Typography
-          component={'div'}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-around',
-          }}
-        >
+        <CustomBox>
           <Typography
             style={{ textAlign: 'center' }}
             variant="h5"
@@ -131,92 +152,123 @@ export default function UserPage() {
           <DropDownBtn onClick={() => SetClose((prev) => !prev)}>
             {close ? <ArrowDropDownIcon /> : <ArrowDropUpIcon />}
           </DropDownBtn>
-        </Typography>
-
-        {hitoryD.data?.historyUserData.map((historyItm) => {
-          return (
-            // Využití modalu
-            <Typography
-              component={'div'}
-              key={historyItm.historyId}
-              style={{
-                backgroundColor: 'wheat',
-                borderRadius: '10px',
-                margin: '20px',
-                border: '5px solid #FAEA88',
-              }}
-            >
+        </CustomBox>
+        {close ? (
+          <div></div>
+        ) : historyData.loading ? (
+          <div>Please wait</div>
+        ) : (
+          historyData.data?.historyUserData.map((historyItm) => {
+            return (
               <Typography
                 component={'div'}
+                key={historyItm.historyId}
                 style={{
-                  display: 'flex',
-                  gap: '40px',
+                  backgroundColor: 'whitesmoke',
+                  borderRadius: '10px',
                   margin: '20px',
+                  border: '5px solid #0E95EB',
                 }}
               >
-                <Typography component={'div'}>
-                  <strong>Data z formulare</strong>
-                  <Typography component={'p'}>
-                    Vyska: {historyItm.dataForm.height}
+                <Typography
+                  component={'div'}
+                  style={{
+                    display: 'flex',
+                    gap: '30px',
+                    margin: '25px',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <CustomDialog
+                    title="Detail"
+                    description={
+                      <Typography component={'div'}>
+                        <Typography component={'div'}>
+                          <strong>Data dodavatele</strong>
+                          <Typography component={'p'}>
+                            Jmeno: {historyItm.suppData.name}
+                          </Typography>
+                          <Typography component={'p'}>
+                            Pojisteni: {historyItm.suppData.insurance} Kč
+                          </Typography>
+                          <Typography component={'p'}>
+                            Doruceni: {historyItm.suppData.delivery}
+                          </Typography>
+                          <Typography component={'p'}>
+                            Vyzvednuti: {historyItm.suppData.pickup}
+                          </Typography>
+                          <Typography component={'p'}>
+                            V boxu:{' '}
+                            {historyItm.suppData.packInBox === 'No'
+                              ? 'Ne'
+                              : historyItm.suppData.packInBox === 'Yes'
+                              ? 'Ano'
+                              : ''}
+                          </Typography>
+                          <Typography component={'p'}>
+                            Štítek:{' '}
+                            {historyItm.suppData.shippingLabel === 'No'
+                              ? 'Ne'
+                              : historyItm.suppData.shippingLabel === 'Yes'
+                              ? 'Ano'
+                              : ''}
+                          </Typography>
+                          <Typography component={'p'}>
+                            Na dobírku:{' '}
+                            {historyItm.suppData.sendCashDelivery === 'No'
+                              ? 'Ne'
+                              : historyItm.suppData.sendCashDelivery === 'Yes'
+                              ? 'Ano'
+                              : ''}
+                          </Typography>
+                          <Typography component={'p'}>
+                            Ve folii:{' '}
+                            {historyItm.suppData.foil === 'No'
+                              ? 'Ne'
+                              : historyItm.suppData.foil === 'Yes'
+                              ? 'Ano'
+                              : ''}
+                          </Typography>
+                          <Typography component={'p'}>
+                            Celkova cena: {historyItm.suppData.cost}
+                          </Typography>
+                        </Typography>
+                      </Typography>
+                    }
+                  ></CustomDialog>
+                  <Typography component={'div'} margin={'auto'}>
+                    <strong>Oznaceni</strong>
+                    <Typography style={{ textAlign: 'center' }} component={'p'}>
+                      {historyItm.suppData.packName}
+                    </Typography>
                   </Typography>
-                  <Typography component={'p'}>
-                    Sirka: {historyItm.dataForm.width}
-                  </Typography>
-                  <Typography component={'p'}>
-                    Delka: {historyItm.dataForm.plength}
-                  </Typography>
-                  <Typography component={'p'}>
-                    Hmotnost: {historyItm.dataForm.weight}
-                  </Typography>
-                  <Typography component={'p'}>
-                    Odkud: {historyItm.dataForm.placeFrom}
-                  </Typography>
-                  <Typography component={'p'}>
-                    Kam: {historyItm.dataForm.placeTo}
-                  </Typography>
+                  <CustomBoxBtnPart>
+                    <Button
+                      onClick={() => DeleteItm(historyItm.historyId)}
+                      style={{
+                        backgroundColor: 'red',
+                        color: 'white',
+                      }}
+                    >
+                      Smazat
+                    </Button>
+                    <Link href="https://zrukydoruky.dpd.cz/">
+                      <Button
+                        style={{
+                          backgroundColor: '#23B8FA',
+                          color: 'white',
+                        }}
+                      >
+                        Objednat
+                      </Button>
+                    </Link>
+                  </CustomBoxBtnPart>
                 </Typography>
-                <Typography component={'div'}>
-                  <strong>Data dodavatele</strong>
-                  <Typography component={'p'}>
-                    Jmeno: {historyItm.suppData.name}
-                  </Typography>
-                  <Typography component={'p'}>
-                    Pojisteni: {historyItm.suppData.insurance}
-                  </Typography>
-                  <Typography component={'p'}>
-                    Doruceni: {historyItm.suppData.delivery}
-                  </Typography>
-                  <Typography component={'p'}>
-                    Vyzvednuti: {historyItm.suppData.pickup}
-                  </Typography>
-                  <Typography component={'p'}>
-                    V boxu: {historyItm.suppData.packInBox}
-                  </Typography>
-                  <Typography component={'p'}>
-                    Štítek: {historyItm.suppData.shippingLabel}
-                  </Typography>
-                  <Typography component={'p'}>
-                    Na dobírku: {historyItm.suppData.sendCashDelivery}
-                  </Typography>
-                  <Typography component={'p'}>
-                    Ve folii: {historyItm.suppData.foil}
-                  </Typography>
-                  <Typography component={'p'}>
-                    Celkova cena: {historyItm.suppData.cost}
-                  </Typography>
-                </Typography>
-
-                <Typography component={'div'}>
-                  <strong>Balík</strong>
-                  <Typography component={'p'}>
-                    Oznaceni: {historyItm.suppData.packName}
-                  </Typography>
-                </Typography>
-                {buttonPart(historyItm.suppData.name)}
               </Typography>
-            </Typography>
-          );
-        })}
+            );
+          })
+        )}
+
         <Typography
           component={'div'}
           style={{

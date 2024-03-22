@@ -193,54 +193,49 @@ const Valid = (
 ) => {
   const messageForInt = 'Očekává se číslo větší nebo rovné nule';
   const messageLoc = 'Očekává se hodnota (depo/personal)';
+  console.error(
+    weightarg,
+    costarg,
+    pLengtharg,
+    heightarg,
+    widtharg,
+    placeToarg,
+    placeFromarg,
+  );
   if (!isInt(weightarg, 0)) {
     errorsSetters.errWeight.set(messageForInt);
     return new Error(messageForInt);
   }
-
-  errorsSetters.errWeight.set('');
 
   if (!isInt(costarg, 0)) {
     errorsSetters.errCost.set(messageForInt);
     return new Error(messageForInt);
   }
 
-  errorsSetters.errCost.set('');
-
   if (!isInt(pLengtharg, 0)) {
     errorsSetters.errLength.set(messageForInt);
     return new Error(messageForInt);
   }
-
-  errorsSetters.errLength.set('');
 
   if (!isInt(heightarg, 0)) {
     errorsSetters.errHeight.set(messageForInt);
     return new Error(messageForInt);
   }
 
-  errorsSetters.errHeight.set('');
-
   if (!isInt(widtharg, 0)) {
     errorsSetters.errWidth.set(messageForInt);
     return new Error(messageForInt);
   }
-
-  errorsSetters.errWidth.set('');
 
   if (!['depo', 'personal'].includes(placeToarg)) {
     errorsSetters.errPlaceTo.set(messageLoc);
     return new Error(messageLoc);
   }
 
-  errorsSetters.errPlaceTo.set('');
-
   if (!['depo', 'personal'].includes(placeFromarg)) {
     errorsSetters.errFrom.set(messageLoc);
     return new Error(messageLoc);
   }
-
-  errorsSetters.errFrom.set('');
 
   return undefined;
 };
@@ -394,7 +389,8 @@ export default function SuitableSupp() {
       </Head>
       <Navbar user={user} />
       <main className={styles.main}>
-        {myAlert}
+        <div style={{ margin: '20px' }}> {myAlert}</div>
+
         <FormChooseSup
           onChangeForm={() => onChangeForm(errors, SetAlert)}
           onChangeWidth={(e) => statesOfFormPack.Width.set(e)}

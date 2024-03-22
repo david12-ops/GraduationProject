@@ -89,7 +89,9 @@ export default function Home() {
             <img src="/pngegg.png" alt="" className={stylesM.itemImg} />
           </div>
           <div className={stylesM.item12}>
-            <button className={stylesM.itemBtn}>Spravovat účet</button>
+            <Link key="user-page" href={'/user-page'}>
+              <button className={stylesM.itemBtn}>Spravovat účet</button>
+            </Link>
           </div>
         </div>
       </main>

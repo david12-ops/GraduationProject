@@ -69,6 +69,7 @@ export type Mutation = {
   BingoSupPac?: Maybe<SuitValue>;
   PackageToFirestore?: Maybe<CreatedPack>;
   SupplierToFirestore?: Maybe<Supplier>;
+  deleteHistoryItem?: Maybe<Delete>;
   deletePack?: Maybe<Delete>;
   deleteSupp?: Maybe<Delete>;
   updateHistory?: Maybe<HistoryMessage>;
@@ -113,6 +114,10 @@ export type MutationSupplierToFirestoreArgs = {
   sendCashDelivery: Scalars['String'];
   shippingLabel: Scalars['String'];
   supplierName: Scalars['String'];
+};
+
+export type MutationDeleteHistoryItemArgs = {
+  id: Scalars['String'];
 };
 
 export type MutationDeletePackArgs = {
@@ -310,6 +315,19 @@ export type HistoryDataQuery = {
       cost: number;
     };
   }>;
+};
+
+export type DeleteHistoryItmMutationVariables = Exact<{
+  Id: Scalars['String'];
+}>;
+
+export type DeleteHistoryItmMutation = {
+  __typename?: 'Mutation';
+  deleteHistoryItem?: {
+    __typename?: 'Delete';
+    deletion: boolean;
+    error?: string | null;
+  } | null;
 };
 
 export type AddHistoryToFirestoreMutationVariables = Exact<{
@@ -611,6 +629,57 @@ export type HistoryDataLazyQueryHookResult = ReturnType<
 export type HistoryDataQueryResult = Apollo.QueryResult<
   HistoryDataQuery,
   HistoryDataQueryVariables
+>;
+export const DeleteHistoryItmDocument = gql`
+  mutation DeleteHistoryItm($Id: String!) {
+    deleteHistoryItem(id: $Id) {
+      deletion
+      error
+    }
+  }
+`;
+export type DeleteHistoryItmMutationFn = Apollo.MutationFunction<
+  DeleteHistoryItmMutation,
+  DeleteHistoryItmMutationVariables
+>;
+
+/**
+ * __useDeleteHistoryItmMutation__
+ *
+ * To run a mutation, you first call `useDeleteHistoryItmMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteHistoryItmMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteHistoryItmMutation, { data, loading, error }] = useDeleteHistoryItmMutation({
+ *   variables: {
+ *      Id: // value for 'Id'
+ *   },
+ * });
+ */
+export function useDeleteHistoryItmMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    DeleteHistoryItmMutation,
+    DeleteHistoryItmMutationVariables
+  >,
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    DeleteHistoryItmMutation,
+    DeleteHistoryItmMutationVariables
+  >(DeleteHistoryItmDocument, options);
+}
+export type DeleteHistoryItmMutationHookResult = ReturnType<
+  typeof useDeleteHistoryItmMutation
+>;
+export type DeleteHistoryItmMutationResult =
+  Apollo.MutationResult<DeleteHistoryItmMutation>;
+export type DeleteHistoryItmMutationOptions = Apollo.BaseMutationOptions<
+  DeleteHistoryItmMutation,
+  DeleteHistoryItmMutationVariables
 >;
 export const AddHistoryToFirestoreDocument = gql`
   mutation AddHistoryToFirestore($Id: String!, $Data: String!) {

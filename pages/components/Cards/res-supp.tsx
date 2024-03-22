@@ -115,7 +115,7 @@ const Paragraph = (
   return (
     <Typography component={'div'} style={{ margin: '10px' }}>
       <Typography component={'p'} style={{ margin: '10px' }}>
-        Vyzvednutí nejdříve<strong>{pickUp}</strong>
+        Vyzvednutí nejdříve <strong>{pickUp}</strong>
       </Typography>
       <Typography component={'p'} style={{ margin: '10px' }}>
         Doručení nejdřive <strong>{delivery}</strong>
@@ -177,7 +177,7 @@ export const ResSuppCard: React.FC<Props> = ({
         SetAlert(MyAlert(result?.data?.AddHistory?.message));
       }
     } else {
-      SetAlert(MyAlert('User must have account'));
+      SetAlert(MyAlert('Uživatel musí být přihlášen na svů účet'));
     }
   };
 

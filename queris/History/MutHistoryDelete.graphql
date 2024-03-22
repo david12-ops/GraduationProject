@@ -1,0 +1,7 @@
+mutation DeleteHistoryItm($Id:String!){
+  deleteHistoryItem(id:$Id){
+    deletion
+    error
+  }
+}
+

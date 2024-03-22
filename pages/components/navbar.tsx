@@ -22,6 +22,7 @@ import { authUtils } from '@/firebase/auth-utils';
 
 type PropsUs = {
   user: User | null | undefined;
+  navItemForAdmin?: object;
 };
 
 const drawerWidth = 240;
@@ -31,6 +32,7 @@ const label = {
   login: 'Přihlásit se',
   logOut: 'Odhlásit se',
   adminSettings: 'Stránka admina',
+  choseSupp: 'Výběr balíku',
 };
 
 const Method = async (item: string) => {
@@ -50,28 +52,41 @@ const Method = async (item: string) => {
   if (item === label.adminSettings) {
     await router.push(`/../admin-page`);
   }
+  if (item === label.choseSupp) {
+    await router.push(`/../choose-supp-page`);
+  }
 };
 
 const NavItems = (
   user: User | null | undefined,
   adminEmail: string | undefined,
+  navItemAdmin: object | undefined,
 ) => {
+  if (user && navItemAdmin) {
+    return <div>AdminStranaka</div>;
+  }
   if (user) {
     return user.email === adminEmail
-      ? [label.home, label.settings, label.logOut, label.adminSettings].map(
+      ? [
+          label.home,
+          label.choseSupp,
+          label.adminSettings,
+          label.settings,
+          label.logOut,
+        ].map((item) => (
+          <Button onClick={() => Method(item)} key={item}>
+            {item}
+          </Button>
+        ))
+      : [label.home, label.choseSupp, label.settings, label.logOut].map(
           (item) => (
             <Button onClick={() => Method(item)} key={item}>
               {item}
             </Button>
           ),
-        )
-      : [label.home, label.settings, label.logOut].map((item) => (
-          <Button onClick={() => Method(item)} key={item}>
-            {item}
-          </Button>
-        ));
+        );
   }
-  return [label.home, label.login].map((item) => (
+  return [label.home, label.choseSupp, label.login].map((item) => (
     <Button onClick={() => Method(item)} key={item}>
       {item}
     </Button>
@@ -84,7 +99,24 @@ const navItemsDraver = (
 ) => {
   if (user) {
     return user.email === adminEmail
-      ? [label.home, label.settings, label.logOut, label.adminSettings].map(
+      ? [
+          label.home,
+          label.choseSupp,
+          label.adminSettings,
+          label.settings,
+          label.logOut,
+        ].map((item) => (
+          <ListItem key={item} disablePadding>
+            <ListItemButton sx={{ textAlign: 'center' }}>
+              <ListItemText
+                onClick={() => Method(item)}
+                primary={item}
+                sx={{ color: '#0F95F5' }}
+              />
+            </ListItemButton>
+          </ListItem>
+        ))
+      : [label.home, label.choseSupp, label.settings, label.logOut].map(
           (item) => (
             <ListItem key={item} disablePadding>
               <ListItemButton sx={{ textAlign: 'center' }}>
@@ -96,20 +128,9 @@ const navItemsDraver = (
               </ListItemButton>
             </ListItem>
           ),
-        )
-      : [label.home, label.settings, label.logOut].map((item) => (
-          <ListItem key={item} disablePadding>
-            <ListItemButton sx={{ textAlign: 'center' }}>
-              <ListItemText
-                onClick={() => Method(item)}
-                primary={item}
-                sx={{ color: '#0F95F5' }}
-              />
-            </ListItemButton>
-          </ListItem>
-        ));
+        );
   }
-  return [label.home, label.login].map((item) => (
+  return [label.home, label.choseSupp, label.login].map((item) => (
     <ListItem key={item} disablePadding>
       <ListItemButton sx={{ textAlign: 'center' }}>
         <ListItemText
@@ -122,10 +143,10 @@ const navItemsDraver = (
   ));
 };
 
-export const Navbar: React.FC<PropsUs> = ({ user }) => {
+export const Navbar: React.FC<PropsUs> = ({ user, navItemForAdmin }) => {
   const adminEm = process.env.NEXT_PUBLIC_AdminEm;
 
-  const navItm = NavItems(user, adminEm);
+  const navItm = NavItems(user, adminEm, navItemForAdmin);
 
   const container =
     window === undefined ? undefined : () => window.document.body;
@@ -165,7 +186,7 @@ export const Navbar: React.FC<PropsUs> = ({ user }) => {
             component="div"
             sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
           >
-            Bingo balík
+            BingoBalík
           </Typography>
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>{navItm}</Box>
         </Toolbar>
