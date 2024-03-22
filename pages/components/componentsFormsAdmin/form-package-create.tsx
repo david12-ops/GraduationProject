@@ -133,6 +133,46 @@ const MyAlert = (
   return alert;
 };
 
+const Response = (
+  response:
+    | {
+        __typename?: 'Pack' | undefined;
+        data: {
+          __typename?: 'PackageDataCreate' | undefined;
+          weight: number;
+          cost: number;
+          Plength: number;
+          height: number;
+          width: number;
+          name_package: string;
+          supplier_id: string;
+        };
+      }
+    | {
+        __typename?: 'PackageError' | undefined;
+        message: string;
+      }
+    | null
+    | undefined,
+) => {
+  const responseFromQuery: {
+    data: CreatedPackage | undefined;
+    error: string | undefined;
+  } = {
+    data: undefined,
+    error: undefined,
+  };
+  // eslint-disable-next-line no-underscore-dangle
+  if (response?.__typename === 'Pack') {
+    responseFromQuery.data = response.data ?? undefined;
+  }
+  // eslint-disable-next-line no-underscore-dangle
+  if (response?.__typename === 'PackageError') {
+    responseFromQuery.error = response.message ?? undefined;
+  }
+  return responseFromQuery;
+};
+
 export const FormPackage: React.FC<Props> = ({ id }) => {
   const { user } = useAuthContext();
   const settersForDataPack = useHookstate({
@@ -213,20 +253,22 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
         awaitRefetchQueries: true,
       }).catch((error: string) => console.error(error));
 
-      const appErr: string | undefined =
-        result?.data?.PackageToFirestore?.message;
-      const data: CreatedPackage | undefined =
-        result?.data?.PackageToFirestore?.data;
+      const response = Response(result?.data?.PackageToFirestore);
 
-      if (appErr && /Label is already in use/.test(appErr) === false) {
-        setterForAlertMesssage.errCreate.set(appErr);
+      if (
+        response.error &&
+        /Label is already in use/.test(response.error) === false
+      ) {
+        setterForAlertMesssage.errCreate.set(response.error);
       }
 
-      if (appErr && /Label is already in use/.test(appErr)) {
-        setterErrors.errLabel.set(appErr);
+      if (response.error && /Label is already in use/.test(response.error)) {
+        setterErrors.errLabel.set(response.error);
       }
-      if (data) {
-        setterForAlertMesssage.succesCreate.set(MessageCreatePack(data));
+      if (response.data) {
+        setterForAlertMesssage.succesCreate.set(
+          MessageCreatePack(response.data),
+        );
       }
     }
   };

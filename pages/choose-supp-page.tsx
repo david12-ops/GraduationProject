@@ -286,6 +286,37 @@ const MyInfoAlert = (message: string) => {
   return <Alert severity="info">{message}</Alert>;
 };
 
+const Response = (
+  response:
+    | {
+        __typename?: 'ErrorMessage' | undefined;
+        message: string;
+      }
+    | {
+        __typename?: 'Suitable' | undefined;
+        suitable: string;
+      }
+    | null
+    | undefined,
+) => {
+  const responseFromQuery: {
+    data: string | undefined;
+    error: string | undefined;
+  } = {
+    data: undefined,
+    error: undefined,
+  };
+  // eslint-disable-next-line no-underscore-dangle
+  if (response?.__typename === 'Suitable') {
+    responseFromQuery.data = response.suitable ?? undefined;
+  }
+  // eslint-disable-next-line no-underscore-dangle
+  if (response?.__typename === 'ErrorMessage') {
+    responseFromQuery.error = response.message ?? undefined;
+  }
+  return responseFromQuery;
+};
+
 export default function SuitableSupp() {
   const { user } = useAuthContext();
   const statesOfFormPack = useHookstate({
@@ -309,7 +340,6 @@ export default function SuitableSupp() {
   });
 
   // pouzit callBack - jen kdyz je funkce pouzivana v komponenete kvuli pristupu propsu
-  // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
   const [close, SetClose] = useState(true);
   const [dataS, SetData] = useState(Array<DataS>);
   const [myAlert, SetAlert] = useState(<div></div>);
@@ -343,15 +373,14 @@ export default function SuitableSupp() {
         },
       }).catch((error: string) => console.error(error));
 
-      if (result?.data?.BingoSupPac?.suitable) {
-        const data: Array<DataS> = JSON.parse(
-          result.data?.BingoSupPac?.suitable,
-        );
+      const response = Response(result?.data?.BingoSupPac);
+      if (response.data) {
+        const data: Array<DataS> = JSON.parse(response.data);
         SetData(data);
       }
 
-      if (result?.data?.BingoSupPac?.message) {
-        SetAlert(MyInfoAlert(String(result?.data?.BingoSupPac?.message)));
+      if (response.error) {
+        SetAlert(MyInfoAlert(response.error));
       }
     }
   };

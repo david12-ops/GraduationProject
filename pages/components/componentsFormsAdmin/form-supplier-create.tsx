@@ -41,7 +41,6 @@ type DataCreatedSupp = {
   insurance: number;
   shippingLabel: string;
   foil: string;
-  supplierId: string;
 };
 const IsYesOrNo = (
   stringnU1: string,
@@ -196,6 +195,47 @@ const MessageCreateSupp = (data: DataCreatedSupp) => {
   Jméno: ${data.suppName}`;
 };
 
+const Response = (
+  response:
+    | {
+        __typename?: 'Supp' | undefined;
+        data: {
+          __typename?: 'SupplierData' | undefined;
+          sendCashDelivery: string;
+          packInBox: string;
+          suppName: string;
+          pickUp: string;
+          delivery: string;
+          insurance: number;
+          shippingLabel: string;
+          foil: string;
+        };
+      }
+    | {
+        __typename?: 'SupplierError' | undefined;
+        message: string;
+      }
+    | null
+    | undefined,
+) => {
+  const responseFromQuery: {
+    data: DataCreatedSupp | undefined;
+    error: string | undefined;
+  } = {
+    data: undefined,
+    error: undefined,
+  };
+  // eslint-disable-next-line no-underscore-dangle
+  if (response?.__typename === 'Supp') {
+    responseFromQuery.data = response.data ?? undefined;
+  }
+  // eslint-disable-next-line no-underscore-dangle
+  if (response?.__typename === 'SupplierError') {
+    responseFromQuery.error = response.message ?? undefined;
+  }
+  return responseFromQuery;
+};
+
 export const FormSupplier = () => {
   const { user } = useAuthContext();
   const options = [
@@ -346,21 +386,26 @@ export const FormSupplier = () => {
         awaitRefetchQueries: true,
       }).catch((error: string) => console.error(error));
 
-      const appErr: string | undefined =
-        result?.data?.SupplierToFirestore?.message;
-      const data: DataCreatedSupp | undefined =
-        result?.data?.SupplierToFirestore?.data;
+      const response = Response(result?.data?.SupplierToFirestore);
 
-      if (appErr && /Supplier name is already in use/.test(appErr) === false) {
-        setterForAlertMesssage.errCreate.set(appErr);
+      if (
+        response.error &&
+        /Supplier name is already in use/.test(response.error) === false
+      ) {
+        setterForAlertMesssage.errCreate.set(response.error);
       }
 
-      if (appErr && /Supplier name is already in use/.test(appErr)) {
-        setterErrors.errName.set(appErr);
+      if (
+        response.error &&
+        /Supplier name is already in use/.test(response.error)
+      ) {
+        setterErrors.errName.set(response.error);
       }
 
-      if (data) {
-        setterForAlertMesssage.succesCreate.set(MessageCreateSupp(data));
+      if (response.data) {
+        setterForAlertMesssage.succesCreate.set(
+          MessageCreateSupp(response.data),
+        );
       }
     }
   };

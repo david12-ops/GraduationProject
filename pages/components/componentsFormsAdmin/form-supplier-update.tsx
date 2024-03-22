@@ -44,6 +44,7 @@ type Item = {
 
 type DataUpdateSupp = {
   sendCashDelivery: string;
+  supplierId: string;
   packInBox: string;
   suppName: string;
   pickUp: string;
@@ -51,7 +52,6 @@ type DataUpdateSupp = {
   insurance: number;
   shippingLabel: string;
   foil: string;
-  supplierId: string;
 };
 
 type ErrSettersProperties = {
@@ -268,6 +268,48 @@ const setDataDatabase = (data: Item, stateSeter: State<DataFromDB>) => {
   });
 };
 
+const Response = (
+  response:
+    | {
+        __typename?: 'Supp' | undefined;
+        data: {
+          __typename?: 'SupplierData' | undefined;
+          sendCashDelivery: string;
+          supplierId: string;
+          packInBox: string;
+          suppName: string;
+          pickUp: string;
+          delivery: string;
+          insurance: number;
+          shippingLabel: string;
+          foil: string;
+        };
+      }
+    | {
+        __typename?: 'SupplierError' | undefined;
+        message: string;
+      }
+    | null
+    | undefined,
+) => {
+  const responseFromQuery: {
+    data: DataUpdateSupp | undefined;
+    error: string | undefined;
+  } = {
+    data: undefined,
+    error: undefined,
+  };
+  // eslint-disable-next-line no-underscore-dangle
+  if (response?.__typename === 'Supp') {
+    responseFromQuery.data = response.data ?? undefined;
+  }
+  // eslint-disable-next-line no-underscore-dangle
+  if (response?.__typename === 'SupplierError') {
+    responseFromQuery.error = response.message ?? undefined;
+  }
+  return responseFromQuery;
+};
+
 export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const options = [
     { value: 'Yes', label: 'Ano' },
@@ -435,19 +477,26 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         awaitRefetchQueries: true,
       }).catch((error: string) => console.error(error));
 
-      const appErr: string | undefined = result?.data?.updateSup?.message;
-      const data: DataUpdateSupp | undefined = result?.data?.updateSup?.data;
+      const response = Response(result?.data?.updateSup);
 
-      if (appErr && /Supplier name is already in use/.test(appErr) === false) {
-        setterForAlertMesssage.errUpdate.set(appErr);
+      if (
+        response.error &&
+        /Supplier name is already in use/.test(response.error) === false
+      ) {
+        setterForAlertMesssage.errUpdate.set(response.error);
       }
 
-      if (appErr && /Supplier name is already in use/.test(appErr)) {
-        setterErrors.errName.set(appErr);
+      if (
+        response.error &&
+        /Supplier name is already in use/.test(response.error)
+      ) {
+        setterErrors.errName.set(response.error);
       }
       let updateHistory;
-      if (data) {
-        setterForAlertMesssage.succesUpdate.set(MessageUpdateSupp(data));
+      if (response.data) {
+        setterForAlertMesssage.succesUpdate.set(
+          MessageUpdateSupp(response.data),
+        );
         updateHistory = await UpdateHistory({
           variables: {
             SuppData: {

@@ -188,6 +188,46 @@ const Valid = (
   return undefined;
 };
 
+const Response = (
+  response:
+    | {
+        __typename?: 'PackageUpdateError' | undefined;
+        message: string;
+      }
+    | {
+        __typename?: 'UPack' | undefined;
+        data: {
+          __typename?: 'PackageDataUpdate' | undefined;
+          weight: number;
+          cost: number;
+          Plength: number;
+          height: number;
+          width: number;
+          name_package: string;
+          supplier_id: string;
+        };
+      }
+    | null
+    | undefined,
+) => {
+  const responseFromQuery: {
+    data: UpdatedPack | undefined;
+    error: string | undefined;
+  } = {
+    data: undefined,
+    error: undefined,
+  };
+  // eslint-disable-next-line no-underscore-dangle
+  if (response?.__typename === 'UPack') {
+    responseFromQuery.data = response.data ?? undefined;
+  }
+  // eslint-disable-next-line no-underscore-dangle
+  if (response?.__typename === 'PackageUpdateError') {
+    responseFromQuery.error = response.message ?? undefined;
+  }
+  return responseFromQuery;
+};
+
 export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   // const BackButtn = React.useCallback(() => Back(id), [id]);
   const { user } = useAuthContext();
@@ -289,27 +329,31 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
         awaitRefetchQueries: true,
       }).catch((error: string) => console.error(error));
 
-      const appErr: string | undefined = result?.data?.updatePack?.message;
-      const data: UpdatedPack | undefined = result?.data?.updatePack?.data;
+      const response = Response(result?.data?.updatePack);
 
-      if (appErr && /Label is already in use/.test(appErr) === false) {
-        setterForAlertMesssage.errUpdate.set(appErr);
+      if (
+        response.error &&
+        /Label is already in use/.test(response.error) === false
+      ) {
+        setterForAlertMesssage.errUpdate.set(response.error);
       }
 
-      if (appErr && /Label is already in use/.test(appErr)) {
-        setterErrors.errLabel.set(appErr);
+      if (response.error && /Label is already in use/.test(response.error)) {
+        setterErrors.errLabel.set(response.error);
       }
 
       let updateHistory;
-      if (data) {
-        SetSuppId(data.supplier_id);
-        setterForAlertMesssage.succesUpdate.set(MessageUpdatePack(data));
+      if (response.data) {
+        SetSuppId(response.data.supplier_id);
+        setterForAlertMesssage.succesUpdate.set(
+          MessageUpdatePack(response.data),
+        );
         updateHistory = await UpdateHistory({
           variables: {
-            PackageName: data.name_package,
+            PackageName: response.data.name_package,
             OldPackName: oldPackName,
-            NewPricePack: data.cost,
-            SuppId: data.supplier_id,
+            NewPricePack: response.data.cost,
+            SuppId: response.data.supplier_id,
           },
           refetchQueries: [{ query: HistoryDataDocument }],
           awaitRefetchQueries: true,
