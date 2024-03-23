@@ -6,12 +6,12 @@ import { useEffect, useState } from 'react';
 
 import { useSuppDataQuery } from '@/generated/graphql';
 
+import { useAuthContext } from '../../copmonents/auth-context-provider';
+import { PackCard } from '../../copmonents/Cards/packs-card';
+import { AdmPageSuppCard } from '../../copmonents/Cards/supp-card';
+import { Navbar } from '../../copmonents/navbar';
 import styles from '../../styles/Home.module.css';
 import stylesF from '../../styles/stylesForm/style.module.css';
-import { useAuthContext } from '../components/auth-context-provider';
-import { PackCard } from '../components/Cards/packs-card';
-import { AdmPageSuppCard } from '../components/Cards/supp-card';
-import { Navbar } from '../components/navbar';
 
 type Package = {
   [name: string]: {

@@ -21,12 +21,12 @@ import {
   useHistoryDataQuery,
 } from '@/generated/graphql';
 
+import { useAuthContext } from '../copmonents/auth-context-provider';
+import { PageFormChangeEm } from '../copmonents/componentsForAuth/change-email';
+import { PageFormChangePass } from '../copmonents/componentsForAuth/change-pass';
+import { CustomDialog } from '../copmonents/modal';
+import { Navbar } from '../copmonents/navbar';
 import styles from '../styles/Home.module.css';
-import { useAuthContext } from './components/auth-context-provider';
-import { PageFormChangeEm } from './components/componentsForAuth/change-email';
-import { PageFormChangePass } from './components/componentsForAuth/change-pass';
-import { CustomDialog } from './components/modal';
-import { Navbar } from './components/navbar';
 
 const DropDownBtn = styled(Button)({
   color: 'white',

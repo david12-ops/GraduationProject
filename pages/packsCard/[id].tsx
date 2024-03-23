@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 
 import { useSuppDataQuery } from '@/generated/graphql';
 
+import { useAuthContext } from '../../copmonents/auth-context-provider';
+import { PackCards } from '../../copmonents/Cards/packs-cards';
+import { Navbar } from '../../copmonents/navbar';
 import styles from '../../styles/Home.module.css';
-import { useAuthContext } from '../components/auth-context-provider';
-import { PackCards } from '../components/Cards/packs-cards';
-import { Navbar } from '../components/navbar';
 
 type Package = {
   [name: string]: {

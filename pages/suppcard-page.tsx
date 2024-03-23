@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 
 import { SuppDataQuery, useSuppDataQuery } from '@/generated/graphql';
 
+import { useAuthContext } from '../copmonents/auth-context-provider';
+import { DetailSupps } from '../copmonents/Cards/supp-cards';
+import { Navbar } from '../copmonents/navbar';
 import styles from '../styles/Home.module.css';
-import { useAuthContext } from './components/auth-context-provider';
-import { DetailSupps } from './components/Cards/supp-cards';
-import { Navbar } from './components/navbar';
 
 type Item = SuppDataQuery | undefined;
 

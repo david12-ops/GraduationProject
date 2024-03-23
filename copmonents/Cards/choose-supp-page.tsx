@@ -13,11 +13,11 @@ import {
   useSuppDataQuery,
 } from '@/generated/graphql';
 
+import { useAuthContext } from '../auth-context-provider';
+import { FormChooseSup } from '../form-choose-supp';
+import { Navbar } from '../navbar';
 import styles from '../styles/Home.module.css';
-import { useAuthContext } from './components/auth-context-provider';
-import { ResSuppCard } from './components/Cards/res-supp';
-import { FormChooseSup } from './components/form-choose-supp';
-import { Navbar } from './components/navbar';
+import { ResSuppCard } from './res-supp';
 
 const Submit = styled(Button)({
   color: 'white',

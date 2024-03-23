@@ -1,11 +1,11 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { useAuthContext } from '@/pages/components/auth-context-provider';
-import { FormPackage } from '@/pages/components/componentsFormsAdmin/form-package-create';
+import { useAuthContext } from '@/copmonents/auth-context-provider';
+import { FormPackage } from '@/copmonents/componentsFormsAdmin/form-package-create';
 
+import { Navbar } from '../../../copmonents/navbar';
 import styles from '../../../styles/Home.module.css';
-import { Navbar } from '../../components/navbar';
 
 // eslint-disable-next-line import/no-default-export
 export default function CreateForm() {

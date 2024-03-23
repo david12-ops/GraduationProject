@@ -10,14 +10,14 @@ import {
   useSuppDataQuery,
 } from '@/generated/graphql';
 
-import styles from '../../../styles/stylesForm/style.module.css';
+import styles from '../../styles/stylesForm/style.module.css';
 
 // Mozna kontrola na id
-const Counter = (ids: Array<string>) => {
-  const counter = 0;
-  ids.forEach((id) => (id === '' ? counter + 0 : counter + 1));
-  return counter;
-};
+// const Counter = (ids: Array<string>) => {
+//   const counter = 0;
+//   ids.forEach((id) => (id === '' ? counter + 0 : counter + 1));
+//   return counter;
+// };
 
 export const DataGridSupplier = () => {
   // refresh tabulky
@@ -59,7 +59,7 @@ export const DataGridSupplier = () => {
 
   const DeleteS = async () => {
     if (IdSupp().length === 0) {
-      alert('Nebyl vybrán dodavatel pro mazání');
+      console.error('Nebyl vybrán dodavatel pro mazání');
     } else {
       const DeletedId: Array<string> = IdSupp();
       const result = await deleteSuppD({
@@ -77,19 +77,20 @@ export const DataGridSupplier = () => {
       const err = result?.data?.deleteSupp?.error;
       const deleted = result?.data?.deleteSupp?.deletion;
       if (deleted) {
-        alert('Deletion secusfull');
+        console.log('Deletion secusfull');
       }
       if (err) {
-        alert(err);
+        console.error(err);
       }
     }
   };
+  const solid = 'solid white';
 
   return (
     <Box>
       <Box sx={{ height: 400, width: '100%' }}>
         <DataGrid
-          style={{ background: '#ADADD6', border: 'solid white' }}
+          style={{ background: '#ADADD6', border: solid }}
           onRowSelectionModelChange={setSelection}
           loading={suppD.loading}
           rows={rows}
@@ -140,9 +141,9 @@ export const DataGridSupplier = () => {
           flexDirection: 'row',
           justifyContent: 'space-around',
           background: '#FFE8C4',
-          borderBottom: 'solid white',
-          borderLeft: 'solid white',
-          borderRight: 'solid white',
+          borderBottom: solid,
+          borderLeft: solid,
+          borderRight: solid,
         }}
       >
         <h1

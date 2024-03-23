@@ -26,8 +26,8 @@ import {
   useUpdateSupplierMutation,
 } from '@/generated/graphql';
 
-import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
+import { useAuthContext } from '../auth-context-provider';
 
 type Props = {
   id: string;

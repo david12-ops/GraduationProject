@@ -1,9 +1,9 @@
 import Head from 'next/head';
 
+import { useAuthContext } from '../../copmonents/auth-context-provider';
+import { FormSupplier } from '../../copmonents/componentsFormsAdmin/form-supplier-create';
+import { Navbar } from '../../copmonents/navbar';
 import styles from '../../styles/Home.module.css';
-import { useAuthContext } from '../components/auth-context-provider';
-import { FormSupplier } from '../components/componentsFormsAdmin/form-supplier-create';
-import { Navbar } from '../components/navbar';
 
 // eslint-disable-next-line import/no-default-export
 export default function CreateFormSupp() {

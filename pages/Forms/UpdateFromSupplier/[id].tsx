@@ -1,11 +1,11 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { useAuthContext } from '@/pages/components/auth-context-provider';
+import { useAuthContext } from '@/copmonents/auth-context-provider';
 
+import { FormSupplierUpdate } from '../../../copmonents/componentsFormsAdmin/form-supplier-update';
+import { Navbar } from '../../../copmonents/navbar';
 import styles from '../../../styles/Home.module.css';
-import { FormSupplierUpdate } from '../../components/componentsFormsAdmin/form-supplier-update';
-import { Navbar } from '../../components/navbar';
 
 // eslint-disable-next-line import/no-default-export
 export default function Update() {

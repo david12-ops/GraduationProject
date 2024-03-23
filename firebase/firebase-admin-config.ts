@@ -1,6 +1,7 @@
 import * as admin from 'firebase-admin';
 
 const firebaseAdminConfig = {
+  // open
   type: 'service_account',
   project_id: 'projektcp-d8b20',
   private_key_id: 'f6cbb6da77f3bde030f206f17c24efa8f73afe65',
@@ -14,14 +15,16 @@ const firebaseAdminConfig = {
   auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
   client_x509_cert_url:
     'https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-dhrub%40projektcp-d8b20.iam.gserviceaccount.com',
-  universe_domain: 'googleapis.com',
+  // universe_domain: 'googleapis.com',
 };
 
 if (admin.apps.length === 0) {
   // Initialize Firebase
 
   admin.initializeApp({
-    credential: admin.credential.cert(JSON.stringify(firebaseAdminConfig)),
+    credential: admin.credential.cert(
+      firebaseAdminConfig as admin.ServiceAccount,
+    ),
   });
 }
 // export const adminAuth = admin.auth;

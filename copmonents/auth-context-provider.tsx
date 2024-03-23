@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 
-import firebase_app from '../../firebase/config';
+import firebase_app from '../firebase/config';
 
 const auth = getAuth(firebase_app);
 type AuthContextType = { user?: User | null; loading?: boolean };

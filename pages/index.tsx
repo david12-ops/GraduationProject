@@ -2,10 +2,10 @@ import Head from 'next/head';
 import Link from 'next/link';
 import React from 'react';
 
+import { useAuthContext } from '../copmonents/auth-context-provider';
+import { CardOffer } from '../copmonents/card-index-page';
+import { Navbar } from '../copmonents/navbar';
 import stylesM from '../styles/Main.module.css';
-import { useAuthContext } from './components/auth-context-provider';
-import { CardOffer } from './components/Cards/card-index-page';
-import { Navbar } from './components/navbar';
 
 // eslint-disable-next-line import/no-default-export
 export default function Home() {

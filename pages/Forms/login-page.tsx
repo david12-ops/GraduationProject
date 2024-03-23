@@ -1,9 +1,9 @@
 import Head from 'next/head';
 
+import { useAuthContext } from '../../copmonents/auth-context-provider';
+import { PageFormLogin } from '../../copmonents/componentsForAuth/login';
+import { Navbar } from '../../copmonents/navbar';
 import styles from '../../styles/Home.module.css';
-import { useAuthContext } from '../components/auth-context-provider';
-import { PageFormLogin } from '../components/componentsForAuth/login';
-import { Navbar } from '../components/navbar';
 
 // eslint-disable-next-line import/no-default-export
 export default function LoginPage() {

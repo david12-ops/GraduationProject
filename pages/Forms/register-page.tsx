@@ -1,9 +1,9 @@
 import Head from 'next/head';
 
+import { useAuthContext } from '../../copmonents/auth-context-provider';
+import { PageRegisterForm } from '../../copmonents/componentsForAuth/register';
+import { Navbar } from '../../copmonents/navbar';
 import styles from '../../styles/Home.module.css';
-import { useAuthContext } from '../components/auth-context-provider';
-import { PageRegisterForm } from '../components/componentsForAuth/register';
-import { Navbar } from '../components/navbar';
 
 // eslint-disable-next-line import/no-default-export
 export default function RegisterPage() {

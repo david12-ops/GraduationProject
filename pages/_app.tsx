@@ -12,9 +12,9 @@ import * as React from 'react';
 
 import { getApolloClient } from '@/utility/apollo-client';
 
+import { AuthContextProvider } from '../copmonents/auth-context-provider';
 import lightThemeOptions from '../styles/theme/light-theme-options';
 import createEmotionCache from '../utility/createEmotionCache';
-import { AuthContextProvider } from './components/auth-context-provider';
 
 interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache;

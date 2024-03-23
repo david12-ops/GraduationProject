@@ -1990,6 +1990,7 @@ const resolvers = {
           supplier_id: string;
         };
       };
+      // mazaz hisotorii
       const { key: Pack, suppId: Sid } = args;
       let deleted = false;
       let err = '';
@@ -2040,6 +2041,7 @@ const resolvers = {
       args: { id: Array<string> },
       context: MyContext,
     ) => {
+      // mazat i historii
       let deleted = false;
       let err = '';
       if (context.user?.email !== adminEm) {
