@@ -1843,6 +1843,19 @@ const resolvers = {
           personalDelivery: { cost: pCost, delivery: 'personal' },
         };
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        // await Supd.docs[0].ref.update({
+        //   sendCashDelivery: SendCashOnDelivery,
+        //   packInBox: PackageInABox,
+        //   suppName: SuppName,
+        //   pickUp: PickupPoint,
+        //   delivery: isDelivered,
+        //   insurance: InsuranceValue,
+        //   shippingLabel: hasShippingLabel,
+        //   foil: hasFoil,
+        //   location,
+        // });
+
         Supd.forEach(async (doc) => {
           await doc.ref.update({
             sendCashDelivery: SendCashOnDelivery,
