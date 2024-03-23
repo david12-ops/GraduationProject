@@ -178,7 +178,6 @@ const MyAlert = (
   },
   sId: string,
 ) => {
-  console.log('messages', messages);
   let alert = <div></div>;
 
   if (messages.errUpdate !== '') {

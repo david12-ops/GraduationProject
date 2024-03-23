@@ -114,7 +114,6 @@ const isInt = (numArg: string, min: number) => {
 };
 
 const MyAlert = (messages: { succesCreate: string; errCreate: string }) => {
-  console.log('messages', messages);
   let alert = <div></div>;
 
   if (messages.errCreate !== '') {

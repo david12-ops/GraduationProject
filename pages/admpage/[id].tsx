@@ -246,7 +246,6 @@ export default function Page() {
         (actPack) => actPack.supplierId === id,
       );
 
-      console.log(selectedSupp);
       const errSup = IsThereSupp(selectedSupp);
       const errPack = IsTherePackage(selectedSupp?.package);
 

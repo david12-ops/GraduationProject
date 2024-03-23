@@ -193,15 +193,7 @@ const Valid = (
 ) => {
   const messageForInt = 'Očekává se číslo větší nebo rovné nule';
   const messageLoc = 'Očekává se hodnota (depo/personal)';
-  console.error(
-    weightarg,
-    costarg,
-    pLengtharg,
-    heightarg,
-    widtharg,
-    placeToarg,
-    placeFromarg,
-  );
+
   if (!isInt(weightarg, 0)) {
     errorsSetters.errWeight.set(messageForInt);
     return new Error(messageForInt);

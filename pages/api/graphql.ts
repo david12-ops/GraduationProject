@@ -688,7 +688,6 @@ const resolvers = {
         userId: string;
       }> = [];
       try {
-        console.error(context.user?.uid);
         const userData = await db
           .collection('History')
           .where('uId', '==', context.user?.uid)
@@ -2088,7 +2087,6 @@ const resolvers = {
           .where('historyId', '==', historyId)
           .get();
         if (snapshot) {
-          console.error(snapshot.docs);
           await snapshot.docs[0].ref.delete();
         }
 
