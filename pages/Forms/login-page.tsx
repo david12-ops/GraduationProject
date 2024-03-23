@@ -5,6 +5,7 @@ import { useAuthContext } from '../components/auth-context-provider';
 import { PageFormLogin } from '../components/componentsForAuth/login';
 import { Navbar } from '../components/navbar';
 
+// eslint-disable-next-line import/no-default-export
 export default function LoginPage() {
   const { user } = useAuthContext();
   return (

@@ -312,6 +312,7 @@ const Response = (
   return responseFromQuery;
 };
 
+// eslint-disable-next-line import/no-default-export
 export default function SuitableSupp() {
   const { user } = useAuthContext();
   const statesOfFormPack = useHookstate({
@@ -400,7 +401,7 @@ export default function SuitableSupp() {
           onChangeCost={(e) => statesOfFormPack.Cost.set(e)}
           onChangeWhere={(e) => statesOfFormPack.PlaceTo.set(e)}
           onChangeFromWhere={(e) => statesOfFormPack.PlaceFrom.set(e)}
-          buttonEl={<Submit onClick={HandleForm}>Submit</Submit>}
+          buttonEl={<Submit onClick={HandleForm}>Odeslat</Submit>}
           errors={errors.get()}
         />
 

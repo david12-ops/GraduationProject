@@ -1,5 +1,12 @@
 import { State, useHookstate } from '@hookstate/core';
-import { Alert, Button, MenuItem, TextField, Typography } from '@mui/material';
+import {
+  Alert,
+  Button,
+  MenuItem,
+  styled,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { DateValidationError, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -13,13 +20,19 @@ import {
   useNewSupplierToFirestoreMutation,
 } from '@/generated/graphql';
 
-import styles from '../../../styles/stylesForm/styleForms.module.css';
 import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
 
 const Back = async () => {
   await router.push(`/../../admin-page`);
 };
+
+const CreateButton = styled(Button)({
+  backgroundColor: '#E91E63',
+  color: 'white',
+  width: '30%',
+  alignSelf: 'center',
+});
 
 type ErrSettersProperties = {
   errInsurance: string;
@@ -42,6 +55,17 @@ type DataCreatedSupp = {
   shippingLabel: string;
   foil: string;
 };
+
+const CustomFieldset = styled('fieldset')({
+  border: '5px solid #F565AD',
+  borderRadius: '10px',
+  display: 'flex',
+  gap: '1rem',
+  flexWrap: 'wrap',
+  justifyContent: 'space-around',
+  padding: '1rem',
+});
+
 const IsYesOrNo = (
   stringnU1: string,
   stringnU2: string,
@@ -390,14 +414,14 @@ export const FormSupplier = () => {
 
       if (
         response.error &&
-        /Supplier name is already in use/.test(response.error) === false
+        /Toto jméno používá jiný dodavatel/.test(response.error) === false
       ) {
         setterForAlertMesssage.errCreate.set(response.error);
       }
 
       if (
         response.error &&
-        /Supplier name is already in use/.test(response.error)
+        /Toto jméno používá jiný dodavatel/.test(response.error)
       ) {
         setterErrors.errName.set(response.error);
       }
@@ -455,17 +479,7 @@ export const FormSupplier = () => {
           succesCreate: setterForAlertMesssage.succesCreate.value,
           errCreate: setterForAlertMesssage.errCreate.value,
         })}
-        <fieldset
-          style={{
-            border: '5px solid #F565AD',
-            borderRadius: '10px',
-            display: 'flex',
-            gap: '1rem',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            padding: '1rem',
-          }}
-        >
+        <CustomFieldset>
           <legend
             style={{
               textAlign: 'center',
@@ -494,19 +508,9 @@ export const FormSupplier = () => {
             helpTexterComp={'Zadej pojištění na balík'}
             placeholderComp="Kč"
           />
-        </fieldset>
+        </CustomFieldset>
 
-        <fieldset
-          style={{
-            border: '5px solid #F565AD',
-            borderRadius: '10px',
-            display: 'flex',
-            gap: '1rem',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            padding: '1rem',
-          }}
-        >
+        <CustomFieldset>
           <legend
             style={{
               textAlign: 'center',
@@ -554,19 +558,9 @@ export const FormSupplier = () => {
               }}
             />
           </LocalizationProvider>
-        </fieldset>
+        </CustomFieldset>
 
-        <fieldset
-          style={{
-            border: '5px solid #F565AD',
-            borderRadius: '10px',
-            display: 'flex',
-            gap: '1rem',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            padding: '1rem',
-          }}
-        >
+        <CustomFieldset>
           <legend
             style={{
               textAlign: 'center',
@@ -596,18 +590,9 @@ export const FormSupplier = () => {
             'Zabalení do krabice',
             setterErrors.errPackInBox.get(),
           )}
-        </fieldset>
-        <fieldset
-          style={{
-            border: '5px solid #F565AD',
-            borderRadius: '10px',
-            display: 'flex',
-            gap: '1rem',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            padding: '1rem',
-          }}
-        >
+        </CustomFieldset>
+
+        <CustomFieldset>
           <legend
             style={{
               textAlign: 'center',
@@ -636,11 +621,9 @@ export const FormSupplier = () => {
             helpTexterComp={'Cena za osobní vyzvednutí/dodání'}
             placeholderComp="Kč"
           />
-        </fieldset>
+        </CustomFieldset>
 
-        <Button className={styles.crudbtn} type="submit">
-          Vytvořit
-        </Button>
+        <CreateButton type="submit">Vytvořit</CreateButton>
       </form>
     </Typography>
   );

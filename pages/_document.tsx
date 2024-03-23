@@ -5,7 +5,9 @@ import * as React from 'react';
 import { getApolloClient } from '../utility/apollo-client';
 import createEmotionCache from '../utility/createEmotionCache';
 
+// eslint-disable-next-line import/no-default-export
 export default class MyDocument extends Document {
+  // eslint-disable-next-line class-methods-use-this
   render() {
     return (
       <Html lang="en">

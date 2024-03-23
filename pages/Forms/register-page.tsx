@@ -5,6 +5,7 @@ import { useAuthContext } from '../components/auth-context-provider';
 import { PageRegisterForm } from '../components/componentsForAuth/register';
 import { Navbar } from '../components/navbar';
 
+// eslint-disable-next-line import/no-default-export
 export default function RegisterPage() {
   const { user } = useAuthContext();
   return (

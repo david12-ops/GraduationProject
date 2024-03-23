@@ -1,5 +1,6 @@
 import CloseIcon from '@mui/icons-material/Close';
 import {
+  Button,
   CardActions,
   Dialog,
   DialogContent,
@@ -16,8 +17,6 @@ import * as React from 'react';
 
 import { SuppDataDocument, useDeletePacMutation } from '@/generated/graphql';
 
-import styles from '../../../styles/stylesForm/style.module.css';
-
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
     padding: theme.spacing(2),
@@ -26,6 +25,18 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     padding: theme.spacing(1),
   },
 }));
+
+const DelButton = styled(Button)({
+  backgroundColor: 'red',
+  color: 'white',
+  padding: '8px 13px',
+});
+
+const UpdateButton = styled(Button)({
+  backgroundColor: '#5362FC',
+  color: 'white',
+  padding: '8px 13px',
+});
 
 const ErrDialog = (title: string, description: JSX.Element) => {
   const [open, setOpen] = React.useState(false);
@@ -121,7 +132,7 @@ export const PackCard: React.FC<Props> = ({
     }
   };
   return (
-    <Card sx={{ maxWidth: 290 }}>
+    <Card>
       <CardMedia
         component="img"
         alt={Name}
@@ -204,19 +215,21 @@ export const PackCard: React.FC<Props> = ({
       <CardActions
         sx={{
           display: 'flex',
-          flexDirection: 'column',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
         }}
       >
-        <button onClick={() => Del(keyPac, sId)} className={styles.crudbtDel}>
-          Smazat
-        </button>
-
-        <Link
-          key="UpdateFormPackage"
-          href={`../../Forms/UpdateFormPackage/${keyPac}`}
-        >
-          <button className={styles.crudbtnTable}>Upravit</button>
-        </Link>
+        <div>
+          <DelButton onClick={() => Del(keyPac, sId)}>Smazat</DelButton>
+        </div>
+        <div>
+          <Link
+            key="UpdateFormPackage"
+            href={`../../Forms/UpdateFormPackage/${keyPac}`}
+          >
+            <UpdateButton>Upravit</UpdateButton>
+          </Link>
+        </div>
       </CardActions>
     </Card>
   );

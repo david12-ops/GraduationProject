@@ -7,6 +7,7 @@ import styles from '../../../styles/Home.module.css';
 import { FormSupplierUpdate } from '../../components/componentsFormsAdmin/form-supplier-update';
 import { Navbar } from '../../components/navbar';
 
+// eslint-disable-next-line import/no-default-export
 export default function Update() {
   const router = useRouter();
   const { query } = router;

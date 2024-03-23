@@ -1,3 +1,5 @@
+// eslint-disable-next-line eslint-comments/disable-enable-pair
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'firebase/compat/storage';
 
 import { Context } from '@apollo/client';
@@ -8,12 +10,12 @@ import { createSchema, createYoga } from 'graphql-yoga';
 import _ from 'lodash';
 
 import { firestore } from '../../firebase/firebase-admin-config';
-import { verifyToken } from './verify_token';
+import { verifyToken } from './verify-token';
 
 type MyContext = { user?: DecodedIdToken };
-const admMessage = 'Only admin can use this function';
+const admMessage = 'Tuto funkci může používat pouze správce';
 const NotFoundMsg = (headerOfMsg: string) => {
-  return `${headerOfMsg} not found.`;
+  return `${headerOfMsg} nenalezen.`;
 };
 
 const typeDefs = gql`
@@ -315,13 +317,10 @@ const doMathForPackage = async (
 
   data.forEach((item) => {
     const loc: Location = item.data().location;
-    console.log('loc', loc.depoDelivery.cost, loc.personalDelivery.cost);
-    console.log('metida', sum);
     sum =
       nPriceP +
       Number(loc.depoDelivery.cost) +
       Number(loc.personalDelivery.cost);
-    console.log('cena i s zpusobem dopravy', sum);
   });
 
   if (historyDoc) {
@@ -339,9 +338,9 @@ const doMathForPackage = async (
       new firestore.FieldPath('suppData', 'packName'),
       nameOfPack,
     );
-    msg = 'Update in history';
+    msg = 'Úprava v historii';
   } else {
-    msg = 'Nothing to update';
+    msg = 'Nic k úpravě';
     return msg;
   }
 
@@ -537,10 +536,7 @@ const doMatchForOptionsDelivery = async (
     namesPack.push(item.suppData.packName);
   });
 
-  console.log('pack names', namesPack);
-
   data.forEach((item) => {
-    console.log('option delivery', item.data());
     const packages = item.data().package;
     pack = packages;
   });
@@ -555,11 +551,6 @@ const doMatchForOptionsDelivery = async (
     }
   });
 
-  console.log('packinfo', packInfo);
-  console.log('pack', pack);
-
-  // Dokument
-
   historyDoc.forEach((doc) => {
     const item = doc.data() as HistoryDoc;
     packInfo.forEach((itm: PackInfo) => {
@@ -568,8 +559,6 @@ const doMatchForOptionsDelivery = async (
       }
     });
   });
-
-  console.log('history id', historyIds);
 
   const historyQuerySnapshot = await db.collection('History').get();
 
@@ -614,13 +603,9 @@ const doMatchForOptionsDelivery = async (
     historyQuerySnapshot.docChanges() &&
     historyQuerySnapshot.docChanges().length > 0
   ) {
-    msg = 'Users history updated successfully';
+    msg = 'Úprava historie uživatelů byla úspěšná';
     return msg;
   }
-
-  // msg = 'Users history not updated successfully';
-
-  console.log('message', msg);
   return msg;
 };
 
@@ -685,14 +670,9 @@ const resolvers = {
           });
         });
 
-        console.log(
-          'data supplier package',
-          data.map((item) => JSON.stringify(item.package)),
-        );
-
         return data;
       } catch (error) {
-        console.error('Error while getting supplier data', error);
+        console.error('Chyba při získávání dat dodavatele', error);
         throw error;
       }
     },
@@ -727,7 +707,7 @@ const resolvers = {
 
         return data;
       } catch (error) {
-        console.error('Error while getting history data', error);
+        console.error('Chyba při získávání dat historie', error);
         throw error;
       }
     },
@@ -838,26 +818,26 @@ const resolvers = {
       try {
         const SupplierDoc = await db.collection('Supplier').get();
 
-        console.log('id?', Width, Weight, Height, pLength);
-
         if (Width === 0 || Weight === 0 || Height === 0 || pLength === 0) {
           return {
             __typename: 'ErrorMessage',
-            message: 'Ivalid argument, any argument cant be 0',
+            message: 'Neplatný argument, žádné z čísel nemůže být rovno 0',
           };
         }
 
         if (Width < 0 || Weight < 0 || Height < 0 || pLength < 0 || Pcost < 0) {
           return {
             __typename: 'ErrorMessage',
-            message: 'Ivalid argument, any argument cant be less then 0',
+            message:
+              'Neplatný argument, žádné z čísel nemůže být záporná hodnota',
           };
         }
 
         if (!validargZ || !validargDo) {
           return {
             __typename: 'ErrorMessage',
-            message: 'Ivalid argument, expexted (personal/depo)',
+            message:
+              'Neplatný argument, předpokládaná hodnota (personal/depo) ',
           };
         }
 
@@ -874,7 +854,6 @@ const resolvers = {
               suppId: suppItem.supplierId,
               loc: suppItem.location,
             });
-            console.log('itm with location', suppWithLocationFiled);
           }
         });
 
@@ -1059,10 +1038,13 @@ const resolvers = {
         }
         return {
           __typename: 'ErrorMessage',
-          message: 'Any suitable supplier',
+          message: 'Žádný vhodný dodavatel s vhodným balíkem',
         };
       } catch (error) {
-        console.error('Error while selecting suitable package', error);
+        console.error(
+          'Chyba při výběru vhodného dodavatele s vhodným balíkem',
+          error,
+        );
         throw error;
       }
     },
@@ -1102,7 +1084,6 @@ const resolvers = {
           packName: string;
         };
       };
-      console.log('sdsdsdsd user', dataS);
 
       type HistoryDoc = {
         uId: string;
@@ -1130,17 +1111,14 @@ const resolvers = {
         };
       };
       try {
-        console.log('databaze user', context.user);
-
         if (context.user?.uid !== id) {
           return {
-            message: 'Only user with account can use this function',
+            message: 'Tuto funkci může používat pouze přihlášený uživatel',
           };
         }
 
         const newHistoryDoc = db.collection('History').doc();
         const data = JSON.parse(dataS) as Data;
-        console.log('dataaaa', data.data.packName);
 
         const sData = data.data.suppData;
         const sPrice = data.data.priceS;
@@ -1186,20 +1164,12 @@ const resolvers = {
             .includes(true)
         ) {
           return {
-            message: 'Already saved',
+            message: 'Bylo už uloženo do historie',
           };
         }
 
         await newHistoryDoc.set(newHistory);
 
-        console.log(
-          'je tammmm',
-          checkIfisThereDoc(
-            newHistory.historyId,
-            await db.collection('History').get(),
-            id,
-          )?.data(),
-        );
         if (
           checkIfisThereDoc(
             newHistory.historyId,
@@ -1207,11 +1177,13 @@ const resolvers = {
             id,
           )?.data()
         ) {
-          return { message: 'Save successful' };
+          return { message: 'Úspěšně uloženo' };
         }
-        return { message: 'Save error, please try again later' };
+        return {
+          message: 'Při ukládání došlo k chybě, zkuste to znovu později',
+        };
       } catch (error) {
-        console.error('Error while saving document to your history', error);
+        console.error('Při ukládání došlo k chybě', error);
         throw error;
       }
     },
@@ -1241,7 +1213,6 @@ const resolvers = {
         supplier_id: supplierId,
         packId: ID,
       } = args;
-      // Refactorizace kodu, mozne if zbytecné
       type Package = {
         [name: string]: {
           weight: number;
@@ -1262,7 +1233,6 @@ const resolvers = {
         name_package: string;
         cost: number;
       };
-      console.log('databaze user', context.user);
       if (context.user?.email !== adminEm) {
         return {
           __typename: 'PackageError',
@@ -1279,8 +1249,7 @@ const resolvers = {
       ) {
         return {
           __typename: 'PackageError',
-          message:
-            'Any of parameter that expect number dont support negative number',
+          message: 'Žádný z parametrů nesmí být záporné číslo',
         };
       }
 
@@ -1293,7 +1262,7 @@ const resolvers = {
       ) {
         return {
           __typename: 'PackageError',
-          message: 'Any of parameter that expect number dont support 0',
+          message: 'Žádný z parametrů nesmí být rovno 0',
         };
       }
       try {
@@ -1305,7 +1274,7 @@ const resolvers = {
         if (SupplierDoc.size === 0) {
           return {
             __typename: 'PackageError',
-            message: NotFoundMsg('Supplier'),
+            message: NotFoundMsg('Balík'),
           };
         }
 
@@ -1327,7 +1296,6 @@ const resolvers = {
 
         const keyPack = existingPackages.map((item) => {
           const keys = Object.keys(item)[0];
-          console.log(keys);
           return keys.includes(ID);
         });
 
@@ -1335,7 +1303,6 @@ const resolvers = {
           // jmeno balicku
           const nameItm = Object.keys(item)[0];
           const itm = item[nameItm];
-          console.log('itm', itm);
           // kontrola jmén
           if (itm.name_package === packName) {
             dupName = itm.name_package;
@@ -1347,30 +1314,27 @@ const resolvers = {
             itm.Plength === newPackage.Plength
           ) {
             dupPackages.push(itm);
-            console.log('selected', itm);
           }
         });
-        console.log('keypack', keyPack);
-        console.log('duplicate pack', dupPackages);
 
         if (keyPack.includes(true)) {
           return {
             __typename: 'PackageError',
-            message: 'Duplicate id',
+            message: 'Duplicitní id balíku',
           };
         }
 
         if (dupName.length > 0) {
           return {
             __typename: 'PackageError',
-            message: 'Label is already in use',
+            message: 'Toto označení pužívá jíny balík',
           };
         }
 
         if (dupPackages.length > 0) {
           return {
             __typename: 'PackageError',
-            message: 'This params have alerady another package',
+            message: 'Tyto parametry má též jiný balík',
           };
         }
 
@@ -1388,17 +1352,14 @@ const resolvers = {
 
         existingPackages.push(objectPack);
 
-        console.log(existingPackages);
         await supplierDoc.ref.update({ package: existingPackages });
-
-        console.log('ssdsds', JSON.stringify(newPackage));
 
         return {
           __typename: 'Pack',
           data: newPackage,
         };
       } catch (error) {
-        console.error('Error while creating package', error);
+        console.error('Chyba při vytváření nového balíku', error);
         throw error;
       }
     },
@@ -1472,13 +1433,6 @@ const resolvers = {
           namesOfSup.push(item.suppName);
         });
 
-        console.log(
-          'names',
-          namesOfSup.find(
-            (name: string) => name.toLowerCase() === SuppName.toLowerCase(),
-          ),
-        );
-
         if (
           namesOfSup.some(
             (name: string) => name.toLowerCase() === SuppName.toLowerCase(),
@@ -1486,21 +1440,21 @@ const resolvers = {
         ) {
           return {
             __typename: 'SupplierError',
-            message: 'Supplier name is already in use',
+            message: 'Toto jméno používá jiný dodavatel',
           };
         }
 
         if (!isValid(new Date(isDelivered))) {
           return {
             __typename: 'SupplierError',
-            message: 'Date of delivery is not valid',
+            message: 'Datum dodání není platné',
           };
         }
 
         if (!isValid(new Date(PickupPoint))) {
           return {
             __typename: 'SupplierError',
-            message: 'Date of pick up is not valid',
+            message: 'Datum vyzvednutí není platné',
           };
         }
 
@@ -1514,29 +1468,28 @@ const resolvers = {
         ) {
           return {
             __typename: 'SupplierError',
-            message: 'Provided data is not in valid format (Yes/No)',
+            message: 'Poskytnutá data nejsou v platném formátu (Ano/Ne)',
           };
         }
 
         if (InsuranceValue < 0) {
           return {
             __typename: 'SupplierError',
-            message: 'Insurance cant be less then zero',
+            message: 'Pojištění nesmí být záporné číslo',
           };
         }
 
         if (dCost < 0 || pCost < 0) {
           return {
             __typename: 'SupplierError',
-            message: 'Delivery costs cannot be less than zero',
+            message: 'Ceny za doručení/vyzvednutí nesmí být záporná čísla',
           };
         }
 
         if (PickupPoint < isDelivered) {
           return {
             __typename: 'SupplierError',
-            message:
-              'The pick-up date cannot be earlier than the delivery date',
+            message: 'Datum vyzvednutí nemůže být dřív než datum doručení',
           };
         }
 
@@ -1567,7 +1520,7 @@ const resolvers = {
           data: newSupp,
         };
       } catch (error) {
-        console.error('Error while creating supplier', error);
+        console.error('Chyba při vytváření dodavatele', error);
         throw error;
       }
     },
@@ -1636,8 +1589,7 @@ const resolvers = {
         ) {
           return {
             __typename: 'PackageUpdateError',
-            message:
-              'Any of parameter that expect number dont support negative number',
+            message: 'Žádný z parametrů nesmí být záporné číslo',
           };
         }
 
@@ -1650,7 +1602,7 @@ const resolvers = {
         ) {
           return {
             __typename: 'PackageUpdateError',
-            message: 'Any of parameter that expect number dont support 0',
+            message: 'Žádný z parametrů nesmí být rovno 0',
           };
         }
 
@@ -1662,7 +1614,7 @@ const resolvers = {
         if (SupplierDoc.size === 0) {
           return {
             __typename: 'PackageUpdateError',
-            message: NotFoundMsg('Supplier'),
+            message: NotFoundMsg('Balík'),
           };
         }
 
@@ -1690,7 +1642,6 @@ const resolvers = {
             // jmeno balicku
             const nameItm = Object.keys(item)[0];
             const itm = item[nameItm];
-            console.log('itm', itm);
             // kontrola jmén
             if (itm.name_package === packName) {
               dupName = itm.name_package;
@@ -1702,42 +1653,36 @@ const resolvers = {
               itm.Plength === UpdatePackage.Plength
             ) {
               dupPackages.push(itm);
-              console.log('selected', itm);
             }
           });
 
         if (dupName.length > 0) {
           return {
             __typename: 'PackageUpdateError',
-            message: 'Label is already in use',
+            message: 'Toto označení pužívá jíny balík',
           };
         }
 
         if (dupPackages.length > 0) {
           return {
             __typename: 'PackageUpdateError',
-            message: 'This params have alerady another package',
+            message: 'Tyto parametry má též jiný balík',
           };
         }
 
         for (const pack of existingPackages) {
           // eslint-disable-next-line max-depth
           if (pack[id]) {
-            console.log('name itm', id);
             pack[id].weight = weightPack;
             pack[id].cost = costPackage;
             pack[id].Plength = lengthPack;
             pack[id].height = heightPack;
             pack[id].width = widthPack;
             pack[id].name_package = packName;
-            console.log('update', pack[id]);
           }
         }
 
-        console.log(existingPackages);
-
         await supplierDoc.ref.update({ package: existingPackages });
-        console.log('ssdsds', JSON.stringify(UpdatePackage));
         if (SupplierDoc.docChanges() && SupplierDoc.docChanges().length > 0) {
           return {
             __typename: 'UPack',
@@ -1747,10 +1692,10 @@ const resolvers = {
 
         return {
           __typename: 'PackageUpdateError',
-          message: 'Update not succesfull',
+          message: 'Úprava blíku nebyla úspěšná',
         };
       } catch (error) {
-        console.error('Error while updating package', error);
+        console.error('Chyba při úpravě balíku', error);
         throw error;
       }
     },
@@ -1824,14 +1769,14 @@ const resolvers = {
         if (!isValid(new Date(isDelivered))) {
           return {
             __typename: 'SupplierError',
-            message: 'Date of delivery is not valid',
+            message: 'Datum dodání není platné',
           };
         }
 
         if (!isValid(new Date(PickupPoint))) {
           return {
             __typename: 'SupplierError',
-            message: 'Date of pick up is not valid',
+            message: 'Datum vyzvednutí není platné',
           };
         }
 
@@ -1845,7 +1790,7 @@ const resolvers = {
         ) {
           return {
             __typename: 'SupplierError',
-            message: 'Provided data is not in valid format (Yes/No)',
+            message: 'Poskytnutá data nejsou v platném formátu (Ano/Ne)',
           };
         }
 
@@ -1857,7 +1802,7 @@ const resolvers = {
         if (Supd.size === 0) {
           return {
             __typename: 'SupplierError',
-            message: NotFoundMsg('Supplier'),
+            message: NotFoundMsg('Dodavatel'),
           };
         }
 
@@ -1876,22 +1821,21 @@ const resolvers = {
         if (duplicateSupp) {
           return {
             __typename: 'SupplierError',
-            message: 'Supplier name is already in use',
+            message: 'Toto jméno používá jiný dodavatel',
           };
         }
 
         if (PickupPoint < isDelivered) {
           return {
             __typename: 'SupplierError',
-            message:
-              'The pick-up date cannot be earlier than the delivery date',
+            message: 'Datum vyzvednutí nemůže být dřívější než datum doručení',
           };
         }
 
         if (InsuranceValue < 0) {
           return {
             __typename: 'SupplierError',
-            message: 'Insurance cant be less then zero',
+            message: 'Pojištění nesmí být menší než nula',
           };
         }
 
@@ -1935,10 +1879,10 @@ const resolvers = {
 
         return {
           __typename: 'SupplierError',
-          message: 'Update not succesfull',
+          message: 'Úprava nebyla úspěšná',
         };
       } catch (error) {
-        console.error('Error while updating supplier', error);
+        console.error('Chyba při úpravě dodavatele', error);
         throw error;
       }
     },
@@ -1967,9 +1911,6 @@ const resolvers = {
         oldPackName: oldNameOfpack,
         suppData: dataS,
       } = args;
-      // dodelat resolver
-      // udelat filtry na frontendu
-      // zmena hesla
 
       try {
         let msg = '';
@@ -2007,10 +1948,7 @@ const resolvers = {
           .where('suppData.id', '==', sId)
           .get();
 
-        console.log('data', nPriceDepo, nPriceP, dataS);
-
         if (nPriceP && nPriceDepo && dataS) {
-          console.log('data', nPriceDepo, nPriceP, dataS);
           msg = await doMatchForOptionsDelivery(
             SuppDocuments,
             nPriceDepo,
@@ -2032,7 +1970,7 @@ const resolvers = {
 
         return { message: msg };
       } catch (error) {
-        console.error('Error while updating history', error);
+        console.error('Chyba při úpravě historie', error);
         throw error;
       }
     },
@@ -2080,21 +2018,21 @@ const resolvers = {
             newArray = existingPackages.filter((item) => !item[Pack]);
             find = Boolean(existingPackages.filter((item) => !item[Pack]));
           } else {
-            err = 'Nothing to delete';
+            err = 'Nic k mazání';
           }
           // eslint-disable-next-line max-depth
           if (find) {
             await supplierDoc.ref.update({ package: newArray });
             deleted = true;
           } else {
-            err = NotFoundMsg('Package');
+            err = NotFoundMsg('Balík');
           }
         } else {
-          err = NotFoundMsg('Supplier');
+          err = NotFoundMsg('Dodavatel');
         }
         return { deletion: deleted, error: err };
       } catch (error) {
-        console.error('Error while deleting package', error);
+        console.error('Chyba při mazání balíku', error);
         throw error;
       }
     },
@@ -2125,7 +2063,7 @@ const resolvers = {
         deleted = true;
         return { deletion: deleted, error: err };
       } catch (error) {
-        console.error('Error while deleting supplier', error);
+        console.error('Chyba při mazání dodavatele', error);
         throw error;
       }
     },

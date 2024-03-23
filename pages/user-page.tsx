@@ -108,6 +108,7 @@ const CustomBoxBtnPart = styled(Box)({
   justifyContent: 'center',
 });
 
+// eslint-disable-next-line import/no-default-export
 export default function UserPage() {
   const [deleteHisItm] = useDeleteHistoryItmMutation();
   const { user } = useAuthContext();
@@ -147,7 +148,7 @@ export default function UserPage() {
             variant="h5"
             component="h1"
           >
-            History
+            Historie
           </Typography>
           <DropDownBtn onClick={() => SetClose((prev) => !prev)}>
             {close ? <ArrowDropDownIcon /> : <ArrowDropUpIcon />}
@@ -156,8 +157,9 @@ export default function UserPage() {
         {close ? (
           <div></div>
         ) : historyData.loading ? (
-          <div>Please wait</div>
+          <div>Načítá se</div>
         ) : (
+          // eslint-disable-next-line sonarjs/cognitive-complexity
           historyData.data?.historyUserData.map((historyItm) => {
             return (
               <Typography

@@ -5,6 +5,7 @@ import { useAuthContext } from '../components/auth-context-provider';
 import { FormSupplier } from '../components/componentsFormsAdmin/form-supplier-create';
 import { Navbar } from '../components/navbar';
 
+// eslint-disable-next-line import/no-default-export
 export default function CreateFormSupp() {
   const { user } = useAuthContext();
   return (

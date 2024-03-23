@@ -1,5 +1,5 @@
 import { State, useHookstate } from '@hookstate/core';
-import { Button, Typography } from '@mui/material';
+import { Button, styled, Typography } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import router from 'next/router';
 import * as React from 'react';
@@ -14,7 +14,6 @@ import {
   useUpdatePackageMutation,
 } from '@/generated/graphql';
 
-import styles from '../../../styles/stylesForm/styleForms.module.css';
 import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
 
@@ -23,6 +22,13 @@ type Props = {
 };
 
 type Item = SuppDataQuery['suplierData'];
+
+const UpdateButton = styled(Button)({
+  backgroundColor: '#E91E63',
+  color: 'white',
+  width: '30%',
+  alignSelf: 'center',
+});
 
 type DataFrServer = {
   SuppId: string;
@@ -333,12 +339,15 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
 
       if (
         response.error &&
-        /Label is already in use/.test(response.error) === false
+        /Toto označení pužívá jíny balík/.test(response.error) === false
       ) {
         setterForAlertMesssage.errUpdate.set(response.error);
       }
 
-      if (response.error && /Label is already in use/.test(response.error)) {
+      if (
+        response.error &&
+        /Toto označení pužívá jíny balík/.test(response.error)
+      ) {
         setterErrors.errLabel.set(response.error);
       }
 
@@ -435,7 +444,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
               fontWeight: 'bold',
             }}
           >
-            Package
+            Balík
           </legend>
           <MyCompTextField
             typeComp="text"
@@ -524,9 +533,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           />
         </fieldset>
 
-        <Button className={styles.crudbtn} type="submit">
-          Upravit
-        </Button>
+        <UpdateButton type="submit">Upravit</UpdateButton>
       </form>
     </Typography>
   );

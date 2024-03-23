@@ -7,6 +7,7 @@ import { FormPackage } from '@/pages/components/componentsFormsAdmin/form-packag
 import styles from '../../../styles/Home.module.css';
 import { Navbar } from '../../components/navbar';
 
+// eslint-disable-next-line import/no-default-export
 export default function CreateForm() {
   const { query } = useRouter();
   const { id } = query;

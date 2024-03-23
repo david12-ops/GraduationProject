@@ -5,6 +5,7 @@ type Data = {
   name: string;
 };
 
+// eslint-disable-next-line import/no-default-export
 export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>,

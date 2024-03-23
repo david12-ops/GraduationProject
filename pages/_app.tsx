@@ -42,6 +42,7 @@ const MyApp: React.FunctionComponent<MyAppProps> = (props) => {
   );
 };
 
+// eslint-disable-next-line import/no-default-export
 export default MyApp;
 
 // import '@/styles/globals.css'

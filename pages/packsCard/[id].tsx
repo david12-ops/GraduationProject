@@ -102,14 +102,14 @@ const PageBody = (
   }
 
   return (
-    <div>
+    <div style={{ margin: 'auto' }}>
       <div
         style={{
           display: 'flex',
-          justifyContent: 'space-between',
           flexWrap: 'wrap',
-          maxWidth: '800px',
-          margin: 'auto',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          gap: '30px',
         }}
       >
         {packages.map((item) => {
@@ -118,9 +118,7 @@ const PageBody = (
             <div
               key={key}
               style={{
-                backgroundColor: '#D67F76',
-                padding: '10px',
-                margin: '10px',
+                border: '7px solid #0E95EB',
                 borderRadius: '10px',
               }}
             >
@@ -141,7 +139,8 @@ const PageBody = (
   );
 };
 
-// responzivita a sortovani
+// sortovani
+// eslint-disable-next-line import/no-default-export
 export default function PacksCards() {
   const suppD = useSuppDataQuery();
   const [body, SetBody] = useState({ element: <div></div> });
@@ -191,7 +190,7 @@ export default function PacksCards() {
         <h2
           style={{
             marginTop: '20px',
-            color: '#D67F76',
+            color: '#3DA1FF',
             fontSize: '30px',
             textAlign: 'center',
           }}

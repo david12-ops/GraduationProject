@@ -1,3 +1,4 @@
+import { Button, styled } from '@mui/material';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -40,7 +41,12 @@ type SuppData =
     }
   | undefined;
 
-// responzivitu vyresit a  sortovani
+// sortovani
+const CreateButton = styled(Button)({
+  backgroundColor: 'green',
+  color: 'white',
+  padding: '6px 11px',
+});
 
 const IsTherePackage = (data: any) => {
   const packages: Array<Package> = data;
@@ -131,7 +137,7 @@ const PageBody = (
             key="CreateFormPackage"
             href={`../../Forms/CreateFormPackage/${id}`}
           >
-            <button className={stylesF.crudbtn}>Vytvořit</button>
+            <CreateButton>Vytvořit</CreateButton>
           </Link>
         </div>
       </div>
@@ -141,67 +147,70 @@ const PageBody = (
   return (
     <div>
       {dataSupp ? (
-        <div>
-          <div>
-            <AdmPageSuppCard
-              key={dataSupp.supplierId}
-              packInBox={dataSupp.packInBox}
-              name={dataSupp.suppName}
-              sendCash={dataSupp.sendCashDelivery}
-              folie={dataSupp.foil}
-              shippingLabel={dataSupp.shippingLabel}
-              pickUp={dataSupp.pickUp}
-              delivery={dataSupp.delivery}
-              insurance={dataSupp.insurance}
-              suppId={dataSupp.supplierId}
-            />
-          </div>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '30px',
+            justifyContent: 'center',
+          }}
+        >
+          <AdmPageSuppCard
+            key={dataSupp.supplierId}
+            packInBox={dataSupp.packInBox}
+            name={dataSupp.suppName}
+            sendCash={dataSupp.sendCashDelivery}
+            folie={dataSupp.foil}
+            shippingLabel={dataSupp.shippingLabel}
+            pickUp={dataSupp.pickUp}
+            delivery={dataSupp.delivery}
+            insurance={dataSupp.insurance}
+            suppId={dataSupp.supplierId}
+          />
 
-          <div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                maxWidth: '800px',
-              }}
-            >
-              {packages.map((item) => {
-                const key = Object.keys(item)[0];
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: '30px',
+            }}
+          >
+            {packages.map((item) => {
+              const key = Object.keys(item)[0];
 
-                return (
-                  <div
+              return (
+                <div
+                  key={key}
+                  style={{
+                    border: '7px solid #0E95EB',
+                    borderRadius: '10px',
+                  }}
+                >
+                  <PackCard
                     key={key}
-                    style={{
-                      backgroundColor: '#D67F76',
-                      padding: '10px',
-                      margin: '10px',
-                      borderRadius: '10px',
-                    }}
-                  >
-                    <PackCard
-                      key={key}
-                      Name={item[key].name_package}
-                      Cost={item[key].cost}
-                      Weight={item[key].weight}
-                      Width={item[key].width}
-                      Length={item[key].Plength}
-                      Heiht={item[key].height}
-                      sId={dataSupp.supplierId}
-                      keyPac={key}
-                    />
-                  </div>
-                );
-              })}
-            </div>
+                    Name={item[key].name_package}
+                    Cost={item[key].cost}
+                    Weight={item[key].weight}
+                    Width={item[key].width}
+                    Length={item[key].Plength}
+                    Heiht={item[key].height}
+                    sId={dataSupp.supplierId}
+                    keyPac={key}
+                  />
+                </div>
+              );
+            })}
           </div>
-
-          <div>
+          <div style={{ alignSelf: 'center' }}>
             <Link
               key="CreateFormPackage"
               href={`../../Forms/CreateFormPackage/${id}`}
             >
-              <button className={stylesF.crudbtn}>Vytvořit</button>
+              <CreateButton className={stylesF.crudbtn}>
+                Vytvořit nový balík
+              </CreateButton>
             </Link>
           </div>
         </div>
@@ -223,9 +232,6 @@ export default function Page() {
   const router = useRouter();
   const { query } = router;
   const { id } = query;
-  const title = `Welocome to package detail of supplier ${
-    user ? user.email ?? '' : ''
-  }`;
 
   useEffect(() => {
     const adminEm = process.env.NEXT_PUBLIC_AdminEm;
@@ -260,15 +266,12 @@ export default function Page() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Úprava balíčku</title>
+        <title>Úprava dodavatele/balíků</title>
         <meta name="description" content="Generated by create next app" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar user={user} />
-      <main className={styles.main}>
-        <h1 style={{ textAlign: 'center' }}>{title} </h1>
-        {body.element}
-      </main>
+      <main className={styles.main}>{body.element}</main>
       <footer className={styles.footer}></footer>
     </div>
   );

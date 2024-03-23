@@ -1,5 +1,5 @@
 import { State, useHookstate } from '@hookstate/core';
-import { Alert, Button, Typography } from '@mui/material';
+import { Alert, Button, styled, Typography } from '@mui/material';
 import router from 'next/router';
 import * as React from 'react';
 import { useEffect } from 'react';
@@ -10,13 +10,19 @@ import {
   useNewPackageToFirestoreMutation,
 } from '@/generated/graphql';
 
-import styles from '../../../styles/stylesForm/styleForms.module.css';
 import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
 
 type Props = {
   id: string;
 };
+
+const CreateButton = styled(Button)({
+  backgroundColor: '#E91E63',
+  color: 'white',
+  width: '30%',
+  alignSelf: 'center',
+});
 
 type CreatedPackage = {
   weight: number;
@@ -257,12 +263,15 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
 
       if (
         response.error &&
-        /Label is already in use/.test(response.error) === false
+        /Toto označení pužívá jíny balík/.test(response.error) === false
       ) {
         setterForAlertMesssage.errCreate.set(response.error);
       }
 
-      if (response.error && /Label is already in use/.test(response.error)) {
+      if (
+        response.error &&
+        /Toto označení pužívá jíny balík/.test(response.error)
+      ) {
         setterErrors.errLabel.set(response.error);
       }
       if (response.data) {
@@ -338,7 +347,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
               fontWeight: 'bold',
             }}
           >
-            Package
+            Balík
           </legend>
           <MyCompTextField
             typeComp="text"
@@ -421,9 +430,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
           />
         </fieldset>
 
-        <Button className={styles.crudbtn} type="submit">
-          Vytvořit
-        </Button>
+        <CreateButton type="submit">Vytvořit</CreateButton>
       </form>
     </Typography>
   );

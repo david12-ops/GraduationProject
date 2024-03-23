@@ -52,6 +52,7 @@ const PageBody = (warning: boolean, dataSupp: Item) => {
   );
 };
 
+// eslint-disable-next-line import/no-default-export
 export default function SuppCards() {
   const { user } = useAuthContext();
   const suppData = useSuppDataQuery();
@@ -75,10 +76,7 @@ export default function SuppCards() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar user={user} />
-      <main className={styles.main}>
-        <h1 style={{ textAlign: 'center' }}>Vítejte na detailu dodavatelů</h1>
-        {body.data}
-      </main>
+      <main className={styles.main}>{body.data}</main>
 
       <footer className={styles.footer}></footer>
     </div>

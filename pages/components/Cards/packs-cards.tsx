@@ -22,7 +22,7 @@ export const PackCards: React.FC<Props> = ({
   Cost,
 }) => {
   return (
-    <Card sx={{ maxWidth: 290 }}>
+    <Card>
       <CardMedia
         component="img"
         alt={Name}
