@@ -118,7 +118,7 @@ export default function UserPage() {
   const DeleteItm = async (historyId: string) => {
     const result = await deleteHisItm({
       variables: {
-        Id: historyId || '',
+        Id: 'sp',
       },
       refetchQueries: [{ query: HistoryDataDocument }],
       awaitRefetchQueries: true,

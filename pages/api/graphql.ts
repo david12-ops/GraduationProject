@@ -2101,11 +2101,13 @@ const resolvers = {
           .where('uId', '==', context.user?.uid)
           .where('historyId', '==', historyId)
           .get();
-        if (snapshot) {
-          await snapshot.docs[0].ref.delete();
+        console.log(snapshot.docs);
+        if (snapshot.empty) {
+          return { deletion: false, error: 'Nebyl nalezen' };
         }
-
+        await snapshot.docs[0].ref.delete();
         deleted = true;
+
         return { deletion: deleted, error: err };
       } catch (error) {
         console.error('Chyba při mazání záznamu z historie', error);
