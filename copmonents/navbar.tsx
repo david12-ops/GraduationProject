@@ -186,7 +186,7 @@ export const Navbar: React.FC<PropsUs> = ({ user, navItemForAdmin }) => {
             component="div"
             sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
           >
-            BingoBalík
+            BingoBalik
           </Typography>
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>{navItm}</Box>
         </Toolbar>
