@@ -21,13 +21,29 @@ type Props = {
   id: string;
 };
 
+const BackButtn = styled(Button)({
+  backgroundColor: '#5193DE',
+  color: 'white',
+  width: '30%',
+});
+
 type Item = SuppDataQuery['suplierData'];
 
 const UpdateButton = styled(Button)({
-  backgroundColor: '#E91E63',
+  backgroundColor: '#5362FC',
   color: 'white',
   width: '30%',
   alignSelf: 'center',
+});
+
+const CustomFieldset = styled('fieldset')({
+  border: '5px solid #5193DE',
+  borderRadius: '10px',
+  display: 'flex',
+  gap: '1rem',
+  flexWrap: 'wrap',
+  justifyContent: 'space-around',
+  padding: '1rem',
 });
 
 type DataFrServer = {
@@ -97,21 +113,17 @@ const MessageUpdateHistory = (message: string) => {
   return `Status úpravy historie : ${message}`;
 };
 
-const MyAlert = (
-  messages: {
-    succesUpade: string;
-    errUpdate: string;
-    msgHisotry: string;
-  },
-  sId: string,
-) => {
+const MyAlert = (messages: {
+  succesUpade: string;
+  errUpdate: string;
+  msgHisotry: string;
+}) => {
   let alert = <div></div>;
 
   if (messages.errUpdate !== '') {
     alert = (
       <div>
         <Alert severity="error">{messages.errUpdate}</Alert>
-        <Button onClick={() => Back(sId)}>Back</Button>
       </div>
     );
   }
@@ -121,7 +133,6 @@ const MyAlert = (
       <div>
         <Alert severity="success">{messages.succesUpade}</Alert>
         <Alert severity="success">{messages.msgHisotry}</Alert>
-        <Button onClick={() => Back(sId)}>Back</Button>
       </div>
     );
   }
@@ -235,7 +246,6 @@ const Response = (
 };
 
 export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
-  // const BackButtn = React.useCallback(() => Back(id), [id]);
   const { user } = useAuthContext();
   const settersForDataPack = useHookstate({
     Weight: '',
@@ -388,20 +398,19 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           margin: 'auto',
         }}
       >
-        Nejsi admin!!
+        Nejsi admin
       </div>
     );
   }
   return (
     <Typography component={'div'}>
-      {MyAlert(
-        {
+      <div style={{ alignSelf: 'center' }}>
+        {MyAlert({
           succesUpade: setterForAlertMesssage.succesUpdate.value,
           errUpdate: setterForAlertMesssage.errUpdate.value,
           msgHisotry: setterForAlertMesssage.msgHistory.value,
-        },
-        suppId,
-      )}
+        })}
+      </div>
 
       <form
         onSubmit={handleForm}
@@ -426,17 +435,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           });
         }}
       >
-        <fieldset
-          style={{
-            border: '5px solid #F565AD',
-            borderRadius: '10px',
-            display: 'flex',
-            gap: '1rem',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            padding: '1rem',
-          }}
-        >
+        <CustomFieldset>
           <legend
             style={{
               textAlign: 'center',
@@ -466,19 +465,9 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
             placeholderComp="Kč"
             valueComp={settersForDataPack.Cost.get()}
           />
-        </fieldset>
+        </CustomFieldset>
 
-        <fieldset
-          style={{
-            border: '5px solid #F565AD',
-            borderRadius: '10px',
-            display: 'flex',
-            gap: '1rem',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            padding: '1rem',
-          }}
-        >
+        <CustomFieldset>
           <legend
             style={{
               textAlign: 'center',
@@ -531,9 +520,17 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
             placeholderComp="Cm"
             valueComp={settersForDataPack.Height.get()}
           />
-        </fieldset>
-
-        <UpdateButton type="submit">Upravit</UpdateButton>
+        </CustomFieldset>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            flexWrap: 'wrap',
+          }}
+        >
+          <UpdateButton type="submit">Upravit</UpdateButton>
+          <BackButtn onClick={() => Back(suppId)}>Zpět</BackButtn>
+        </div>
       </form>
     </Typography>
   );

@@ -18,10 +18,25 @@ type Props = {
 };
 
 const CreateButton = styled(Button)({
-  backgroundColor: '#E91E63',
+  backgroundColor: 'green',
   color: 'white',
   width: '30%',
-  alignSelf: 'center',
+});
+
+const CustomFieldset = styled('fieldset')({
+  border: '5px solid #5193DE',
+  borderRadius: '10px',
+  display: 'flex',
+  gap: '1rem',
+  flexWrap: 'wrap',
+  justifyContent: 'space-around',
+  padding: '1rem',
+});
+
+const BackButtn = styled(Button)({
+  backgroundColor: '#5193DE',
+  color: 'white',
+  width: '30%',
 });
 
 type CreatedPackage = {
@@ -109,20 +124,13 @@ const MessageCreatePack = (data: CreatedPackage) => {
   return `Balíček byl vytvořen s parametry: hmotnost: ${data.weight}, délka: ${data.Plength}, šířka: ${data.width}, výška: ${data.height}`;
 };
 
-const MyAlert = (
-  messages: {
-    succesCreate: string;
-    errCreate: string;
-  },
-  sId: string,
-) => {
+const MyAlert = (messages: { succesCreate: string; errCreate: string }) => {
   let alert = <div></div>;
 
   if (messages.errCreate !== '') {
     alert = (
       <div>
         <Alert severity="error">{messages.errCreate}</Alert>
-        <Button onClick={() => Back(sId)}>Back</Button>
       </div>
     );
   }
@@ -131,7 +139,6 @@ const MyAlert = (
     alert = (
       <div>
         <Alert severity="success">{messages.succesCreate}</Alert>
-        <Button onClick={() => Back(sId)}>Back</Button>
       </div>
     );
   }
@@ -293,19 +300,18 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
           margin: 'auto',
         }}
       >
-        Nejsi admin!!
+        Nejsi admin
       </div>
     );
   }
   return (
     <Typography component={'div'}>
-      {MyAlert(
-        {
+      <div style={{ alignSelf: 'center' }}>
+        {MyAlert({
           succesCreate: setterForAlertMesssage.succesCreate.value,
           errCreate: setterForAlertMesssage.errCreate.value,
-        },
-        suppId,
-      )}
+        })}
+      </div>
 
       <form
         onSubmit={handleForm}
@@ -329,17 +335,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
           });
         }}
       >
-        <fieldset
-          style={{
-            border: '5px solid #F565AD',
-            borderRadius: '10px',
-            display: 'flex',
-            gap: '1rem',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            padding: '1rem',
-          }}
-        >
+        <CustomFieldset>
           <legend
             style={{
               textAlign: 'center',
@@ -367,19 +363,9 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
             helpTexterComp="Zadejte cenu balíčku"
             placeholderComp="Kč"
           />
-        </fieldset>
+        </CustomFieldset>
 
-        <fieldset
-          style={{
-            border: '5px solid #F565AD',
-            borderRadius: '10px',
-            display: 'flex',
-            gap: '1rem',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            padding: '1rem',
-          }}
-        >
+        <CustomFieldset>
           <legend
             style={{
               textAlign: 'center',
@@ -428,9 +414,17 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
             helpTexterComp="Zadejte výšku balíku"
             placeholderComp="Cm"
           />
-        </fieldset>
-
-        <CreateButton type="submit">Vytvořit</CreateButton>
+        </CustomFieldset>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            flexWrap: 'wrap',
+          }}
+        >
+          <CreateButton type="submit">Vytvořit</CreateButton>
+          <BackButtn onClick={() => Back(suppId)}>Zpět</BackButtn>
+        </div>
       </form>
     </Typography>
   );

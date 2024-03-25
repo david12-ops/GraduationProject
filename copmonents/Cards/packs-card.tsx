@@ -15,7 +15,11 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
 
-import { SuppDataDocument, useDeletePacMutation } from '@/generated/graphql';
+import {
+  HistoryDataDocument,
+  SuppDataDocument,
+  useDeletePacMutation,
+} from '@/generated/graphql';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -120,7 +124,10 @@ export const PackCard: React.FC<Props> = ({
         Id: suppId,
         Key: key,
       },
-      refetchQueries: [{ query: SuppDataDocument }],
+      refetchQueries: [
+        { query: SuppDataDocument },
+        { query: HistoryDataDocument },
+      ],
       awaitRefetchQueries: true,
     }).catch((error: string) => console.error(error));
     const description = Description(

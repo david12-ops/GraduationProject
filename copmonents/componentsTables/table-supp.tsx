@@ -1,3 +1,4 @@
+import { Alert, Button, styled } from '@mui/material';
 import Box from '@mui/material/Box';
 import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
 import Link from 'next/link';
@@ -5,26 +6,79 @@ import router from 'next/router';
 import * as React from 'react';
 
 import {
+  HistoryDataDocument,
   SuppDataDocument,
   useDeleteSuppMutation,
   useSuppDataQuery,
 } from '@/generated/graphql';
 
-import styles from '../../styles/stylesForm/style.module.css';
+const DelButton = styled(Button)({
+  backgroundColor: 'red',
+  color: 'white',
+  padding: '8px 13px',
+});
 
-// Mozna kontrola na id
-// const Counter = (ids: Array<string>) => {
-//   const counter = 0;
-//   ids.forEach((id) => (id === '' ? counter + 0 : counter + 1));
-//   return counter;
-// };
+const UpdateButton = styled(Button)({
+  backgroundColor: '#5362FC',
+  color: 'white',
+  padding: '8px 13px',
+});
 
+const CreateButton = styled(Button)({
+  backgroundColor: 'green',
+  color: 'white',
+  padding: '8px 13px',
+});
+
+const DeatilButton = styled(Button)({
+  backgroundColor: '#00C2E0',
+  color: 'white',
+  padding: '8px 13px',
+});
+
+const Counter = (ids: Array<string>) => {
+  console.error('eee', typeof ids);
+  console.error('data', ids);
+  console.error('delka', ids.length);
+  console.log('nooo', Boolean(ids.length === 1));
+
+  return ids.length;
+};
+
+const MyAlert = (message: string, severityCode: string) => {
+  switch (severityCode) {
+    case 'error': {
+      return <Alert severity={severityCode}>{message}</Alert>;
+    }
+    case 'success': {
+      return <Alert severity={severityCode}>{message}</Alert>;
+    }
+    default: {
+      return <div></div>;
+    }
+  }
+};
+
+const Check = async (
+  arrayOfString: Array<string>,
+  setAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+) => {
+  console.error(arrayOfString);
+  if (Counter(arrayOfString) === 0) {
+    console.error(arrayOfString);
+    setAlert(MyAlert('Vyberte si zásilkovou službu', 'error'));
+  } else if (Counter(arrayOfString) > 1) {
+    setAlert(MyAlert('Vyberte si jen jednu zásilkovou službu', 'error'));
+  } else {
+    await router.push(`/../admpage/${arrayOfString[0]}`);
+  }
+};
 export const DataGridSupplier = () => {
   // refresh tabulky
-
   const suppD = useSuppDataQuery();
   const [deleteSuppD] = useDeleteSuppMutation();
   const [selection, setSelection] = React.useState<GridRowSelectionModel>([]);
+  const [alert, setAlert] = React.useState<JSX.Element>(<div></div>);
 
   const rows =
     !suppD.data || suppD.loading
@@ -43,82 +97,49 @@ export const DataGridSupplier = () => {
     );
   };
 
-  // nefunkcni
-  const Check = async () => {
-    // let errmsg;
-    // if (Counter(IdSupp()) === 0) {
-    //   errmsg = 'Vyberte si prosím záznam';
-    // } else if (Counter(IdSupp()) > 1) {
-    //   errmsg = 'Vzberte jen jednoho dodavatele';
-    //   alert(errmsg);
-    // } else {
-    await router.push(`/../admpage/${IdSupp()}`);
-    // }
-    // alert(errmsg);
-  };
-
   const DeleteS = async () => {
     if (IdSupp().length === 0) {
-      console.error('Nebyl vybrán dodavatel pro mazání');
+      console.error('Nebyla vybrána zásilková služba pro smazání');
     } else {
-      const DeletedId: Array<string> = IdSupp();
-      const result = await deleteSuppD({
+      const DeletedId = IdSupp();
+      await deleteSuppD({
         variables: {
           Id: DeletedId,
         },
-        refetchQueries: [{ query: SuppDataDocument }],
+        refetchQueries: [
+          { query: SuppDataDocument },
+          { query: HistoryDataDocument },
+        ],
         awaitRefetchQueries: true,
-      })
-        // .then((res) => {
-        //   return res.data;
-        // })
-        .catch((error: string) => console.error(error));
-
-      const err = result?.data?.deleteSupp?.error;
-      const deleted = result?.data?.deleteSupp?.deletion;
-      if (deleted) {
-        console.log('Deletion secusfull');
-      }
-      if (err) {
-        console.error(err);
-      }
+      }).catch((error: string) => console.error(error));
     }
   };
-  const solid = 'solid white';
 
   return (
     <Box>
-      <Box sx={{ height: 400, width: '100%' }}>
+      {alert}
+      <Box sx={{ height: '100%', width: '100%' }}>
         <DataGrid
-          style={{ background: '#ADADD6', border: solid }}
+          style={{ background: 'white', border: '2px solid #1BB6E0' }}
           onRowSelectionModelChange={setSelection}
           loading={suppD.loading}
           rows={rows}
           columns={[
             {
               field: 'supplierName',
-              headerName: 'Supplier name',
+              headerName: 'Jméno',
               width: 125,
-              editable: true,
-            },
-            {
-              field: 'suppId',
-              headerName: 'Supplier Id',
-              type: 'number',
-              width: 125,
-              align: 'center',
-              headerAlign: 'center',
             },
             {
               field: 'ButtonDetail',
-              headerName: 'Action',
-              width: 110,
+              headerName: 'Akce',
+              width: 100,
               align: 'center',
               headerAlign: 'center',
               renderCell: () => (
-                <button onClick={Check} className={styles.crudbtnTable}>
-                  Manage
-                </button>
+                <UpdateButton onClick={() => Check(IdSupp(), setAlert)}>
+                  Změnit
+                </UpdateButton>
               ),
             },
           ]}
@@ -137,35 +158,25 @@ export const DataGridSupplier = () => {
       <div
         style={{
           display: 'flex',
-          // flexWrap: 'wrap',
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          background: '#FFE8C4',
-          borderBottom: solid,
-          borderLeft: solid,
-          borderRight: solid,
+          flexDirection: 'column',
         }}
       >
-        <h1
-          style={{
-            color: 'gray',
-          }}
-        >
-          upravit Actions
-        </h1>
-        <button onClick={DeleteS} className={styles.crudbtDel}>
-          Delete
-        </button>
-        <Link key="create-form-supp" href="/../Forms/create-form-supp">
-          <button className={styles.crudbtn}>Create</button>
-        </Link>
-        <Link key="suppcard-page" href="/../../suppcard-page">
-          <button className={styles.crudbtn}>Suppliers</button>
-        </Link>
+        <div style={{ alignSelf: 'center' }}>
+          <DelButton onClick={DeleteS}>Smazat</DelButton>
+        </div>
+        <div style={{ alignSelf: 'center' }}>
+          <Link key="create-form-supp" href="/../Forms/create-form-supp">
+            <CreateButton>Vytvořit zásilkovou službu</CreateButton>
+          </Link>
+        </div>
+        <div style={{ alignSelf: 'center' }}>
+          <Link key="suppcard-page" href="/../../suppcard-page">
+            <DeatilButton>Detail služeb</DeatilButton>
+          </Link>
+        </div>
       </div>
     </Box>
   );
 };
 
-// Page na not Found
 // delete zaznamu po zavolani resolveru

@@ -14,8 +14,11 @@ import { verifyToken } from './verify-token';
 
 type MyContext = { user?: DecodedIdToken };
 const admMessage = 'Tuto funkci může používat pouze správce';
+const constant = 'Zásilková služba';
 const NotFoundMsg = (headerOfMsg: string) => {
-  return `${headerOfMsg} nenalezen.`;
+  return headerOfMsg === constant
+    ? `${headerOfMsg} nenalezena.`
+    : `${headerOfMsg} nenalezen. `;
 };
 
 const typeDefs = gql`
@@ -672,7 +675,7 @@ const resolvers = {
 
         return data;
       } catch (error) {
-        console.error('Chyba při získávání dat dodavatele', error);
+        console.error('Chyba při získávání dat zásilkové služby', error);
         throw error;
       }
     },
@@ -1037,11 +1040,11 @@ const resolvers = {
         }
         return {
           __typename: 'ErrorMessage',
-          message: 'Žádný vhodný dodavatel s vhodným balíkem',
+          message: `Žádná vhodná ${constant} s vhodným balíkem`,
         };
       } catch (error) {
         console.error(
-          'Chyba při výběru vhodného dodavatele s vhodným balíkem',
+          'Chyba při výběru vhodnéhé zásilkové služby s vhodným balíkem',
           error,
         );
         throw error;
@@ -1439,7 +1442,7 @@ const resolvers = {
         ) {
           return {
             __typename: 'SupplierError',
-            message: 'Toto jméno používá jiný dodavatel',
+            message: `Toto jméno používá jiná ${constant}`,
           };
         }
 
@@ -1519,7 +1522,7 @@ const resolvers = {
           data: newSupp,
         };
       } catch (error) {
-        console.error('Chyba při vytváření dodavatele', error);
+        console.error('Chyba při vytváření zásilkové služby', error);
         throw error;
       }
     },
@@ -1801,7 +1804,7 @@ const resolvers = {
         if (Supd.size === 0) {
           return {
             __typename: 'SupplierError',
-            message: NotFoundMsg('Dodavatel'),
+            message: NotFoundMsg(constant),
           };
         }
 
@@ -1820,7 +1823,7 @@ const resolvers = {
         if (duplicateSupp) {
           return {
             __typename: 'SupplierError',
-            message: 'Toto jméno používá jiný dodavatel',
+            message: `Toto jméno používá jiná ${constant}`,
           };
         }
 
@@ -1843,31 +1846,16 @@ const resolvers = {
           personalDelivery: { cost: pCost, delivery: 'personal' },
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        // await Supd.docs[0].ref.update({
-        //   sendCashDelivery: SendCashOnDelivery,
-        //   packInBox: PackageInABox,
-        //   suppName: SuppName,
-        //   pickUp: PickupPoint,
-        //   delivery: isDelivered,
-        //   insurance: InsuranceValue,
-        //   shippingLabel: hasShippingLabel,
-        //   foil: hasFoil,
-        //   location,
-        // });
-
-        Supd.forEach(async (doc) => {
-          await doc.ref.update({
-            sendCashDelivery: SendCashOnDelivery,
-            packInBox: PackageInABox,
-            suppName: SuppName,
-            pickUp: PickupPoint,
-            delivery: isDelivered,
-            insurance: InsuranceValue,
-            shippingLabel: hasShippingLabel,
-            foil: hasFoil,
-            location,
-          });
+        await Supd.docs[0].ref.update({
+          sendCashDelivery: SendCashOnDelivery,
+          packInBox: PackageInABox,
+          suppName: SuppName,
+          pickUp: PickupPoint,
+          delivery: isDelivered,
+          insurance: InsuranceValue,
+          shippingLabel: hasShippingLabel,
+          foil: hasFoil,
+          location,
         });
 
         const newSupp = {
@@ -1894,7 +1882,7 @@ const resolvers = {
           message: 'Úprava nebyla úspěšná',
         };
       } catch (error) {
-        console.error('Chyba při úpravě dodavatele', error);
+        console.error('Chyba při úpravě zásilkové služby', error);
         throw error;
       }
     },
@@ -1912,8 +1900,6 @@ const resolvers = {
       context: MyContext,
       // eslint-disable-next-line sonarjs/cognitive-complexity, consistent-return
     ) => {
-      // update nejen ceny ale i dodavatele
-      // pri mazani baliku a dodavatele i mazani historie
       const {
         newPricePack: nPricrePack,
         newPricePersonal: nPriceP,
@@ -1957,6 +1943,7 @@ const resolvers = {
 
         const historyDocuments = await db
           .collection('History')
+          // eslint-disable-next-line sonarjs/no-duplicate-string
           .where('suppData.id', '==', sId)
           .get();
 
@@ -2003,7 +1990,6 @@ const resolvers = {
           supplier_id: string;
         };
       };
-      // mazaz hisotorii
       const { key: Pack, suppId: Sid } = args;
       let deleted = false;
       let err = '';
@@ -2025,7 +2011,26 @@ const resolvers = {
         const existingPackages: Array<Package> =
           supplierDoc.data().package || [];
 
-        if (supplierDoc.exists) {
+        const GetPackName = (
+          id: string,
+          packages: Array<Package>,
+        ): string | undefined => {
+          let packageName;
+          for (const pack of packages) {
+            packageName = pack[id].name_package;
+          }
+          return packageName;
+        };
+
+        const HistoryDoc = await db
+          .collection('History')
+          .where('suppData.id', '==', Sid)
+          .where('suppData.packName', '==', GetPackName(Pack, existingPackages))
+          .get();
+
+        const historyDoc = HistoryDoc.docs[0];
+
+        if (supplierDoc.exists && historyDoc.exists) {
           // eslint-disable-next-line max-depth
           if (existingPackages) {
             newArray = existingPackages.filter((item) => !item[Pack]);
@@ -2035,13 +2040,14 @@ const resolvers = {
           }
           // eslint-disable-next-line max-depth
           if (find) {
+            await historyDoc.ref.delete();
             await supplierDoc.ref.update({ package: newArray });
             deleted = true;
           } else {
             err = NotFoundMsg('Balík');
           }
         } else {
-          err = NotFoundMsg('Dodavatel');
+          err = NotFoundMsg(constant);
         }
         return { deletion: deleted, error: err };
       } catch (error) {
@@ -2054,7 +2060,6 @@ const resolvers = {
       args: { id: Array<string> },
       context: MyContext,
     ) => {
-      // mazat i historii
       let deleted = false;
       let err = '';
       if (context.user?.email !== adminEm) {
@@ -2065,19 +2070,31 @@ const resolvers = {
       const { id: SupIdar } = args;
 
       try {
+        console.error('id string', SupIdar);
+
         const collection = db.collection('Supplier');
+        const collectionHistory = db.collection('History');
         SupIdar.forEach(async (Idsup) => {
           const snapshot = await collection
             .where('supplierId', '==', Idsup)
             .get();
-          if (snapshot) {
+          const snapshotHistory = await collectionHistory
+            .where('suppData.id', '==', Idsup)
+            .get();
+          console.error('sssstrueee', Boolean(snapshot && snapshotHistory));
+
+          if (!snapshot.empty) {
+            console.error('snapshoot', snapshot.docs[0].ref);
             await snapshot.docs[0].ref.delete();
+            if (!snapshotHistory.empty) {
+              await snapshotHistory.docs[0].ref.delete();
+            }
           }
         });
         deleted = true;
         return { deletion: deleted, error: err };
       } catch (error) {
-        console.error('Chyba při mazání dodavatele', error);
+        console.error('Chyba při mazání zásilkové služby', error);
         throw error;
       }
     },

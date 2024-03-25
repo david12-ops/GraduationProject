@@ -17,7 +17,7 @@ type Props = {
   suppId: string;
 };
 
-const UpdateButton = styled(Button)({
+const DeatilButton = styled(Button)({
   backgroundColor: '#5362FC',
   color: 'white',
   padding: '10px 15px',
@@ -161,15 +161,7 @@ export const DetailSupps: React.FC<Props> = ({
         >
           <strong>{name}</strong>
         </Typography>
-        {/* <CardMedia
-          sx={{
-            gridColumnStart: 2,
-            width: '100',
-            height: '50px',
-            padding: '20px',
-          }}
-          image="/static/images/cards/contemplative-reptile.jpg"
-        /> */}
+
         <Typography
           component={'div'}
           style={{
@@ -202,7 +194,7 @@ export const DetailSupps: React.FC<Props> = ({
           >
             <CardActions style={{ justifyContent: 'center' }}>
               <Link key="packsCard" href={`/packsCard/${suppId}`}>
-                <UpdateButton>Balíčky</UpdateButton>
+                <DeatilButton>Balíčky</DeatilButton>
               </Link>
             </CardActions>
           </Typography>

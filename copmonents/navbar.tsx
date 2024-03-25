@@ -22,7 +22,6 @@ import { authUtils } from '@/firebase/auth-utils';
 
 type PropsUs = {
   user: User | null | undefined;
-  navItemForAdmin?: object;
 };
 
 const drawerWidth = 240;
@@ -60,11 +59,7 @@ const Method = async (item: string) => {
 const NavItems = (
   user: User | null | undefined,
   adminEmail: string | undefined,
-  navItemAdmin: object | undefined,
 ) => {
-  if (user && navItemAdmin) {
-    return <div>AdminStranaka</div>;
-  }
   if (user) {
     return user.email === adminEmail
       ? [
@@ -143,10 +138,10 @@ const navItemsDraver = (
   ));
 };
 
-export const Navbar: React.FC<PropsUs> = ({ user, navItemForAdmin }) => {
+export const Navbar: React.FC<PropsUs> = ({ user }) => {
   const adminEm = process.env.NEXT_PUBLIC_AdminEm;
 
-  const navItm = NavItems(user, adminEm, navItemForAdmin);
+  const navItm = NavItems(user, adminEm);
 
   const container =
     window === undefined ? undefined : () => window.document.body;

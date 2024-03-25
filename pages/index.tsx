@@ -29,8 +29,8 @@ export default function Home() {
             <div>
               <h1 className={stylesM.body1Napis}>BingoBalík</h1>
               <p className={stylesM.body1Odstavec}>
-                Stánka, která pomáha najít vaše Bingo balíky podle vaších
-                představ s nejvhodnějším dodavatelem
+                Stánka, která pomáha najít vaše balíky podle vaších představ s
+                nejvhodnější zásilkvou službou
               </p>
             </div>
           </div>

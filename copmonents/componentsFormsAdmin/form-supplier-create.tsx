@@ -24,14 +24,20 @@ import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
 
 const Back = async () => {
-  await router.push(`/../../admin-page`);
+  await router.push(`/../admin-page`);
 };
 
 const CreateButton = styled(Button)({
-  backgroundColor: '#E91E63',
+  backgroundColor: 'green',
   color: 'white',
   width: '30%',
   alignSelf: 'center',
+});
+
+const BackButtn = styled(Button)({
+  backgroundColor: '#5193DE',
+  color: 'white',
+  width: '30%',
 });
 
 type ErrSettersProperties = {
@@ -57,7 +63,7 @@ type DataCreatedSupp = {
 };
 
 const CustomFieldset = styled('fieldset')({
-  border: '5px solid #F565AD',
+  border: '5px solid #5193DE',
   borderRadius: '10px',
   display: 'flex',
   gap: '1rem',
@@ -208,13 +214,15 @@ const Valid = (
 };
 
 const MessageCreateSupp = (data: DataCreatedSupp) => {
-  return `Dodavatel byl vytvořen s parametry: Dodání: ${data.delivery} \n
-  Zabalení do folie: ${data.foil} \n
+  return `Zásliková služba byla vytvořena s parametry: Dodání: ${
+    data.delivery
+  } \n
+  Zabalení do folie: ${data.foil === 'Yes' ? 'Ano' : 'Ne'} \n
   Pojištění: ${data.insurance > 0 ? data.insurance : 'bez pojištění'} \n
-  Zabalení do krabice: ${data.packInBox} \n
-  Vyzvednutí: ${data.pickUp} \n
-  Na dobírku: ${data.sendCashDelivery} \n
-  Štítek přiveze kurýr: ${data.shippingLabel} \n
+  Zabalení do krabice: ${data.packInBox === 'Yes' ? 'Ano' : 'Ne'} \n
+  Vyzvednutí: ${data.pickUp === 'Yes' ? 'Ano' : 'Ne'} \n
+  Na dobírku: ${data.sendCashDelivery === 'Yes' ? 'Ano' : 'Ne'} \n
+  Štítek přiveze kurýr: ${data.shippingLabel === 'Yes' ? 'Ano' : 'Ne'} \n
   Jméno: ${data.suppName}`;
 };
 
@@ -413,14 +421,15 @@ export const FormSupplier = () => {
 
       if (
         response.error &&
-        /Toto jméno používá jiný dodavatel/.test(response.error) === false
+        /Toto jméno používá jiná zásilková služba/.test(response.error) ===
+          false
       ) {
         setterForAlertMesssage.errCreate.set(response.error);
       }
 
       if (
         response.error &&
-        /Toto jméno používá jiný dodavatel/.test(response.error)
+        /Toto jméno používá jiná zásilková služba/.test(response.error)
       ) {
         setterErrors.errName.set(response.error);
       }
@@ -444,7 +453,7 @@ export const FormSupplier = () => {
           margin: 'auto',
         }}
       >
-        Nejsi admin!!
+        Nejsi admin
       </div>
     );
   }
@@ -474,10 +483,14 @@ export const FormSupplier = () => {
           });
         }}
       >
-        {MyAlert({
-          succesCreate: setterForAlertMesssage.succesCreate.value,
-          errCreate: setterForAlertMesssage.errCreate.value,
-        })}
+        {
+          <div style={{ alignSelf: 'center' }}>
+            {MyAlert({
+              succesCreate: setterForAlertMesssage.succesCreate.value,
+              errCreate: setterForAlertMesssage.errCreate.value,
+            })}
+          </div>
+        }
         <CustomFieldset>
           <legend
             style={{
@@ -486,7 +499,7 @@ export const FormSupplier = () => {
               fontWeight: 'bold',
             }}
           >
-            Informace o dodavateli
+            Informace o zásilkové služby
           </legend>
 
           <MyCompTextField
@@ -495,7 +508,7 @@ export const FormSupplier = () => {
             labelComp={labelName}
             errorComp={setterErrors.errName.get()}
             funcComp={(e) => settersOfDataSupp.SupplierName.set(e)}
-            helpTexterComp={'Zadej jméno dodavatele'}
+            helpTexterComp={'Zadej jméno zásilkové služby'}
           />
 
           <MyCompTextField
@@ -622,7 +635,16 @@ export const FormSupplier = () => {
           />
         </CustomFieldset>
 
-        <CreateButton type="submit">Vytvořit</CreateButton>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            flexWrap: 'wrap',
+          }}
+        >
+          <CreateButton type="submit">Vytvořit</CreateButton>
+          <BackButtn onClick={() => Back()}>Zpět</BackButtn>
+        </div>
       </form>
     </Typography>
   );

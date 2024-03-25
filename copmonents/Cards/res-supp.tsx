@@ -20,7 +20,7 @@ const CusotmBtn = styled(Button)({
 });
 
 const MyAlert = (message: string) => {
-  return message.includes('successful') ? (
+  return message.includes('uloženo') ? (
     <Alert severity="success">{message}</Alert>
   ) : (
     <Alert severity="error">{message}</Alert>

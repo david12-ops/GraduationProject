@@ -26,27 +26,33 @@ import {
   useUpdateSupplierMutation,
 } from '@/generated/graphql';
 
-import { MyCompTextField } from '../text-field';
 import { useAuthContext } from '../auth-context-provider';
+import { MyCompTextField } from '../text-field';
 
 type Props = {
   id: string;
 };
 const UpdateButton = styled(Button)({
-  backgroundColor: '#E91E63',
+  backgroundColor: '#5362FC',
   color: 'white',
   width: '30%',
   alignSelf: 'center',
 });
 
 const CustomFieldset = styled('fieldset')({
-  border: '5px solid #F565AD',
+  border: '5px solid #5193DE',
   borderRadius: '10px',
   display: 'flex',
   gap: '1rem',
   flexWrap: 'wrap',
   justifyContent: 'space-around',
   padding: '1rem',
+});
+
+const BackButtn = styled(Button)({
+  backgroundColor: '#5193DE',
+  color: 'white',
+  width: '30%',
 });
 
 type Item = {
@@ -154,14 +160,16 @@ const Back = async (ids: string) => {
 };
 
 const MessageUpdateSupp = (data: DataUpdateSupp) => {
-  return `Courier was modified with parameters: Delivery: ${data.delivery},
-  Cant be in packaged folie: ${data.foil} \n
-  Insurance: ${data.insurance > 0 ? data.insurance : 'bez pojištění'} \n
-  Shipment must be packed in a box: ${data.packInBox} \n
-  Pick up: ${data.pickUp} \n
-  On cash on delivery: ${data.sendCashDelivery} \n
-  The label will be delivered by courier: ${data.shippingLabel} \n
-  Courier name: ${data.suppName}`;
+  return `Zásliková služba byla upravena s parametry: Dodání: ${
+    data.delivery
+  } \n
+  Zabalení do folie: ${data.foil === 'Yes' ? 'Ano' : 'Ne'} \n
+  Pojištění: ${data.insurance > 0 ? data.insurance : 'bez pojištění'} \n
+  Zabalení do krabice: ${data.packInBox === 'Yes' ? 'Ano' : 'Ne'} \n
+  Vyzvednutí: ${data.pickUp === 'Yes' ? 'Ano' : 'Ne'} \n
+  Na dobírku: ${data.sendCashDelivery === 'Yes' ? 'Ano' : 'Ne'} \n
+  Štítek přiveze kurýr: ${data.shippingLabel === 'Yes' ? 'Ano' : 'Ne'} \n
+  Jméno: ${data.suppName}`;
 };
 
 const MessageUpdateHistory = (message: string) => {
@@ -170,21 +178,17 @@ const MessageUpdateHistory = (message: string) => {
 
 // nepouzivat alerty errr u button
 
-const MyAlert = (
-  messages: {
-    succesUpade: string;
-    errUpdate: string;
-    msgHisotry: string;
-  },
-  sId: string,
-) => {
+const MyAlert = (messages: {
+  succesUpade: string;
+  errUpdate: string;
+  msgHisotry: string;
+}) => {
   let alert = <div></div>;
 
   if (messages.errUpdate !== '') {
     alert = (
       <div>
         <Alert severity="error">{messages.errUpdate}</Alert>
-        <Button onClick={() => Back(sId)}>Back</Button>
       </div>
     );
   }
@@ -194,7 +198,6 @@ const MyAlert = (
       <div>
         <Alert severity="success">{messages.succesUpade}</Alert>
         <Alert severity="success">{messages.msgHisotry}</Alert>
-        <Button onClick={() => Back(sId)}>Back</Button>
       </div>
     );
   }
@@ -393,7 +396,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const supData = useSuppDataQuery();
   const [UpdateHistory] = useUpdateHistoryMutation();
   const [UpdateSupp] = useUpdateSupplierMutation();
-  const [suppId, SetSuppId] = React.useState('');
 
   useEffect(() => {
     const adminEm = process.env.NEXT_PUBLIC_AdminEm;
@@ -410,7 +412,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       );
 
       if (actualSupp) {
-        SetSuppId(actualSupp.supplierId);
+        // SetSuppId(actualSupp.supplierId);
         setDataDatabase(actualSupp, settersOfDataSupp);
       }
     }
@@ -502,14 +504,15 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
 
       if (
         response.error &&
-        /Toto jméno používá jiný dodavatel/.test(response.error) === false
+        /Toto jméno používá jiná zásilková služba/.test(response.error) ===
+          false
       ) {
         setterForAlertMesssage.errUpdate.set(response.error);
       }
 
       if (
         response.error &&
-        /Toto jméno používá jiný dodavatel/.test(response.error)
+        /Toto jméno používá jiná zásilková služba/.test(response.error)
       ) {
         setterErrors.errName.set(response.error);
       }
@@ -563,14 +566,13 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   }
   return (
     <Typography component={'div'}>
-      {MyAlert(
-        {
+      <div style={{ alignSelf: 'center' }}>
+        {MyAlert({
           succesUpade: setterForAlertMesssage.succesUpdate.value,
           errUpdate: setterForAlertMesssage.errUpdate.value,
           msgHisotry: setterForAlertMesssage.msgHistory.value,
-        },
-        suppId,
-      )}
+        })}
+      </div>
 
       <form
         onSubmit={handleForm}
@@ -605,7 +607,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               fontWeight: 'bold',
             }}
           >
-            Informace o dodavateli
+            Informace o zásilkové službě
           </legend>
           <MyCompTextField
             typeComp="text"
@@ -744,8 +746,16 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             valueComp={settersOfDataSupp.PersonalCost.get()}
           />
         </CustomFieldset>
-
-        <UpdateButton type="submit">Upravit</UpdateButton>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            flexWrap: 'wrap',
+          }}
+        >
+          <UpdateButton type="submit">Upravit</UpdateButton>
+          <BackButtn onClick={() => Back(id)}>Zpět</BackButtn>
+        </div>
       </form>
     </Typography>
   );

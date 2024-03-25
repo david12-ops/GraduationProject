@@ -65,7 +65,7 @@ const PageBody = (
           fontWeight: 'bold',
         }}
       >
-        Nejsi admin!!
+        Nejsi admin
       </div>
     );
   }
@@ -96,7 +96,7 @@ const PageBody = (
           fontWeight: 'bold',
         }}
       >
-        Tento dodavatel nemá balíčky
+        Tato zásilková služba nemá balíčky
       </div>
     );
   }

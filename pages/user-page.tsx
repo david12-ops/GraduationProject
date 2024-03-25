@@ -1,16 +1,6 @@
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import CloseIcon from '@mui/icons-material/Close';
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  styled,
-  Typography,
-} from '@mui/material';
+import { Box, Button, styled, Typography } from '@mui/material';
 import Head from 'next/head';
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -39,67 +29,6 @@ const CustomBox = styled(Box)({
   justifyContent: 'space-around',
 });
 
-const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialogContent-root': {
-    padding: theme.spacing(2),
-  },
-  '& .MuiDialogActions-root': {
-    padding: theme.spacing(1),
-  },
-}));
-
-const ErrDialog = (title: string, description: JSX.Element) => {
-  const [open, setOpen] = React.useState(false);
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-  return (
-    <BootstrapDialog
-      onClose={handleClose}
-      aria-labelledby="customized-dialog-title"
-      open={open}
-    >
-      <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-        {title}
-      </DialogTitle>
-      <IconButton
-        aria-label="close"
-        onClick={handleClose}
-        sx={{
-          position: 'absolute',
-          right: 8,
-          top: 8,
-          color: (theme) => theme.palette.grey[500],
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <DialogContent dividers>
-        <Typography gutterBottom>{description}</Typography>
-      </DialogContent>
-    </BootstrapDialog>
-  );
-};
-const Description = (deleteion: boolean, error: string | null | undefined) => {
-  let description: JSX.Element | undefined;
-  if (!deleteion) {
-    description = (
-      <Typography component={'p'}>Smazaní balíku nebylo úspěšné</Typography>
-    );
-  }
-  if (error) {
-    description = <Typography component={'p'}>{error}</Typography>;
-  }
-  if (!deleteion && error) {
-    description = (
-      <Typography component={'p'}>
-        Smazaní balíku nebylo úspěšné : {error}
-      </Typography>
-    );
-  }
-  return description;
-};
 const CustomBoxBtnPart = styled(Box)({
   display: 'flex',
   flexDirection: 'row',
@@ -116,20 +45,13 @@ export default function UserPage() {
   const [close, SetClose] = useState(true);
 
   const DeleteItm = async (historyId: string) => {
-    const result = await deleteHisItm({
+    await deleteHisItm({
       variables: {
         Id: historyId,
       },
       refetchQueries: [{ query: HistoryDataDocument }],
       awaitRefetchQueries: true,
     });
-    const description = Description(
-      !!result.data?.deleteHistoryItem?.deletion,
-      result.data?.deleteHistoryItem?.error,
-    );
-    if (description) {
-      ErrDialog('Chyba při mazání', description);
-    }
   };
 
   return (
@@ -157,7 +79,7 @@ export default function UserPage() {
         {close ? (
           <div></div>
         ) : historyData.loading ? (
-          <div>Načítá se</div>
+          <div>Načítá se ...</div>
         ) : (
           // eslint-disable-next-line sonarjs/cognitive-complexity
           historyData.data?.historyUserData.map((historyItm) => {
@@ -186,7 +108,7 @@ export default function UserPage() {
                     description={
                       <Typography component={'div'}>
                         <Typography component={'div'}>
-                          <strong>Data dodavatele</strong>
+                          <strong>Data zásilkové služby</strong>
                           <Typography component={'p'}>
                             Jmeno: {historyItm.suppData.name}
                           </Typography>
