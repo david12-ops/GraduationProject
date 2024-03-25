@@ -2055,10 +2055,11 @@ const resolvers = {
         throw error;
       }
     },
-    deleteSupp: (
+    deleteSupp: async (
       parent_: any,
       args: { id: Array<string> },
       context: MyContext,
+      // eslint-disable-next-line @typescript-eslint/require-await
     ) => {
       let deleted = false;
       let err = '';

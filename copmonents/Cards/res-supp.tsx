@@ -229,10 +229,10 @@ export const ResSuppCard: React.FC<Props> = ({
             component={'div'}
           >
             <Typography component="p" style={{ textAlign: 'center' }}>
-              Cena: {price}
+              Cena: {price} Kč
             </Typography>
             <Typography component="p" style={{ textAlign: 'center' }}>
-              Bez DPH : {price - Math.round((price / 100) * 21)}
+              Bez DPH : {price - Math.round((price / 100) * 21)} Kč
             </Typography>
 
             <CardActions>

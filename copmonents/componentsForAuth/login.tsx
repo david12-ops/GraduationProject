@@ -73,12 +73,12 @@ const Submit = async (
   data: { password: string; email: string },
 ) => {
   if (data.email.length === 0) {
-    errSetter.errEmail.set('Email was not provided');
+    errSetter.errEmail.set('E-mail nebylo zadáno');
     return;
   }
 
   if (data.password.length === 0) {
-    errSetter.errPassword.set('Password was not provided');
+    errSetter.errPassword.set('Heslo nabylo zadáno');
     return;
   }
 
