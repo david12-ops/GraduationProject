@@ -1,5 +1,4 @@
 import { State, useHookstate } from '@hookstate/core';
-// import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Alert } from '@mui/material';
 import Avatar from '@mui/material/Avatar';

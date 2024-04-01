@@ -412,7 +412,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       );
 
       if (actualSupp) {
-        // SetSuppId(actualSupp.supplierId);
         setDataDatabase(actualSupp, settersOfDataSupp);
       }
     }

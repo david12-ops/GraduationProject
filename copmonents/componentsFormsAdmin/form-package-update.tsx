@@ -281,8 +281,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   const labelCost = { err: 'Chyba', withoutErr: 'Cena' };
   const labelName = { err: 'Chyba', withoutErr: 'Označení' };
 
-  // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
-
   const userApp = useHookstate({ Admin: false, LoggedIn: false });
 
   const [UpdatePackage] = useUpdatePackageMutation();

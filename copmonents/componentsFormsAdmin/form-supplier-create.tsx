@@ -323,8 +323,6 @@ export const FormSupplier = () => {
   const labelInsurance = { err: 'Chyba', withoutErr: 'Pojištění' };
   const labelName = { err: 'Chyba', withoutErr: 'Jméno' };
 
-  // const setd = React.useCallback((nwValue) => console.log(nwValue), [2]);
-
   const userApp = useHookstate({ Admin: false, LoggedIn: false });
   const [newSupp] = useNewSupplierToFirestoreMutation();
 

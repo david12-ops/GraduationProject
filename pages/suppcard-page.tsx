@@ -10,7 +10,6 @@ import styles from '../styles/Home.module.css';
 
 type Item = SuppDataQuery | undefined;
 
-// pouziti sorting
 const IsThereSupp = (data: Item) => {
   return !!data;
 };

@@ -40,7 +40,6 @@ type SuppData =
     }
   | undefined;
 
-// sortovani
 const CreateButton = styled(Button)({
   backgroundColor: 'green',
   color: 'white',

@@ -37,11 +37,6 @@ const DeatilButton = styled(Button)({
 });
 
 const Counter = (ids: Array<string>) => {
-  console.error('eee', typeof ids);
-  console.error('data', ids);
-  console.error('delka', ids.length);
-  console.log('nooo', Boolean(ids.length === 1));
-
   return ids.length;
 };
 
@@ -63,9 +58,7 @@ const Check = async (
   arrayOfString: Array<string>,
   setAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
 ) => {
-  console.error(arrayOfString);
   if (Counter(arrayOfString) === 0) {
-    console.error(arrayOfString);
     setAlert(MyAlert('Vyberte si zásilkovou službu', 'error'));
   } else if (Counter(arrayOfString) > 1) {
     setAlert(MyAlert('Vyberte si jen jednu zásilkovou službu', 'error'));
@@ -74,7 +67,6 @@ const Check = async (
   }
 };
 export const DataGridSupplier = () => {
-  // refresh tabulky
   const suppD = useSuppDataQuery();
   const [deleteSuppD] = useDeleteSuppMutation();
   const [selection, setSelection] = React.useState<GridRowSelectionModel>([]);
@@ -99,7 +91,7 @@ export const DataGridSupplier = () => {
 
   const DeleteS = async () => {
     if (IdSupp().length === 0) {
-      console.error('Nebyla vybrána zásilková služba pro smazání');
+      setAlert(MyAlert('Nebyla vybrána zásilková služba pro smazání', 'error'));
     } else {
       const DeletedId = IdSupp();
       await deleteSuppD({
@@ -178,5 +170,3 @@ export const DataGridSupplier = () => {
     </Box>
   );
 };
-
-// delete zaznamu po zavolani resolveru

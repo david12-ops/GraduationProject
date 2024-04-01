@@ -246,18 +246,6 @@ const typeDefs = gql`
 
 const db = firestore();
 
-// validave jako uthils
-// const NoHtmlSpecialChars = (ustring: any) => {
-//   // zakladni - mozne pouziti cheerio or htmlparser2
-//   // const htmlRegex = /<[^>]*>$/;
-//   const option = /<[^>]*>/
-//   let error = "";
-//   if (option.test(ustring)) {
-//     error = 'HTML code is not supported';
-//   }
-//   return error;
-// }
-
 const adminEm = process.env.NEXT_PUBLIC_AdminEm;
 
 // validace pro supplier
@@ -328,7 +316,6 @@ const doMathForPackage = async (
 
   if (historyDoc) {
     const historyDocumentRef = historyDoc.ref;
-    // pozor!!!
     if (nameOfPack === historyDoc.data().suppData.packName) {
       await historyDocumentRef.update(
         new firestore.FieldPath('suppData', 'cost'),
@@ -544,8 +531,6 @@ const doMatchForOptionsDelivery = async (
     pack = packages;
   });
 
-  // balicky
-
   pack.forEach((itmPack: Package) => {
     const key = Object.keys(itmPack)[0];
     const packItm = itmPack[key];
@@ -624,9 +609,6 @@ const checkIfisThereDoc = (
     if (document.id === idDoc && userId && document.data().uId === userId) {
       doc = document;
     }
-    // if (document.id === idDoc) {
-    //   doc = document;
-    // }
   }
   return doc;
 };
@@ -860,7 +842,7 @@ const resolvers = {
         });
 
         packages.forEach((packageObj) => {
-          // Extracting the values from each package object
+          // ziskani dat z kazdeho objektu baliku
           const [packageDetails] = Object.values(packageObj);
           packData.push(packageDetails);
         });
@@ -2071,8 +2053,6 @@ const resolvers = {
       const { id: SupIdar } = args;
 
       try {
-        console.error('id string', SupIdar);
-
         const collection = db.collection('Supplier');
         const collectionHistory = db.collection('History');
         SupIdar.forEach(async (Idsup) => {
@@ -2082,10 +2062,8 @@ const resolvers = {
           const snapshotHistory = await collectionHistory
             .where('suppData.id', '==', Idsup)
             .get();
-          console.error('sssstrueee', Boolean(snapshot && snapshotHistory));
 
           if (!snapshot.empty) {
-            console.error('snapshoot', snapshot.docs[0].ref);
             await snapshot.docs[0].ref.delete();
             if (!snapshotHistory.empty) {
               await snapshotHistory.docs[0].ref.delete();
@@ -2119,7 +2097,6 @@ const resolvers = {
           .where('uId', '==', context.user?.uid)
           .where('historyId', '==', historyId)
           .get();
-        console.log(snapshot.docs);
         if (snapshot.empty) {
           return { deletion: false, error: 'Nebyl nalezen' };
         }

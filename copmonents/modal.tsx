@@ -39,7 +39,7 @@ export const CustomDialog: React.FC<Props> = ({ title, description }) => {
           height: '20%',
           color: 'white',
           backgroundColor: '#5CA6EB',
-          alignSelf: 'center',
+          margin: 'auto',
         }}
         onClick={handleClickOpen}
       >

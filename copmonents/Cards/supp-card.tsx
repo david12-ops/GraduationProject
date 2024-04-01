@@ -214,5 +214,3 @@ export const AdmPageSuppCard: React.FC<Props> = ({
     </Card>
   );
 };
-
-// upravit opacity

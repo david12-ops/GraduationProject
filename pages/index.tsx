@@ -89,11 +89,15 @@ export default function Home() {
           <div className={stylesM.item11}>
             <img src="/pngegg.png" alt="" className={stylesM.itemImg} />
           </div>
-          <div className={stylesM.item12}>
-            <Link key="user-page" href={'/user-page'}>
-              <button className={stylesM.itemBtn}>Spravovat účet</button>
-            </Link>
-          </div>
+          {user ? (
+            <div className={stylesM.item12}>
+              <Link key="user-page" href={'/user-page'}>
+                <button className={stylesM.itemBtn}>Spravovat účet</button>
+              </Link>
+            </div>
+          ) : (
+            <div></div>
+          )}
         </div>
       </main>
     </div>
