@@ -381,11 +381,10 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
         setterErrors.errLabel.set(response.error);
       }
 
-      let updateHistory;
       if (response.data) {
         SetSuppId(response.data.supplier_id);
         setterForAlertMesssage.successUpdate.set(JSON.stringify(response.data));
-        updateHistory = await UpdateHistory({
+        const updateHistory = await UpdateHistory({
           variables: {
             PackageName: response.data.name_package,
             OldPackName: oldPackName,
@@ -396,12 +395,12 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           awaitRefetchQueries: true,
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
         }).catch((error: string) => console.error('Chyba při úpravě historie'));
-      }
-
-      if (updateHistory?.data?.updateHistory?.message) {
-        setterForAlertMesssage.msgHistory.set(
-          updateHistory?.data?.updateHistory?.message,
-        );
+        // eslint-disable-next-line max-depth
+        if (updateHistory?.data?.updateHistory?.message) {
+          setterForAlertMesssage.msgHistory.set(
+            updateHistory?.data?.updateHistory?.message,
+          );
+        }
       }
     }
   };

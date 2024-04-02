@@ -249,6 +249,7 @@ const db = firestore();
 
 const adminEm = process.env.NEXT_PUBLIC_AdminEm;
 const responseSuccess = 'Úprava historie uživatelů byla úspěšná';
+const responseFail = 'Žádná úprava v historii neproběhla';
 
 // validace pro supplier
 const ConverBool = (
@@ -332,17 +333,16 @@ const doMathForPackage = (
         new firestore.FieldPath('suppData', 'packName'),
         nameOfPack,
       );
-      msg = responseSuccess;
     });
+    msg = responseSuccess;
   } else {
-    msg = 'Žádná úprava v historii neproběhla';
-    return msg;
+    msg = responseFail;
   }
 
   return msg;
 };
 
-const doMatchForOptionsDelivery = async (
+const doMatchForOptionsDelivery = (
   data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
   nPriceDepo: number,
   nPriceP: number,
@@ -411,7 +411,6 @@ const doMatchForOptionsDelivery = async (
   const sum = nPriceDepo + nPriceP;
   const historyIds: Array<string> = [];
   let msg = '';
-  const historyQuerySnapshot = await db.collection('History').get();
 
   const getCostByName = (
     dataPack: Array<PackInfo>,
@@ -515,6 +514,7 @@ const doMatchForOptionsDelivery = async (
         dataS.suppName,
       );
     }
+    msg = responseFail;
   };
 
   const isNameInArr = (
@@ -529,7 +529,7 @@ const doMatchForOptionsDelivery = async (
     return undefined;
   };
 
-  if (historyQuerySnapshot && historyDoc.length > 0) {
+  if (historyDoc.length > 0) {
     historyDoc.forEach((doc) => {
       const item = doc.data() as HistoryDoc;
       namesPack.push(item.suppData.packName);
@@ -557,7 +557,7 @@ const doMatchForOptionsDelivery = async (
       });
     });
 
-    historyQuerySnapshot.forEach((document) => {
+    historyDoc.forEach((document) => {
       const dataDoc = document.data() as HistoryDoc;
       historyIds.forEach(async (id) => {
         if (
@@ -591,18 +591,10 @@ const doMatchForOptionsDelivery = async (
         }
       });
     });
-
-    if (
-      historyQuerySnapshot.docChanges() &&
-      historyQuerySnapshot.docChanges().length > 0
-    ) {
-      msg = responseSuccess;
-      return msg;
-    }
+    msg = responseSuccess;
   } else {
-    msg = 'Žádná úprava v historii neproběhla';
+    msg = responseFail;
   }
-
   return msg;
 };
 
@@ -1962,9 +1954,9 @@ const resolvers = {
           .where('suppData.id', '==', sId)
           .get();
 
-        if (nPriceP && nPriceDepo && dataS && sId) {
+        if (nPriceP && nPriceDepo && dataS && sId && oldSName) {
           const historyDoc = getDocSupp(historyDocuments, sId, oldSName);
-          msg = await doMatchForOptionsDelivery(
+          msg = doMatchForOptionsDelivery(
             SuppDocuments,
             nPriceDepo,
             nPriceP,
@@ -1979,7 +1971,7 @@ const resolvers = {
             SuppDocuments,
             nPricrePack,
             historyDoc,
-            oldNameOfpack === nameOfpack ? oldNameOfpack : nameOfpack,
+            nameOfpack,
           );
         }
 

@@ -96,7 +96,6 @@ type ErrSettersProperties = {
 type DataFromDB = {
   SuppId: string;
   SupplierName: string;
-  OldSupplierName: string;
   Delivery: string;
   PickUp: string;
   Insurance: string;
@@ -294,7 +293,12 @@ const Valid = (
   return undefined;
 };
 
-const setDataDatabase = (data: Item, stateSeter: State<DataFromDB>) => {
+const setDataDatabase = (
+  data: Item,
+  stateSeter: State<DataFromDB>,
+  setOldName: React.Dispatch<React.SetStateAction<string>>,
+) => {
+  setOldName(data.suppName);
   stateSeter.set({
     SuppId: data.supplierId,
     SupplierName: data.suppName,
@@ -304,7 +308,6 @@ const setDataDatabase = (data: Item, stateSeter: State<DataFromDB>) => {
     SendCashDelivery: data.sendCashDelivery,
     PackInBox: data.packInBox,
     ShippingLabel: data.shippingLabel,
-    OldSupplierName: data.suppName,
     Foil: data.foil,
     DepoCost: String(data.location?.depoDelivery.cost),
     PersonalCost: String(data.location?.personalDelivery.cost),
@@ -363,7 +366,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const settersOfDataSupp = useHookstate({
     SuppId: '',
     SupplierName: '',
-    OldSupplierName: '',
     Delivery: ' ',
     PickUp: '',
     Insurance: '',
@@ -415,6 +417,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   const supData = useSuppDataQuery();
   const [UpdateHistory] = useUpdateHistoryMutation();
   const [UpdateSupp] = useUpdateSupplierMutation();
+  const [oldSuppName, SetOldSuppName] = React.useState('');
 
   useEffect(() => {
     const adminEm = process.env.NEXT_PUBLIC_AdminEm;
@@ -431,7 +434,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       );
 
       if (actualSupp) {
-        setDataDatabase(actualSupp, settersOfDataSupp);
+        setDataDatabase(actualSupp, settersOfDataSupp, SetOldSuppName);
       }
     }
   }, [supData]);
@@ -510,7 +513,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           SendCashDelivery: settersOfDataSupp.SendCashDelivery.get(),
           PackInBox: settersOfDataSupp.PackInBox.get(),
           SuppId: settersOfDataSupp.SuppId.get(),
-          OldSupplierName: settersOfDataSupp.OldSupplierName.get(),
+          OldSupplierName: oldSuppName,
           DepoCost: Number(settersOfDataSupp.DepoCost.get()),
           PersonalCost: Number(settersOfDataSupp.PersonalCost.get()),
         },
@@ -558,7 +561,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             NewPriceDepo: Number(settersOfDataSupp.DepoCost.get()),
             NewPricePersonal: Number(settersOfDataSupp.PersonalCost.get()),
             SuppId: settersOfDataSupp.SuppId.get(),
-            OldNameSupp: settersOfDataSupp.OldSupplierName.get(),
+            OldNameSupp: oldSuppName,
           },
           refetchQueries: [{ query: HistoryDataDocument }],
           awaitRefetchQueries: true,
