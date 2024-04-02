@@ -2117,10 +2117,10 @@ const resolvers = {
       const { id: historyId } = args;
       let deleted = false;
       let err = '';
-      if (context.user?.uid !== adminId) {
+      if (!context.user?.uid) {
         err = admMessage;
         deleted = false;
-        return { deletion: deleted, error: err };
+        return { deletion: deleted, error: context.user?.uid };
       }
 
       try {

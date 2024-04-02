@@ -53,7 +53,7 @@ export default function Home() {
           <CardOffer
             img="kopie.jpg"
             label="Objednání"
-            description="Zde si lze i objednat balík u dopravce, který vám nejvíce vyhovuje."
+            description="Zde si lze i objednat balík u zásilkové služby, který vám nejvíce vyhovuje."
           />
         </div>
 
