@@ -142,7 +142,6 @@ const PageBody = (
   );
 };
 
-// sortovani
 // eslint-disable-next-line import/no-default-export
 export default function PacksCards() {
   const suppD = useSuppDataQuery();

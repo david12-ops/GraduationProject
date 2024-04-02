@@ -338,7 +338,6 @@ export default function SuitableSupp() {
     errFrom: '',
   });
 
-  // pouzit callBack - jen kdyz je funkce pouzivana v komponenete kvuli pristupu propsu
   const [close, SetClose] = useState(true);
   const [dataS, SetData] = useState(Array<DataS>);
   const [myAlert, SetAlert] = useState(<div></div>);

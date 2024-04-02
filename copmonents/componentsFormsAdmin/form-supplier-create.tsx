@@ -147,7 +147,7 @@ const MyAlert = (messages: { successCreate: string; errCreate: string }) => {
             </p>
             <p style={{ margin: '5px' }}>
               <strong>Pojištění</strong>:{' '}
-              {data.insurance > 0 ? data.insurance : 'bez pojištění'}
+              {data.insurance > 0 ? `${data.insurance} Kč` : 'bez pojištění'}
             </p>
             <p style={{ margin: '5px' }}>
               <strong> Zabalení do krabice</strong>:{' '}

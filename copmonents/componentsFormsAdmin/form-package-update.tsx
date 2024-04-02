@@ -120,7 +120,7 @@ const MyAlert = (messages: {
     );
   }
 
-  if (messages.successUpade !== '' && messages.msgHisotry !== '') {
+  if (messages.successUpade !== '') {
     const data = JSON.parse(messages.successUpade) as UpdatedPack;
     alert = (
       <Alert severity="success">
@@ -144,9 +144,13 @@ const MyAlert = (messages: {
           <p style={{ margin: '5px' }}>
             <strong>Výška</strong>: {data.height}
           </p>
-          <p style={{ margin: '5px' }}>
-            <strong>Status úpravy historie</strong>: {messages.msgHisotry}
-          </p>
+          {messages.msgHisotry ? (
+            <p style={{ margin: '5px' }}>
+              <strong>Status úpravy historie</strong>: {messages.msgHisotry}
+            </p>
+          ) : (
+            <p></p>
+          )}
         </div>
       </Alert>
     );
@@ -389,7 +393,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
         setterErrors.errLabel.set(response.error);
       }
 
-      if (response.data) {
+      if (response.data && !response.error) {
         SetSuppId(response.data.supplier_id);
         setterForAlertMesssage.successUpdate.set(JSON.stringify(response.data));
         const updateHistory = await UpdateHistory({

@@ -173,7 +173,7 @@ const MyAlert = (messages: {
     );
   }
 
-  if (messages.successUpade !== '' && messages.msgHisotry !== '') {
+  if (messages.successUpade !== '') {
     const data = JSON.parse(messages.successUpade) as DataUpdateSupp;
     alert = (
       <div>
@@ -209,9 +209,13 @@ const MyAlert = (messages: {
             <p style={{ margin: '5px' }}>
               <strong> Jméno</strong>: {data.suppName}
             </p>
-            <p style={{ margin: '5px' }}>
-              <strong>Status úpravy historie</strong>: {messages.msgHisotry}
-            </p>
+            {messages.msgHisotry ? (
+              <p style={{ margin: '5px' }}>
+                <strong>Status úpravy historie</strong>: {messages.msgHisotry}
+              </p>
+            ) : (
+              <p></p>
+            )}
           </div>
         </Alert>
       </div>
@@ -553,7 +557,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         setterErrors.errName.set(response.error);
       }
       let updateHistory;
-      if (response.data) {
+      if (response.data && !response.error) {
         setterForAlertMesssage.successUpdate.set(JSON.stringify(response.data));
         updateHistory = await UpdateHistory({
           variables: {
