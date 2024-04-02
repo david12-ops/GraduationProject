@@ -142,7 +142,7 @@ const MyAlert = (messages: { successCreate: string; errCreate: string }) => {
               <strong>Dodání</strong>: {data.delivery}
             </p>
             <p style={{ margin: '5px' }}>
-              <strong>Zabalení do folie</strong>:{' '}
+              <strong>Zabalení do fólie</strong>:{' '}
               {data.foil === 'Yes' ? 'Ano' : 'Ne'}
             </p>
             <p style={{ margin: '5px' }}>

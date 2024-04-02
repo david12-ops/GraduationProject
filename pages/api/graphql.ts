@@ -248,7 +248,7 @@ const typeDefs = gql`
 const db = firestore();
 
 const adminId = process.env.NEXT_PUBLIC_ADMIN_ID;
-const responseSuccess = 'Úprava historie uživatelů byla úspěšná';
+const responseSuccess = 'Úprava historie uživatelům byla úspěšná';
 const responseFail = 'Žádná úprava v historii neproběhla';
 
 // validace pro supplier
