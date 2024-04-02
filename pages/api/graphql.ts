@@ -2010,7 +2010,6 @@ const resolvers = {
         deleted = false;
         return { deletion: deleted, error: err };
       }
-      console.error('kliccccc', Pack);
 
       try {
         const SupplierDoc = await db
