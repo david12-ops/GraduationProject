@@ -245,7 +245,7 @@ export const ResSuppCard: React.FC<Props> = ({
                 </Link>
               ) : (
                 <Link key="orderPage" href={`../../orderPage`}>
-                  <CusotmBtn>Objedant</CusotmBtn>
+                  <CusotmBtn>Objednat</CusotmBtn>
                 </Link>
               )}
               <CusotmBtn

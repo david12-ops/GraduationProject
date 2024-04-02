@@ -2161,7 +2161,6 @@ export default createYoga({
   graphqlEndpoint: '/api/graphql',
   context: async (context) => {
     const auth = context.request.headers.get('authorization');
-    console.log(auth);
     return {
       user: auth ? await verifyToken(auth) : undefined,
     } as Context;
