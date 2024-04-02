@@ -72,7 +72,11 @@ export default function UserPage() {
           >
             Historie
           </Typography>
-          <DropDownBtn onClick={() => SetClose((prev) => !prev)}>
+          <DropDownBtn
+            onClick={() => {
+              SetClose((prev) => !prev);
+            }}
+          >
             {close ? <ArrowDropDownIcon /> : <ArrowDropUpIcon />}
           </DropDownBtn>
         </CustomBox>

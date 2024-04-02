@@ -2,6 +2,7 @@ import {
   confirmPasswordReset,
   createUserWithEmailAndPassword,
   getAuth,
+  sendEmailVerification,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   updateEmail,
@@ -23,6 +24,7 @@ export const authUtils = {
     await updatePassword(ActUs, newPass);
   },
   channgeUsEmail: async (ActUs: User, newEmail: string) => {
+    await sendEmailVerification(ActUs);
     await updateEmail(ActUs, newEmail);
   },
   register: async (email: string, password: string) => {

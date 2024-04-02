@@ -154,9 +154,9 @@ const RenderSupp = (
   dataFromForm: DataFromForm,
 ) => {
   const res = Res(dataFromResolver, QueryData);
-  if (!QueryData.loading && !QueryData.error && QueryData.data && res) {
+  if (!QueryData.error && QueryData.data && res) {
     return res.map((itm) =>
-      itm.dataS && itm ? (
+      itm.dataS ? (
         <div key={itm.dataS.supplierId}>
           <ResSuppCard
             packName={itm.packName}
@@ -174,7 +174,7 @@ const RenderSupp = (
           />
         </div>
       ) : (
-        <div key=""></div>
+        <div key={''}></div>
       ),
     );
   }
@@ -249,6 +249,8 @@ const DisplayResult = (
 ) => {
   return close ? (
     <div></div>
+  ) : QueryData.loading ? (
+    <div>Načítá se...</div>
   ) : (
     RenderSupp(
       dataFromResolver,
@@ -369,7 +371,7 @@ export default function SuitableSupp() {
           Cost: Number(statesOfFormPack.Cost.get()),
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      }).catch((error: string) => console.error('Chyba při vyhodnocování'));
+      }).catch((error: string) => console.error(error));
 
       const response = Response(result?.data?.BingoSupPac);
       if (response.data) {

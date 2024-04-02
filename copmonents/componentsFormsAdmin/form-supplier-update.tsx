@@ -196,8 +196,7 @@ const MyAlert = (messages: {
               {data.packInBox === 'Yes' ? 'Ano' : 'Ne'}
             </p>
             <p style={{ margin: '5px' }}>
-              <strong>Vyzvednutí</strong>:{' '}
-              {data.pickUp === 'Yes' ? 'Ano' : 'Ne'}
+              <strong>Vyzvednutí</strong>: {data.pickUp}
             </p>
             <p style={{ margin: '5px' }}>
               <strong> Na dobírku</strong>:{' '}

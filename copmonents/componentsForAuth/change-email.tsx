@@ -39,7 +39,7 @@ const Submit = async (
   try {
     if (user) {
       await authUtils.channgeUsEmail(user, email);
-      SetAlert(MyAlert('Změna hesla byla úspěšná', 'success'));
+      SetAlert(MyAlert('Změna emailu byla úspěšná', 'success'));
     }
   } catch (error) {
     const err = error as FirebaseError;
@@ -53,7 +53,7 @@ const Submit = async (
         break;
       }
       default: {
-        SetAlert(MyAlert('Úprava hesla uživatele nebyla úspěšná', 'error'));
+        SetAlert(MyAlert('Úprava emailu uživatele nebyla úspěšná', 'error'));
         break;
       }
     }
