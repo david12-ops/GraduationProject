@@ -434,7 +434,10 @@ export const FormSupplier = () => {
         },
         refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
-      }).catch((error: string) => console.error(error));
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      }).catch((error: string) =>
+        console.error('Chyba při vytváření zásilkové služby'),
+      );
 
       const response = Response(result?.data?.SupplierToFirestore);
 

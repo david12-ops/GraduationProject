@@ -359,7 +359,8 @@ export default function SuitableSupp() {
           FromWhere: statesOfFormPack.PlaceTo.get(),
           Cost: Number(statesOfFormPack.Cost.get()),
         },
-      }).catch((error: string) => console.error(error));
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      }).catch((error: string) => console.error('Chyba při vyhodnocování'));
 
       const response = Response(result?.data?.BingoSupPac);
       if (response.data) {

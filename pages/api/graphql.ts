@@ -944,8 +944,6 @@ const resolvers = {
 
         const cleared = suitableByCost.filter((itm) => itm !== undefined);
 
-        console.log('suitableByCost', cleared);
-
         const groupedById = _.groupBy(cleared, 'supplierId');
 
         const packagesDictionary: Record<string, PackageType> = {};
@@ -1026,8 +1024,6 @@ const resolvers = {
             name: item.Name,
           });
         });
-
-        console.log('item', rtrnItem);
 
         if (rtrnItem.length > 0) {
           return {
@@ -1965,8 +1961,6 @@ const resolvers = {
           // eslint-disable-next-line sonarjs/no-duplicate-string
           .where('suppData.id', '==', sId)
           .get();
-
-        console.log(dataS.suppName);
 
         if (nPriceP && nPriceDepo && dataS && sId) {
           const historyDoc = getDocSupp(historyDocuments, sId, oldSName);

@@ -56,7 +56,8 @@ export const PackCard: React.FC<Props> = ({
         { query: HistoryDataDocument },
       ],
       awaitRefetchQueries: true,
-    }).catch((error: string) => console.error(error));
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    }).catch((error: string) => console.error('Chyba při mazání'));
 
     if (!deleted?.data?.deletePack?.deletion) {
       console.error(deleted?.data?.deletePack?.error);

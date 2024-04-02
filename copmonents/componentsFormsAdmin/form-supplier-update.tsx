@@ -519,7 +519,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           { query: HistoryDataDocument },
         ],
         awaitRefetchQueries: true,
-      }).catch((error: string) => console.error(error));
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      }).catch((error: string) =>
+        console.error('Chyba při úpravě zásilkové služby'),
+      );
 
       const response = Response(result?.data?.updateSup);
 
@@ -559,7 +562,8 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           },
           refetchQueries: [{ query: HistoryDataDocument }],
           awaitRefetchQueries: true,
-        }).catch((error) => console.error(error));
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        }).catch((error) => console.error('Chyba při úpravě historie'));
       }
 
       if (updateHistory?.data?.updateHistory?.message) {

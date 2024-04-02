@@ -284,7 +284,8 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
         },
         refetchQueries: [{ query: SuppDataDocument }],
         awaitRefetchQueries: true,
-      }).catch((error: string) => console.error(error));
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      }).catch((error: string) => console.error('Chyba při vytváření balíku'));
 
       const response = Response(result?.data?.PackageToFirestore);
 

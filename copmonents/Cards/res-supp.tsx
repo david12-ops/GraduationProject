@@ -172,7 +172,10 @@ export const ResSuppCard: React.FC<Props> = ({
         },
         refetchQueries: [{ query: HistoryDataDocument }],
         awaitRefetchQueries: true,
-      }).catch((error: string) => console.error(error));
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      }).catch((error: string) =>
+        console.error('Chyba při ukládání do historie'),
+      );
       if (result?.data?.AddHistory?.message) {
         SetAlert(MyAlert(result?.data?.AddHistory?.message));
       }

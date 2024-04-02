@@ -105,10 +105,6 @@ const Back = async (ids: string) => {
   await router.push(`/../../admpage/${ids}`);
 };
 
-const MessageUpdateHistory = (message: string) => {
-  return `Status úpravy historie : ${message}`;
-};
-
 const MyAlert = (messages: {
   successUpade: string;
   errUpdate: string;
@@ -320,7 +316,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       userApp.Admin.set(true);
     }
     if (id && SuppPackages.data && SuppPackages) {
-      console.log('data', SuppPackages.data);
       const data = setDataDatabase(id, SuppPackages.data.suplierData);
       if (data) {
         SetSuppId(data.SuppId);
@@ -367,7 +362,8 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           { query: HistoryDataDocument },
         ],
         awaitRefetchQueries: true,
-      }).catch((error: string) => console.error(error));
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      }).catch((error: string) => console.error('Chyba při úpravě balíku'));
 
       const response = Response(result?.data?.updatePack);
 
@@ -398,12 +394,13 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           },
           refetchQueries: [{ query: HistoryDataDocument }],
           awaitRefetchQueries: true,
-        }).catch((error: string) => console.error(error));
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        }).catch((error: string) => console.error('Chyba při úpravě historie'));
       }
 
       if (updateHistory?.data?.updateHistory?.message) {
         setterForAlertMesssage.msgHistory.set(
-          MessageUpdateHistory(updateHistory?.data?.updateHistory?.message),
+          updateHistory?.data?.updateHistory?.message,
         );
       }
     }

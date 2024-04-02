@@ -161,15 +161,7 @@ export const AdmPageSuppCard: React.FC<Props> = ({
         >
           <strong>{name}</strong>
         </Typography>
-        {/* <CardMedia
-          sx={{
-            gridColumnStart: 2,
-            width: '100',
-            height: '50px',
-            padding: '20px',
-          }}
-          image="/static/images/cards/contemplative-reptile.jpg"
-        /> */}
+
         <Typography
           component={'div'}
           style={{
