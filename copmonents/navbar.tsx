@@ -61,7 +61,7 @@ const NavItems = (
   adminEmail: string | undefined,
 ) => {
   if (user) {
-    return user.email === adminEmail
+    return user.uid === adminEmail
       ? [
           label.home,
           label.choseSupp,
@@ -93,7 +93,7 @@ const navItemsDraver = (
   adminEmail: string | undefined,
 ) => {
   if (user) {
-    return user.email === adminEmail
+    return user.uid === adminEmail
       ? [
           label.home,
           label.choseSupp,
@@ -139,9 +139,8 @@ const navItemsDraver = (
 };
 
 export const Navbar: React.FC<PropsUs> = ({ user }) => {
-  const adminEm = process.env.NEXT_PUBLIC_AdminEm;
-
-  const navItm = NavItems(user, adminEm);
+  const adminId = process.env.NEXT_PUBLIC_ADMIN_ID;
+  const navItm = NavItems(user, adminId);
 
   const container =
     window === undefined ? undefined : () => window.document.body;
@@ -158,7 +157,7 @@ export const Navbar: React.FC<PropsUs> = ({ user }) => {
         Menu
       </Typography>
       <Divider />
-      <List>{navItemsDraver(user, adminEm)}</List>
+      <List>{navItemsDraver(user, adminId)}</List>
     </Box>
   );
 

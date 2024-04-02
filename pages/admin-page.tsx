@@ -47,12 +47,12 @@ export default function AdmPage() {
   const [logged, SetLogin] = useState(false);
 
   useEffect(() => {
-    const adminEm = process.env.NEXT_PUBLIC_AdminEm;
+    const adminId = process.env.NEXT_PUBLIC_ADMIN_ID;
 
     if (user) {
       SetLogin(true);
     }
-    if (user?.email === adminEm) {
+    if (user?.uid === adminId) {
       SetAdmin(true);
     }
   }, [logged, admin]);

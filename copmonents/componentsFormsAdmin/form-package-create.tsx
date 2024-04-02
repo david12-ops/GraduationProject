@@ -256,11 +256,11 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
   useEffect(() => {
     SetSuppId(id);
 
-    const adminEm = process.env.NEXT_PUBLIC_AdminEm;
+    const adminId = process.env.NEXT_PUBLIC_ADMIN_ID;
     if (user) {
       userApp.LoggedIn.set(true);
     }
-    if (user?.email === adminEm) {
+    if (user?.uid === adminId) {
       userApp.Admin.set(true);
     }
   });

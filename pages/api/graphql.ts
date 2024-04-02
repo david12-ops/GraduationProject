@@ -247,7 +247,7 @@ const typeDefs = gql`
 
 const db = firestore();
 
-const adminEm = process.env.NEXT_PUBLIC_AdminEm;
+const adminId = process.env.NEXT_PUBLIC_ADMIN_ID;
 const responseSuccess = 'Úprava historie uživatelů byla úspěšná';
 const responseFail = 'Žádná úprava v historii neproběhla';
 
@@ -1220,7 +1220,7 @@ const resolvers = {
         name_package: string;
         cost: number;
       };
-      if (context.user?.email !== adminEm) {
+      if (context.user?.uid !== adminId) {
         return {
           __typename: 'PackageError',
           message: admMessage,
@@ -1406,7 +1406,7 @@ const resolvers = {
 
       try {
         const namesOfSup: Array<string> = [];
-        if (context.user?.email !== adminEm) {
+        if (context.user?.uid !== adminId) {
           return {
             __typename: 'SupplierError',
             message: admMessage,
@@ -1561,7 +1561,7 @@ const resolvers = {
       };
 
       try {
-        if (context.user?.email !== adminEm) {
+        if (context.user?.uid !== adminId) {
           return {
             __typename: 'PackageUpdateError',
             message: admMessage,
@@ -1746,7 +1746,7 @@ const resolvers = {
       };
 
       try {
-        if (context.user?.email !== adminEm) {
+        if (context.user?.uid !== adminId) {
           return {
             __typename: 'SupplierError',
             message: admMessage,
@@ -1936,7 +1936,7 @@ const resolvers = {
           return docs;
         };
 
-        if (context.user?.email !== adminEm) {
+        if (context.user?.uid !== adminId) {
           return {
             __typename: 'HistoryMessage',
             message: admMessage,
@@ -2005,7 +2005,7 @@ const resolvers = {
       let find = false;
       let newArray: Array<Package> = [];
 
-      if (context.user?.email !== adminEm) {
+      if (context.user?.uid !== adminId) {
         err = admMessage;
         deleted = false;
         return { deletion: deleted, error: err };
@@ -2077,7 +2077,7 @@ const resolvers = {
     ) => {
       let deleted = false;
       let err = '';
-      if (context.user?.email !== adminEm) {
+      if (context.user?.uid !== adminId) {
         err = admMessage;
         deleted = false;
         return { deletion: deleted, error: err };
@@ -2117,7 +2117,7 @@ const resolvers = {
       const { id: historyId } = args;
       let deleted = false;
       let err = '';
-      if (context.user?.email !== adminEm) {
+      if (context.user?.uid !== adminId) {
         err = admMessage;
         deleted = false;
         return { deletion: deleted, error: err };

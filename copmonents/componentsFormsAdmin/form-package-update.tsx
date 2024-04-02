@@ -316,11 +316,11 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   const [suppId, SetSuppId] = React.useState('');
 
   useEffect(() => {
-    const adminEm = process.env.NEXT_PUBLIC_AdminEm;
+    const adminId = process.env.NEXT_PUBLIC_ADMIN_ID;
     if (user) {
       userApp.LoggedIn.set(true);
     }
-    if (user?.email === adminEm) {
+    if (user?.uid === adminId) {
       userApp.Admin.set(true);
     }
     if (id && SuppPackages.data && SuppPackages) {
