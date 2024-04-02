@@ -538,7 +538,7 @@ export const FormSupplier = () => {
             labelComp={labelName}
             errorComp={setterErrors.errName.get()}
             funcComp={(e) => settersOfDataSupp.SupplierName.set(e)}
-            helpTexterComp={'Zadej jméno zásilkové služby'}
+            helpTexterComp={'Zadejte jméno zásilkové služby'}
           />
 
           <MyCompTextField
@@ -547,7 +547,7 @@ export const FormSupplier = () => {
             labelComp={labelInsurance}
             errorComp={setterErrors.errInsurance.get()}
             funcComp={(e) => settersOfDataSupp.Insurance.set(e)}
-            helpTexterComp={'Zadej pojištění na balík'}
+            helpTexterComp={'Zadejte pojištění na balík'}
             placeholderComp="Kč"
           />
         </CustomFieldset>
@@ -577,7 +577,7 @@ export const FormSupplier = () => {
               }
               slotProps={{
                 textField: {
-                  helperText: 'Zadej datum dodaní ve formátu (MM/DD/YYYY)',
+                  helperText: 'Zadejte datum dodaní ve formátu (MM/DD/YYYY)',
                 },
               }}
             />
@@ -595,7 +595,8 @@ export const FormSupplier = () => {
               }
               slotProps={{
                 textField: {
-                  helperText: 'Zadej datum vyzvednutí ve formátu (MM/DD/YYYY)',
+                  helperText:
+                    'Zadejte datum vyzvednutí ve formátu (MM/DD/YYYY)',
                 },
               }}
             />

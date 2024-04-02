@@ -103,7 +103,7 @@ export const PageFormChangeEm = () => {
               onChange={(e) => SetNewEm(e.target.value)}
               autoComplete="email"
               autoFocus
-              helperText="Zadej nový e-mail"
+              helperText="Zadejte nový e-mail"
             />
           ) : (
             <TextField

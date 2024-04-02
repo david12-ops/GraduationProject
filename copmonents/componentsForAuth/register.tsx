@@ -220,7 +220,7 @@ export const PageRegisterForm = () => {
                 onChange={(e) => credentials.email.set(e.target.value)}
                 autoComplete="email"
                 autoFocus
-                helperText="Zadej nový e-mail"
+                helperText="Zadejte nový e-mail"
               />
             ) : (
               <TextField
@@ -258,7 +258,7 @@ export const PageRegisterForm = () => {
                 label="Heslo"
                 type="password"
                 autoComplete="current-password"
-                helperText="Zadej nové heslo"
+                helperText="Zadejte nové heslo"
               />
             ) : (
               <TextField
