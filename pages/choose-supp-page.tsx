@@ -229,6 +229,15 @@ const Valid = (
     return new Error(messageLoc);
   }
 
+  errorsSetters.set({
+    errCost: '',
+    errFrom: '',
+    errHeight: '',
+    errLength: '',
+    errPlaceTo: '',
+    errWeight: '',
+    errWidth: '',
+  });
   return undefined;
 };
 

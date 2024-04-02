@@ -118,7 +118,7 @@ const Paragraph = (
         Vyzvednutí nejdříve <strong>{pickUp}</strong>
       </Typography>
       <Typography component={'p'} style={{ margin: '10px' }}>
-        Doručení nejdřive <strong>{delivery}</strong>
+        Doručení nejdříve <strong>{delivery}</strong>
       </Typography>
       {paragraph}
       {paragraph2}

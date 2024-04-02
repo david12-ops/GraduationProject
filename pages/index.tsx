@@ -29,8 +29,8 @@ export default function Home() {
             <div>
               <h1 className={stylesM.body1Napis}>BingoBalík</h1>
               <p className={stylesM.body1Odstavec}>
-                Stánka, která pomáha najít vaše balíky podle vaších představ s
-                nejvhodnější zásilkvou službou
+                Stránka, která pomáhá najít vaše balíky podle vašich představ s
+                nejvhodnější zásilkovou službou
               </p>
             </div>
           </div>
@@ -41,19 +41,19 @@ export default function Home() {
           <CardOffer
             img="lupa2.png"
             label="Nejvhodnější balíky"
-            description="Zde si podle vašich parametrů můžete objednat svůj vhodný balík dle výšky, šířky, délky hmostnosti toho, co tam dáte a lokace "
+            description="Zde si podle vašich parametrů můžete objednat svůj vhodný balík dle výšky, šířky, délky hmotnosti toho, co tam dáte a lokace."
           />
 
           <CardOffer
             img="history2.jpg"
             label="Historie"
-            description="Historie objednávek, které si uživatel může prohlédnout i s nimi manipulovat. Lze je zpětně dokončit i smazat"
+            description="Historie objednávek, které si uživatel může prohlédnout i s nimi manipulovat. Lze je zpětně dokončit i smazat."
           />
 
           <CardOffer
             img="kopie.jpg"
             label="Objednání"
-            description="Zde si lze i objednat balík u dopravce, který vám nejvíce vyhovuje "
+            description="Zde si lze i objednat balík u dopravce, který vám nejvíce vyhovuje."
           />
         </div>
 
@@ -68,7 +68,7 @@ export default function Home() {
               <Link key="choose-supp-page" href={'/choose-supp-page'}>
                 <button className={stylesM.itemBtn}>Nejvhodnější balík</button>
               </Link>
-              , se kterým najdete svůj vysněný balík
+              , se kterým najdete svůj vysněný balík.
             </p>
           </div>
         </div>
@@ -79,7 +79,7 @@ export default function Home() {
             <p className={stylesM.body5Odstavec}>
               Spravovat účet lze tu též a na stránce k tomu určené najdete i
               vaši historii objednávek, lze i změnit heslo a email. Kliknutím na
-              tlačítko po obrázkama se dostanete na stránku vašeho účtu
+              tlačítko pod obrazcích se dostanete na stránku vašeho účtu.
             </p>
           </div>
 

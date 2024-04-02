@@ -112,7 +112,7 @@ const Paragraph = (
         component={'p'}
         style={{ marginTop: '8px', marginBottom: '8px' }}
       >
-        Doručení nejdřive <strong>{delivery}</strong>
+        Doručení nejdříve <strong>{delivery}</strong>
       </Typography>
       {paragraph}
       {paragraph2}
