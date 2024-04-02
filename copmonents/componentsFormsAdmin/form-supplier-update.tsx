@@ -573,7 +573,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             SuppId: settersOfDataSupp.SuppId.get(),
             OldNameSupp: oldSuppName,
           },
-          refetchQueries: [{ query: HistoryDataDocument }],
+          refetchQueries: [
+            { query: SuppDataDocument },
+            { query: HistoryDataDocument },
+          ],
           awaitRefetchQueries: true,
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
         }).catch((error) => console.error('Chyba při úpravě historie'));

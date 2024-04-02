@@ -978,10 +978,10 @@ const resolvers = {
           item.forEach((itm) => {
             if (
               itm &&
-              itm.param?.width >= Width &&
-              itm.param?.weight >= Weight &&
-              itm.param?.length >= pLength &&
-              itm.param?.height >= Height
+              itm.param?.width <= Width &&
+              itm.param?.weight <= Weight &&
+              itm.param?.length <= pLength &&
+              itm.param?.height <= Height
             ) {
               const prev = packagesDictionary[itm.supplierId] ?? undefined;
               // eslint-disable-next-line unicorn/prefer-ternary, unicorn/no-negated-condition
