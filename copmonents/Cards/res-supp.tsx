@@ -20,11 +20,27 @@ const CusotmBtn = styled(Button)({
 });
 
 const MyAlert = (message: string) => {
-  return /Bylo už uloženo do historie/.test(message) === false ? (
-    <Alert severity="success">{message}</Alert>
-  ) : (
-    <Alert severity="error">{message}</Alert>
-  );
+  switch (message) {
+    case 'Bylo už uloženo do historie': {
+      return <Alert severity="error">{message}</Alert>;
+    }
+    case 'Uživatel musí být přihlášen na svů účet': {
+      return <Alert severity="error">{message}</Alert>;
+    }
+    case 'Při ukládání došlo k chybě, zkuste to znovu později': {
+      return <Alert severity="error">{message}</Alert>;
+    }
+
+    case 'Tuto funkci může používat pouze přihlášený uživatel': {
+      return <Alert severity="error">{message}</Alert>;
+    }
+    case 'Úspěšně uloženo': {
+      return <Alert severity="success">{message}</Alert>;
+    }
+    default: {
+      return undefined;
+    }
+  }
 };
 
 type Props = {
@@ -177,10 +193,18 @@ export const ResSuppCard: React.FC<Props> = ({
         console.error('Chyba při ukládání do historie'),
       );
       if (result?.data?.AddHistory?.message) {
-        SetAlert(MyAlert(result?.data?.AddHistory?.message));
+        const element = MyAlert(result?.data?.AddHistory?.message);
+        // eslint-disable-next-line max-depth
+        if (element) {
+          SetAlert(element);
+        }
       }
     } else {
-      SetAlert(MyAlert('Uživatel musí být přihlášen na svů účet'));
+      const element = MyAlert('Uživatel musí být přihlášen na svů účet');
+      // eslint-disable-next-line no-lonely-if
+      if (element) {
+        SetAlert(element);
+      }
     }
   };
 
