@@ -26,7 +26,7 @@ const PageBody = (warning: boolean, dataSupp: Item) => {
           margin: 'auto',
         }}
       >
-        Nejsou zásilkové služby
+        Nenalezeny žádné zásilkové služby
       </div>
     );
   }

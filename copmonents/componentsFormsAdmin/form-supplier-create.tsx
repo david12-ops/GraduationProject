@@ -244,6 +244,17 @@ const Valid = (
   if (pickUparg !== '') {
     return new Error('Datum vyzvednutí není ve správném formátu');
   }
+
+  setterErr.set({
+    errDepoCost: '',
+    errFoil: '',
+    errInsurance: '',
+    errName: '',
+    errPackInBox: '',
+    errPersonalCost: '',
+    errSendCashDelivery: '',
+    errShippingLabel: '',
+  });
   return undefined;
 };
 
@@ -473,7 +484,7 @@ export const FormSupplier = () => {
           margin: 'auto',
         }}
       >
-        Nejsi admin
+        Přístup pouze pro administrátora
       </div>
     );
   }

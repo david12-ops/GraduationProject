@@ -63,9 +63,10 @@ const PageBody = (
           color: 'red',
           fontSize: '30px',
           fontWeight: 'bold',
+          margin: 'auto',
         }}
       >
-        Nejsi admin
+        Přístup pouze pro administrátora
       </div>
     );
   }
@@ -77,6 +78,7 @@ const PageBody = (
           border: 'solid red',
           borderRadius: '10px',
           color: 'lightblue',
+          margin: 'auto',
         }}
       >
         <div>
@@ -94,9 +96,10 @@ const PageBody = (
           color: 'orange',
           fontSize: '30px',
           fontWeight: 'bold',
+          margin: 'auto',
         }}
       >
-        Tato zásilková služba nemá balíčky
+        Tato zásilková služba nemá balíky
       </div>
     );
   }
@@ -195,7 +198,7 @@ export default function PacksCards() {
             textAlign: 'center',
           }}
         >
-          Balíčky
+          Balíky
         </h2>
         {body.element}
       </main>

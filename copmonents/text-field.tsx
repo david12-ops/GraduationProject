@@ -10,6 +10,29 @@ type Params = {
   valueComp?: string | number;
   helpTexterComp?: string;
 };
+
+const lComp = (input: string) => {
+  switch (input) {
+    case 'Výška': {
+      return 'Zadejte maximalní výšku';
+    }
+    case 'Hmotnost': {
+      return 'Zadejte maximální hmotnost';
+    }
+    case 'Délka': {
+      return 'Zadejte maximální délku';
+    }
+    case 'Šířka': {
+      return 'Zadejte maximální šířku';
+    }
+    case 'Cena': {
+      return 'Zadejte maximální cenu';
+    }
+    default: {
+      return '';
+    }
+  }
+};
 export const MyCompTextField: React.FC<Params> = ({
   typeComp,
   idComp,
@@ -33,10 +56,7 @@ export const MyCompTextField: React.FC<Params> = ({
           <InputAdornment position="start">{placeholderComp}</InputAdornment>
         ),
       }}
-      helperText={
-        helpTexterComp ||
-        `Napište váš ${labelComp.withoutErr.toLocaleLowerCase()} limit na balík`
-      }
+      helperText={helpTexterComp || lComp(labelComp.withoutErr)}
       value={valueComp}
     />
   ) : (

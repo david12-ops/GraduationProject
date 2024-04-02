@@ -158,7 +158,7 @@ export default function UserPage() {
                           </Typography>
                           <Typography component={'p'}>
                             <strong>Celková cena</strong>:{' '}
-                            {historyItm.suppData.cost}
+                            {historyItm.suppData.cost} Kč
                           </Typography>
                         </Typography>
                       </Typography>
@@ -180,7 +180,18 @@ export default function UserPage() {
                     >
                       Smazat
                     </Button>
-                    <Link href="https://zrukydoruky.dpd.cz/">
+                    {historyItm.suppData.name === 'Dpd' ? (
+                      <Link href="https://zrukydoruky.dpd.cz/">
+                        <Button
+                          style={{
+                            backgroundColor: '#23B8FA',
+                            color: 'white',
+                          }}
+                        >
+                          Objednat
+                        </Button>
+                      </Link>
+                    ) : (
                       <Button
                         style={{
                           backgroundColor: '#23B8FA',
@@ -189,7 +200,7 @@ export default function UserPage() {
                       >
                         Objednat
                       </Button>
-                    </Link>
+                    )}
                   </CustomBoxBtnPart>
                 </Typography>
               </Typography>

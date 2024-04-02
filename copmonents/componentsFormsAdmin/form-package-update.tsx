@@ -220,6 +220,14 @@ const Valid = (
     return new Error(messageInt);
   }
 
+  errSetter.set({
+    errCost: '',
+    errHeight: '',
+    errLabel: '',
+    errpLength: '',
+    errWeight: '',
+    errWidth: '',
+  });
   return undefined;
 };
 
@@ -416,7 +424,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           margin: 'auto',
         }}
       >
-        Nejsi admin
+        Přístup pouze pro administrátora
       </div>
     );
   }

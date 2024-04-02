@@ -76,7 +76,7 @@ const PageBody = (
           margin: 'auto',
         }}
       >
-        Nejsi admin
+        Přístup pouze pro administrátora
       </div>
     );
   }
@@ -127,9 +127,10 @@ const PageBody = (
                 color: 'orange',
                 fontSize: '30px',
                 fontWeight: 'bold',
+                margin: 'auto',
               }}
             >
-              Tato zásilková služba nemá balíčky
+              Tato zásilková služba nemá balíky
             </div>
 
             <div style={{ alignSelf: 'center' }}>

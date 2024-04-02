@@ -290,6 +290,16 @@ const Valid = (
     return new Error('Datum vyzvednutí není ve správném formátu');
   }
 
+  setterErr.set({
+    errDepoCost: '',
+    errFoil: '',
+    errInsurance: '',
+    errName: '',
+    errPackInBox: '',
+    errPersonalCost: '',
+    errSendCashDelivery: '',
+    errShippingLabel: '',
+  });
   return undefined;
 };
 
@@ -585,9 +595,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           color: 'red',
           fontSize: '30px',
           fontWeight: 'bold',
+          margin: 'auto',
         }}
       >
-        Only admin has acces to this page
+        Přístup pouze pro administrátora
       </div>
     );
   }

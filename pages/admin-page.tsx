@@ -15,9 +15,10 @@ const Page = (logged: boolean, admin: boolean) => {
           color: 'red',
           fontSize: '30px',
           fontWeight: 'bold',
+          margin: 'auto',
         }}
       >
-        Nejsi admin
+        Přístup pouze pro administrátora
       </div>
     );
   }

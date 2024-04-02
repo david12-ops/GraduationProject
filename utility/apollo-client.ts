@@ -1,3 +1,5 @@
+// eslint-disable-next-line eslint-comments/disable-enable-pair
+/* eslint-disable sonarjs/no-duplicate-string */
 import {
   ApolloClient,
   ApolloLink,
@@ -13,6 +15,7 @@ const isServer = typeof window === 'undefined';
 // source: https://github.com/shshaw/next-apollo-ssr
 // @ts-ignore
 
+// eslint-disable-next-line no-underscore-dangle
 const windowApolloState = !isServer && window.__NEXT_DATA__.apolloState;
 
 let CLIENT: ApolloClient<any>;
@@ -34,10 +37,10 @@ const logoutLink = (logout: VoidFunction) =>
   });
 //!
 const oAuthLink = () =>
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setContext(async ({ operationName }, { headers }) => {
     const user = authUtils.getCurrentUser() || null;
     const jwtToken = user ? await user.getIdToken() : null;
-    console.log('USER', user);
     return {
       headers: {
         ...headers,

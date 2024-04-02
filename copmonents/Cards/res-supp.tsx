@@ -244,9 +244,7 @@ export const ResSuppCard: React.FC<Props> = ({
                   <CusotmBtn>Objednat</CusotmBtn>
                 </Link>
               ) : (
-                <Link key="orderPage" href={`../../orderPage`}>
-                  <CusotmBtn>Objednat</CusotmBtn>
-                </Link>
+                <CusotmBtn>Objednat</CusotmBtn>
               )}
               <CusotmBtn
                 onClick={() => Save(dataFrPage, supplier, price, history)}

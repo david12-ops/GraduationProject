@@ -194,7 +194,7 @@ export const DetailSupps: React.FC<Props> = ({
           >
             <CardActions style={{ justifyContent: 'center' }}>
               <Link key="packsCard" href={`/packsCard/${suppId}`}>
-                <DeatilButton>Balíčky</DeatilButton>
+                <DeatilButton>Balíky</DeatilButton>
               </Link>
             </CardActions>
           </Typography>
