@@ -159,27 +159,8 @@ const Back = async (ids: string) => {
   await router.push(`/../../admpage/${ids}`);
 };
 
-const MessageUpdateSupp = (data: DataUpdateSupp) => {
-  return `Zásliková služba byla upravena s parametry: Dodání: ${
-    data.delivery
-  } \n
-  Zabalení do folie: ${data.foil === 'Yes' ? 'Ano' : 'Ne'} \n
-  Pojištění: ${data.insurance > 0 ? data.insurance : 'bez pojištění'} \n
-  Zabalení do krabice: ${data.packInBox === 'Yes' ? 'Ano' : 'Ne'} \n
-  Vyzvednutí: ${data.pickUp === 'Yes' ? 'Ano' : 'Ne'} \n
-  Na dobírku: ${data.sendCashDelivery === 'Yes' ? 'Ano' : 'Ne'} \n
-  Štítek přiveze kurýr: ${data.shippingLabel === 'Yes' ? 'Ano' : 'Ne'} \n
-  Jméno: ${data.suppName}`;
-};
-
-const MessageUpdateHistory = (message: string) => {
-  return `Status of update History : ${message}`;
-};
-
-// nepouzivat alerty errr u button
-
 const MyAlert = (messages: {
-  succesUpade: string;
+  successUpade: string;
   errUpdate: string;
   msgHisotry: string;
 }) => {
@@ -193,11 +174,48 @@ const MyAlert = (messages: {
     );
   }
 
-  if (messages.succesUpade !== '' && messages.msgHisotry !== '') {
+  if (messages.successUpade !== '' && messages.msgHisotry !== '') {
+    const data = JSON.parse(messages.successUpade) as DataUpdateSupp;
     alert = (
       <div>
-        <Alert severity="success">{messages.succesUpade}</Alert>
-        <Alert severity="success">{messages.msgHisotry}</Alert>
+        <Alert severity="success">
+          <div>
+            <h3>Zásliková služba s parametry</h3>
+            <p style={{ margin: '5px' }}>
+              <strong>Dodání</strong>: {data.delivery}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Zabalení do folie</strong>:{' '}
+              {data.foil === 'Yes' ? 'Ano' : 'Ne'}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Pojištění</strong>:{' '}
+              {data.insurance > 0 ? `${data.insurance} Kč` : 'bez pojištění'}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong> Zabalení do krabice</strong>:{' '}
+              {data.packInBox === 'Yes' ? 'Ano' : 'Ne'}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Vyzvednutí</strong>:{' '}
+              {data.pickUp === 'Yes' ? 'Ano' : 'Ne'}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong> Na dobírku</strong>:{' '}
+              {data.sendCashDelivery === 'Yes' ? 'Ano' : 'Ne'}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Štítek přiveze kurýr</strong>:{' '}
+              {data.shippingLabel === 'Yes' ? 'Ano' : 'Ne'}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong> Jméno</strong>: {data.suppName}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Status úpravy historie</strong>: {messages.msgHisotry}
+            </p>
+          </div>
+        </Alert>
       </div>
     );
   }
@@ -272,6 +290,7 @@ const Valid = (
   if (pickUparg !== '') {
     return new Error('Datum vyzvednutí není ve správném formátu');
   }
+
   return undefined;
 };
 
@@ -374,7 +393,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
 
   const setterForAlertMesssage = useHookstate({
     errUpdate: '',
-    succesUpdate: '',
+    successUpdate: '',
     msgHistory: '',
   });
 
@@ -415,7 +434,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         setDataDatabase(actualSupp, settersOfDataSupp);
       }
     }
-  }, [id, supData]);
+  }, [supData]);
 
   const MyComponent = (
     state: State<string>,
@@ -495,7 +514,10 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           DepoCost: Number(settersOfDataSupp.DepoCost.get()),
           PersonalCost: Number(settersOfDataSupp.PersonalCost.get()),
         },
-        refetchQueries: [{ query: SuppDataDocument }],
+        refetchQueries: [
+          { query: SuppDataDocument },
+          { query: HistoryDataDocument },
+        ],
         awaitRefetchQueries: true,
       }).catch((error: string) => console.error(error));
 
@@ -517,9 +539,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
       }
       let updateHistory;
       if (response.data) {
-        setterForAlertMesssage.succesUpdate.set(
-          MessageUpdateSupp(response.data),
-        );
+        setterForAlertMesssage.successUpdate.set(JSON.stringify(response.data));
         updateHistory = await UpdateHistory({
           variables: {
             SuppData: {
@@ -535,6 +555,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
             NewPriceDepo: Number(settersOfDataSupp.DepoCost.get()),
             NewPricePersonal: Number(settersOfDataSupp.PersonalCost.get()),
             SuppId: settersOfDataSupp.SuppId.get(),
+            OldNameSupp: settersOfDataSupp.OldSupplierName.get(),
           },
           refetchQueries: [{ query: HistoryDataDocument }],
           awaitRefetchQueries: true,
@@ -543,7 +564,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
 
       if (updateHistory?.data?.updateHistory?.message) {
         setterForAlertMesssage.msgHistory.set(
-          MessageUpdateHistory(updateHistory?.data?.updateHistory?.message),
+          updateHistory?.data?.updateHistory?.message,
         );
       }
     }
@@ -565,14 +586,6 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
   }
   return (
     <Typography component={'div'}>
-      <div style={{ alignSelf: 'center' }}>
-        {MyAlert({
-          succesUpade: setterForAlertMesssage.succesUpdate.value,
-          errUpdate: setterForAlertMesssage.errUpdate.value,
-          msgHisotry: setterForAlertMesssage.msgHistory.value,
-        })}
-      </div>
-
       <form
         onSubmit={handleForm}
         style={{
@@ -593,11 +606,18 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           });
           setterForAlertMesssage.set({
             errUpdate: '',
-            succesUpdate: '',
+            successUpdate: '',
             msgHistory: '',
           });
         }}
       >
+        <div style={{ alignSelf: 'center' }}>
+          {MyAlert({
+            successUpade: setterForAlertMesssage.successUpdate.value,
+            errUpdate: setterForAlertMesssage.errUpdate.value,
+            msgHisotry: setterForAlertMesssage.msgHistory.value,
+          })}
+        </div>
         <CustomFieldset>
           <legend
             style={{
@@ -662,7 +682,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
           </LocalizationProvider>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              label="Pick up"
+              label="Vyzvednutí"
               disablePast
               minDate={dayjs()}
               onError={(e: DateValidationError) =>

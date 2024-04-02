@@ -110,19 +110,22 @@ export default function UserPage() {
                         <Typography component={'div'}>
                           <strong>Data zásilkové služby</strong>
                           <Typography component={'p'}>
-                            Jmeno: {historyItm.suppData.name}
+                            <strong>Jméno</strong>: {historyItm.suppData.name}
                           </Typography>
                           <Typography component={'p'}>
-                            Pojisteni: {historyItm.suppData.insurance} Kč
+                            <strong>Pojištění</strong>:{' '}
+                            {historyItm.suppData.insurance} Kč
                           </Typography>
                           <Typography component={'p'}>
-                            Doruceni: {historyItm.suppData.delivery}
+                            <strong>Doručení</strong>:{' '}
+                            {historyItm.suppData.delivery}
                           </Typography>
                           <Typography component={'p'}>
-                            Vyzvednuti: {historyItm.suppData.pickup}
+                            <strong>Vyzvednutí</strong>:{' '}
+                            {historyItm.suppData.pickup}
                           </Typography>
                           <Typography component={'p'}>
-                            V boxu:{' '}
+                            <strong>V boxu</strong>:{' '}
                             {historyItm.suppData.packInBox === 'No'
                               ? 'Ne'
                               : historyItm.suppData.packInBox === 'Yes'
@@ -130,7 +133,7 @@ export default function UserPage() {
                               : ''}
                           </Typography>
                           <Typography component={'p'}>
-                            Štítek:{' '}
+                            <strong>Štítek</strong>:{' '}
                             {historyItm.suppData.shippingLabel === 'No'
                               ? 'Ne'
                               : historyItm.suppData.shippingLabel === 'Yes'
@@ -138,7 +141,7 @@ export default function UserPage() {
                               : ''}
                           </Typography>
                           <Typography component={'p'}>
-                            Na dobírku:{' '}
+                            <strong>Na dobírku</strong>:{' '}
                             {historyItm.suppData.sendCashDelivery === 'No'
                               ? 'Ne'
                               : historyItm.suppData.sendCashDelivery === 'Yes'
@@ -146,7 +149,7 @@ export default function UserPage() {
                               : ''}
                           </Typography>
                           <Typography component={'p'}>
-                            Ve folii:{' '}
+                            <strong>Ve fólii</strong>:{' '}
                             {historyItm.suppData.foil === 'No'
                               ? 'Ne'
                               : historyItm.suppData.foil === 'Yes'
@@ -154,14 +157,15 @@ export default function UserPage() {
                               : ''}
                           </Typography>
                           <Typography component={'p'}>
-                            Celkova cena: {historyItm.suppData.cost}
+                            <strong>Celková cena</strong>:{' '}
+                            {historyItm.suppData.cost}
                           </Typography>
                         </Typography>
                       </Typography>
                     }
                   ></CustomDialog>
                   <Typography component={'div'} margin={'auto'}>
-                    <strong>Oznaceni</strong>
+                    <strong>Označení</strong>
                     <Typography style={{ textAlign: 'center' }} component={'p'}>
                       {historyItm.suppData.packName}
                     </Typography>

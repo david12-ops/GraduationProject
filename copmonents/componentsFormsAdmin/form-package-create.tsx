@@ -120,11 +120,7 @@ const Back = async (ids: string) => {
   await router.push(`/../../admpage/${ids}`);
 };
 
-const MessageCreatePack = (data: CreatedPackage) => {
-  return `Balíček byl vytvořen s parametry: hmotnost: ${data.weight}, délka: ${data.Plength}, šířka: ${data.width}, výška: ${data.height}`;
-};
-
-const MyAlert = (messages: { succesCreate: string; errCreate: string }) => {
+const MyAlert = (messages: { successCreate: string; errCreate: string }) => {
   let alert = <div></div>;
 
   if (messages.errCreate !== '') {
@@ -135,10 +131,34 @@ const MyAlert = (messages: { succesCreate: string; errCreate: string }) => {
     );
   }
 
-  if (messages.succesCreate !== '') {
+  if (messages.successCreate !== '') {
+    const data = JSON.parse(messages.successCreate) as CreatedPackage;
+
     alert = (
       <div>
-        <Alert severity="success">{messages.succesCreate}</Alert>
+        <Alert severity="success">
+          <div>
+            <h3>Balík s parametry</h3>
+            <p style={{ margin: '5px' }}>
+              <strong>Označení</strong>: {data.name_package}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Cena</strong>: {data.cost} Kč
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Hmotnost</strong>: {data.weight}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Délka</strong>: {data.Plength}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Šířka</strong>: {data.width}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Výška</strong>: {data.height}
+            </p>
+          </div>
+        </Alert>
       </div>
     );
   }
@@ -199,7 +219,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
 
   const setterForAlertMesssage = useHookstate({
     errCreate: '',
-    succesCreate: '',
+    successCreate: '',
   });
 
   const setterErrors = useHookstate({
@@ -282,9 +302,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
         setterErrors.errLabel.set(response.error);
       }
       if (response.data) {
-        setterForAlertMesssage.succesCreate.set(
-          MessageCreatePack(response.data),
-        );
+        setterForAlertMesssage.successCreate.set(JSON.stringify(response.data));
       }
     }
   };
@@ -306,13 +324,6 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
   }
   return (
     <Typography component={'div'}>
-      <div style={{ alignSelf: 'center' }}>
-        {MyAlert({
-          succesCreate: setterForAlertMesssage.succesCreate.value,
-          errCreate: setterForAlertMesssage.errCreate.value,
-        })}
-      </div>
-
       <form
         onSubmit={handleForm}
         style={{
@@ -323,7 +334,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
         onChange={() => {
           setterForAlertMesssage.set({
             errCreate: '',
-            succesCreate: '',
+            successCreate: '',
           });
           setterErrors.set({
             errCost: '',
@@ -335,6 +346,12 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
           });
         }}
       >
+        <div style={{ alignSelf: 'center' }}>
+          {MyAlert({
+            successCreate: setterForAlertMesssage.successCreate.value,
+            errCreate: setterForAlertMesssage.errCreate.value,
+          })}
+        </div>
         <CustomFieldset>
           <legend
             style={{

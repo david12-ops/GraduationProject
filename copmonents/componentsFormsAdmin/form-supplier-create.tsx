@@ -119,7 +119,7 @@ const isInt = (numArg: string, min: number) => {
   return parsed !== false && parsed >= min;
 };
 
-const MyAlert = (messages: { succesCreate: string; errCreate: string }) => {
+const MyAlert = (messages: { successCreate: string; errCreate: string }) => {
   let alert = <div></div>;
 
   if (messages.errCreate !== '') {
@@ -131,11 +131,45 @@ const MyAlert = (messages: { succesCreate: string; errCreate: string }) => {
     );
   }
 
-  if (messages.succesCreate !== '') {
+  if (messages.successCreate !== '') {
+    const data = JSON.parse(messages.successCreate) as DataCreatedSupp;
     alert = (
       <div>
-        <Alert severity="success">{messages.succesCreate}</Alert>
-        <Button onClick={() => Back()}>Back</Button>
+        <Alert severity="success">
+          <div>
+            <h3>Zásliková služba s parametry</h3>
+            <p style={{ margin: '5px' }}>
+              <strong>Dodání</strong>: {data.delivery}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Zabalení do folie</strong>:{' '}
+              {data.foil === 'Yes' ? 'Ano' : 'Ne'}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Pojištění</strong>:{' '}
+              {data.insurance > 0 ? data.insurance : 'bez pojištění'}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong> Zabalení do krabice</strong>:{' '}
+              {data.packInBox === 'Yes' ? 'Ano' : 'Ne'}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Vyzvednutí</strong>:{' '}
+              {data.pickUp === 'Yes' ? 'Ano' : 'Ne'}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong> Na dobírku</strong>:{' '}
+              {data.sendCashDelivery === 'Yes' ? 'Ano' : 'Ne'}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong>Štítek přiveze kurýr</strong>:{' '}
+              {data.shippingLabel === 'Yes' ? 'Ano' : 'Ne'}
+            </p>
+            <p style={{ margin: '5px' }}>
+              <strong> Jméno</strong>: {data.suppName}
+            </p>
+          </div>
+        </Alert>
       </div>
     );
   }
@@ -213,19 +247,6 @@ const Valid = (
   return undefined;
 };
 
-const MessageCreateSupp = (data: DataCreatedSupp) => {
-  return `Zásliková služba byla vytvořena s parametry: Dodání: ${
-    data.delivery
-  } \n
-  Zabalení do folie: ${data.foil === 'Yes' ? 'Ano' : 'Ne'} \n
-  Pojištění: ${data.insurance > 0 ? data.insurance : 'bez pojištění'} \n
-  Zabalení do krabice: ${data.packInBox === 'Yes' ? 'Ano' : 'Ne'} \n
-  Vyzvednutí: ${data.pickUp === 'Yes' ? 'Ano' : 'Ne'} \n
-  Na dobírku: ${data.sendCashDelivery === 'Yes' ? 'Ano' : 'Ne'} \n
-  Štítek přiveze kurýr: ${data.shippingLabel === 'Yes' ? 'Ano' : 'Ne'} \n
-  Jméno: ${data.suppName}`;
-};
-
 const Response = (
   response:
     | {
@@ -291,7 +312,7 @@ export const FormSupplier = () => {
 
   const setterForAlertMesssage = useHookstate({
     errCreate: '',
-    succesCreate: '',
+    successCreate: '',
   });
 
   const setterDateErr = useHookstate({
@@ -433,9 +454,7 @@ export const FormSupplier = () => {
       }
 
       if (response.data) {
-        setterForAlertMesssage.succesCreate.set(
-          MessageCreateSupp(response.data),
-        );
+        setterForAlertMesssage.successCreate.set(JSON.stringify(response.data));
       }
     }
   };
@@ -467,7 +486,7 @@ export const FormSupplier = () => {
         onChange={() => {
           setterForAlertMesssage.set({
             errCreate: '',
-            succesCreate: '',
+            successCreate: '',
           });
           setterErrors.set({
             errInsurance: '',
@@ -481,14 +500,13 @@ export const FormSupplier = () => {
           });
         }}
       >
-        {
-          <div style={{ alignSelf: 'center' }}>
-            {MyAlert({
-              succesCreate: setterForAlertMesssage.succesCreate.value,
-              errCreate: setterForAlertMesssage.errCreate.value,
-            })}
-          </div>
-        }
+        <div style={{ alignSelf: 'center' }}>
+          {MyAlert({
+            successCreate: setterForAlertMesssage.successCreate.value,
+            errCreate: setterForAlertMesssage.errCreate.value,
+          })}
+        </div>
+
         <CustomFieldset>
           <legend
             style={{

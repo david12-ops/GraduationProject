@@ -58,6 +58,7 @@ const typeDefs = gql`
       packName: String
       oldPackName: String
       suppData: DataUpdateSupp
+      oldSuppName: String
     ): HistoryMessage
 
     updatePack(
@@ -247,6 +248,7 @@ const typeDefs = gql`
 const db = firestore();
 
 const adminEm = process.env.NEXT_PUBLIC_AdminEm;
+const responseSuccess = 'Úprava historie uživatelů byla úspěšná';
 
 // validace pro supplier
 const ConverBool = (
@@ -283,14 +285,14 @@ type DataUpdateSupp = {
   supplierId: string;
 };
 
-const doMathForPackage = async (
+const doMathForPackage = (
   data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
   nPriceP: number,
-  historyDoc:
-    | FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
-    | undefined,
+  historyDoc: Array<
+    FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+  >,
   nameOfPack: string,
-): Promise<string> => {
+): string => {
   let msg = '';
 
   let sum = 0;
@@ -306,31 +308,34 @@ const doMathForPackage = async (
     };
   };
 
-  data.forEach((item) => {
-    const loc: Location = item.data().location;
-    sum =
-      nPriceP +
-      Number(loc.depoDelivery.cost) +
-      Number(loc.personalDelivery.cost);
-  });
+  if (historyDoc.length > 0) {
+    data.forEach((item) => {
+      const loc: Location = item.data().location;
+      sum =
+        nPriceP +
+        Number(loc.depoDelivery.cost) +
+        Number(loc.personalDelivery.cost);
+    });
 
-  if (historyDoc) {
-    const historyDocumentRef = historyDoc.ref;
-    if (nameOfPack === historyDoc.data().suppData.packName) {
+    historyDoc.forEach(async (doc) => {
+      const historyDocumentRef = doc.ref;
+      if (nameOfPack === doc.data().suppData.packName) {
+        await historyDocumentRef.update(
+          new firestore.FieldPath('suppData', 'cost'),
+          sum,
+        );
+        msg = responseSuccess;
+      }
       await historyDocumentRef.update(
         new firestore.FieldPath('suppData', 'cost'),
         sum,
+        new firestore.FieldPath('suppData', 'packName'),
+        nameOfPack,
       );
-    }
-    await historyDocumentRef.update(
-      new firestore.FieldPath('suppData', 'cost'),
-      sum,
-      new firestore.FieldPath('suppData', 'packName'),
-      nameOfPack,
-    );
-    msg = 'Úprava v historii';
+      msg = responseSuccess;
+    });
   } else {
-    msg = 'Nic k úpravě';
+    msg = 'Žádná úprava v historii neproběhla';
     return msg;
   }
 
@@ -341,7 +346,9 @@ const doMatchForOptionsDelivery = async (
   data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
   nPriceDepo: number,
   nPriceP: number,
-  historyDoc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
+  historyDoc: Array<
+    FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+  >,
   supplierData: DataUpdateSupp,
   // eslint-disable-next-line sonarjs/cognitive-complexity
 ) => {
@@ -404,6 +411,7 @@ const doMatchForOptionsDelivery = async (
   const sum = nPriceDepo + nPriceP;
   const historyIds: Array<string> = [];
   let msg = '';
+  const historyQuerySnapshot = await db.collection('History').get();
 
   const getCostByName = (
     dataPack: Array<PackInfo>,
@@ -521,36 +529,34 @@ const doMatchForOptionsDelivery = async (
     return undefined;
   };
 
-  historyDoc.forEach((doc) => {
-    const item = doc.data() as HistoryDoc;
-    namesPack.push(item.suppData.packName);
-  });
+  if (historyQuerySnapshot && historyDoc.length > 0) {
+    historyDoc.forEach((doc) => {
+      const item = doc.data() as HistoryDoc;
+      namesPack.push(item.suppData.packName);
+    });
 
-  data.forEach((item) => {
-    const packages = item.data().package;
-    pack = packages;
-  });
+    data.forEach((item) => {
+      const packages = item.data().package;
+      pack = packages;
+    });
 
-  pack.forEach((itmPack: Package) => {
-    const key = Object.keys(itmPack)[0];
-    const packItm = itmPack[key];
-    if (namesPack.includes(packItm.name_package)) {
-      packInfo.push({ cost: packItm.cost, namePack: packItm.name_package });
-    }
-  });
-
-  historyDoc.forEach((doc) => {
-    const item = doc.data() as HistoryDoc;
-    packInfo.forEach((itm: PackInfo) => {
-      if (item.suppData.packName === itm.namePack) {
-        historyIds.push(item.historyId);
+    pack.forEach((itmPack: Package) => {
+      const key = Object.keys(itmPack)[0];
+      const packItm = itmPack[key];
+      if (namesPack.includes(packItm.name_package)) {
+        packInfo.push({ cost: packItm.cost, namePack: packItm.name_package });
       }
     });
-  });
 
-  const historyQuerySnapshot = await db.collection('History').get();
+    historyDoc.forEach((doc) => {
+      const item = doc.data() as HistoryDoc;
+      packInfo.forEach((itm: PackInfo) => {
+        if (item.suppData.packName === itm.namePack) {
+          historyIds.push(item.historyId);
+        }
+      });
+    });
 
-  if (historyQuerySnapshot) {
     historyQuerySnapshot.forEach((document) => {
       const dataDoc = document.data() as HistoryDoc;
       historyIds.forEach(async (id) => {
@@ -585,15 +591,18 @@ const doMatchForOptionsDelivery = async (
         }
       });
     });
+
+    if (
+      historyQuerySnapshot.docChanges() &&
+      historyQuerySnapshot.docChanges().length > 0
+    ) {
+      msg = responseSuccess;
+      return msg;
+    }
+  } else {
+    msg = 'Žádná úprava v historii neproběhla';
   }
 
-  if (
-    historyQuerySnapshot.docChanges() &&
-    historyQuerySnapshot.docChanges().length > 0
-  ) {
-    msg = 'Úprava historie uživatelů byla úspěšná';
-    return msg;
-  }
   return msg;
 };
 
@@ -906,7 +915,7 @@ const resolvers = {
               Cost: cost,
               Name: item.name_package,
               param: {
-                width: item.weight,
+                width: item.width,
                 length: item.Plength,
                 weight: item.weight,
                 height: item.height,
@@ -918,7 +927,7 @@ const resolvers = {
             Cost: item.cost,
             Name: item.name_package,
             param: {
-              width: item.weight,
+              width: item.width,
               length: item.Plength,
               weight: item.weight,
               height: item.height,
@@ -934,6 +943,8 @@ const resolvers = {
         });
 
         const cleared = suitableByCost.filter((itm) => itm !== undefined);
+
+        console.log('suitableByCost', cleared);
 
         const groupedById = _.groupBy(cleared, 'supplierId');
 
@@ -953,18 +964,18 @@ const resolvers = {
           };
 
           if (
-            item.param.width > item2.param.width ||
-            item.param.weight > item2.param.weight ||
-            item.param.length > item2.param.length ||
+            item.param.width > item2.param.width &&
+            item.param.weight > item2.param.weight &&
+            item.param.length > item2.param.length &&
             item.param.height > item2.param.height
           ) {
             bettterPack = item2;
           }
 
           if (
-            item.param.width < item2.param.width ||
-            item.param.weight < item2.param.weight ||
-            item.param.length < item2.param.length ||
+            item.param.width < item2.param.width &&
+            item.param.weight < item2.param.weight &&
+            item.param.length < item2.param.length &&
             item.param.height < item2.param.height
           ) {
             bettterPack = item;
@@ -984,6 +995,8 @@ const resolvers = {
             ) {
               const prev = packagesDictionary[itm.supplierId] ?? undefined;
               // eslint-disable-next-line unicorn/prefer-ternary, unicorn/no-negated-condition
+
+              // eslint-disable-next-line unicorn/no-negated-condition, unicorn/prefer-ternary
               if (!prev) {
                 packagesDictionary[itm.supplierId] = {
                   supplierId: itm.supplierId,
@@ -1014,6 +1027,8 @@ const resolvers = {
           });
         });
 
+        console.log('item', rtrnItem);
+
         if (rtrnItem.length > 0) {
           return {
             __typename: 'Suitable',
@@ -1022,7 +1037,7 @@ const resolvers = {
         }
         return {
           __typename: 'ErrorMessage',
-          message: `Žádná vhodná ${constant} s vhodným balíkem`,
+          message: `Žádná vhodná ${constant.toLowerCase()} s vhodným balíkem`,
         };
       } catch (error) {
         console.error(
@@ -1365,9 +1380,9 @@ const resolvers = {
     ) => {
       const {
         supplierName: SuppName,
-        delivery: isDelivered,
+        delivery: Delivery,
         shippingLabel: hasShippingLabel,
-        pickUp: PickupPoint,
+        pickUp: PickuUp,
         foil: hasFoil,
         insurance: InsuranceValue,
         sendCashDelivery: SendCashOnDelivery,
@@ -1424,18 +1439,18 @@ const resolvers = {
         ) {
           return {
             __typename: 'SupplierError',
-            message: `Toto jméno používá jiná ${constant}`,
+            message: `Toto jméno používá jiná ${constant.toLowerCase()}`,
           };
         }
 
-        if (!isValid(new Date(isDelivered))) {
+        if (!isValid(new Date(Delivery))) {
           return {
             __typename: 'SupplierError',
             message: 'Datum dodání není platné',
           };
         }
 
-        if (!isValid(new Date(PickupPoint))) {
+        if (!isValid(new Date(PickuUp))) {
           return {
             __typename: 'SupplierError',
             message: 'Datum vyzvednutí není platné',
@@ -1470,7 +1485,7 @@ const resolvers = {
           };
         }
 
-        if (PickupPoint < isDelivered) {
+        if (new Date(PickuUp) < new Date(Delivery)) {
           return {
             __typename: 'SupplierError',
             message: 'Datum vyzvednutí nemůže být dřív než datum doručení',
@@ -1489,8 +1504,8 @@ const resolvers = {
           packInBox: PackageInABox,
           supplierId: newSuppDoc.id,
           suppName: SuppName,
-          pickUp: PickupPoint,
-          delivery: isDelivered,
+          pickUp: PickuUp,
+          delivery: Delivery,
           insurance: InsuranceValue,
           shippingLabel: hasShippingLabel,
           foil: hasFoil,
@@ -1703,9 +1718,9 @@ const resolvers = {
     ) => {
       const {
         supplierName: SuppName,
-        delivery: isDelivered,
+        delivery: Delivery,
         shippingLabel: hasShippingLabel,
-        pickUp: PickupPoint,
+        pickUp: PickuUp,
         foil: hasFoil,
         insurance: InsuranceValue,
         sendCashDelivery: SendCashOnDelivery,
@@ -1750,14 +1765,14 @@ const resolvers = {
           };
         }
 
-        if (!isValid(new Date(isDelivered))) {
+        if (!isValid(new Date(Delivery))) {
           return {
             __typename: 'SupplierError',
             message: 'Datum dodání není platné',
           };
         }
 
-        if (!isValid(new Date(PickupPoint))) {
+        if (!isValid(new Date(PickuUp))) {
           return {
             __typename: 'SupplierError',
             message: 'Datum vyzvednutí není platné',
@@ -1805,11 +1820,11 @@ const resolvers = {
         if (duplicateSupp) {
           return {
             __typename: 'SupplierError',
-            message: `Toto jméno používá jiná ${constant}`,
+            message: `Toto jméno používá jiná ${constant.toLowerCase()}`,
           };
         }
 
-        if (PickupPoint < isDelivered) {
+        if (new Date(PickuUp) < new Date(Delivery)) {
           return {
             __typename: 'SupplierError',
             message: 'Datum vyzvednutí nemůže být dřívější než datum doručení',
@@ -1832,8 +1847,8 @@ const resolvers = {
           sendCashDelivery: SendCashOnDelivery,
           packInBox: PackageInABox,
           suppName: SuppName,
-          pickUp: PickupPoint,
-          delivery: isDelivered,
+          pickUp: PickuUp,
+          delivery: Delivery,
           insurance: InsuranceValue,
           shippingLabel: hasShippingLabel,
           foil: hasFoil,
@@ -1844,8 +1859,8 @@ const resolvers = {
           sendCashDelivery: SendCashOnDelivery,
           packInBox: PackageInABox,
           suppName: SuppName,
-          pickUp: PickupPoint,
-          delivery: isDelivered,
+          pickUp: PickuUp,
+          delivery: Delivery,
           insurance: InsuranceValue,
           shippingLabel: hasShippingLabel,
           foil: hasFoil,
@@ -1878,6 +1893,7 @@ const resolvers = {
         packName: string;
         oldPackName: string;
         suppData: DataUpdateSupp;
+        oldSuppName: string;
       },
       context: MyContext,
       // eslint-disable-next-line sonarjs/cognitive-complexity, consistent-return
@@ -1890,25 +1906,46 @@ const resolvers = {
         packName: nameOfpack,
         oldPackName: oldNameOfpack,
         suppData: dataS,
+        oldSuppName: oldSName,
       } = args;
 
       try {
         let msg = '';
-        const getDoc = (
+        const getDocsPack = (
           doc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
           sID: string,
           packageName: string,
         ) => {
+          const docs: Array<
+            FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+          > = [];
           for (const document of doc.docs) {
             const item = document.data();
             if (
               item.suppData.id === sID &&
               item.suppData.packName === packageName
             ) {
-              return document;
+              docs.push(document);
             }
           }
-          return undefined;
+          return docs;
+        };
+
+        const getDocSupp = (
+          doc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
+          sID: string,
+          suppName: string,
+        ) => {
+          const docs: Array<
+            FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+          > = [];
+          for (const document of doc.docs) {
+            const item = document.data();
+            if (item.suppData.id === sID && item.suppData.name === suppName) {
+              docs.push(document);
+            }
+          }
+          return docs;
         };
 
         if (context.user?.email !== adminEm) {
@@ -1929,19 +1966,22 @@ const resolvers = {
           .where('suppData.id', '==', sId)
           .get();
 
-        if (nPriceP && nPriceDepo && dataS) {
+        console.log(dataS.suppName);
+
+        if (nPriceP && nPriceDepo && dataS && sId) {
+          const historyDoc = getDocSupp(historyDocuments, sId, oldSName);
           msg = await doMatchForOptionsDelivery(
             SuppDocuments,
             nPriceDepo,
             nPriceP,
-            historyDocuments,
+            historyDoc,
             dataS,
           );
         }
 
         if (nPricrePack && nameOfpack && sId && oldNameOfpack) {
-          const historyDoc = getDoc(historyDocuments, sId, oldNameOfpack);
-          msg = await doMathForPackage(
+          const historyDoc = getDocsPack(historyDocuments, sId, oldNameOfpack);
+          msg = doMathForPackage(
             SuppDocuments,
             nPricrePack,
             historyDoc,
@@ -1960,6 +2000,7 @@ const resolvers = {
       parent_: any,
       args: { key: string; suppId: string },
       context: MyContext,
+      // eslint-disable-next-line sonarjs/cognitive-complexity
     ) => {
       type Package = {
         [name: string]: {
@@ -1983,6 +2024,7 @@ const resolvers = {
         deleted = false;
         return { deletion: deleted, error: err };
       }
+      console.error('kliccccc', Pack);
 
       try {
         const SupplierDoc = await db
@@ -1997,11 +2039,12 @@ const resolvers = {
           id: string,
           packages: Array<Package>,
         ): string | undefined => {
-          let packageName;
           for (const pack of packages) {
-            packageName = pack[id].name_package;
+            if (pack[id]) {
+              return pack[id].name_package;
+            }
           }
-          return packageName;
+          return undefined;
         };
 
         const HistoryDoc = await db
@@ -2012,7 +2055,9 @@ const resolvers = {
 
         const historyDoc = HistoryDoc.docs[0];
 
-        if (supplierDoc.exists && historyDoc.exists) {
+        if (SupplierDoc.empty) {
+          err = NotFoundMsg(constant);
+        } else {
           // eslint-disable-next-line max-depth
           if (existingPackages) {
             newArray = existingPackages.filter((item) => !item[Pack]);
@@ -2022,14 +2067,15 @@ const resolvers = {
           }
           // eslint-disable-next-line max-depth
           if (find) {
-            await historyDoc.ref.delete();
             await supplierDoc.ref.update({ package: newArray });
             deleted = true;
           } else {
             err = NotFoundMsg('Balík');
           }
-        } else {
-          err = NotFoundMsg(constant);
+          // eslint-disable-next-line max-depth
+          if (historyDoc) {
+            await historyDoc.ref.delete();
+          }
         }
         return { deletion: deleted, error: err };
       } catch (error) {
@@ -2065,9 +2111,9 @@ const resolvers = {
 
           if (!snapshot.empty) {
             await snapshot.docs[0].ref.delete();
-            if (!snapshotHistory.empty) {
-              await snapshotHistory.docs[0].ref.delete();
-            }
+          }
+          if (!snapshotHistory.empty) {
+            await snapshotHistory.docs[0].ref.delete();
           }
         });
         deleted = true;

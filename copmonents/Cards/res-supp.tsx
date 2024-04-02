@@ -20,7 +20,7 @@ const CusotmBtn = styled(Button)({
 });
 
 const MyAlert = (message: string) => {
-  return message.includes('uloženo') ? (
+  return /Bylo už uloženo do historie/.test(message) === false ? (
     <Alert severity="success">{message}</Alert>
   ) : (
     <Alert severity="error">{message}</Alert>

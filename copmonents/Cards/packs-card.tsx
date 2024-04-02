@@ -1,14 +1,4 @@
-import CloseIcon from '@mui/icons-material/Close';
-import {
-  Button,
-  CardActions,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Link,
-  styled,
-} from '@mui/material';
+import { Button, CardActions, Link, styled } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -20,15 +10,6 @@ import {
   SuppDataDocument,
   useDeletePacMutation,
 } from '@/generated/graphql';
-
-const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialogContent-root': {
-    padding: theme.spacing(2),
-  },
-  '& .MuiDialogActions-root': {
-    padding: theme.spacing(1),
-  },
-}));
 
 const DelButton = styled(Button)({
   backgroundColor: 'red',
@@ -42,40 +23,6 @@ const UpdateButton = styled(Button)({
   padding: '8px 13px',
 });
 
-const ErrDialog = (title: string, description: JSX.Element) => {
-  const [open, setOpen] = React.useState(false);
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-  return (
-    <BootstrapDialog
-      onClose={handleClose}
-      aria-labelledby="customized-dialog-title"
-      open={open}
-    >
-      <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-        {title}
-      </DialogTitle>
-      <IconButton
-        aria-label="close"
-        onClick={handleClose}
-        sx={{
-          position: 'absolute',
-          right: 8,
-          top: 8,
-          color: (theme) => theme.palette.grey[500],
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <DialogContent dividers>
-        <Typography gutterBottom>{description}</Typography>
-      </DialogContent>
-    </BootstrapDialog>
-  );
-};
-
 type Props = {
   Heiht: number;
   Weight: number;
@@ -85,26 +32,6 @@ type Props = {
   Cost: number;
   keyPac: string;
   sId: string;
-};
-
-const Description = (deleteion: boolean, error: string | null | undefined) => {
-  let description: JSX.Element | undefined;
-  if (!deleteion) {
-    description = (
-      <Typography component={'p'}>Smazaní balíku nebylo úspěšné</Typography>
-    );
-  }
-  if (error) {
-    description = <Typography component={'p'}>{error}</Typography>;
-  }
-  if (!deleteion && error) {
-    description = (
-      <Typography component={'p'}>
-        Smazaní balíku nebylo úspěšné : {error}
-      </Typography>
-    );
-  }
-  return description;
 };
 
 export const PackCard: React.FC<Props> = ({
@@ -130,12 +57,9 @@ export const PackCard: React.FC<Props> = ({
       ],
       awaitRefetchQueries: true,
     }).catch((error: string) => console.error(error));
-    const description = Description(
-      !!deleted?.data?.deletePack?.deletion,
-      deleted?.data?.deletePack?.error,
-    );
-    if (description) {
-      ErrDialog('Chyba při mazání', description);
+
+    if (!deleted?.data?.deletePack?.deletion) {
+      console.error(deleted?.data?.deletePack?.error);
     }
   };
   return (

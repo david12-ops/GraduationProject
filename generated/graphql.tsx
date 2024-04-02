@@ -134,6 +134,7 @@ export type MutationUpdateHistoryArgs = {
   newPricePack?: InputMaybe<Scalars['Int']>;
   newPricePersonal?: InputMaybe<Scalars['Int']>;
   oldPackName?: InputMaybe<Scalars['String']>;
+  oldSuppName?: InputMaybe<Scalars['String']>;
   packName?: InputMaybe<Scalars['String']>;
   suppData?: InputMaybe<DataUpdateSupp>;
   suppId?: InputMaybe<Scalars['String']>;
@@ -347,6 +348,7 @@ export type UpdateHistoryMutationVariables = Exact<{
   SuppId?: InputMaybe<Scalars['String']>;
   PackageName?: InputMaybe<Scalars['String']>;
   OldPackName?: InputMaybe<Scalars['String']>;
+  OldNameSupp?: InputMaybe<Scalars['String']>;
   SuppData?: InputMaybe<DataUpdateSupp>;
 }>;
 
@@ -740,6 +742,7 @@ export const UpdateHistoryDocument = gql`
     $SuppId: String
     $PackageName: String
     $OldPackName: String
+    $OldNameSupp: String
     $SuppData: DataUpdateSupp
   ) {
     updateHistory(
@@ -750,6 +753,7 @@ export const UpdateHistoryDocument = gql`
       packName: $PackageName
       oldPackName: $OldPackName
       suppData: $SuppData
+      oldSuppName: $OldNameSupp
     ) {
       message
     }
@@ -779,6 +783,7 @@ export type UpdateHistoryMutationFn = Apollo.MutationFunction<
  *      SuppId: // value for 'SuppId'
  *      PackageName: // value for 'PackageName'
  *      OldPackName: // value for 'OldPackName'
+ *      OldNameSupp: // value for 'OldNameSupp'
  *      SuppData: // value for 'SuppData'
  *   },
  * });

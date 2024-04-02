@@ -105,16 +105,12 @@ const Back = async (ids: string) => {
   await router.push(`/../../admpage/${ids}`);
 };
 
-const MessageUpdatePack = (data: UpdatedPack) => {
-  return `Balík byl upraven s parametry: hmotnost: ${data.weight}, délka: ${data.Plength}, šířka: ${data.width}, výška: ${data.height}`;
-};
-
 const MessageUpdateHistory = (message: string) => {
   return `Status úpravy historie : ${message}`;
 };
 
 const MyAlert = (messages: {
-  succesUpade: string;
+  successUpade: string;
   errUpdate: string;
   msgHisotry: string;
 }) => {
@@ -128,12 +124,35 @@ const MyAlert = (messages: {
     );
   }
 
-  if (messages.succesUpade !== '' && messages.msgHisotry !== '') {
+  if (messages.successUpade !== '' && messages.msgHisotry !== '') {
+    const data = JSON.parse(messages.successUpade) as UpdatedPack;
     alert = (
-      <div>
-        <Alert severity="success">{messages.succesUpade}</Alert>
-        <Alert severity="success">{messages.msgHisotry}</Alert>
-      </div>
+      <Alert severity="success">
+        <div>
+          <h3>Balík s parametry</h3>
+          <p style={{ margin: '5px' }}>
+            <strong>Označení</strong>: {data.name_package}
+          </p>
+          <p style={{ margin: '5px' }}>
+            <strong>Cena</strong>: {data.cost} Kč
+          </p>
+          <p style={{ margin: '5px' }}>
+            <strong>Hmotnost</strong>: {data.weight}
+          </p>
+          <p style={{ margin: '5px' }}>
+            <strong>Délka</strong>: {data.Plength}
+          </p>
+          <p style={{ margin: '5px' }}>
+            <strong>Šířka</strong>: {data.width}
+          </p>
+          <p style={{ margin: '5px' }}>
+            <strong>Výška</strong>: {data.height}
+          </p>
+          <p style={{ margin: '5px' }}>
+            <strong>Status úpravy historie</strong>: {messages.msgHisotry}
+          </p>
+        </div>
+      </Alert>
     );
   }
 
@@ -149,19 +168,22 @@ const isInt = (numArg: string, min: number) => {
 const setDataDatabase = (pId: string, data: Item): DataFrServer | undefined => {
   for (const item of data) {
     const packs: Array<Package> = item.package as Array<Package>;
-    for (const pack of packs) {
-      const itm = pack[pId];
+    if (packs) {
       // eslint-disable-next-line max-depth
-      if (itm) {
-        return {
-          SuppId: item.supplierId,
-          PackName: itm.name_package,
-          Cost: itm.cost.toString(),
-          Plength: itm.Plength.toString(),
-          Weight: itm.weight.toString(),
-          Width: itm.width.toString(),
-          Height: itm.height.toString(),
-        };
+      for (const pack of packs) {
+        const itm = pack[pId];
+        // eslint-disable-next-line max-depth
+        if (itm) {
+          return {
+            SuppId: item.supplierId,
+            PackName: itm.name_package,
+            Cost: itm.cost.toString(),
+            Plength: itm.Plength.toString(),
+            Weight: itm.weight.toString(),
+            Width: itm.width.toString(),
+            Height: itm.height.toString(),
+          };
+        }
       }
     }
   }
@@ -259,7 +281,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
 
   const setterForAlertMesssage = useHookstate({
     errUpdate: '',
-    succesUpdate: '',
+    successUpdate: '',
     msgHistory: '',
   });
 
@@ -298,6 +320,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       userApp.Admin.set(true);
     }
     if (id && SuppPackages.data && SuppPackages) {
+      console.log('data', SuppPackages.data);
       const data = setDataDatabase(id, SuppPackages.data.suplierData);
       if (data) {
         SetSuppId(data.SuppId);
@@ -313,7 +336,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
         });
       }
     }
-  }, [id, SuppPackages]);
+  }, [SuppPackages]);
 
   const handleForm = async (event?: React.FormEvent) => {
     event?.preventDefault();
@@ -339,7 +362,10 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           PackKey: id,
           SuppId: settersForDataPack.SuppId.get(),
         },
-        refetchQueries: [{ query: SuppDataDocument }],
+        refetchQueries: [
+          { query: SuppDataDocument },
+          { query: HistoryDataDocument },
+        ],
         awaitRefetchQueries: true,
       }).catch((error: string) => console.error(error));
 
@@ -362,9 +388,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
       let updateHistory;
       if (response.data) {
         SetSuppId(response.data.supplier_id);
-        setterForAlertMesssage.succesUpdate.set(
-          MessageUpdatePack(response.data),
-        );
+        setterForAlertMesssage.successUpdate.set(JSON.stringify(response.data));
         updateHistory = await UpdateHistory({
           variables: {
             PackageName: response.data.name_package,
@@ -402,14 +426,6 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
   }
   return (
     <Typography component={'div'}>
-      <div style={{ alignSelf: 'center' }}>
-        {MyAlert({
-          succesUpade: setterForAlertMesssage.succesUpdate.value,
-          errUpdate: setterForAlertMesssage.errUpdate.value,
-          msgHisotry: setterForAlertMesssage.msgHistory.value,
-        })}
-      </div>
-
       <form
         onSubmit={handleForm}
         style={{
@@ -420,7 +436,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
         onChange={() => {
           setterForAlertMesssage.set({
             errUpdate: '',
-            succesUpdate: '',
+            successUpdate: '',
             msgHistory: '',
           });
           setterErrors.set({
@@ -433,6 +449,13 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
           });
         }}
       >
+        <div style={{ alignSelf: 'center' }}>
+          {MyAlert({
+            successUpade: setterForAlertMesssage.successUpdate.value,
+            errUpdate: setterForAlertMesssage.errUpdate.value,
+            msgHisotry: setterForAlertMesssage.msgHistory.value,
+          })}
+        </div>
         <CustomFieldset>
           <legend
             style={{
