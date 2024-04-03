@@ -1,3 +1,4 @@
+import { QueryResult } from '@apollo/client';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { Box, Button, styled, Typography } from '@mui/material';
@@ -6,7 +7,9 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 
 import {
+  Exact,
   HistoryDataDocument,
+  HistoryDataQuery,
   useDeleteHistoryItmMutation,
   useHistoryDataQuery,
 } from '@/generated/graphql';
@@ -36,6 +39,17 @@ const CustomBoxBtnPart = styled(Box)({
   flexWrap: 'wrap',
   justifyContent: 'center',
 });
+
+const Refetch = async (
+  data: QueryResult<
+    HistoryDataQuery,
+    Exact<{
+      [key: string]: never;
+    }>
+  >,
+) => {
+  await data.refetch();
+};
 
 // eslint-disable-next-line import/no-default-export
 export default function UserPage() {
@@ -73,8 +87,9 @@ export default function UserPage() {
             Historie
           </Typography>
           <DropDownBtn
-            onClick={() => {
+            onClick={async () => {
               SetClose((prev) => !prev);
+              await Refetch(historyData);
             }}
           >
             {close ? <ArrowDropDownIcon /> : <ArrowDropUpIcon />}
