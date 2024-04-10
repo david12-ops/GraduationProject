@@ -249,7 +249,8 @@ const db = firestore();
 
 const adminId = process.env.NEXT_PUBLIC_ADMIN_ID;
 const responseSuccess = 'Úprava historie uživatelům byla úspěšná';
-const responseFail = 'Žádná úprava v historii neproběhla';
+const responseFail = 'Úprava v historii neproběhla úspěšně';
+const responseInfo = 'Žádná úprava v historii neproběhla';
 
 // validace pro supplier
 const ConverBool = (
@@ -286,14 +287,14 @@ type DataUpdateSupp = {
   supplierId: string;
 };
 
-const doMathForPackage = (
+const doMathForPackage = async (
   data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
   nPriceP: number,
   historyDoc: Array<
     FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
   >,
   nameOfPack: string,
-): string => {
+): Promise<string> => {
   let msg = '';
 
   let sum = 0;
@@ -318,32 +319,45 @@ const doMathForPackage = (
         Number(loc.personalDelivery.cost);
     });
 
-    historyDoc.forEach(async (doc) => {
+    const promises = historyDoc.map(async (doc) => {
       const historyDocumentRef = doc.ref;
       if (nameOfPack === doc.data().suppData.packName) {
+        try {
+          await historyDocumentRef.update(
+            new firestore.FieldPath('suppData', 'cost'),
+            sum,
+          );
+          msg = responseSuccess;
+        } catch {
+          msg = responseFail;
+        }
+      }
+      try {
         await historyDocumentRef.update(
           new firestore.FieldPath('suppData', 'cost'),
           sum,
+          new firestore.FieldPath('suppData', 'packName'),
+          nameOfPack,
         );
         msg = responseSuccess;
+      } catch {
+        msg = responseFail;
       }
-      await historyDocumentRef.update(
-        new firestore.FieldPath('suppData', 'cost'),
-        sum,
-        new firestore.FieldPath('suppData', 'packName'),
-        nameOfPack,
-      );
     });
-    msg = responseSuccess;
+    await Promise.all(promises);
   } else {
-    msg = responseFail;
+    msg = responseInfo;
   }
 
   return msg;
 };
 
-const doMatchForOptionsDelivery = (
-  data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
+const doMathForOptionsDelivery = async (
+  dataPackage: Array<{
+    cost: number;
+    namePack: string;
+    suppName: string;
+  }>,
   nPriceDepo: number,
   nPriceP: number,
   historyDoc: Array<
@@ -378,224 +392,85 @@ const doMatchForOptionsDelivery = (
     };
   };
 
-  type Package = {
-    [name: string]: {
-      weight: number;
-      height: number;
-      width: number;
-      Plength: number;
-      name_package: string;
+  type Response = {
+    docID?: string;
+    message: string;
+  };
+
+  const getCost = (
+    dataOfPacks: Array<{
       cost: number;
-    };
-  };
-
-  type PackInfo = {
-    cost: number;
-    namePack: string;
-  };
-
-  type DifferentData = {
-    delivery: string | null;
-    foil: string | null;
-    insurance: number | null;
-    packInBox: string | null;
-    pickUp: string | null;
-    sendCashDelivery: string | null;
-    shippingLabel: string | null;
-    suppName: string | null;
-  };
-
-  const namesPack: Array<string> = [];
-  let pack: Array<Package> = [];
-  const packInfo: Array<PackInfo> = [];
-  const sum = nPriceDepo + nPriceP;
-  const historyIds: Array<string> = [];
-  let msg = '';
-
-  const getCostByName = (
-    dataPack: Array<PackInfo>,
+      namePack: string;
+      suppName: string;
+    }>,
+    nameSupp: string,
     namePack: string,
-  ): number | undefined => {
-    let cost: number | undefined;
-    dataPack.forEach((pacInf: PackInfo) => {
-      if (pacInf.namePack === namePack) {
-        cost = pacInf.cost;
-      }
-    });
-
-    return cost;
-  };
-
-  const diffData = (
-    newDataSupp: DataUpdateSupp,
-    docDataSupp: DataUpdateSupp,
-  ): DifferentData => {
-    return {
-      delivery:
-        newDataSupp.delivery === docDataSupp.delivery
-          ? null
-          : newDataSupp.delivery,
-      foil: newDataSupp.foil === docDataSupp.foil ? null : newDataSupp.foil,
-      insurance:
-        newDataSupp.insurance === docDataSupp.insurance
-          ? null
-          : newDataSupp.insurance,
-      packInBox:
-        newDataSupp.packInBox === docDataSupp.packInBox
-          ? null
-          : newDataSupp.packInBox,
-      pickUp:
-        newDataSupp.pickUp === docDataSupp.pickUp ? null : newDataSupp.pickUp,
-      sendCashDelivery:
-        newDataSupp.sendCashDelivery === docDataSupp.sendCashDelivery
-          ? null
-          : newDataSupp.sendCashDelivery,
-      shippingLabel:
-        newDataSupp.shippingLabel === docDataSupp.shippingLabel
-          ? null
-          : newDataSupp.shippingLabel,
-      suppName:
-        newDataSupp.suppName === docDataSupp.suppName
-          ? null
-          : newDataSupp.suppName,
-    };
-  };
-
-  const updateDataSupp = async (
-    document: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>,
-    dataSupp: DifferentData,
   ) => {
-    const dataS = dataSupp;
-    if (dataS.delivery !== null) {
-      await document.ref.update(
-        new firestore.FieldPath('suppData', 'delivery'),
-        dataS.delivery,
-      );
+    for (const pack of dataOfPacks) {
+      if (pack.namePack === namePack && pack.suppName === nameSupp) {
+        return pack.cost;
+      }
     }
-    if (dataS.pickUp !== null) {
-      await document.ref.update(
-        new firestore.FieldPath('suppData', 'pickup'),
-        dataS.pickUp,
-      );
-    }
-    if (dataS.foil !== null) {
-      await document.ref.update(
-        new firestore.FieldPath('suppData', 'foil'),
-        dataS.foil,
-      );
-    }
-    if (dataS.insurance !== null) {
-      await document.ref.update(
-        new firestore.FieldPath('suppData', 'insurance'),
-        dataS.insurance,
-      );
-    }
-    if (dataS.packInBox !== null) {
-      await document.ref.update(
-        new firestore.FieldPath('suppData', 'packInBox'),
-        dataS.packInBox,
-      );
-    }
-    if (dataS.sendCashDelivery !== null) {
-      await document.ref.update(
-        new firestore.FieldPath('suppData', 'sendCashDelivery'),
-        dataS.sendCashDelivery,
-      );
-    }
-    if (dataS.shippingLabel !== null) {
-      await document.ref.update(
-        new firestore.FieldPath('suppData', 'shippingLabel'),
-        dataS.shippingLabel,
-      );
-    }
-    if (dataS.suppName !== null) {
-      await document.ref.update(
-        new firestore.FieldPath('suppData', 'name'),
-        dataS.suppName,
-      );
-    }
-    msg = responseFail;
+    return 0;
   };
 
-  const isNameInArr = (
-    name: string,
-    packInf: Array<PackInfo>,
-  ): PackInfo | undefined => {
-    const isThere = packInf.find((pck) => pck.namePack === name);
-    if (isThere) {
-      return isThere;
-    }
-
-    return undefined;
-  };
+  const sum = nPriceDepo + nPriceP;
+  const response: Array<Response> = [];
 
   if (historyDoc.length > 0) {
-    historyDoc.forEach((doc) => {
-      const item = doc.data() as HistoryDoc;
-      namesPack.push(item.suppData.packName);
-    });
+    const promises = historyDoc.map(async (document) => {
+      const dataDoc = document.data() as HistoryDoc;
+      const summaryCost = sum + dataPackage[0].cost;
 
-    data.forEach((item) => {
-      const packages = item.data().package;
-      pack = packages;
-    });
+      try {
+        await document.ref.update({
+          'suppData.delivery': supplierData.delivery,
+          'suppData.pickup': supplierData.pickUp,
+          'suppData.foil': supplierData.foil,
+          'suppData.insurance': supplierData.insurance,
+          'suppData.packInBox': supplierData.packInBox,
+          'suppData.sendCashDelivery': supplierData.sendCashDelivery,
+          'suppData.shippingLabel': supplierData.shippingLabel,
+          'suppData.name': supplierData.suppName,
+        });
+        response.push({ docID: document.id, message: responseSuccess });
+      } catch {
+        response.push({ docID: document.id, message: responseFail });
+      }
 
-    pack.forEach((itmPack: Package) => {
-      const key = Object.keys(itmPack)[0];
-      const packItm = itmPack[key];
-      if (namesPack.includes(packItm.name_package)) {
-        packInfo.push({ cost: packItm.cost, namePack: packItm.name_package });
+      if (
+        dataPackage.some(
+          (pack) =>
+            pack.suppName === dataDoc.suppData.name &&
+            pack.namePack === dataDoc.suppData.packName,
+        ) &&
+        summaryCost !== dataDoc.suppData.cost
+      ) {
+        try {
+          await document.ref.update(
+            new firestore.FieldPath('suppData', 'cost'),
+            sum +
+              getCost(
+                dataPackage,
+                dataDoc.suppData.name,
+                dataDoc.suppData.packName,
+              ),
+          );
+          response.push({
+            docID: document.id,
+            message: `${responseSuccess} (cena)`,
+          });
+        } catch {
+          response.push({ docID: document.id, message: responseFail });
+        }
       }
     });
-
-    historyDoc.forEach((doc) => {
-      const item = doc.data() as HistoryDoc;
-      packInfo.forEach((itm: PackInfo) => {
-        if (item.suppData.packName === itm.namePack) {
-          historyIds.push(item.historyId);
-        }
-      });
-    });
-
-    historyDoc.forEach((document) => {
-      const dataDoc = document.data() as HistoryDoc;
-      historyIds.forEach(async (id) => {
-        if (
-          document.id === id &&
-          isNameInArr(dataDoc.suppData.packName, packInfo)
-        ) {
-          const costPack = getCostByName(packInfo, dataDoc.suppData.packName);
-
-          if (costPack) {
-            await document.ref.update(
-              new firestore.FieldPath('suppData', 'cost'),
-              sum + costPack,
-            );
-          }
-          if (supplierData) {
-            await updateDataSupp(
-              document,
-              diffData(supplierData, {
-                delivery: dataDoc.suppData.delivery,
-                foil: dataDoc.suppData.foil,
-                insurance: dataDoc.suppData.insurance,
-                packInBox: dataDoc.suppData.packInBox,
-                pickUp: dataDoc.suppData.pickup,
-                sendCashDelivery: dataDoc.suppData.sendCashDelivery,
-                shippingLabel: dataDoc.suppData.shippingLabel,
-                suppName: dataDoc.suppData.name,
-                supplierId: '',
-              }),
-            );
-          }
-        }
-      });
-    });
-    msg = responseSuccess;
+    await Promise.all(promises);
   } else {
-    msg = responseFail;
+    response.push({ message: responseInfo });
   }
-  return msg;
+
+  return response;
 };
 
 const checkIfisThereDoc = (
@@ -1886,6 +1761,31 @@ const resolvers = {
       context: MyContext,
       // eslint-disable-next-line sonarjs/cognitive-complexity, consistent-return
     ) => {
+      type Supplier = {
+        sendCashDelivery: string;
+        packInBox: string;
+        supplierId: string;
+        suppName: string;
+        pickUp: string;
+        delivery: string;
+        insurance: number;
+        shippingLabel: string;
+        foil: string;
+        package?: any | undefined;
+        location?: any | undefined;
+      };
+
+      type Package = {
+        [name: string]: {
+          weight: number;
+          height: number;
+          width: number;
+          Plength: number;
+          name_package: string;
+          cost: number;
+        };
+      };
+
       const {
         newPricePack: nPricrePack,
         newPricePersonal: nPriceP,
@@ -1896,8 +1796,13 @@ const resolvers = {
         suppData: dataS,
         oldSuppName: oldSName,
       } = args;
+      type Response = {
+        docID?: string;
+        message: string;
+      };
 
       try {
+        let response: Array<Response> = [];
         let msg = '';
         const getDocsPack = (
           doc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
@@ -1956,18 +1861,45 @@ const resolvers = {
 
         if (nPriceP && nPriceDepo && dataS && sId && oldSName) {
           const historyDoc = getDocSupp(historyDocuments, sId, oldSName);
-          msg = doMatchForOptionsDelivery(
-            SuppDocuments,
+          const packages: Array<{
+            cost: number;
+            namePack: string;
+            suppName: string;
+          }> = [];
+
+          SuppDocuments.forEach((doc) => {
+            const document = doc.data() as Supplier;
+            if (document.package) {
+              const pack = document.package as Array<Package>;
+              pack.forEach((packData) => {
+                Object.keys(packData).forEach((key) => {
+                  packages.push({
+                    cost: packData[key].cost,
+                    namePack: packData[key].name_package,
+                    suppName: document.suppName,
+                  });
+                });
+              });
+            }
+          });
+
+          response = await doMathForOptionsDelivery(
+            packages,
             nPriceDepo,
             nPriceP,
             historyDoc,
             dataS,
           );
+          msg =
+            response.length === 2 && /(cena)/.test(response[1].message)
+              ? 'Úprava historie a cen v historii uživatelům byla úspěšná'
+              : response.map((msgr) => msgr.message)[0].toString();
         }
 
         if (nPricrePack && nameOfpack && sId && oldNameOfpack) {
           const historyDoc = getDocsPack(historyDocuments, sId, oldNameOfpack);
-          msg = doMathForPackage(
+
+          msg = await doMathForPackage(
             SuppDocuments,
             nPricrePack,
             historyDoc,

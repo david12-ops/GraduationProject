@@ -34,14 +34,14 @@ const ValidCredentials = (
   email: string,
 ): { where: string | undefined; errMesage: string | undefined } => {
   const data = { pass: password, em: email };
-  const hasSymbol = /[!"#$%&()*,.:<>?@^{|}]/.test(password);
+  const hasSymbol = /[ !"#$%&()*,.<>?@^{|}]/.test(password);
   const hasNumber = /\d/.test(password);
   if (data.em.length === 0) {
     return { where: 'email', errMesage: 'E-mail nebyl poskytnut' };
   }
 
   if (data.pass.length === 0) {
-    return { where: 'password', errMesage: 'Nebylo poskytnuto heslo    ' };
+    return { where: 'password', errMesage: 'Nebylo poskytnuto heslo' };
   }
 
   if (data.pass.length < 8) {
@@ -51,7 +51,7 @@ const ValidCredentials = (
   if (!hasSymbol || !hasNumber) {
     return {
       where: 'password',
-      errMesage: 'Heslo není kombinací znaků, čísel a symbolů      ',
+      errMesage: 'Heslo není kombinací znaků, čísel a symbolů',
     };
   }
 
@@ -63,7 +63,7 @@ const ValidCredentials = (
   ) {
     return {
       where: 'password',
-      errMesage: 'Heslo obsahuje e-mailový účet      ',
+      errMesage: 'Heslo obsahuje e-mailový účet',
     };
   }
 
@@ -139,7 +139,7 @@ const Submit = async (
         break;
       }
       case 'auth/invalid-email': {
-        errSetter.errEmail.set('E-mail není valid');
+        errSetter.errEmail.set('E-mail není validní');
         break;
       }
       default: {
@@ -169,7 +169,7 @@ const Credentials = async (
   } else {
     SetAlert(
       MyAlert(
-        'Nebyly poskytnuty přihlašovací údaje k vašemu novému účtu    ',
+        'Nebyly poskytnuty přihlašovací údaje k vašemu novému účtu',
         'error',
       ),
     );
