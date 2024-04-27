@@ -344,7 +344,7 @@ const doMathForPackage = async (
         msg = responseFail;
       }
     });
-    await Promise.all(promises);
+    await Promise.allSettled(promises);
   } else {
     msg = responseInfo;
   }
@@ -465,7 +465,7 @@ const doMathForOptionsDelivery = async (
         }
       }
     });
-    await Promise.all(promises);
+    await Promise.allSettled(promises);
   } else {
     response.push({ message: responseInfo });
   }
@@ -2008,6 +2008,7 @@ const resolvers = {
     ) => {
       let deleted = false;
       let err = '';
+      let docId = '';
       if (context.user?.uid !== adminId) {
         err = admMessage;
         deleted = false;
@@ -2018,7 +2019,7 @@ const resolvers = {
       try {
         const collection = db.collection('Supplier');
         const collectionHistory = db.collection('History');
-        SupIdar.forEach(async (Idsup) => {
+        const promises = SupIdar.map(async (Idsup) => {
           const snapshot = await collection
             .where('supplierId', '==', Idsup)
             .get();
@@ -2028,12 +2029,15 @@ const resolvers = {
 
           if (!snapshot.empty) {
             await snapshot.docs[0].ref.delete();
+            deleted = true;
+            docId = snapshot.docs[0].id;
           }
           if (!snapshotHistory.empty) {
             await snapshotHistory.docs[0].ref.delete();
           }
         });
-        deleted = true;
+
+        await Promise.allSettled(promises);
         return { deletion: deleted, error: err };
       } catch (error) {
         console.error('Chyba při mazání zásilkové služby', error);
