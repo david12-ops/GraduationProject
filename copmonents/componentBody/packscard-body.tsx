@@ -63,7 +63,7 @@ export const PacksCardBody: React.FC<Props> = ({
     );
   }
 
-  if (!packages) {
+  if (packages.length === 0 || !packages) {
     return <div style={stylingWarning}>Tato zásilková služba nemá balíky</div>;
   }
 

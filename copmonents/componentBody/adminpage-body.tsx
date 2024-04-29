@@ -71,7 +71,7 @@ export const AdminPageBody: React.FC<Props> = ({
     );
   }
 
-  if (!packages) {
+  if (packages.length === 0 || !packages) {
     return (
       <div>
         {data ? (
