@@ -51,6 +51,11 @@ const Refetch = async (
   await data.refetch();
 };
 
+const toDateInNumForm = (date: string) => {
+  const newDate = new Date(date);
+  return `${newDate.getDate()}-${newDate.getMonth()}-${newDate.getFullYear()}`;
+};
+
 // eslint-disable-next-line import/no-default-export
 export default function UserPage() {
   const [deleteHisItm] = useDeleteHistoryItmMutation();
@@ -137,11 +142,11 @@ export default function UserPage() {
                           </Typography>
                           <Typography component={'p'}>
                             <strong>Doručení</strong>:{' '}
-                            {historyItm.suppData.delivery}
+                            {toDateInNumForm(historyItm.suppData.delivery)}
                           </Typography>
                           <Typography component={'p'}>
                             <strong>Vyzvednutí</strong>:{' '}
-                            {historyItm.suppData.pickup}
+                            {toDateInNumForm(historyItm.suppData.pickup)}
                           </Typography>
                           <Typography component={'p'}>
                             <strong>V boxu</strong>:{' '}
