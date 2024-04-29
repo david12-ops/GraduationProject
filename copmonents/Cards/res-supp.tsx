@@ -147,6 +147,11 @@ const Paragraph = (
   );
 };
 
+const toDateInNumForm = (date: string) => {
+  const newDate = new Date(date);
+  return `${newDate.getDate()}-${newDate.getMonth()}-${newDate.getFullYear()}`;
+};
+
 export const ResSuppCard: React.FC<Props> = ({
   name,
   pickUp,
@@ -238,8 +243,8 @@ export const ResSuppCard: React.FC<Props> = ({
             <CustomDialog
               title={name}
               description={Paragraph(
-                pickUp,
-                delivery,
+                toDateInNumForm(pickUp),
+                toDateInNumForm(delivery),
                 packInBox,
                 folie,
                 shippingLabel,

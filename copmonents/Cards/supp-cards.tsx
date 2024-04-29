@@ -128,6 +128,11 @@ const Paragraph = (
   );
 };
 
+const toDateInNumForm = (date: string) => {
+  const newDate = new Date(date);
+  return `${newDate.getDate()}-${newDate.getMonth()}-${newDate.getFullYear()}`;
+};
+
 export const DetailSupps: React.FC<Props> = ({
   name,
   pickUp,
@@ -174,12 +179,11 @@ export const DetailSupps: React.FC<Props> = ({
             sx={{
               fontSize: '22px',
             }}
-            variant="body2"
-            color="text.secondary"
+            component={'div'}
           >
             {Paragraph(
-              pickUp,
-              delivery,
+              toDateInNumForm(pickUp),
+              toDateInNumForm(delivery),
               packInBox,
               folie,
               shippingLabel,

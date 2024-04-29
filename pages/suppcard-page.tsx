@@ -1,55 +1,12 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 
-import { SuppDataQuery, useSuppDataQuery } from '@/generated/graphql';
+import { SuppcardPageBody } from '@/copmonents/componentBody/suppcard-body';
+import { useSuppDataQuery } from '@/generated/graphql';
 
 import { useAuthContext } from '../copmonents/auth-context-provider';
-import { DetailSupps } from '../copmonents/Cards/supp-cards';
 import { Navbar } from '../copmonents/navbar';
 import styles from '../styles/Home.module.css';
-
-type Item = SuppDataQuery | undefined;
-
-const IsThereSupp = (data: Item) => {
-  return !!data;
-};
-
-const PageBody = (warning: boolean, dataSupp: Item) => {
-  if (!warning) {
-    return (
-      <div
-        style={{
-          textAlign: 'center',
-          color: 'orange',
-          fontSize: '30px',
-          fontWeight: 'bold',
-          margin: 'auto',
-        }}
-      >
-        Nenalezeny žádné zásilkové služby
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      {dataSupp?.suplierData.map((item) => (
-        <DetailSupps
-          key={item.supplierId}
-          packInBox={item.packInBox}
-          name={item.suppName}
-          sendCash={item.sendCashDelivery}
-          folie={item.foil}
-          shippingLabel={item.shippingLabel}
-          pickUp={item.pickUp}
-          delivery={item.delivery}
-          insurance={item.insurance}
-          suppId={item.supplierId}
-        />
-      ))}
-    </div>
-  );
-};
 
 // eslint-disable-next-line import/no-default-export
 export default function SuppCards() {
@@ -59,10 +16,21 @@ export default function SuppCards() {
 
   useEffect(() => {
     if (!suppData.loading) {
-      const errSup = IsThereSupp(suppData.data);
+      const bodyPage = (
+        <SuppcardPageBody
+          data={suppData.data}
+          styling={{
+            textAlign: 'center',
+            color: 'orange',
+            fontSize: '30px',
+            fontWeight: 'bold',
+            margin: 'auto',
+          }}
+        />
+      );
 
       SetBody({
-        data: PageBody(errSup, suppData.data),
+        data: bodyPage,
       });
     }
   }, [suppData]);
@@ -76,7 +44,6 @@ export default function SuppCards() {
       </Head>
       <Navbar user={user} />
       <main className={styles.main}>{body.data}</main>
-
       <footer className={styles.footer}></footer>
     </div>
   );

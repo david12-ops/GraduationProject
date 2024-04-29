@@ -450,7 +450,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
         setDataDatabase(actualSupp, settersOfDataSupp, SetOldSuppName);
       }
     }
-  }, [supData]);
+  }, [supData, userApp]);
 
   const MyComponent = (
     state: State<string>,

@@ -343,7 +343,7 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
         });
       }
     }
-  }, [SuppPackages]);
+  }, [SuppPackages, userApp]);
 
   const handleForm = async (event?: React.FormEvent) => {
     event?.preventDefault();

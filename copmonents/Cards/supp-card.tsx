@@ -128,6 +128,11 @@ const Paragraph = (
   );
 };
 
+const toDateInNumForm = (date: string) => {
+  const newDate = new Date(date);
+  return `${newDate.getDate()}-${newDate.getMonth()}-${newDate.getFullYear()}`;
+};
+
 export const AdmPageSuppCard: React.FC<Props> = ({
   name,
   pickUp,
@@ -174,12 +179,11 @@ export const AdmPageSuppCard: React.FC<Props> = ({
             sx={{
               fontSize: '22px',
             }}
-            variant="body2"
-            color="text.secondary"
+            component={'div'}
           >
             {Paragraph(
-              pickUp,
-              delivery,
+              toDateInNumForm(pickUp),
+              toDateInNumForm(delivery),
               packInBox,
               folie,
               shippingLabel,
@@ -187,11 +191,7 @@ export const AdmPageSuppCard: React.FC<Props> = ({
               sendCash,
             )}
           </Typography>
-          <Typography
-            sx={{ fontSize: '16px' }}
-            variant="body2"
-            color="text.secondary"
-          >
+          <Typography sx={{ fontSize: '16px' }} component={'div'}>
             <CardActions>
               <Link
                 key="UpdateFromSupplier"

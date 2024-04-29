@@ -251,11 +251,8 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
   const userApp = useHookstate({ Admin: false, LoggedIn: false });
 
   const [newPackage] = useNewPackageToFirestoreMutation();
-  const [suppId, SetSuppId] = React.useState('');
 
   useEffect(() => {
-    SetSuppId(id);
-
     const adminId = process.env.NEXT_PUBLIC_ADMIN_ID;
     if (user) {
       userApp.LoggedIn.set(true);
@@ -263,7 +260,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
     if (user?.uid === adminId) {
       userApp.Admin.set(true);
     }
-  });
+  }, [userApp]);
 
   const handleForm = async (event?: React.FormEvent) => {
     event?.preventDefault();
@@ -449,7 +446,7 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
           }}
         >
           <CreateButton type="submit">Vytvořit</CreateButton>
-          <BackButtn onClick={() => Back(suppId)}>Zpět</BackButtn>
+          <BackButtn onClick={() => Back(id)}>Zpět</BackButtn>
         </div>
       </form>
     </Typography>

@@ -366,7 +366,7 @@ export const FormSupplier = () => {
     if (user?.uid === adminId) {
       userApp.Admin.set(true);
     }
-  });
+  }, [userApp]);
 
   const MyComponent = (
     state: State<string>,

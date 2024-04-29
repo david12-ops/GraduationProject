@@ -2,145 +2,12 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
+import { PacksCardBody } from '@/copmonents/componentBody/packscard-body';
 import { useSuppDataQuery } from '@/generated/graphql';
 
 import { useAuthContext } from '../../copmonents/auth-context-provider';
-import { PackCards } from '../../copmonents/Cards/packs-cards';
 import { Navbar } from '../../copmonents/navbar';
 import styles from '../../styles/Home.module.css';
-
-type Package = {
-  [name: string]: {
-    weight: number;
-    height: number;
-    width: number;
-    Plength: number;
-    name_package: string;
-    cost: number;
-    supplier_id: string;
-  };
-};
-type SuppData =
-  | {
-      __typename?: 'QuerySuppD' | undefined;
-      sendCashDelivery: string;
-      packInBox: string;
-      supplierId: string;
-      suppName: string;
-      pickUp: string;
-      delivery: string;
-      insurance: number;
-      shippingLabel: string;
-      foil: string;
-      package?: any | undefined;
-      location?: any | undefined;
-    }
-  | undefined;
-
-const IsTherePackage = (data: any) => {
-  const packages: Array<Package> = data;
-  return Boolean(packages);
-};
-
-const IsThereSupp = (data: SuppData) => {
-  return !!data;
-};
-
-const PageBody = (
-  error: boolean,
-  warning: boolean,
-  dataSupp: SuppData,
-  admin: boolean,
-  logged: boolean,
-) => {
-  const packages: Array<Package> = dataSupp?.package;
-
-  if (!logged || !admin) {
-    return (
-      <div
-        style={{
-          textAlign: 'center',
-          color: 'red',
-          fontSize: '30px',
-          fontWeight: 'bold',
-          margin: 'auto',
-        }}
-      >
-        Přístup pouze pro administrátora
-      </div>
-    );
-  }
-
-  if (!error) {
-    return (
-      <div
-        style={{
-          border: 'solid red',
-          borderRadius: '10px',
-          color: 'lightblue',
-          margin: 'auto',
-        }}
-      >
-        <div>
-          <img src="/sorry-item-not-found-3328225-2809510.webp" alt="?" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!warning) {
-    return (
-      <div
-        style={{
-          textAlign: 'center',
-          color: 'orange',
-          fontSize: '30px',
-          fontWeight: 'bold',
-          margin: 'auto',
-        }}
-      >
-        Tato zásilková služba nemá balíky
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ margin: 'auto' }}>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          flexDirection: 'row',
-          justifyContent: 'center',
-          gap: '30px',
-        }}
-      >
-        {packages.map((item) => {
-          const key = Object.keys(item)[0];
-          return (
-            <div
-              key={key}
-              style={{
-                border: '7px solid #0E95EB',
-                borderRadius: '10px',
-              }}
-            >
-              <PackCards
-                key={key}
-                Name={item[key].name_package}
-                Cost={item[key].cost}
-                Weight={item[key].weight}
-                Width={item[key].width}
-                Length={item[key].Plength}
-                Heiht={item[key].height}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
 
 // eslint-disable-next-line import/no-default-export
 export default function PacksCards() {
@@ -171,14 +38,37 @@ export default function PacksCards() {
         (actPack) => actPack?.supplierId === id,
       );
 
-      const errSup = IsThereSupp(selectedSupp);
-      const errPack = IsTherePackage(selectedSupp?.package);
-
       SetBody({
-        element: PageBody(errSup, errPack, selectedSupp, admin, logged),
+        element: (
+          <PacksCardBody
+            data={selectedSupp}
+            stylingErr={{
+              textAlign: 'center',
+              color: 'red',
+              fontSize: '40px',
+              fontWeight: 'bold',
+              margin: 'auto',
+            }}
+            stylingImgErr={{
+              border: 'solid red',
+              borderRadius: '10px',
+              color: 'lightblue',
+              margin: 'auto',
+            }}
+            stylingWarning={{
+              textAlign: 'center',
+              color: 'orange',
+              fontSize: '30px',
+              fontWeight: 'bold',
+              margin: 'auto',
+            }}
+            user={user}
+            adminId={adminId}
+          />
+        ),
       });
     }
-  }, [suppD.loading, suppD.data?.suplierData, logged]);
+  }, [suppD, logged, admin]);
 
   return (
     <div className={styles.container}>
