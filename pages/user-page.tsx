@@ -131,59 +131,56 @@ export default function UserPage() {
                     title="Detail"
                     description={
                       <Typography component={'div'}>
-                        <Typography component={'div'}>
-                          <strong>Data zásilkové služby</strong>
-                          <Typography component={'p'}>
-                            <strong>Jméno</strong>: {historyItm.suppData.name}
-                          </Typography>
-                          <Typography component={'p'}>
-                            <strong>Pojištění</strong>:{' '}
-                            {historyItm.suppData.insurance} Kč
-                          </Typography>
-                          <Typography component={'p'}>
-                            <strong>Doručení</strong>:{' '}
-                            {toDateInNumForm(historyItm.suppData.delivery)}
-                          </Typography>
-                          <Typography component={'p'}>
-                            <strong>Vyzvednutí</strong>:{' '}
-                            {toDateInNumForm(historyItm.suppData.pickup)}
-                          </Typography>
-                          <Typography component={'p'}>
-                            <strong>V boxu</strong>:{' '}
-                            {historyItm.suppData.packInBox === 'No'
-                              ? 'Ne'
-                              : historyItm.suppData.packInBox === 'Yes'
-                              ? 'Ano'
-                              : ''}
-                          </Typography>
-                          <Typography component={'p'}>
-                            <strong>Štítek</strong>:{' '}
-                            {historyItm.suppData.shippingLabel === 'No'
-                              ? 'Ne'
-                              : historyItm.suppData.shippingLabel === 'Yes'
-                              ? 'Ano'
-                              : ''}
-                          </Typography>
-                          <Typography component={'p'}>
-                            <strong>Na dobírku</strong>:{' '}
-                            {historyItm.suppData.sendCashDelivery === 'No'
-                              ? 'Ne'
-                              : historyItm.suppData.sendCashDelivery === 'Yes'
-                              ? 'Ano'
-                              : ''}
-                          </Typography>
-                          <Typography component={'p'}>
-                            <strong>Ve fólii</strong>:{' '}
-                            {historyItm.suppData.foil === 'No'
-                              ? 'Ne'
-                              : historyItm.suppData.foil === 'Yes'
-                              ? 'Ano'
-                              : ''}
-                          </Typography>
-                          <Typography component={'p'}>
-                            <strong>Celková cena</strong>:{' '}
-                            {historyItm.suppData.cost} Kč
-                          </Typography>
+                        <Typography component={'p'} style={{ margin: '10px' }}>
+                          <strong>Jméno</strong>: {historyItm.suppData.name}
+                        </Typography>
+                        <Typography component={'p'} style={{ margin: '10px' }}>
+                          <strong>Pojištění</strong>:{' '}
+                          {historyItm.suppData.insurance} Kč
+                        </Typography>
+                        <Typography component={'p'} style={{ margin: '10px' }}>
+                          <strong>Doručení</strong>:{' '}
+                          {toDateInNumForm(historyItm.suppData.delivery)}
+                        </Typography>
+                        <Typography component={'p'} style={{ margin: '10px' }}>
+                          <strong>Vyzvednutí</strong>:{' '}
+                          {toDateInNumForm(historyItm.suppData.pickup)}
+                        </Typography>
+                        <Typography component={'p'} style={{ margin: '10px' }}>
+                          <strong>V boxu</strong>:{' '}
+                          {historyItm.suppData.packInBox === 'No'
+                            ? 'Ne'
+                            : historyItm.suppData.packInBox === 'Yes'
+                            ? 'Ano'
+                            : ''}
+                        </Typography>
+                        <Typography component={'p'} style={{ margin: '10px' }}>
+                          <strong>Štítek</strong>:{' '}
+                          {historyItm.suppData.shippingLabel === 'No'
+                            ? 'Ne'
+                            : historyItm.suppData.shippingLabel === 'Yes'
+                            ? 'Ano'
+                            : ''}
+                        </Typography>
+                        <Typography component={'p'} style={{ margin: '10px' }}>
+                          <strong>Na dobírku</strong>:{' '}
+                          {historyItm.suppData.sendCashDelivery === 'No'
+                            ? 'Ne'
+                            : historyItm.suppData.sendCashDelivery === 'Yes'
+                            ? 'Ano'
+                            : ''}
+                        </Typography>
+                        <Typography component={'p'} style={{ margin: '10px' }}>
+                          <strong>Ve fólii</strong>:{' '}
+                          {historyItm.suppData.foil === 'No'
+                            ? 'Ne'
+                            : historyItm.suppData.foil === 'Yes'
+                            ? 'Ano'
+                            : ''}
+                        </Typography>
+                        <Typography component={'p'} style={{ margin: '10px' }}>
+                          <strong>Celková cena</strong>:{' '}
+                          {historyItm.suppData.cost} Kč
                         </Typography>
                       </Typography>
                     }
