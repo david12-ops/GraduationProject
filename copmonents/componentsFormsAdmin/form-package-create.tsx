@@ -12,6 +12,7 @@ import {
 
 import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
+import { CreatedPackage, ErrSetterProperties } from '../types/types';
 
 type Props = {
   id: string;
@@ -38,25 +39,6 @@ const BackButtn = styled(Button)({
   color: 'white',
   width: '30%',
 });
-
-type CreatedPackage = {
-  weight: number;
-  cost: number;
-  Plength: number;
-  height: number;
-  width: number;
-  name_package: string;
-  supplier_id: string;
-};
-
-type ErrSetterProperties = {
-  errWeight: string;
-  errCost: string;
-  errpLength: string;
-  errHeight: string;
-  errWidth: string;
-  errLabel: string;
-};
 
 const parseIntReliable = (numArg: string) => {
   if (numArg.length > 0) {

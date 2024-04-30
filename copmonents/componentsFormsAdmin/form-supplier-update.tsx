@@ -28,6 +28,13 @@ import {
 
 import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
+import {
+  DataFromDB,
+  DataUpdateSupp,
+  ErrSettersPropertiesSuppCreateUpdate,
+  ResponseSuppUpdate,
+  Supplier,
+} from '../types/types';
 
 type Props = {
   id: string;
@@ -54,58 +61,6 @@ const BackButtn = styled(Button)({
   color: 'white',
   width: '30%',
 });
-
-type Item = {
-  __typename?: 'QuerySuppD' | undefined;
-  sendCashDelivery: string;
-  packInBox: string;
-  supplierId: string;
-  suppName: string;
-  pickUp: string;
-  delivery: string;
-  insurance: number;
-  shippingLabel: string;
-  foil: string;
-  package?: any;
-  location?: any;
-};
-
-type DataUpdateSupp = {
-  sendCashDelivery: string;
-  supplierId: string;
-  packInBox: string;
-  suppName: string;
-  pickUp: string;
-  delivery: string;
-  insurance: number;
-  shippingLabel: string;
-  foil: string;
-};
-
-type ErrSettersProperties = {
-  errInsurance: string;
-  errSendCashDelivery: string;
-  errFoil: string;
-  errShippingLabel: string;
-  errPackInBox: string;
-  errDepoCost: string;
-  errPersonalCost: string;
-  errName: string;
-};
-
-type DataFromDB = {
-  SuppId: string;
-  SupplierName: string;
-  Delivery: string;
-  PickUp: string;
-  Insurance: string;
-  SendCashDelivery: string;
-  PackInBox: string;
-  ShippingLabel: string;
-  Foil: string;
-  DepoCost: string;
-  PersonalCost: string;
-};
 
 const IsYesOrNo = (
   stringnU1: string,
@@ -235,7 +190,7 @@ const Valid = (
   packInBoxarg: string,
   depoCostarg: string,
   personalCostarg: string,
-  setterErr: State<ErrSettersProperties>,
+  setterErr: State<ErrSettersPropertiesSuppCreateUpdate>,
 ) => {
   const messageForInt = 'Očekává se číslo větší nebo rovné nule';
 
@@ -307,50 +262,29 @@ const Valid = (
 };
 
 const setDataDatabase = (
-  data: Item,
+  data: Supplier,
   stateSeter: State<DataFromDB>,
   setOldName: React.Dispatch<React.SetStateAction<string>>,
 ) => {
-  setOldName(data.suppName);
-  stateSeter.set({
-    SuppId: data.supplierId,
-    SupplierName: data.suppName,
-    Delivery: data.delivery,
-    PickUp: data.pickUp,
-    Insurance: data.insurance.toString(),
-    SendCashDelivery: data.sendCashDelivery,
-    PackInBox: data.packInBox,
-    ShippingLabel: data.shippingLabel,
-    Foil: data.foil,
-    DepoCost: String(data.location?.depoDelivery.cost),
-    PersonalCost: String(data.location?.personalDelivery.cost),
-  });
+  if (data) {
+    setOldName(data.suppName);
+    stateSeter.set({
+      SuppId: data.supplierId,
+      SupplierName: data.suppName,
+      Delivery: data.delivery,
+      PickUp: data.pickUp,
+      Insurance: data.insurance.toString(),
+      SendCashDelivery: data.sendCashDelivery,
+      PackInBox: data.packInBox,
+      ShippingLabel: data.shippingLabel,
+      Foil: data.foil,
+      DepoCost: String(data.location?.depoDelivery.cost),
+      PersonalCost: String(data.location?.personalDelivery.cost),
+    });
+  }
 };
 
-const Response = (
-  response:
-    | {
-        __typename?: 'Supp' | undefined;
-        data: {
-          __typename?: 'SupplierData' | undefined;
-          sendCashDelivery: string;
-          supplierId: string;
-          packInBox: string;
-          suppName: string;
-          pickUp: string;
-          delivery: string;
-          insurance: number;
-          shippingLabel: string;
-          foil: string;
-        };
-      }
-    | {
-        __typename?: 'SupplierError' | undefined;
-        message: string;
-      }
-    | null
-    | undefined,
-) => {
+const Response = (response: ResponseSuppUpdate) => {
   const responseFromQuery: {
     data: DataUpdateSupp | undefined;
     error: string | undefined;

@@ -1,4 +1,3 @@
-import { ApolloError } from '@apollo/client';
 import { State, useHookstate } from '@hookstate/core';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -8,7 +7,14 @@ import Head from 'next/head';
 import React, { useState } from 'react';
 
 import {
-  SuppDataQuery,
+  DataFromForm,
+  DataS,
+  ErrSettersPropertiesFromData,
+  SetterDataProperties,
+  SuitableSuppType,
+  SupplierInfo,
+} from '@/copmonents/types/types';
+import {
   useMutSuitableSuppMutation,
   useSuppDataQuery,
 } from '@/generated/graphql';
@@ -30,68 +36,6 @@ const DropDownBtn = styled(Button)({
   color: 'white',
   backgroundColor: '#5CA6EB',
 });
-
-type DataFromForm = {
-  width: string;
-  height: string;
-  weight: string;
-  plength: string;
-  placeFrom: string;
-  placeTo: string;
-};
-
-type SuppData = {
-  data: SuppDataQuery | undefined;
-  loading: boolean;
-  error: ApolloError | undefined;
-};
-
-type DataS = {
-  suppId: string;
-  cost: number;
-  name: string;
-};
-
-type Data = {
-  __typename?: 'QuerySuppD' | undefined;
-  sendCashDelivery: string;
-  packInBox: string;
-  supplierId: string;
-  suppName: string;
-  pickUp: string;
-  delivery: string;
-  insurance: number;
-  shippingLabel: string;
-  foil: string;
-  package?: any | undefined;
-  location?: any | undefined;
-};
-
-type SuitableSupps = {
-  dataS: Data | undefined;
-  cost: number;
-  packName: string;
-};
-
-type ErrSettersProperties = {
-  errWidth: string;
-  errHeight: string;
-  errWeight: string;
-  errLength: string;
-  errCost: string;
-  errPlaceTo: string;
-  errFrom: string;
-};
-
-type SetterDataProperties = {
-  Width: string;
-  Height: string;
-  Weight: string;
-  Plength: string;
-  PlaceFrom: string;
-  PlaceTo: string;
-  Cost: string;
-};
 
 const SetAndReturnDataForm = (stateSetter: State<SetterDataProperties>) => {
   const dataForm: DataFromForm = {
@@ -132,9 +76,8 @@ const isInt = (numArg: string, min: number) => {
   return parsed !== false && parsed > min;
 };
 
-const Res = (dataSui: Array<DataS>, allSupp: SuppData) => {
-  const SuitableSupps: Array<SuitableSupps> = [];
-
+const Res = (dataSui: Array<DataS>, allSupp: SupplierInfo) => {
+  const SuitableSupps: Array<SuitableSuppType> = [];
   dataSui.forEach((itm) => {
     SuitableSupps.push({
       dataS: allSupp.data?.suplierData.find((item) => {
@@ -150,7 +93,7 @@ const Res = (dataSui: Array<DataS>, allSupp: SuppData) => {
 
 const RenderSupp = (
   dataFromResolver: Array<DataS>,
-  QueryData: SuppData,
+  QueryData: SupplierInfo,
   dataFromForm: DataFromForm,
 ) => {
   const res = Res(dataFromResolver, QueryData);
@@ -189,7 +132,7 @@ const Valid = (
   widtharg: string,
   placeToarg: string,
   placeFromarg: string,
-  errorsSetters: State<ErrSettersProperties>,
+  errorsSetters: State<ErrSettersPropertiesFromData>,
 ) => {
   const messageForInt = 'Očekává se číslo větší nebo rovné nule';
   const messageLoc = 'Očekává se hodnota (depo/personal)';
@@ -244,7 +187,7 @@ const Valid = (
 const DisplayResult = (
   close: boolean,
   dataFromResolver: Array<DataS>,
-  QueryData: SuppData,
+  QueryData: SupplierInfo,
   setters: State<SetterDataProperties>,
 ) => {
   return close ? (
@@ -265,7 +208,7 @@ const DisplayResult = (
 };
 
 const onChangeForm = (
-  setters: State<ErrSettersProperties>,
+  setters: State<ErrSettersPropertiesFromData>,
   stateAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
 ) => {
   setters.set({

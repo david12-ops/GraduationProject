@@ -22,6 +22,10 @@ import {
 
 import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
+import {
+  DataCreatedSupp,
+  ErrSettersPropertiesSuppCreateUpdate,
+} from '../types/types';
 
 const Back = async () => {
   await router.push(`/../admin-page`);
@@ -39,28 +43,6 @@ const BackButtn = styled(Button)({
   color: 'white',
   width: '30%',
 });
-
-type ErrSettersProperties = {
-  errInsurance: string;
-  errSendCashDelivery: string;
-  errFoil: string;
-  errShippingLabel: string;
-  errPackInBox: string;
-  errDepoCost: string;
-  errPersonalCost: string;
-  errName: string;
-};
-
-type DataCreatedSupp = {
-  sendCashDelivery: string;
-  packInBox: string;
-  suppName: string;
-  pickUp: string;
-  delivery: string;
-  insurance: number;
-  shippingLabel: string;
-  foil: string;
-};
 
 const CustomFieldset = styled('fieldset')({
   border: '5px solid #5193DE',
@@ -187,7 +169,7 @@ const Valid = (
   packInBoxarg: string,
   depoCostarg: string,
   personalCostarg: string,
-  setterErr: State<ErrSettersProperties>,
+  setterErr: State<ErrSettersPropertiesSuppCreateUpdate>,
 ) => {
   const messageForInt = 'Očekává se číslo větší nebo rovné nule';
 

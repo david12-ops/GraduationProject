@@ -13,6 +13,7 @@ import {
 
 import { useAuthContext } from '../auth-context-provider';
 import { CustomDialog } from '../modal';
+import { Supplier } from '../types/types';
 
 const CusotmBtn = styled(Button)({
   color: 'white',
@@ -57,23 +58,6 @@ type Props = {
   sId: string;
   packName: string;
 };
-
-type Supplier =
-  | {
-      __typename?: 'QuerySuppD' | undefined;
-      sendCashDelivery: string;
-      packInBox: string;
-      supplierId: string;
-      suppName: string;
-      pickUp: string;
-      delivery: string;
-      insurance: number;
-      shippingLabel: string;
-      foil: string;
-      package?: any | undefined;
-      location?: any | undefined;
-    }
-  | undefined;
 
 const Paragraph = (
   pickUp: string,

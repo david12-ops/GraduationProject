@@ -5,6 +5,7 @@ import CardContent from '@mui/material/CardContent';
 import * as React from 'react';
 
 import { MyCompTextField } from './text-field';
+import { LocErrors, ParamErrors } from './types/types';
 
 type Props = {
   onChangeHeight: (inputVal: string) => void;
@@ -25,19 +26,6 @@ type Props = {
     errPlaceTo: string;
     errFrom: string;
   }>;
-};
-
-type LocErrors = {
-  errPlaceTo: string;
-  errFrom: string;
-};
-
-type ParamErrors = {
-  errWidth: string;
-  errHeight: string;
-  errWeight: string;
-  errLength: string;
-  errCost: string;
 };
 
 export const FormChooseSup: React.FC<Props> = ({

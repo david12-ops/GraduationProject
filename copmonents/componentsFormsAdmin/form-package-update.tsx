@@ -8,7 +8,6 @@ import { useEffect } from 'react';
 import {
   HistoryDataDocument,
   SuppDataDocument,
-  SuppDataQuery,
   useSuppDataQuery,
   useUpdateHistoryMutation,
   useUpdatePackageMutation,
@@ -16,6 +15,14 @@ import {
 
 import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
+import {
+  DataFrServer,
+  ErrSetterProperties,
+  Package,
+  PackageData,
+  ResponsePackUpdate,
+  SupplierData,
+} from '../types/types';
 
 type Props = {
   id: string;
@@ -26,8 +33,6 @@ const BackButtn = styled(Button)({
   color: 'white',
   width: '30%',
 });
-
-type Item = SuppDataQuery['suplierData'];
 
 const UpdateButton = styled(Button)({
   backgroundColor: '#5362FC',
@@ -45,46 +50,6 @@ const CustomFieldset = styled('fieldset')({
   justifyContent: 'space-around',
   padding: '1rem',
 });
-
-type DataFrServer = {
-  SuppId: string;
-  PackName: string;
-  Cost: string;
-  Plength: string;
-  Weight: string;
-  Width: string;
-  Height: string;
-};
-
-type UpdatedPack = {
-  weight: number;
-  cost: number;
-  Plength: number;
-  height: number;
-  width: number;
-  name_package: string;
-  supplier_id: string;
-};
-
-type Package = {
-  [name: string]: {
-    weight: number;
-    height: number;
-    width: number;
-    Plength: number;
-    name_package: string;
-    cost: number;
-  };
-};
-
-type ErrSetterProperties = {
-  errWeight: string;
-  errCost: string;
-  errpLength: string;
-  errHeight: string;
-  errWidth: string;
-  errLabel: string;
-};
 
 const parseIntReliable = (numArg: string) => {
   if (numArg.length > 0) {
@@ -121,7 +86,7 @@ const MyAlert = (messages: {
   }
 
   if (messages.successUpade !== '') {
-    const data = JSON.parse(messages.successUpade) as UpdatedPack;
+    const data = JSON.parse(messages.successUpade) as PackageData;
     alert = (
       <Alert severity="success">
         <div>
@@ -165,7 +130,10 @@ const isInt = (numArg: string, min: number) => {
   return parsed !== false && parsed > min;
 };
 
-const setDataDatabase = (pId: string, data: Item): DataFrServer | undefined => {
+const setDataDatabase = (
+  pId: string,
+  data: SupplierData,
+): DataFrServer | undefined => {
   for (const item of data) {
     const packs: Array<Package> = item.package as Array<Package>;
     if (packs) {
@@ -235,30 +203,9 @@ const Valid = (
   return undefined;
 };
 
-const Response = (
-  response:
-    | {
-        __typename?: 'PackageUpdateError' | undefined;
-        message: string;
-      }
-    | {
-        __typename?: 'UPack' | undefined;
-        data: {
-          __typename?: 'PackageDataUpdate' | undefined;
-          weight: number;
-          cost: number;
-          Plength: number;
-          height: number;
-          width: number;
-          name_package: string;
-          supplier_id: string;
-        };
-      }
-    | null
-    | undefined,
-) => {
+const Response = (response: ResponsePackUpdate) => {
   const responseFromQuery: {
-    data: UpdatedPack | undefined;
+    data: PackageData | undefined;
     error: string | undefined;
   } = {
     data: undefined,

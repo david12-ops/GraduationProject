@@ -9,6 +9,21 @@ import { gql } from 'graphql-tag';
 import { createSchema, createYoga } from 'graphql-yoga';
 import _ from 'lodash';
 
+import {
+  CostSup,
+  DataChoosedSupp,
+  DataUpdateSupp,
+  HistoryDocument,
+  Location,
+  Package,
+  PackageData,
+  PackageType,
+  Response,
+  ReturnItem,
+  SupplierInformation,
+  SuppWithLocation,
+} from '@/copmonents/types/types';
+
 import { firestore } from '../../firebase/firebase-admin-config';
 import { verifyToken } from './verify-token';
 
@@ -275,18 +290,6 @@ const ConverBool = (
   return false;
 };
 
-type DataUpdateSupp = {
-  sendCashDelivery: string;
-  packInBox: string;
-  suppName: string;
-  pickUp: string;
-  delivery: string;
-  insurance: number;
-  shippingLabel: string;
-  foil: string;
-  supplierId: string;
-};
-
 const doMathForPackage = async (
   data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
   nPriceP: number,
@@ -298,17 +301,6 @@ const doMathForPackage = async (
   let msg = '';
 
   let sum = 0;
-
-  type Location = {
-    depoDelivery: {
-      delivery: string;
-      cost: number;
-    };
-    personalDelivery: {
-      delivery: string;
-      cost: number;
-    };
-  };
 
   if (historyDoc.length > 0) {
     data.forEach((item) => {
@@ -366,37 +358,6 @@ const doMathForOptionsDelivery = async (
   supplierData: DataUpdateSupp,
   // eslint-disable-next-line sonarjs/cognitive-complexity
 ) => {
-  type HistoryDoc = {
-    uId: string;
-    dataForm: {
-      width: string;
-      placeTo: string;
-      weight: string;
-      placeFrom: string;
-      plength: string;
-      height: string;
-    };
-    historyId: string;
-    suppData: {
-      insurance: number;
-      delivery: string;
-      packInBox: string;
-      name: string;
-      pickup: string;
-      shippingLabel: string;
-      id: string;
-      sendCashDelivery: string;
-      foil: string;
-      packName: string;
-      cost: number;
-    };
-  };
-
-  type Response = {
-    docID?: string;
-    message: string;
-  };
-
   const getCost = (
     dataOfPacks: Array<{
       cost: number;
@@ -419,7 +380,7 @@ const doMathForOptionsDelivery = async (
 
   if (historyDoc.length > 0) {
     const promises = historyDoc.map(async (document) => {
-      const dataDoc = document.data() as HistoryDoc;
+      const dataDoc = document.data() as HistoryDocument;
       const summaryCost = sum + dataPackage[0].cost;
 
       try {
@@ -597,75 +558,6 @@ const resolvers = {
         cost: Pcost,
       } = args;
 
-      type PackageData = {
-        weight: number;
-        height: number;
-        width: number;
-        Plength: number;
-        name_package: string;
-        cost: number;
-        supplier_id: string;
-      };
-
-      type Package = {
-        [name: string]: {
-          weight: number;
-          height: number;
-          width: number;
-          Plength: number;
-          name_package: string;
-          cost: number;
-          supplier_id: string;
-        };
-      };
-
-      type Location = {
-        depoDelivery: { delivery: string; cost: number };
-        personalDelivery: { delivery: string; cost: number };
-      };
-
-      type Supplier = {
-        supplierId: string;
-        packInBox: string;
-        shippingLabel: string;
-        sendCashDelivery: string;
-        foil: string;
-        delivery: string;
-        suppName: string;
-        pickUp: string;
-        insurance: number;
-        package: Array<Package>;
-        location: Location;
-      };
-
-      type SuppWithLocation = {
-        suppId: string;
-        loc: Location;
-      };
-
-      type PackageType = {
-        supplierId: string;
-        Cost: number;
-        Name: string;
-        param: {
-          width: number;
-          length: number;
-          weight: number;
-          height: number;
-        };
-      };
-
-      type CostSup = {
-        idS: string;
-        cost: number;
-      };
-
-      type ReturnItem = {
-        suppId: string;
-        cost: number;
-        name: string;
-      };
-
       const packages: Array<Package> = [];
       const packData: Array<PackageData> = [];
       const rtrnItem: Array<ReturnItem> = [];
@@ -702,14 +594,14 @@ const resolvers = {
         }
 
         SupplierDoc.forEach((item) => {
-          const suppItem = item.data() as Supplier;
+          const suppItem = item.data() as SupplierInformation;
 
           if (suppItem && suppItem.package) {
             suppItem.package.forEach((packItem: Package) => {
               packages.push(packItem);
             });
           }
-          if (suppItem.location) {
+          if (suppItem?.location) {
             suppWithLocationFiled.push({
               suppId: suppItem.supplierId,
               loc: suppItem.location,
@@ -918,60 +810,7 @@ const resolvers = {
       context: MyContext,
     ) => {
       const { uId: id, data: dataS } = args;
-      type Data = {
-        formData: {
-          width: string;
-          height: string;
-          weight: string;
-          plength: string;
-          placeFrom: string;
-          placeTo: string;
-        };
-        data: {
-          suppData: {
-            __typename: string;
-            sendCashDelivery: string;
-            packInBox: string;
-            supplierId: string;
-            suppName: string;
-            pickUp: string;
-            delivery: string;
-            insurance: number;
-            shippingLabel: string;
-            foil: string;
-            package: any;
-            location: any;
-          };
-          priceS: number;
-          packName: string;
-        };
-      };
 
-      type HistoryDoc = {
-        uId: string;
-        dataForm: {
-          width: string;
-          placeTo: string;
-          weight: string;
-          placeFrom: string;
-          plength: string;
-          height: string;
-        };
-        historyId: string;
-        suppData: {
-          insurance: number;
-          delivery: string;
-          packInBox: string;
-          name: string;
-          pickup: string;
-          shippingLabel: string;
-          id: string;
-          sendCashDelivery: string;
-          foil: string;
-          packName: string;
-          cost: number;
-        };
-      };
       try {
         if (context.user?.uid !== id) {
           return {
@@ -980,7 +819,7 @@ const resolvers = {
         }
 
         const newHistoryDoc = db.collection('History').doc();
-        const data = JSON.parse(dataS) as Data;
+        const data = JSON.parse(dataS) as DataChoosedSupp;
 
         const sData = data.data.suppData;
         const sPrice = data.data.priceS;
@@ -1010,7 +849,7 @@ const resolvers = {
         const dataInColl = await db.collection('History').get();
 
         const duplicateByParam = dataInColl.docs.map((item) => {
-          const itm = item.data() as HistoryDoc;
+          const itm = item.data() as HistoryDocument;
           const userId = itm.uId;
           if (itm.suppData.id === sData.supplierId && userId === id) {
             return itm.suppData.packName === packName ? item : undefined;
@@ -1075,26 +914,7 @@ const resolvers = {
         supplier_id: supplierId,
         packId: ID,
       } = args;
-      type Package = {
-        [name: string]: {
-          weight: number;
-          height: number;
-          width: number;
-          Plength: number;
-          name_package: string;
-          cost: number;
-          supplier_id: string;
-        };
-      };
 
-      type PackageData = {
-        weight: number;
-        height: number;
-        width: number;
-        Plength: number;
-        name_package: string;
-        cost: number;
-      };
       if (context.user?.uid !== adminId) {
         return {
           __typename: 'PackageError',
@@ -1254,31 +1074,6 @@ const resolvers = {
         personalCost: pCost,
       } = args;
 
-      type Package = {
-        [name: string]: {
-          weight: number;
-          height: number;
-          width: number;
-          Plength: number;
-          name_package: string;
-          cost: number;
-        };
-      };
-
-      type Supplier = {
-        supplierId: string;
-        packInBox: string;
-        shippingLabel: string;
-        sendCashDelivery: string;
-        foil: string;
-        delivery: string;
-        suppName: string;
-        pickUp: string;
-        insurance: number;
-        package: Array<Package>;
-        location: Location;
-      };
-
       try {
         const namesOfSup: Array<string> = [];
         if (context.user?.uid !== adminId) {
@@ -1291,7 +1086,7 @@ const resolvers = {
         const SuppDocument = await db.collection('Supplier').get();
 
         SuppDocument.forEach((data) => {
-          const item = data.data() as Supplier;
+          const item = data.data() as SupplierInformation;
           namesOfSup.push(item.suppName);
         });
 
@@ -1413,27 +1208,6 @@ const resolvers = {
         name_package: packName,
         supplier_id: supplierId,
       } = args;
-
-      type Package = {
-        [name: string]: {
-          weight: number;
-          height: number;
-          width: number;
-          Plength: number;
-          name_package: string;
-          cost: number;
-          supplier_id: string;
-        };
-      };
-
-      type PackageData = {
-        weight: number;
-        height: number;
-        width: number;
-        Plength: number;
-        name_package: string;
-        cost: number;
-      };
 
       try {
         if (context.user?.uid !== adminId) {
@@ -1594,32 +1368,6 @@ const resolvers = {
         personalCost: pCost,
       } = args;
 
-      type Package = {
-        [name: string]: {
-          weight: number;
-          height: number;
-          width: number;
-          Plength: number;
-          name_package: string;
-          cost: number;
-          supplier_id: string;
-        };
-      };
-
-      type Supplier = {
-        supplierId: string;
-        packInBox: string;
-        shippingLabel: string;
-        sendCashDelivery: string;
-        foil: string;
-        delivery: string;
-        suppName: string;
-        pickUp: string;
-        insurance: number;
-        package: Array<Package>;
-        location: Location;
-      };
-
       try {
         if (context.user?.uid !== adminId) {
           return {
@@ -1670,7 +1418,9 @@ const resolvers = {
 
         const SupplierDoc = await db.collection('Supplier').get();
 
-        const docs = SupplierDoc.docs.map((doc) => doc.data() as Supplier);
+        const docs = SupplierDoc.docs.map(
+          (doc) => doc.data() as SupplierInformation,
+        );
 
         const docsWithoutCurrentSupp = docs.filter(
           (doc) => doc.suppName !== oldName,
@@ -1761,31 +1511,6 @@ const resolvers = {
       context: MyContext,
       // eslint-disable-next-line sonarjs/cognitive-complexity, consistent-return
     ) => {
-      type Supplier = {
-        sendCashDelivery: string;
-        packInBox: string;
-        supplierId: string;
-        suppName: string;
-        pickUp: string;
-        delivery: string;
-        insurance: number;
-        shippingLabel: string;
-        foil: string;
-        package?: any | undefined;
-        location?: any | undefined;
-      };
-
-      type Package = {
-        [name: string]: {
-          weight: number;
-          height: number;
-          width: number;
-          Plength: number;
-          name_package: string;
-          cost: number;
-        };
-      };
-
       const {
         newPricePack: nPricrePack,
         newPricePersonal: nPriceP,
@@ -1868,9 +1593,9 @@ const resolvers = {
           }> = [];
 
           SuppDocuments.forEach((doc) => {
-            const document = doc.data() as Supplier;
+            const document = doc.data() as SupplierInformation;
             if (document.package) {
-              const pack = document.package as Array<Package>;
+              const pack = document.package;
               pack.forEach((packData) => {
                 Object.keys(packData).forEach((key) => {
                   packages.push({
@@ -1920,17 +1645,6 @@ const resolvers = {
       context: MyContext,
       // eslint-disable-next-line sonarjs/cognitive-complexity
     ) => {
-      type Package = {
-        [name: string]: {
-          weight: number;
-          height: number;
-          width: number;
-          Plength: number;
-          name_package: string;
-          cost: number;
-          supplier_id: string;
-        };
-      };
       const { key: Pack, suppId: Sid } = args;
       let deleted = false;
       let err = '';

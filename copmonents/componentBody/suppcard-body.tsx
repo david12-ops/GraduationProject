@@ -1,11 +1,8 @@
-import { SuppDataQuery } from '@/generated/graphql';
-
 import { DetailSupps } from '../Cards/supp-cards';
-
-type Item = SuppDataQuery | undefined;
+import { SuppData } from '../types/types';
 
 type Props = {
-  data: Item;
+  data: SuppData;
   styling: any;
 };
 export const SuppcardPageBody: React.FC<Props> = ({ data, styling }) => {
