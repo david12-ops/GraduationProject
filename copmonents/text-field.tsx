@@ -62,7 +62,7 @@ export const MyCompTextField: React.FC<Params> = ({
   ) : (
     <TextField
       type={typeComp}
-      label={labelComp.withoutErr}
+      label={labelComp.err}
       required
       id={idComp}
       helperText={errorComp}
