@@ -5,37 +5,10 @@ import Link from 'next/link';
 
 import { PackCard } from '../Cards/packs-card';
 import { AdmPageSuppCard } from '../Cards/supp-card';
-
-type Package = {
-  [name: string]: {
-    weight: number;
-    height: number;
-    width: number;
-    Plength: number;
-    name_package: string;
-    cost: number;
-    supplier_id: string;
-  };
-};
-type SuppData =
-  | {
-      __typename?: 'QuerySuppD' | undefined;
-      sendCashDelivery: string;
-      packInBox: string;
-      supplierId: string;
-      suppName: string;
-      pickUp: string;
-      delivery: string;
-      insurance: number;
-      shippingLabel: string;
-      foil: string;
-      package?: any | undefined;
-      location?: any | undefined;
-    }
-  | undefined;
+import { Package, Supplier } from '../types/types';
 
 type Props = {
-  data: SuppData;
+  data: Supplier;
   stylingErr: any;
   stylingWarning: any;
   user: User | null | undefined;
@@ -71,7 +44,7 @@ export const AdminPageBody: React.FC<Props> = ({
     );
   }
 
-  if (packages.length === 0 || !packages) {
+  if (!packages || packages.length === 0) {
     return (
       <div>
         {data ? (
