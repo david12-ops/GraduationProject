@@ -78,16 +78,16 @@ const onChangeForm = (
     errConfirmPassword: string;
     errNewPassword: string;
   }>,
-  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>,
 ) => {
-  SetAlert(<div></div>);
+  SetAlert(undefined);
   errSetter.set({
     errConfirmPassword: '',
     errNewPassword: '',
   });
 };
 const Submit = async (
-  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>,
   passwords: { newPassword: string; confirmPassword: string },
   errSetter: State<{
     errConfirmPassword: string;
@@ -149,7 +149,9 @@ export const PageFormChangePass = () => {
     errNewPassword: '',
   });
 
-  const [myAlert, SetmyAlert] = React.useState(<div></div>);
+  const [myAlert, SetmyAlert] = React.useState<JSX.Element | undefined>(
+    undefined,
+  );
 
   return (
     <Container component="main" maxWidth="xs">

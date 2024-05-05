@@ -13,7 +13,7 @@ import styles from '../../styles/Home.module.css';
 export default function Page() {
   const { user } = useAuthContext();
   const suppD = useSuppDataQuery();
-  const [body, SetBody] = useState({ element: <div></div> });
+  const [body, SetBody] = useState<JSX.Element | undefined>(undefined);
   const [admin, SetAdmin] = useState(false);
   const [logged, SetLogin] = useState(false);
 
@@ -34,30 +34,28 @@ export default function Page() {
         (actPack) => actPack.supplierId === id,
       );
 
-      SetBody({
-        element: (
-          <AdminPageBody
-            data={selectedSupp}
-            stylingErr={{
-              textAlign: 'center',
-              color: 'red',
-              fontSize: '40px',
-              fontWeight: 'bold',
-              margin: 'auto',
-            }}
-            stylingWarning={{
-              textAlign: 'center',
-              color: 'orange',
-              fontSize: '30px',
-              fontWeight: 'bold',
-              margin: 'auto',
-            }}
-            user={user}
-            id={selectedSupp?.supplierId}
-            adminId={adminId}
-          />
-        ),
-      });
+      SetBody(
+        <AdminPageBody
+          data={selectedSupp}
+          stylingErr={{
+            textAlign: 'center',
+            color: 'red',
+            fontSize: '40px',
+            fontWeight: 'bold',
+            margin: 'auto',
+          }}
+          stylingWarning={{
+            textAlign: 'center',
+            color: 'orange',
+            fontSize: '30px',
+            fontWeight: 'bold',
+            margin: 'auto',
+          }}
+          user={user}
+          id={selectedSupp?.supplierId}
+          adminId={adminId}
+        />,
+      );
     }
   }, [suppD, logged, admin]);
 
@@ -69,7 +67,7 @@ export default function Page() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar user={user} />
-      <main className={styles.main}>{body.element}</main>
+      <main className={styles.main}>{body}</main>
       <footer className={styles.footer}></footer>
     </div>
   );

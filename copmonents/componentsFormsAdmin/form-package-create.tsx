@@ -1,5 +1,5 @@
-import { State, useHookstate } from '@hookstate/core';
-import { Alert, Button, styled, Typography } from '@mui/material';
+import { useHookstate } from '@hookstate/core';
+import { Button, styled, Typography } from '@mui/material';
 import router from 'next/router';
 import * as React from 'react';
 import { useEffect } from 'react';
@@ -10,9 +10,11 @@ import {
   useNewPackageToFirestoreMutation,
 } from '@/generated/graphql';
 
+import { Validation } from '../../utility/uthils';
+import { CustomAlert } from '../alert-component';
 import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
-import { CreatedPackage, ErrSetterProperties } from '../types/types';
+import { CreatedPackage } from '../types/types';
 
 type Props = {
   id: string;
@@ -40,120 +42,8 @@ const BackButtn = styled(Button)({
   width: '30%',
 });
 
-const parseIntReliable = (numArg: string) => {
-  if (numArg.length > 0) {
-    const parsed = Number.parseInt(numArg, 10);
-    if (parsed === 0) {
-      // eslint-disable-next-line max-depth
-      if (numArg.replaceAll('0', '') === '') {
-        return 0;
-      }
-    } else if (Number.isSafeInteger(parsed)) {
-      return parsed;
-    }
-  }
-  return false;
-};
-
-const isInt = (numArg: string, min: number) => {
-  const parsed = parseIntReliable(numArg);
-
-  return parsed !== false && parsed > min;
-};
-
-const Valid = (
-  weightarg: string,
-  costarg: string,
-  pLengtharg: string,
-  heightarg: string,
-  widtharg: string,
-  errSetter: State<ErrSetterProperties>,
-) => {
-  const messageInt = 'Očekává se číslo větší nebo rovné nule';
-  if (!isInt(weightarg, 0)) {
-    errSetter.errWeight.set(messageInt);
-    return new Error(messageInt);
-  }
-
-  if (!isInt(costarg, 0)) {
-    errSetter.errCost.set(messageInt);
-    return new Error(messageInt);
-  }
-
-  if (!isInt(pLengtharg, 0)) {
-    errSetter.errpLength.set(messageInt);
-    return new Error(messageInt);
-  }
-
-  if (!isInt(heightarg, 0)) {
-    errSetter.errHeight.set(messageInt);
-    return new Error(messageInt);
-  }
-
-  if (!isInt(widtharg, 0)) {
-    errSetter.errWidth.set(messageInt);
-    return new Error(messageInt);
-  }
-
-  errSetter.set({
-    errCost: '',
-    errHeight: '',
-    errLabel: '',
-    errpLength: '',
-    errWeight: '',
-    errWidth: '',
-  });
-  return undefined;
-};
-
 const Back = async (ids: string) => {
   await router.push(`/../../admpage/${ids}`);
-};
-
-const MyAlert = (messages: { successCreate: string; errCreate: string }) => {
-  let alert = <div></div>;
-
-  if (messages.errCreate !== '') {
-    alert = (
-      <div>
-        <Alert severity="error">{messages.errCreate}</Alert>
-      </div>
-    );
-  }
-
-  if (messages.successCreate !== '') {
-    const data = JSON.parse(messages.successCreate) as CreatedPackage;
-
-    alert = (
-      <div>
-        <Alert severity="success">
-          <div>
-            <h3>Balík s parametry</h3>
-            <p style={{ margin: '5px' }}>
-              <strong>Označení</strong>: {data.name_package}
-            </p>
-            <p style={{ margin: '5px' }}>
-              <strong>Cena</strong>: {data.cost} Kč
-            </p>
-            <p style={{ margin: '5px' }}>
-              <strong>Hmotnost</strong>: {data.weight}
-            </p>
-            <p style={{ margin: '5px' }}>
-              <strong>Délka</strong>: {data.Plength}
-            </p>
-            <p style={{ margin: '5px' }}>
-              <strong>Šířka</strong>: {data.width}
-            </p>
-            <p style={{ margin: '5px' }}>
-              <strong>Výška</strong>: {data.height}
-            </p>
-          </div>
-        </Alert>
-      </div>
-    );
-  }
-
-  return alert;
 };
 
 const Response = (
@@ -247,12 +137,17 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
   const handleForm = async (event?: React.FormEvent) => {
     event?.preventDefault();
     const pID = uuidv4();
-    const valid = Valid(
-      settersForDataPack.Weight.get(),
-      settersForDataPack.Cost.get(),
-      settersForDataPack.Plength.get(),
-      settersForDataPack.Height.get(),
-      settersForDataPack.Width.get(),
+    const valid = Validation(
+      'packCreate',
+      {
+        packageData: {
+          weight: settersForDataPack.Weight.get(),
+          cost: settersForDataPack.Cost.get(),
+          pLength: settersForDataPack.Plength.get(),
+          height: settersForDataPack.Height.get(),
+          width: settersForDataPack.Width.get(),
+        },
+      },
       setterErrors,
     )?.message;
     if (valid) {
@@ -335,10 +230,13 @@ export const FormPackage: React.FC<Props> = ({ id }) => {
         }}
       >
         <div style={{ alignSelf: 'center' }}>
-          {MyAlert({
-            successCreate: setterForAlertMesssage.successCreate.value,
-            errCreate: setterForAlertMesssage.errCreate.value,
-          })}
+          <CustomAlert
+            messages={{
+              successCreate: setterForAlertMesssage.successCreate.value,
+              errCreate: setterForAlertMesssage.errCreate.value,
+            }}
+            operation="packageCreate"
+          />
         </div>
         <CustomFieldset>
           <legend

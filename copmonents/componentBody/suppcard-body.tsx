@@ -5,26 +5,26 @@ type Props = {
   data: SuppData;
   styling: any;
 };
+
 export const SuppcardPageBody: React.FC<Props> = ({ data, styling }) => {
-  if (data) {
-    return (
-      <div>
-        {data?.suplierData.map((item) => (
-          <DetailSupps
-            key={item.supplierId}
-            packInBox={item.packInBox}
-            name={item.suppName}
-            sendCash={item.sendCashDelivery}
-            folie={item.foil}
-            shippingLabel={item.shippingLabel}
-            pickUp={item.pickUp}
-            delivery={item.delivery}
-            insurance={item.insurance}
-            suppId={item.supplierId}
-          />
-        ))}
-      </div>
-    );
-  }
-  return <div style={styling}>Nenalezeny žádné zásilkové služby</div>;
+  return data ? (
+    <div>
+      {data?.suplierData.map((item) => (
+        <DetailSupps
+          key={item.supplierId}
+          packInBox={item.packInBox}
+          name={item.suppName}
+          sendCash={item.sendCashDelivery}
+          folie={item.foil}
+          shippingLabel={item.shippingLabel}
+          pickUp={item.pickUp}
+          delivery={item.delivery}
+          insurance={item.insurance}
+          suppId={item.supplierId}
+        />
+      ))}
+    </div>
+  ) : (
+    <div style={styling}>Nenalezeny žádné zásilkové služby</div>
+  );
 };

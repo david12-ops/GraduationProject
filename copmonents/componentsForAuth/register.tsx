@@ -75,9 +75,9 @@ const onChangeForm = (
     errEmail: string;
     errPassword: string;
   }>,
-  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>,
 ) => {
-  SetAlert(<div></div>);
+  SetAlert(undefined);
   errSetter.set({
     errEmail: '',
     errPassword: '',
@@ -105,7 +105,7 @@ const defaultTheme = createTheme();
 
 const Submit = async (
   data: { password: string; email: string },
-  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>,
   errSetter: State<{
     errEmail: string;
     errPassword: string;
@@ -151,7 +151,7 @@ const Submit = async (
 
 const Credentials = async (
   data: { emeil: string; password: string },
-  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>,
   errSetter: State<{
     errEmail: string;
     errPassword: string;
@@ -178,7 +178,9 @@ const Credentials = async (
 
 export const PageRegisterForm = () => {
   const [close, SetClose] = React.useState(true);
-  const [myAlert, SetmyAlert] = React.useState(<div></div>);
+  const [myAlert, SetmyAlert] = React.useState<JSX.Element | undefined>(
+    undefined,
+  );
   const credentials = useHookstate({
     email: '',
     password: '',

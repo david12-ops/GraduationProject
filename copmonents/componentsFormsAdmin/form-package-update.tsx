@@ -1,6 +1,5 @@
-import { State, useHookstate } from '@hookstate/core';
+import { useHookstate } from '@hookstate/core';
 import { Button, styled, Typography } from '@mui/material';
-import Alert from '@mui/material/Alert';
 import router from 'next/router';
 import * as React from 'react';
 import { useEffect } from 'react';
@@ -12,12 +11,13 @@ import {
   useUpdateHistoryMutation,
   useUpdatePackageMutation,
 } from '@/generated/graphql';
+import { Validation } from '@/utility/uthils';
 
+import { CustomAlert } from '../alert-component';
 import { useAuthContext } from '../auth-context-provider';
 import { MyCompTextField } from '../text-field';
 import {
   DataFrServer,
-  ErrSetterProperties,
   Package,
   PackageData,
   ResponsePackUpdate,
@@ -51,83 +51,8 @@ const CustomFieldset = styled('fieldset')({
   padding: '1rem',
 });
 
-const parseIntReliable = (numArg: string) => {
-  if (numArg.length > 0) {
-    const parsed = Number.parseInt(numArg, 10);
-    if (parsed === 0) {
-      // eslint-disable-next-line max-depth
-      if (numArg.replaceAll('0', '') === '') {
-        return 0;
-      }
-    } else if (Number.isSafeInteger(parsed)) {
-      return parsed;
-    }
-  }
-  return false;
-};
-
 const Back = async (ids: string) => {
   await router.push(`/../../admpage/${ids}`);
-};
-
-const MyAlert = (messages: {
-  successUpade: string;
-  errUpdate: string;
-  msgHisotry: string;
-}) => {
-  let alert = <div></div>;
-
-  if (messages.errUpdate !== '') {
-    alert = (
-      <div>
-        <Alert severity="error">{messages.errUpdate}</Alert>
-      </div>
-    );
-  }
-
-  if (messages.successUpade !== '') {
-    const data = JSON.parse(messages.successUpade) as PackageData;
-    alert = (
-      <Alert severity="success">
-        <div>
-          <h3>Balík s parametry</h3>
-          <p style={{ margin: '5px' }}>
-            <strong>Označení</strong>: {data.name_package}
-          </p>
-          <p style={{ margin: '5px' }}>
-            <strong>Cena</strong>: {data.cost} Kč
-          </p>
-          <p style={{ margin: '5px' }}>
-            <strong>Hmotnost</strong>: {data.weight}
-          </p>
-          <p style={{ margin: '5px' }}>
-            <strong>Délka</strong>: {data.Plength}
-          </p>
-          <p style={{ margin: '5px' }}>
-            <strong>Šířka</strong>: {data.width}
-          </p>
-          <p style={{ margin: '5px' }}>
-            <strong>Výška</strong>: {data.height}
-          </p>
-          {messages.msgHisotry ? (
-            <p style={{ margin: '5px' }}>
-              <strong>Status úpravy historie</strong>: {messages.msgHisotry}
-            </p>
-          ) : (
-            <p></p>
-          )}
-        </div>
-      </Alert>
-    );
-  }
-
-  return alert;
-};
-
-const isInt = (numArg: string, min: number) => {
-  const parsed = parseIntReliable(numArg);
-
-  return parsed !== false && parsed > min;
 };
 
 const setDataDatabase = (
@@ -155,51 +80,6 @@ const setDataDatabase = (
       }
     }
   }
-  return undefined;
-};
-
-const Valid = (
-  weightarg: string,
-  costarg: string,
-  pLengtharg: string,
-  heightarg: string,
-  widtharg: string,
-  errSetter: State<ErrSetterProperties>,
-) => {
-  const messageInt = 'Očekává se číslo větší nebo rovné nule';
-  if (!isInt(weightarg, 0)) {
-    errSetter.errWeight.set(messageInt);
-    return new Error(messageInt);
-  }
-
-  if (!isInt(costarg, 0)) {
-    errSetter.errCost.set(messageInt);
-    return new Error(messageInt);
-  }
-
-  if (!isInt(pLengtharg, 0)) {
-    errSetter.errpLength.set(messageInt);
-    return new Error(messageInt);
-  }
-
-  if (!isInt(heightarg, 0)) {
-    errSetter.errHeight.set(messageInt);
-    return new Error(messageInt);
-  }
-
-  if (!isInt(widtharg, 0)) {
-    errSetter.errWidth.set(messageInt);
-    return new Error(messageInt);
-  }
-
-  errSetter.set({
-    errCost: '',
-    errHeight: '',
-    errLabel: '',
-    errpLength: '',
-    errWeight: '',
-    errWidth: '',
-  });
   return undefined;
 };
 
@@ -294,12 +174,17 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
 
   const handleForm = async (event?: React.FormEvent) => {
     event?.preventDefault();
-    const valid: string | undefined = Valid(
-      settersForDataPack.Weight.get(),
-      settersForDataPack.Cost.get(),
-      settersForDataPack.Plength.get(),
-      settersForDataPack.Height.get(),
-      settersForDataPack.Width.get(),
+    const valid = Validation(
+      'packUpdate',
+      {
+        packageData: {
+          weight: settersForDataPack.Weight.get(),
+          cost: settersForDataPack.Cost.get(),
+          pLength: settersForDataPack.Plength.get(),
+          height: settersForDataPack.Height.get(),
+          width: settersForDataPack.Width.get(),
+        },
+      },
       setterErrors,
     )?.message;
     if (valid) {
@@ -405,11 +290,14 @@ export const FormPackageUpdate: React.FC<Props> = ({ id }) => {
         }}
       >
         <div style={{ alignSelf: 'center' }}>
-          {MyAlert({
-            successUpade: setterForAlertMesssage.successUpdate.value,
-            errUpdate: setterForAlertMesssage.errUpdate.value,
-            msgHisotry: setterForAlertMesssage.msgHistory.value,
-          })}
+          <CustomAlert
+            messages={{
+              successUpade: setterForAlertMesssage.successUpdate.value,
+              errUpdate: setterForAlertMesssage.errUpdate.value,
+              msgHisotry: setterForAlertMesssage.msgHistory.value,
+            }}
+            operation="packageUpdate"
+          />
         </div>
         <CustomFieldset>
           <legend

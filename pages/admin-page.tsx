@@ -1,44 +1,11 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 
+import { AdminPageBody } from '@/copmonents/componentBody/admpage-body';
+
 import { useAuthContext } from '../copmonents/auth-context-provider';
-import { DataGridSupplier } from '../copmonents/componentsTables/table-supp';
 import { Navbar } from '../copmonents/navbar';
 import styles from '../styles/Home.module.css';
-
-const Page = (logged: boolean, admin: boolean) => {
-  if (!logged || !admin) {
-    return (
-      <div
-        style={{
-          textAlign: 'center',
-          color: 'red',
-          fontSize: '30px',
-          fontWeight: 'bold',
-          margin: 'auto',
-        }}
-      >
-        Přístup pouze pro administrátora
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <h2
-        style={{
-          marginTop: '70px',
-          color: '#5193DE',
-          fontSize: '30px',
-          textAlign: 'center',
-        }}
-      >
-        Zásilkové služby
-      </h2>
-      <DataGridSupplier />
-    </div>
-  );
-};
 
 // eslint-disable-next-line import/no-default-export
 export default function AdmPage() {
@@ -64,9 +31,9 @@ export default function AdmPage() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar user={user} />
-
-      <main className={styles.main}>{Page(logged, admin)}</main>
-
+      <main className={styles.main}>
+        {<AdminPageBody logged={logged} admin={admin} />}
+      </main>
       <footer className={styles.footer}></footer>
     </div>
   );

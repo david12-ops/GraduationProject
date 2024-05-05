@@ -10,6 +10,7 @@ import {
   useAddHistoryToFirestoreMutation,
   useSuppDataQuery,
 } from '@/generated/graphql';
+import { ToDateInNumForm } from '@/utility/uthils';
 
 import { useAuthContext } from '../auth-context-provider';
 import { CustomDialog } from '../modal';
@@ -131,11 +132,6 @@ const Paragraph = (
   );
 };
 
-const toDateInNumForm = (date: string) => {
-  const newDate = new Date(date);
-  return `${newDate.getDate()}-${newDate.getMonth()}-${newDate.getFullYear()}`;
-};
-
 export const ResSuppCard: React.FC<Props> = ({
   name,
   pickUp,
@@ -151,7 +147,7 @@ export const ResSuppCard: React.FC<Props> = ({
   packName,
 }) => {
   const dataS = useSuppDataQuery();
-  const [alert, SetAlert] = React.useState(<div></div>);
+  const [alert, SetAlert] = React.useState<JSX.Element | undefined>(undefined);
   const [history] = useAddHistoryToFirestoreMutation();
   const { user } = useAuthContext();
   const supplier = dataS.data?.suplierData.find((sup) => {
@@ -227,8 +223,8 @@ export const ResSuppCard: React.FC<Props> = ({
             <CustomDialog
               title={name}
               description={Paragraph(
-                toDateInNumForm(pickUp),
-                toDateInNumForm(delivery),
+                ToDateInNumForm(pickUp),
+                ToDateInNumForm(delivery),
                 packInBox,
                 folie,
                 shippingLabel,

@@ -332,3 +332,35 @@ export type Response = {
   docID?: string;
   message: string;
 };
+
+export type DataForMaxPackValidation = Array<
+  [
+    string,
+    Array<
+      | {
+          supplierId: string;
+          Cost: number;
+          Name: string;
+          param: {
+            width: number;
+            length: number;
+            weight: number;
+            height: number;
+          };
+        }
+      | undefined
+    >,
+  ]
+>;
+
+export type MaxPackValidation = {
+  max: {
+    params: {
+      width: number;
+      length: number;
+      weight: number;
+      height: number;
+    };
+    message: undefined | string;
+  };
+};

@@ -29,7 +29,7 @@ const MyAlert = (message: string, type: string) => {
 
 const handleErros = (
   errCode: string,
-  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>,
   errSetter: State<{
     errEmail: string;
     errPassword: string;
@@ -65,7 +65,7 @@ const handleErros = (
 };
 
 const Submit = async (
-  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>,
   errSetter: State<{
     errEmail: string;
     errPassword: string;
@@ -102,9 +102,9 @@ const onChangeForm = (
     errEmail: string;
     errPassword: string;
   }>,
-  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>,
 ) => {
-  SetAlert(<div></div>);
+  SetAlert(undefined);
   errSetter.set({
     errEmail: '',
     errPassword: '',
@@ -113,7 +113,7 @@ const onChangeForm = (
 
 const ForgotenPass = async (
   email: string,
-  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>,
   errSetter: State<{
     errEmail: string;
     errPassword: string;
@@ -139,7 +139,9 @@ const ForgotenPass = async (
 };
 
 export const PageFormLogin = () => {
-  const [myAlert, SetmyAlert] = React.useState(<div></div>);
+  const [myAlert, SetmyAlert] = React.useState<JSX.Element | undefined>(
+    undefined,
+  );
 
   const errCredentials = useHookstate({
     errEmail: '',

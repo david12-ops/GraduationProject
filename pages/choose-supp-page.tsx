@@ -18,6 +18,7 @@ import {
   useMutSuitableSuppMutation,
   useSuppDataQuery,
 } from '@/generated/graphql';
+import { Validation } from '@/utility/uthils';
 
 import { useAuthContext } from '../copmonents/auth-context-provider';
 import { ResSuppCard } from '../copmonents/Cards/res-supp';
@@ -53,27 +54,6 @@ const SetAndReturnDataForm = (stateSetter: State<SetterDataProperties>) => {
   dataForm.placeFrom = stateSetter.PlaceFrom.get();
   dataForm.placeTo = stateSetter.PlaceTo.get();
   return dataForm;
-};
-
-const parseIntReliable = (numArg: string) => {
-  if (numArg.length > 0) {
-    const parsed = Number.parseInt(numArg, 10);
-    if (parsed === 0) {
-      // eslint-disable-next-line max-depth
-      if (numArg.replaceAll('0', '') === '') {
-        return 0;
-      }
-    } else if (Number.isSafeInteger(parsed)) {
-      return parsed;
-    }
-  }
-  return false;
-};
-
-const isInt = (numArg: string, min: number) => {
-  const parsed = parseIntReliable(numArg);
-
-  return parsed !== false && parsed > min;
 };
 
 const Res = (dataSui: Array<DataS>, allSupp: SupplierInfo) => {
@@ -124,66 +104,6 @@ const RenderSupp = (
   return <div></div>;
 };
 
-const Valid = (
-  weightarg: string,
-  costarg: string,
-  pLengtharg: string,
-  heightarg: string,
-  widtharg: string,
-  placeToarg: string,
-  placeFromarg: string,
-  errorsSetters: State<ErrSettersPropertiesFromData>,
-) => {
-  const messageForInt = 'Očekává se číslo větší nebo rovné nule';
-  const messageLoc = 'Očekává se hodnota (depo/personal)';
-
-  if (!isInt(weightarg, 0)) {
-    errorsSetters.errWeight.set(messageForInt);
-    return new Error(messageForInt);
-  }
-
-  if (!isInt(costarg, 0)) {
-    errorsSetters.errCost.set(messageForInt);
-    return new Error(messageForInt);
-  }
-
-  if (!isInt(pLengtharg, 0)) {
-    errorsSetters.errLength.set(messageForInt);
-    return new Error(messageForInt);
-  }
-
-  if (!isInt(heightarg, 0)) {
-    errorsSetters.errHeight.set(messageForInt);
-    return new Error(messageForInt);
-  }
-
-  if (!isInt(widtharg, 0)) {
-    errorsSetters.errWidth.set(messageForInt);
-    return new Error(messageForInt);
-  }
-
-  if (!['depo', 'personal'].includes(placeToarg)) {
-    errorsSetters.errPlaceTo.set(messageLoc);
-    return new Error(messageLoc);
-  }
-
-  if (!['depo', 'personal'].includes(placeFromarg)) {
-    errorsSetters.errFrom.set(messageLoc);
-    return new Error(messageLoc);
-  }
-
-  errorsSetters.set({
-    errCost: '',
-    errFrom: '',
-    errHeight: '',
-    errLength: '',
-    errPlaceTo: '',
-    errWeight: '',
-    errWidth: '',
-  });
-  return undefined;
-};
-
 const DisplayResult = (
   close: boolean,
   dataFromResolver: Array<DataS>,
@@ -209,7 +129,7 @@ const DisplayResult = (
 
 const onChangeForm = (
   setters: State<ErrSettersPropertiesFromData>,
-  stateAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>,
 ) => {
   setters.set({
     errWidth: '',
@@ -220,7 +140,7 @@ const onChangeForm = (
     errPlaceTo: '',
     errFrom: '',
   });
-  stateAlert(<div></div>);
+  SetAlert(undefined);
 };
 
 const MyInfoAlert = (message: string) => {
@@ -283,20 +203,25 @@ export default function SuitableSupp() {
 
   const [close, SetClose] = useState(true);
   const [dataS, SetData] = useState(Array<DataS>);
-  const [myAlert, SetAlert] = useState(<div></div>);
+  const [myAlert, SetAlert] = useState<JSX.Element | undefined>(undefined);
 
   const [suitableSupp] = useMutSuitableSuppMutation();
   const suppData = useSuppDataQuery();
 
   const HandleForm = async () => {
-    const valid = Valid(
-      statesOfFormPack.Weight.get(),
-      statesOfFormPack.Cost.get(),
-      statesOfFormPack.Plength.get(),
-      statesOfFormPack.Height.get(),
-      statesOfFormPack.Width.get(),
-      statesOfFormPack.PlaceTo.get(),
-      statesOfFormPack.PlaceFrom.get(),
+    const valid = Validation(
+      'chooseSupp',
+      {
+        formData: {
+          cost: statesOfFormPack.Cost.get(),
+          pLength: statesOfFormPack.Plength.get(),
+          height: statesOfFormPack.Height.get(),
+          weight: statesOfFormPack.Weight.get(),
+          width: statesOfFormPack.Width.get(),
+          depo: statesOfFormPack.PlaceTo.get(),
+          personal: statesOfFormPack.PlaceFrom.get(),
+        },
+      },
       errors,
     )?.message;
     if (valid) {

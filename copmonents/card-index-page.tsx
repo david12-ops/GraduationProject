@@ -12,12 +12,7 @@ type Props = {
 
 export const CardOffer: React.FC<Props> = ({ img, label, description }) => {
   return (
-    <Card
-      sx={{
-        maxWidth: '300px',
-        maxHeight: '500px',
-      }}
-    >
+    <Card sx={{ maxHeight: '450px', maxWidth: '250px' }}>
       <CardMedia component="img" image={`/${img}`} />
       <CardContent>
         <Typography

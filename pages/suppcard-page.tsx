@@ -12,7 +12,7 @@ import styles from '../styles/Home.module.css';
 export default function SuppCards() {
   const { user } = useAuthContext();
   const suppData = useSuppDataQuery();
-  const [body, SetBody] = useState({ data: <div></div> });
+  const [body, SetBody] = useState<JSX.Element | undefined>(undefined);
 
   useEffect(() => {
     if (!suppData.loading) {
@@ -29,9 +29,7 @@ export default function SuppCards() {
         />
       );
 
-      SetBody({
-        data: bodyPage,
-      });
+      SetBody(bodyPage);
     }
   }, [suppData]);
 
@@ -43,7 +41,7 @@ export default function SuppCards() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar user={user} />
-      <main className={styles.main}>{body.data}</main>
+      <main className={styles.main}>{body}</main>
       <footer className={styles.footer}></footer>
     </div>
   );

@@ -5,6 +5,8 @@ import Typography from '@mui/material/Typography';
 import Link from 'next/link';
 import * as React from 'react';
 
+import { ToDateInNumForm } from '@/utility/uthils';
+
 type Props = {
   name: string;
   pickUp: string;
@@ -128,11 +130,6 @@ const Paragraph = (
   );
 };
 
-const toDateInNumForm = (date: string) => {
-  const newDate = new Date(date);
-  return `${newDate.getDate()}-${newDate.getMonth()}-${newDate.getFullYear()}`;
-};
-
 export const AdmPageSuppCard: React.FC<Props> = ({
   name,
   pickUp,
@@ -182,8 +179,8 @@ export const AdmPageSuppCard: React.FC<Props> = ({
             component={'div'}
           >
             {Paragraph(
-              toDateInNumForm(pickUp),
-              toDateInNumForm(delivery),
+              ToDateInNumForm(pickUp),
+              ToDateInNumForm(delivery),
               packInBox,
               folie,
               shippingLabel,

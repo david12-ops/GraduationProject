@@ -29,7 +29,22 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
   }, []);
   return (
     <AuthContext.Provider value={{ user, loading }}>
-      {loading ? <div>Loading...</div> : children}
+      {loading ? (
+        <div
+          style={{
+            margin: '0',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            msTransform: 'translate(-50%, -50%)',
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
+          <img src="/loading.gif" alt="loading" />
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };

@@ -56,7 +56,7 @@ const MyAlert = (message: string, severityCode: string) => {
 
 const Check = async (
   arrayOfString: Array<string>,
-  setAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  setAlert: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>,
 ) => {
   if (Counter(arrayOfString) === 0) {
     setAlert(MyAlert('Vyberte si zásilkovou službu', 'error'));
@@ -70,7 +70,7 @@ export const DataGridSupplier = () => {
   const suppD = useSuppDataQuery();
   const [deleteSuppD] = useDeleteSuppMutation();
   const [selection, setSelection] = React.useState<GridRowSelectionModel>([]);
-  const [alert, setAlert] = React.useState<JSX.Element>(<div></div>);
+  const [alert, setAlert] = React.useState<JSX.Element | undefined>(undefined);
 
   const rows =
     !suppD.data || suppD.loading

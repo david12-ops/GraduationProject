@@ -1,6 +1,6 @@
 import { InputAdornment, TextField } from '@mui/material';
 
-type Params = {
+type Props = {
   typeComp: string;
   idComp: string;
   labelComp: { err: string; withoutErr: string };
@@ -33,7 +33,7 @@ const lComp = (input: string) => {
     }
   }
 };
-export const MyCompTextField: React.FC<Params> = ({
+export const MyCompTextField: React.FC<Props> = ({
   typeComp,
   idComp,
   labelComp,

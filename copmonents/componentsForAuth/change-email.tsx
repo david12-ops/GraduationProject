@@ -33,7 +33,7 @@ const MyAlert = (message: string, type: string) => {
 
 const Submit = async (
   email: string,
-  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>,
   user: User | null | undefined,
 ) => {
   try {
@@ -62,15 +62,17 @@ const Submit = async (
 
 const onChangeForm = (
   SetEmErr: React.Dispatch<React.SetStateAction<string>>,
-  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element>>,
+  SetAlert: React.Dispatch<React.SetStateAction<JSX.Element | undefined>>,
 ) => {
-  SetAlert(<div></div>);
+  SetAlert(undefined);
   SetEmErr('');
 };
 export const PageFormChangeEm = () => {
   const [newEm, SetNewEm] = useState('');
   const [erroEmail, SetEmailErr] = useState('');
-  const [myAlert, SetmyAlert] = React.useState(<div></div>);
+  const [myAlert, SetmyAlert] = React.useState<JSX.Element | undefined>(
+    undefined,
+  );
   const { user } = useAuthContext();
 
   return (

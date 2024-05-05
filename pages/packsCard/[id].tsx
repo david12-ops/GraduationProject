@@ -12,7 +12,7 @@ import styles from '../../styles/Home.module.css';
 // eslint-disable-next-line import/no-default-export
 export default function PacksCards() {
   const suppD = useSuppDataQuery();
-  const [body, SetBody] = useState({ element: <div></div> });
+  const [body, SetBody] = useState<JSX.Element | undefined>(undefined);
   const [admin, SetAdmin] = useState(false);
   const [logged, SetLogin] = useState(false);
   const router = useRouter();
@@ -38,35 +38,33 @@ export default function PacksCards() {
         (actPack) => actPack?.supplierId === id,
       );
 
-      SetBody({
-        element: (
-          <PacksCardBody
-            data={selectedSupp}
-            stylingErr={{
-              textAlign: 'center',
-              color: 'red',
-              fontSize: '40px',
-              fontWeight: 'bold',
-              margin: 'auto',
-            }}
-            stylingImgErr={{
-              border: 'solid red',
-              borderRadius: '10px',
-              color: 'lightblue',
-              margin: 'auto',
-            }}
-            stylingWarning={{
-              textAlign: 'center',
-              color: 'orange',
-              fontSize: '30px',
-              fontWeight: 'bold',
-              margin: 'auto',
-            }}
-            user={user}
-            adminId={adminId}
-          />
-        ),
-      });
+      SetBody(
+        <PacksCardBody
+          data={selectedSupp}
+          stylingErr={{
+            textAlign: 'center',
+            color: 'red',
+            fontSize: '40px',
+            fontWeight: 'bold',
+            margin: 'auto',
+          }}
+          stylingImgErr={{
+            border: 'solid red',
+            borderRadius: '10px',
+            color: 'lightblue',
+            margin: 'auto',
+          }}
+          stylingWarning={{
+            textAlign: 'center',
+            color: 'orange',
+            fontSize: '30px',
+            fontWeight: 'bold',
+            margin: 'auto',
+          }}
+          user={user}
+          adminId={adminId}
+        />,
+      );
     }
   }, [suppD, logged, admin]);
 
@@ -89,7 +87,7 @@ export default function PacksCards() {
         >
           Balíky
         </h2>
-        {body.element}
+        {body}
       </main>
       <footer className={styles.footer}></footer>
     </div>

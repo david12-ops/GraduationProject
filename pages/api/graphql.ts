@@ -1,5 +1,3 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'firebase/compat/storage';
 
 import { Context } from '@apollo/client';
@@ -7,22 +5,28 @@ import { isValid } from 'date-fns';
 import { DecodedIdToken } from 'firebase-admin/auth';
 import { gql } from 'graphql-tag';
 import { createSchema, createYoga } from 'graphql-yoga';
-import _ from 'lodash';
 
 import {
-  CostSup,
   DataChoosedSupp,
   DataUpdateSupp,
   HistoryDocument,
   Location,
   Package,
-  PackageData,
   PackageType,
   Response,
-  ReturnItem,
   SupplierInformation,
-  SuppWithLocation,
 } from '@/copmonents/types/types';
+import {
+  CheckIfisThereDoc,
+  FindSameParamsPack,
+  GetCost,
+  GetDocsPack,
+  GetDocSupp,
+  GetPackName,
+  IsInGoodForm,
+  LookWhichIsBetter,
+} from '@/utility/uthils';
+import { ResultSuitable, ServeData } from '@/utility/uthils-main-func';
 
 import { firestore } from '../../firebase/firebase-admin-config';
 import { verifyToken } from './verify-token';
@@ -267,30 +271,7 @@ const responseSuccess = 'Úprava historie uživatelům byla úspěšná';
 const responseFail = 'Úprava v historii neproběhla úspěšně';
 const responseInfo = 'Žádná úprava v historii neproběhla';
 
-// validace pro supplier
-const ConverBool = (
-  stringnU1: string,
-  stringnU2: string,
-  stringnU3: string,
-  stringnU4: string,
-) => {
-  if (!['Yes', 'No'].includes(stringnU1)) {
-    return true;
-  }
-  if (!['Yes', 'No'].includes(stringnU2)) {
-    return true;
-  }
-  if (!['Yes', 'No'].includes(stringnU3)) {
-    return true;
-  }
-  // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-  if (!['Yes', 'No'].includes(stringnU4)) {
-    return true;
-  }
-  return false;
-};
-
-const doMathForPackage = async (
+const MathForPackage = async (
   data: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
   nPriceP: number,
   historyDoc: Array<
@@ -344,7 +325,7 @@ const doMathForPackage = async (
   return msg;
 };
 
-const doMathForOptionsDelivery = async (
+const MathForOptionsDelivery = async (
   dataPackage: Array<{
     cost: number;
     namePack: string;
@@ -356,25 +337,7 @@ const doMathForOptionsDelivery = async (
     FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
   >,
   supplierData: DataUpdateSupp,
-  // eslint-disable-next-line sonarjs/cognitive-complexity
 ) => {
-  const getCost = (
-    dataOfPacks: Array<{
-      cost: number;
-      namePack: string;
-      suppName: string;
-    }>,
-    nameSupp: string,
-    namePack: string,
-  ) => {
-    for (const pack of dataOfPacks) {
-      if (pack.namePack === namePack && pack.suppName === nameSupp) {
-        return pack.cost;
-      }
-    }
-    return 0;
-  };
-
   const sum = nPriceDepo + nPriceP;
   const response: Array<Response> = [];
 
@@ -411,7 +374,7 @@ const doMathForOptionsDelivery = async (
           await document.ref.update(
             new firestore.FieldPath('suppData', 'cost'),
             sum +
-              getCost(
+              GetCost(
                 dataPackage,
                 dataDoc.suppData.name,
                 dataDoc.suppData.packName,
@@ -434,28 +397,12 @@ const doMathForOptionsDelivery = async (
   return response;
 };
 
-const checkIfisThereDoc = (
-  idDoc: string,
-  collection: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
-  userId: string,
-) => {
-  let doc:
-    | FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
-    | undefined;
-  for (const document of collection.docs) {
-    if (document.id === idDoc && userId && document.data().uId === userId) {
-      doc = document;
-    }
-  }
-  return doc;
-};
-
 const resolvers = {
   Query: {
     suplierData: async (
       _parent: unknown,
-      args: unknown,
-      context: MyContext,
+      _args: unknown,
+      _context: MyContext,
     ) => {
       try {
         const result = await db.collection('Supplier').get();
@@ -500,7 +447,7 @@ const resolvers = {
     },
     historyUserData: async (
       _parent: unknown,
-      args: unknown,
+      _args: unknown,
       context: MyContext,
     ) => {
       const data: Array<{
@@ -546,7 +493,6 @@ const resolvers = {
         fromWhere: string;
         cost: number;
       },
-      // eslint-disable-next-line sonarjs/cognitive-complexity
     ) => {
       const {
         width: Width,
@@ -558,34 +504,18 @@ const resolvers = {
         cost: Pcost,
       } = args;
 
-      const packages: Array<Package> = [];
-      const packData: Array<PackageData> = [];
-      const rtrnItem: Array<ReturnItem> = [];
-
-      const validargZ = ['personal', 'depo'].includes(Where);
-      const validargDo = ['personal', 'depo'].includes(FromWhere);
-
-      const suppWithLocationFiled: Array<SuppWithLocation> = [];
-
       try {
-        const SupplierDoc = await db.collection('Supplier').get();
-
-        if (Width === 0 || Weight === 0 || Height === 0 || pLength === 0) {
-          return {
-            __typename: 'ErrorMessage',
-            message: 'Neplatný argument, žádné z čísel nemůže být rovno 0',
-          };
-        }
-
         if (Width < 0 || Weight < 0 || Height < 0 || pLength < 0 || Pcost < 0) {
           return {
             __typename: 'ErrorMessage',
-            message:
-              'Neplatný argument, žádné z čísel nemůže být záporná hodnota',
+            message: 'Neplatný argument, žádné z čísel nemůže být záporná',
           };
         }
 
-        if (!validargZ || !validargDo) {
+        if (
+          !['personal', 'depo'].includes(Where) ||
+          !['personal', 'depo'].includes(FromWhere)
+        ) {
           return {
             __typename: 'ErrorMessage',
             message:
@@ -593,210 +523,56 @@ const resolvers = {
           };
         }
 
-        SupplierDoc.forEach((item) => {
-          const suppItem = item.data() as SupplierInformation;
+        const groupedById = ServeData(
+          await db.collection('Supplier').get(),
+          {
+            where: Where,
+            fromWhere: FromWhere,
+          },
+          Pcost,
+          { weight: Weight, width: Width, height: Height, pLength },
+        );
 
-          if (suppItem && suppItem.package) {
-            suppItem.package.forEach((packItem: Package) => {
-              packages.push(packItem);
-            });
-          }
-          if (suppItem?.location) {
-            suppWithLocationFiled.push({
-              suppId: suppItem.supplierId,
-              loc: suppItem.location,
-            });
-          }
-        });
-
-        packages.forEach((packageObj) => {
-          // ziskani dat z kazdeho objektu baliku
-          const [packageDetails] = Object.values(packageObj);
-          packData.push(packageDetails);
-        });
-
-        // vedet cenu
-        const costSupp = suppWithLocationFiled.map((i) => {
-          // dd
-          const depo = i.loc.depoDelivery;
-          const personal = i.loc.personalDelivery;
-          if (depo.delivery === Where && depo.delivery === FromWhere) {
-            return {
-              idS: i.suppId,
-              cost: 2 * depo.cost,
-            };
-          }
-          // pd
-          if (personal.delivery === Where && depo.delivery === FromWhere) {
-            return {
-              idS: i.suppId,
-              cost: personal.cost + depo.cost,
-            };
-          }
-
-          // dp
-          if (depo.delivery === Where && personal.delivery === FromWhere) {
-            return {
-              idS: i.suppId,
-              cost: depo.cost + personal.cost,
-            };
-          }
-          // pp
-          return {
-            idS: i.suppId,
-            cost: 2 * personal.cost,
-          };
-        });
-
-        const CostOfPack = (costSup: Array<CostSup>, pack: PackageData) => {
-          let sumCost = 0;
-          for (const e of costSup) {
-            if (pack.supplier_id === e.idS) {
-              const sCost = e.cost + pack.cost;
-              sumCost = sCost;
-            }
-          }
-          return sumCost;
-        };
-
-        const IsItSuppWithLoc = (loc: Array<SuppWithLocation>, sId: string) => {
-          return loc.find((itm) => {
-            return itm.suppId === sId;
-          });
-        };
-
-        // prilepim cenu
-        const packCost = packData.map((item: PackageData) => {
-          const cost = CostOfPack(costSupp, item);
-          if (IsItSuppWithLoc(suppWithLocationFiled, item.supplier_id)) {
-            return {
-              supplierId: item.supplier_id,
-              Cost: cost,
-              Name: item.name_package,
-              param: {
-                width: item.width,
-                length: item.Plength,
-                weight: item.weight,
-                height: item.height,
-              },
-            };
-          }
-          return {
-            supplierId: item.supplier_id,
-            Cost: item.cost,
-            Name: item.name_package,
-            param: {
-              width: item.width,
-              length: item.Plength,
-              weight: item.weight,
-              height: item.height,
-            },
-          };
-        });
-
-        const suitableByCost = packCost.map((item) => {
-          if (Pcost >= Number(item.Cost)) {
-            return item;
-          }
-          return undefined;
-        });
-
-        const cleared = suitableByCost.filter((itm) => itm !== undefined);
-
-        const groupedById = _.groupBy(cleared, 'supplierId');
+        // pocud pripravit data a v připadě max package vyhodit error
+        console.log('gr', groupedById);
+        if (groupedById.msg) {
+          return groupedById.msg;
+        }
 
         const packagesDictionary: Record<string, PackageType> = {};
 
-        const lookWhichIsBetter = (item: PackageType, item2: PackageType) => {
-          let bettterPack: PackageType = {
-            supplierId: '',
-            Cost: 0,
-            Name: '',
-            param: {
-              width: 0,
-              length: 0,
-              weight: 0,
-              height: 0,
-            },
-          };
-
-          if (
-            item.param.width > item2.param.width &&
-            item.param.weight > item2.param.weight &&
-            item.param.length > item2.param.length &&
-            item.param.height > item2.param.height
-          ) {
-            bettterPack = item2;
-          }
-
-          if (
-            item.param.width < item2.param.width &&
-            item.param.weight < item2.param.weight &&
-            item.param.length < item2.param.length &&
-            item.param.height < item2.param.height
-          ) {
-            bettterPack = item;
-          }
-
-          return bettterPack;
-        };
-
-        Object.entries(groupedById).forEach(([key, item]) => {
+        groupedById.data.forEach(([, item]) => {
           item.forEach((itm) => {
             if (
               itm &&
-              itm.param?.width <= Width &&
-              itm.param?.weight <= Weight &&
-              itm.param?.length <= pLength &&
-              itm.param?.height <= Height
+              itm.param?.width >= Width &&
+              itm.param?.weight >= Weight &&
+              itm.param?.length >= pLength &&
+              itm.param?.height >= Height
             ) {
               const prev = packagesDictionary[itm.supplierId] ?? undefined;
-              // eslint-disable-next-line unicorn/prefer-ternary, unicorn/no-negated-condition
 
-              // eslint-disable-next-line unicorn/no-negated-condition, unicorn/prefer-ternary
-              if (!prev) {
-                packagesDictionary[itm.supplierId] = {
-                  supplierId: itm.supplierId,
-                  Cost: itm.Cost,
-                  Name: itm.Name,
-                  param: {
-                    width: itm.param.width,
-                    weight: itm.param.weight,
-                    height: itm.param.height,
-                    length: itm.param.length,
-                  },
-                };
-              } else {
-                packagesDictionary[itm.supplierId] = lookWhichIsBetter(
-                  itm,
-                  prev,
-                );
-              }
+              packagesDictionary[itm.supplierId] = prev
+                ? LookWhichIsBetter(itm, prev)
+                : {
+                    supplierId: itm.supplierId,
+                    Cost: itm.Cost,
+                    Name: itm.Name,
+                    param: {
+                      width: itm.param.width,
+                      weight: itm.param.weight,
+                      height: itm.param.height,
+                      length: itm.param.length,
+                    },
+                  };
             }
           });
         });
 
-        Object.entries(packagesDictionary).forEach(([key, item]) => {
-          rtrnItem.push({
-            suppId: item.supplierId,
-            cost: item.Cost,
-            name: item.Name,
-          });
-        });
-
-        if (rtrnItem.length > 0) {
-          return {
-            __typename: 'Suitable',
-            suitable: JSON.stringify(rtrnItem),
-          };
-        }
-        return {
-          __typename: 'ErrorMessage',
-          message: `Žádná vhodná ${constant.toLowerCase()} s vhodným balíkem`,
-        };
+        return ResultSuitable(packagesDictionary, constant);
       } catch (error) {
         console.error(
-          'Chyba při výběru vhodnéhé zásilkové služby s vhodným balíkem',
+          'Chyba při výběru vhodné zásilkové služby s vhodným balíkem',
           error,
         );
         throw error;
@@ -872,7 +648,7 @@ const resolvers = {
         await newHistoryDoc.set(newHistory);
 
         if (
-          checkIfisThereDoc(
+          CheckIfisThereDoc(
             newHistory.historyId,
             await db.collection('History').get(),
             id,
@@ -888,7 +664,6 @@ const resolvers = {
         throw error;
       }
     },
-    // eslint-disable-next-line complexity
     PackageToFirestore: async (
       parent_: any,
       args: {
@@ -902,7 +677,6 @@ const resolvers = {
         packId: string;
       },
       context: MyContext,
-      // eslint-disable-next-line sonarjs/cognitive-complexity
     ) => {
       const {
         weight: weightPack,
@@ -923,30 +697,18 @@ const resolvers = {
       }
 
       if (
-        weightPack < 0 ||
-        lengthPack < 0 ||
-        heightPack < 0 ||
-        costPackage < 0 ||
-        widthPack < 0
+        weightPack <= 0 ||
+        lengthPack <= 0 ||
+        heightPack <= 0 ||
+        costPackage <= 0 ||
+        widthPack <= 0
       ) {
         return {
           __typename: 'PackageError',
-          message: 'Žádný z parametrů nesmí být záporné číslo',
+          message: 'Žádný z parametrů nesmí být záporné číslo nebo rovné nule',
         };
       }
 
-      if (
-        weightPack === 0 ||
-        lengthPack === 0 ||
-        heightPack === 0 ||
-        costPackage === 0 ||
-        widthPack === 0
-      ) {
-        return {
-          __typename: 'PackageError',
-          message: 'Žádný z parametrů nesmí být rovno 0',
-        };
-      }
       try {
         const SupplierDoc = await db
           .collection('Supplier')
@@ -960,11 +722,8 @@ const resolvers = {
           };
         }
 
-        const supplierDoc = SupplierDoc.docs[0];
         const existingPackages: Array<Package> =
-          supplierDoc.data().package || [];
-        const dupPackages: Array<PackageData> = [];
-        let dupName = '';
+          SupplierDoc.docs[0].data().package || [];
 
         const newPackage = {
           weight: weightPack,
@@ -973,7 +732,7 @@ const resolvers = {
           height: heightPack,
           width: widthPack,
           name_package: packName,
-          supplier_id: supplierDoc.id,
+          supplier_id: SupplierDoc.docs[0].id,
         };
 
         const keyPack = existingPackages.map((item) => {
@@ -981,42 +740,37 @@ const resolvers = {
           return keys.includes(ID);
         });
 
-        existingPackages.forEach((item) => {
-          // jmeno balicku
-          const nameItm = Object.keys(item)[0];
-          const itm = item[nameItm];
-          // kontrola jmén
-          if (itm.name_package === packName) {
-            dupName = itm.name_package;
-          }
-          if (
-            itm.weight === newPackage.weight &&
-            itm.height === newPackage.height &&
-            itm.width === newPackage.width &&
-            itm.Plength === newPackage.Plength
-          ) {
-            dupPackages.push(itm);
-          }
-        });
+        const duplicateData = FindSameParamsPack(
+          existingPackages.filter((item) => {
+            return !item[ID];
+          }),
+          {
+            weight: newPackage.weight,
+            width: newPackage.width,
+            length: newPackage.Plength,
+            height: newPackage.height,
+            packName: newPackage.name_package,
+          },
+        );
 
-        if (keyPack.includes(true)) {
-          return {
-            __typename: 'PackageError',
-            message: 'Duplicitní id balíku',
-          };
-        }
-
-        if (dupName.length > 0) {
+        if (duplicateData.name) {
           return {
             __typename: 'PackageError',
             message: 'Toto označení pužívá jíny balík',
           };
         }
 
-        if (dupPackages.length > 0) {
+        if (duplicateData.params) {
           return {
             __typename: 'PackageError',
             message: 'Tyto parametry má též jiný balík',
+          };
+        }
+
+        if (keyPack.includes(true)) {
+          return {
+            __typename: 'PackageError',
+            message: 'Duplicitní id balíku',
           };
         }
 
@@ -1029,12 +783,12 @@ const resolvers = {
           height: heightPack,
           width: widthPack,
           name_package: packName,
-          supplier_id: supplierDoc.id,
+          supplier_id: SupplierDoc.docs[0].id,
         };
 
         existingPackages.push(objectPack);
 
-        await supplierDoc.ref.update({ package: existingPackages });
+        await SupplierDoc.docs[0].ref.update({ package: existingPackages });
 
         return {
           __typename: 'Pack',
@@ -1116,12 +870,12 @@ const resolvers = {
         }
 
         if (
-          ConverBool(
+          !IsInGoodForm(
             hasFoil,
             hasShippingLabel,
             SendCashOnDelivery,
             PackageInABox,
-          ) === true
+          )
         ) {
           return {
             __typename: 'SupplierError',
@@ -1182,7 +936,6 @@ const resolvers = {
       }
     },
     // update
-    // eslint-disable-next-line complexity
     updatePack: async (
       parent_: any,
       args: {
@@ -1196,7 +949,6 @@ const resolvers = {
         PackKey: string;
       },
       context: MyContext,
-      // eslint-disable-next-line sonarjs/cognitive-complexity
     ) => {
       const {
         PackKey: id,
@@ -1217,28 +969,15 @@ const resolvers = {
           };
         }
         if (
-          weightPack < 0 ||
-          lengthPack < 0 ||
-          heightPack < 0 ||
-          costPackage < 0 ||
-          widthPack < 0
+          weightPack <= 0 ||
+          lengthPack <= 0 ||
+          heightPack <= 0 ||
+          costPackage <= 0 ||
+          widthPack <= 0
         ) {
           return {
             __typename: 'PackageUpdateError',
-            message: 'Žádný z parametrů nesmí být záporné číslo',
-          };
-        }
-
-        if (
-          weightPack === 0 ||
-          lengthPack === 0 ||
-          heightPack === 0 ||
-          costPackage === 0 ||
-          widthPack === 0
-        ) {
-          return {
-            __typename: 'PackageUpdateError',
-            message: 'Žádný z parametrů nesmí být rovno 0',
+            message: 'Žádný z parametrů nesmí být záporné číslo ne rovné nule',
           };
         }
 
@@ -1254,11 +993,8 @@ const resolvers = {
           };
         }
 
-        const supplierDoc = SupplierDoc.docs[0];
-        const existingPackages: Array<Package> | [] =
-          supplierDoc.data().package || [];
-        const dupPackages: Array<PackageData> = [];
-        let dupName = '';
+        const existingPackages: Array<Package> =
+          SupplierDoc.docs[0].data().package || [];
 
         const UpdatePackage = {
           weight: weightPack,
@@ -1267,39 +1003,30 @@ const resolvers = {
           height: heightPack,
           width: widthPack,
           name_package: packName,
-          supplier_id: supplierDoc.id,
+          supplier_id: SupplierDoc.docs[0].id,
         };
 
-        existingPackages
-          .filter((item) => {
+        const duplicateData = FindSameParamsPack(
+          existingPackages.filter((item) => {
             return !item[id];
-          })
-          .forEach((item) => {
-            // jmeno balicku
-            const nameItm = Object.keys(item)[0];
-            const itm = item[nameItm];
-            // kontrola jmén
-            if (itm.name_package === packName) {
-              dupName = itm.name_package;
-            }
-            if (
-              itm.weight === UpdatePackage.weight &&
-              itm.height === UpdatePackage.height &&
-              itm.width === UpdatePackage.width &&
-              itm.Plength === UpdatePackage.Plength
-            ) {
-              dupPackages.push(itm);
-            }
-          });
+          }),
+          {
+            weight: UpdatePackage.weight,
+            width: UpdatePackage.width,
+            length: UpdatePackage.Plength,
+            height: UpdatePackage.height,
+            packName: UpdatePackage.name_package,
+          },
+        );
 
-        if (dupName.length > 0) {
+        if (duplicateData.name) {
           return {
             __typename: 'PackageUpdateError',
             message: 'Toto označení pužívá jíny balík',
           };
         }
 
-        if (dupPackages.length > 0) {
+        if (duplicateData.params) {
           return {
             __typename: 'PackageUpdateError',
             message: 'Tyto parametry má též jiný balík',
@@ -1318,7 +1045,7 @@ const resolvers = {
           }
         }
 
-        await supplierDoc.ref.update({ package: existingPackages });
+        await SupplierDoc.docs[0].ref.update({ package: existingPackages });
         if (SupplierDoc.docChanges() && SupplierDoc.docChanges().length > 0) {
           return {
             __typename: 'UPack',
@@ -1376,6 +1103,20 @@ const resolvers = {
           };
         }
 
+        if (InsuranceValue < 0) {
+          return {
+            __typename: 'SupplierError',
+            message: 'Pojištění nesmí být menší než nula',
+          };
+        }
+
+        if (dCost < 0 || pCost < 0) {
+          return {
+            __typename: 'SupplierError',
+            message: 'Ceny za doručení/vyzvednutí nesmí být záporná čísla',
+          };
+        }
+
         if (!isValid(new Date(Delivery))) {
           return {
             __typename: 'SupplierError',
@@ -1390,13 +1131,20 @@ const resolvers = {
           };
         }
 
+        if (new Date(PickuUp) < new Date(Delivery)) {
+          return {
+            __typename: 'SupplierError',
+            message: 'Datum vyzvednutí nemůže být dřívější než datum doručení',
+          };
+        }
+
         if (
-          ConverBool(
+          !IsInGoodForm(
             hasFoil,
             hasShippingLabel,
             SendCashOnDelivery,
             PackageInABox,
-          ) === true
+          )
         ) {
           return {
             __typename: 'SupplierError',
@@ -1434,20 +1182,6 @@ const resolvers = {
           return {
             __typename: 'SupplierError',
             message: `Toto jméno používá jiná ${constant.toLowerCase()}`,
-          };
-        }
-
-        if (new Date(PickuUp) < new Date(Delivery)) {
-          return {
-            __typename: 'SupplierError',
-            message: 'Datum vyzvednutí nemůže být dřívější než datum doručení',
-          };
-        }
-
-        if (InsuranceValue < 0) {
-          return {
-            __typename: 'SupplierError',
-            message: 'Pojištění nesmí být menší než nula',
           };
         }
 
@@ -1509,7 +1243,6 @@ const resolvers = {
         oldSuppName: string;
       },
       context: MyContext,
-      // eslint-disable-next-line sonarjs/cognitive-complexity, consistent-return
     ) => {
       const {
         newPricePack: nPricrePack,
@@ -1529,42 +1262,6 @@ const resolvers = {
       try {
         let response: Array<Response> = [];
         let msg = '';
-        const getDocsPack = (
-          doc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
-          sID: string,
-          packageName: string,
-        ) => {
-          const docs: Array<
-            FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
-          > = [];
-          for (const document of doc.docs) {
-            const item = document.data();
-            if (
-              item.suppData.id === sID &&
-              item.suppData.packName === packageName
-            ) {
-              docs.push(document);
-            }
-          }
-          return docs;
-        };
-
-        const getDocSupp = (
-          doc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
-          sID: string,
-          suppName: string,
-        ) => {
-          const docs: Array<
-            FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
-          > = [];
-          for (const document of doc.docs) {
-            const item = document.data();
-            if (item.suppData.id === sID && item.suppData.name === suppName) {
-              docs.push(document);
-            }
-          }
-          return docs;
-        };
 
         if (context.user?.uid !== adminId) {
           return {
@@ -1585,7 +1282,7 @@ const resolvers = {
           .get();
 
         if (nPriceP && nPriceDepo && dataS && sId && oldSName) {
-          const historyDoc = getDocSupp(historyDocuments, sId, oldSName);
+          const historyDoc = GetDocSupp(historyDocuments, sId, oldSName);
           const packages: Array<{
             cost: number;
             namePack: string;
@@ -1608,7 +1305,7 @@ const resolvers = {
             }
           });
 
-          response = await doMathForOptionsDelivery(
+          response = await MathForOptionsDelivery(
             packages,
             nPriceDepo,
             nPriceP,
@@ -1622,9 +1319,9 @@ const resolvers = {
         }
 
         if (nPricrePack && nameOfpack && sId && oldNameOfpack) {
-          const historyDoc = getDocsPack(historyDocuments, sId, oldNameOfpack);
+          const historyDoc = GetDocsPack(historyDocuments, sId, oldNameOfpack);
 
-          msg = await doMathForPackage(
+          msg = await MathForPackage(
             SuppDocuments,
             nPricrePack,
             historyDoc,
@@ -1643,7 +1340,6 @@ const resolvers = {
       parent_: any,
       args: { key: string; suppId: string },
       context: MyContext,
-      // eslint-disable-next-line sonarjs/cognitive-complexity
     ) => {
       const { key: Pack, suppId: Sid } = args;
       let deleted = false;
@@ -1665,18 +1361,6 @@ const resolvers = {
         const supplierDoc = SupplierDoc.docs[0];
         const existingPackages: Array<Package> =
           supplierDoc.data().package || [];
-
-        const GetPackName = (
-          id: string,
-          packages: Array<Package>,
-        ): string | undefined => {
-          for (const pack of packages) {
-            if (pack[id]) {
-              return pack[id].name_package;
-            }
-          }
-          return undefined;
-        };
 
         const HistoryDoc = await db
           .collection('History')
@@ -1718,11 +1402,9 @@ const resolvers = {
       parent_: any,
       args: { id: Array<string> },
       context: MyContext,
-      // eslint-disable-next-line @typescript-eslint/require-await
     ) => {
       let deleted = false;
       let err = '';
-      let docId = '';
       if (context.user?.uid !== adminId) {
         err = admMessage;
         deleted = false;
@@ -1744,7 +1426,6 @@ const resolvers = {
           if (!snapshot.empty) {
             await snapshot.docs[0].ref.delete();
             deleted = true;
-            docId = snapshot.docs[0].id;
           }
           if (!snapshotHistory.empty) {
             await snapshotHistory.docs[0].ref.delete();

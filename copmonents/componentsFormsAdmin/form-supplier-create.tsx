@@ -1,12 +1,5 @@
-import { State, useHookstate } from '@hookstate/core';
-import {
-  Alert,
-  Button,
-  MenuItem,
-  styled,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { useHookstate } from '@hookstate/core';
+import { Button, styled, Typography } from '@mui/material';
 import { DateValidationError, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -19,13 +12,13 @@ import {
   SuppDataDocument,
   useNewSupplierToFirestoreMutation,
 } from '@/generated/graphql';
+import { Validation } from '@/utility/uthils';
 
+import { CustomAlert } from '../alert-component';
 import { useAuthContext } from '../auth-context-provider';
+import { SelectComponent } from '../select-component';
 import { MyCompTextField } from '../text-field';
-import {
-  DataCreatedSupp,
-  ErrSettersPropertiesSuppCreateUpdate,
-} from '../types/types';
+import { DataCreatedSupp } from '../types/types';
 
 const Back = async () => {
   await router.push(`/../admin-page`);
@@ -53,192 +46,6 @@ const CustomFieldset = styled('fieldset')({
   justifyContent: 'space-around',
   padding: '1rem',
 });
-
-const IsYesOrNo = (
-  stringnU1: string,
-  stringnU2: string,
-  stringnU3: string,
-  stringnU4: string,
-) => {
-  const message = 'Očekává se hodnota (Yes/No)';
-  if (!['Yes', 'No'].includes(stringnU1)) {
-    return { msg: message, from: 'sendCashDelivery' };
-  }
-
-  if (!['Yes', 'No'].includes(stringnU2)) {
-    return { msg: message, from: 'foil' };
-  }
-
-  if (!['Yes', 'No'].includes(stringnU3)) {
-    return { msg: message, from: 'shippingLabel' };
-  }
-
-  if (!['Yes', 'No'].includes(stringnU4)) {
-    return { msg: message, from: 'packInBox' };
-  }
-
-  return undefined;
-};
-
-const parseIntReliable = (numArg: string) => {
-  if (numArg.length > 0) {
-    const parsed = Number.parseInt(numArg, 10);
-    if (parsed === 0) {
-      // eslint-disable-next-line max-depth
-      if (numArg.replaceAll('0', '') === '') {
-        return 0;
-      }
-    } else if (Number.isSafeInteger(parsed)) {
-      return parsed;
-    }
-  }
-  return false;
-};
-
-const isInt = (numArg: string, min: number) => {
-  const parsed = parseIntReliable(numArg);
-
-  return parsed !== false && parsed >= min;
-};
-
-const MyAlert = (messages: { successCreate: string; errCreate: string }) => {
-  let alert = <div></div>;
-
-  if (messages.errCreate !== '') {
-    alert = (
-      <div>
-        <Alert severity="error">{messages.errCreate}</Alert>
-        <Button onClick={() => Back()}>Back</Button>
-      </div>
-    );
-  }
-
-  if (messages.successCreate !== '') {
-    const data = JSON.parse(messages.successCreate) as DataCreatedSupp;
-    alert = (
-      <div>
-        <Alert severity="success">
-          <div>
-            <h3>Zásliková služba s parametry</h3>
-            <p style={{ margin: '5px' }}>
-              <strong>Dodání</strong>: {data.delivery}
-            </p>
-            <p style={{ margin: '5px' }}>
-              <strong>Zabalení do fólie</strong>:{' '}
-              {data.foil === 'Yes' ? 'Ano' : 'Ne'}
-            </p>
-            <p style={{ margin: '5px' }}>
-              <strong>Pojištění</strong>:{' '}
-              {data.insurance > 0 ? `${data.insurance} Kč` : 'bez pojištění'}
-            </p>
-            <p style={{ margin: '5px' }}>
-              <strong> Zabalení do krabice</strong>:{' '}
-              {data.packInBox === 'Yes' ? 'Ano' : 'Ne'}
-            </p>
-            <p style={{ margin: '5px' }}>
-              <strong>Vyzvednutí</strong>:{' '}
-              {data.pickUp === 'Yes' ? 'Ano' : 'Ne'}
-            </p>
-            <p style={{ margin: '5px' }}>
-              <strong> Na dobírku</strong>:{' '}
-              {data.sendCashDelivery === 'Yes' ? 'Ano' : 'Ne'}
-            </p>
-            <p style={{ margin: '5px' }}>
-              <strong>Štítek přiveze kurýr</strong>:{' '}
-              {data.shippingLabel === 'Yes' ? 'Ano' : 'Ne'}
-            </p>
-            <p style={{ margin: '5px' }}>
-              <strong> Jméno</strong>: {data.suppName}
-            </p>
-          </div>
-        </Alert>
-      </div>
-    );
-  }
-
-  return alert;
-};
-
-const Valid = (
-  pickUparg: string,
-  deliveryarg: string,
-  insurancearg: string,
-  sendCashDeliveryarg: string,
-  foilarg: string,
-  shippingLabelarg: string,
-  packInBoxarg: string,
-  depoCostarg: string,
-  personalCostarg: string,
-  setterErr: State<ErrSettersPropertiesSuppCreateUpdate>,
-) => {
-  const messageForInt = 'Očekává se číslo větší nebo rovné nule';
-
-  if (!isInt(insurancearg, 0)) {
-    setterErr.errInsurance.set(messageForInt);
-    return new Error(messageForInt);
-  }
-
-  if (!isInt(depoCostarg, 0)) {
-    setterErr.errDepoCost.set(messageForInt);
-    return new Error(messageForInt);
-  }
-
-  if (!isInt(personalCostarg, 0)) {
-    setterErr.errPersonalCost.set(messageForInt);
-    return new Error(messageForInt);
-  }
-
-  const yesRoNo = IsYesOrNo(
-    sendCashDeliveryarg,
-    foilarg,
-    shippingLabelarg,
-    packInBoxarg,
-  );
-
-  if (yesRoNo) {
-    switch (yesRoNo.from) {
-      case 'packInBox': {
-        setterErr.errPackInBox.set(yesRoNo.msg);
-        return new Error(yesRoNo.msg);
-      }
-      case 'shippingLabel': {
-        setterErr.errShippingLabel.set(yesRoNo.msg);
-        return new Error(yesRoNo.msg);
-      }
-      case 'foil': {
-        setterErr.errFoil.set(yesRoNo.msg);
-        return new Error(yesRoNo.msg);
-      }
-      case 'sendCashDelivery': {
-        setterErr.errSendCashDelivery.set(yesRoNo.msg);
-        return new Error(yesRoNo.msg);
-      }
-      default: {
-        return undefined;
-      }
-    }
-  }
-
-  if (deliveryarg !== '') {
-    return new Error('Datum dodání není ve správném formátu');
-  }
-
-  if (pickUparg !== '') {
-    return new Error('Datum vyzvednutí není ve správném formátu');
-  }
-
-  setterErr.set({
-    errDepoCost: '',
-    errFoil: '',
-    errInsurance: '',
-    errName: '',
-    errPackInBox: '',
-    errPersonalCost: '',
-    errSendCashDelivery: '',
-    errShippingLabel: '',
-  });
-  return undefined;
-};
 
 const Response = (
   response:
@@ -350,63 +157,23 @@ export const FormSupplier = () => {
     }
   }, [userApp]);
 
-  const MyComponent = (
-    state: State<string>,
-    paragraph: string,
-    error: string,
-  ) => {
-    return error === '' ? (
-      <TextField
-        id="outlined-select"
-        select
-        label={paragraph}
-        placeholder={'Ano/Ne'}
-        required
-        helperText={`Vyberte prosím z možností Ano/Ne`}
-        onChange={(selectedOption) =>
-          state.set(selectedOption ? selectedOption.target.value : '')
-        }
-      >
-        {options.map((option: { value: string; label: string }) => (
-          <MenuItem key={option.value} value={option.value}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </TextField>
-    ) : (
-      <TextField
-        id="outlined-select"
-        select
-        error
-        label={'Error'}
-        placeholder={'Ano/Ne'}
-        required
-        helperText={`Vyberte prosím z možností Ano/Ne`}
-        onChange={(selectedOption) =>
-          state.set(selectedOption ? selectedOption.target.value : '')
-        }
-      >
-        {options.map((option: { value: string; label: string }) => (
-          <MenuItem key={option.value} value={option.value}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </TextField>
-    );
-  };
-
   const handleForm = async (event: React.FormEvent) => {
     event.preventDefault();
-    const valid = Valid(
-      setterDateErr.errPickUp.get(),
-      setterDateErr.errDelivery.get(),
-      settersOfDataSupp.Insurance.get(),
-      settersOfDataSupp.SendCashDelivery.get(),
-      settersOfDataSupp.Foil.get(),
-      settersOfDataSupp.ShippingLabel.get(),
-      settersOfDataSupp.PackInBox.get(),
-      settersOfDataSupp.DepoCost.get(),
-      settersOfDataSupp.PersonalCost.get(),
+    const valid = Validation(
+      'suppCreate',
+      {
+        suppData: {
+          pickUp: setterDateErr.errPickUp.get(),
+          delivery: setterDateErr.errDelivery.get(),
+          insurance: settersOfDataSupp.Insurance.get(),
+          sendCashDelivery: settersOfDataSupp.SendCashDelivery.get(),
+          foil: settersOfDataSupp.Foil.get(),
+          shippingLabel: settersOfDataSupp.ShippingLabel.get(),
+          packInBox: settersOfDataSupp.PackInBox.get(),
+          depoCost: settersOfDataSupp.DepoCost.get(),
+          personalCost: settersOfDataSupp.PersonalCost.get(),
+        },
+      },
       setterErrors,
     )?.message;
     if (valid) {
@@ -497,10 +264,13 @@ export const FormSupplier = () => {
         }}
       >
         <div style={{ alignSelf: 'center' }}>
-          {MyAlert({
-            successCreate: setterForAlertMesssage.successCreate.value,
-            errCreate: setterForAlertMesssage.errCreate.value,
-          })}
+          <CustomAlert
+            messages={{
+              successCreate: setterForAlertMesssage.successCreate.value,
+              errCreate: setterForAlertMesssage.errCreate.value,
+            }}
+            operation="supplierCreate"
+          />
         </div>
 
         <CustomFieldset>
@@ -550,7 +320,7 @@ export const FormSupplier = () => {
               disablePast
               minDate={dayjs()}
               onError={(e: DateValidationError) =>
-                setterDateErr.errDelivery.set(e ? e.toString() : '')
+                setterDateErr.errDelivery.set(e || '')
               }
               onChange={(e: dayjs.Dayjs | null) =>
                 settersOfDataSupp.Delivery.set(
@@ -570,7 +340,7 @@ export const FormSupplier = () => {
               disablePast
               minDate={dayjs()}
               onError={(e: DateValidationError) =>
-                setterDateErr.errPickUp.set(e ? e.toString() : '')
+                setterDateErr.errPickUp.set(e || '')
               }
               onChange={(e: dayjs.Dayjs | null) =>
                 settersOfDataSupp.PickUp.set(e ? e.toDate().toDateString() : '')
@@ -595,26 +365,32 @@ export const FormSupplier = () => {
           >
             Detaily
           </legend>
-          {MyComponent(
-            settersOfDataSupp.SendCashDelivery,
-            'Na dobírku',
-            setterErrors.errSendCashDelivery.get(),
-          )}
-          {MyComponent(
-            settersOfDataSupp.ShippingLabel,
-            'Štítek přiveze kurýr',
-            setterErrors.errShippingLabel.get(),
-          )}
-          {MyComponent(
-            settersOfDataSupp.Foil,
-            'Zabalení do fólie (nepovinné)',
-            setterErrors.errFoil.get(),
-          )}
-          {MyComponent(
-            settersOfDataSupp.PackInBox,
-            'Zabalení do krabice',
-            setterErrors.errPackInBox.get(),
-          )}
+
+          <SelectComponent
+            options={options}
+            paragraph={'Na dobírku'}
+            state={settersOfDataSupp.SendCashDelivery}
+            error={setterErrors.errSendCashDelivery.get()}
+          />
+          <SelectComponent
+            options={options}
+            paragraph={'Štítek přiveze kurýr'}
+            state={settersOfDataSupp.ShippingLabel}
+            error={setterErrors.errShippingLabel.get()}
+          />
+          <SelectComponent
+            options={options}
+            paragraph={'Zabalení do fólie (nepovinné)'}
+            state={settersOfDataSupp.Foil}
+            error={setterErrors.errFoil.get()}
+          />
+
+          <SelectComponent
+            options={options}
+            paragraph={'Zabalení do krabice'}
+            state={settersOfDataSupp.PackInBox}
+            error={setterErrors.errPackInBox.get()}
+          />
         </CustomFieldset>
 
         <CustomFieldset>

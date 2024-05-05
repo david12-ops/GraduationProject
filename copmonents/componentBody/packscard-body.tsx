@@ -1,37 +1,10 @@
 import { User } from 'firebase/auth';
 
 import { PackCards } from '../Cards/packs-cards';
-
-type Package = {
-  [name: string]: {
-    weight: number;
-    height: number;
-    width: number;
-    Plength: number;
-    name_package: string;
-    cost: number;
-    supplier_id: string;
-  };
-};
-type SuppData =
-  | {
-      __typename?: 'QuerySuppD' | undefined;
-      sendCashDelivery: string;
-      packInBox: string;
-      supplierId: string;
-      suppName: string;
-      pickUp: string;
-      delivery: string;
-      insurance: number;
-      shippingLabel: string;
-      foil: string;
-      package?: any | undefined;
-      location?: any | undefined;
-    }
-  | undefined;
+import { Package, Supplier } from '../types/types';
 
 type Props = {
-  data: SuppData;
+  data: Supplier;
   stylingErr: any;
   stylingWarning: any;
   stylingImgErr: any;

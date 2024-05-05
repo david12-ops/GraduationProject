@@ -13,6 +13,7 @@ import {
   useDeleteHistoryItmMutation,
   useHistoryDataQuery,
 } from '@/generated/graphql';
+import { ToDateInNumForm } from '@/utility/uthils';
 
 import { useAuthContext } from '../copmonents/auth-context-provider';
 import { PageFormChangeEm } from '../copmonents/componentsForAuth/change-email';
@@ -49,11 +50,6 @@ const Refetch = async (
   >,
 ) => {
   await data.refetch();
-};
-
-const toDateInNumForm = (date: string) => {
-  const newDate = new Date(date);
-  return `${newDate.getDate()}-${newDate.getMonth()}-${newDate.getFullYear()}`;
 };
 
 // eslint-disable-next-line import/no-default-export
@@ -140,11 +136,11 @@ export default function UserPage() {
                         </Typography>
                         <Typography component={'p'} style={{ margin: '10px' }}>
                           <strong>Doručení</strong>:{' '}
-                          {toDateInNumForm(historyItm.suppData.delivery)}
+                          {ToDateInNumForm(historyItm.suppData.delivery)}
                         </Typography>
                         <Typography component={'p'} style={{ margin: '10px' }}>
                           <strong>Vyzvednutí</strong>:{' '}
-                          {toDateInNumForm(historyItm.suppData.pickup)}
+                          {ToDateInNumForm(historyItm.suppData.pickup)}
                         </Typography>
                         <Typography component={'p'} style={{ margin: '10px' }}>
                           <strong>V boxu</strong>:{' '}
