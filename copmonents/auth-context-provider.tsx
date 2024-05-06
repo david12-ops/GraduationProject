@@ -1,4 +1,5 @@
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import Image from 'next/image';
 import React, {
   FC,
   PropsWithChildren,
@@ -40,7 +41,7 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
             transform: 'translate(-50%, -50%)',
           }}
         >
-          <img src="/loading.gif" alt="loading" />
+          <Image src={'/loading.gif'} alt="loading"></Image>
         </div>
       ) : (
         children

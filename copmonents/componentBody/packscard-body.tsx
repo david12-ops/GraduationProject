@@ -1,4 +1,5 @@
 import { User } from 'firebase/auth';
+import Image from 'next/image';
 
 import { PackCards } from '../Cards/packs-cards';
 import { Package, Supplier } from '../types/types';
@@ -30,7 +31,10 @@ export const PacksCardBody: React.FC<Props> = ({
     return (
       <div style={stylingImgErr}>
         <div>
-          <img src="/sorry-item-not-found-3328225-2809510.webp" alt="?" />
+          <Image
+            src={'/sorry-item-not-found-3328225-2809510.webp'}
+            alt="not found"
+          ></Image>
         </div>
       </div>
     );

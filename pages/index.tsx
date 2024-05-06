@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
@@ -22,7 +23,11 @@ export default function Home() {
       <main>
         <div className={stylesM.body1}>
           <div className={stylesM.item1}>
-            <img className={stylesM.suppImg} src="/ImgSupp.png" alt="" />
+            <Image
+              className={stylesM.suppImg}
+              src="/ImgSupp.png"
+              alt="zásilková služba"
+            ></Image>
           </div>
 
           <div className={stylesM.item2}>
@@ -59,7 +64,11 @@ export default function Home() {
 
         <div className={stylesM.body4}>
           <div className={stylesM.item7}>
-            <img src="/confused.webp" alt="" className={stylesM.itmImg2} />
+            <Image
+              src="/confused.webp"
+              alt="vhodná zásilková služba?"
+              className={stylesM.itmImg2}
+            ></Image>
           </div>
           <div className={stylesM.item8}>
             <h1 className={stylesM.body4Napis}>Jak zde najdete svůj balík?</h1>
@@ -84,10 +93,18 @@ export default function Home() {
           </div>
 
           <div className={stylesM.item10}>
-            <img src="/s2.png" alt="" className={stylesM.itemImg} />
+            <Image
+              src="/s2.png"
+              alt="správa účtu"
+              className={stylesM.itemImg}
+            ></Image>
           </div>
           <div className={stylesM.item11}>
-            <img src="/pngegg.png" alt="" className={stylesM.itemImg} />
+            <Image
+              src="/pngegg.png"
+              alt="info"
+              className={stylesM.itemImg}
+            ></Image>
           </div>
           {user ? (
             <div className={stylesM.item12}>
