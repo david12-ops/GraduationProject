@@ -1,3 +1,5 @@
+// eslint-disable-next-line eslint-comments/disable-enable-pair
+/* eslint-disable sonarjs/no-duplicate-string */
 import 'firebase/compat/storage';
 
 import { Context } from '@apollo/client';
@@ -1279,11 +1281,16 @@ const resolvers = {
 
         const historyDocuments = await db
           .collection('History')
-          // eslint-disable-next-line sonarjs/no-duplicate-string
           .where('suppData.id', '==', sId)
           .get();
 
-        if (nPriceP && nPriceDepo && dataS && sId && oldSName) {
+        if (
+          nPriceP !== undefined &&
+          nPriceDepo !== undefined &&
+          dataS &&
+          sId &&
+          oldSName
+        ) {
           const historyDoc = GetDocSupp(historyDocuments, sId, oldSName);
           const packages: Array<{
             cost: number;
@@ -1314,13 +1321,19 @@ const resolvers = {
             historyDoc,
             dataS,
           );
+
           msg =
             response.length === 2 && /(cena)/.test(response[1].message)
               ? 'Úprava historie a cen v historii uživatelům byla úspěšná'
               : response.map((msgr) => msgr.message)[0].toString();
         }
 
-        if (nPricrePack && nameOfpack && sId && oldNameOfpack) {
+        if (
+          nPricrePack !== undefined &&
+          nameOfpack !== undefined &&
+          sId &&
+          oldNameOfpack
+        ) {
           const historyDoc = GetDocsPack(historyDocuments, sId, oldNameOfpack);
 
           msg = await MathForPackage(
