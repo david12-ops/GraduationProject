@@ -395,7 +395,8 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               value={dayjs(settersOfDataSupp.Delivery.get())}
               slotProps={{
                 textField: {
-                  helperText: 'Zadejte datum dodání ve formatu (MM/DD/YYYY)',
+                  helperText:
+                    'Zadejte minimálně aktuální datum dodání ve formatu (MM/DD/YYYY)',
                 },
               }}
             />
@@ -415,7 +416,7 @@ export const FormSupplierUpdate: React.FC<Props> = ({ id }) => {
               slotProps={{
                 textField: {
                   helperText:
-                    'Zadejte datum vyzvednutí ve formatu (MM/DD/YYYY)',
+                    'Zadejte minimálně aktuální datum vyzvednutí ve formatu (MM/DD/YYYY)',
                 },
               }}
             />

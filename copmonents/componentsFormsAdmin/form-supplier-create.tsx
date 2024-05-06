@@ -329,7 +329,8 @@ export const FormSupplier = () => {
               }
               slotProps={{
                 textField: {
-                  helperText: 'Zadejte datum dodaní ve formátu (MM/DD/YYYY)',
+                  helperText:
+                    'Zadejte minimálně aktuální datum dodaní ve formátu (MM/DD/YYYY)',
                 },
               }}
             />
@@ -348,7 +349,7 @@ export const FormSupplier = () => {
               slotProps={{
                 textField: {
                   helperText:
-                    'Zadejte datum vyzvednutí ve formátu (MM/DD/YYYY)',
+                    'Zadejte minimálně aktuální datum vyzvednutí ve formátu (MM/DD/YYYY)',
                 },
               }}
             />
