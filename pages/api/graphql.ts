@@ -537,7 +537,6 @@ const resolvers = {
         );
 
         // pocud pripravit data a v připadě max package vyhodit error
-        console.log('gr', groupedById);
         if (groupedById.msg) {
           return groupedById.msg;
         }

@@ -1,3 +1,5 @@
+// eslint-disable-next-line eslint-comments/disable-enable-pair
+/* eslint-disable no-use-before-define */
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
 
