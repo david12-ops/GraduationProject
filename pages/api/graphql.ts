@@ -24,9 +24,12 @@ import {
   GetDocSupp,
   GetPackName,
   IsInGoodForm,
-  LookWhichIsBetter,
 } from '@/utility/uthils';
-import { ResultSuitable, ServeData } from '@/utility/uthils-main-func';
+import {
+  LookWhichIsBetter,
+  ResultSuitable,
+  ServeData,
+} from '@/utility/uthils-main-func';
 
 import { firestore } from '../../firebase/firebase-admin-config';
 import { verifyToken } from './verify-token';

@@ -218,6 +218,40 @@ const MakeCost = (
   });
 };
 
+export const LookWhichIsBetter = (item: PackageType, item2: PackageType) => {
+  let bettterPack: PackageType = {
+    supplierId: '',
+    Cost: 0,
+    Name: '',
+    param: {
+      width: 0,
+      length: 0,
+      weight: 0,
+      height: 0,
+    },
+  };
+
+  if (
+    item.param.width > item2.param.width ||
+    item.param.weight > item2.param.weight ||
+    item.param.length > item2.param.length ||
+    item.param.height > item2.param.height
+  ) {
+    bettterPack = item2;
+  }
+
+  if (
+    item.param.width < item2.param.width ||
+    item.param.weight < item2.param.weight ||
+    item.param.length < item2.param.length ||
+    item.param.height < item2.param.height
+  ) {
+    bettterPack = item;
+  }
+
+  return bettterPack;
+};
+
 export const ServeData = (
   suppDoc: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>,
   data: { where: string; fromWhere: string },

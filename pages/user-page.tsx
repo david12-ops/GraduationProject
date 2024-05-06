@@ -6,6 +6,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import React, { useState } from 'react';
 
+import { DataPack } from '@/copmonents/data-pack-userpage';
 import {
   Exact,
   HistoryDataDocument,
@@ -174,6 +175,19 @@ export default function UserPage() {
                             ? 'Ano'
                             : ''}
                         </Typography>
+                        <Typography component={'div'}>
+                          <Typography
+                            component={'p'}
+                            style={{ margin: '10px' }}
+                          >
+                            <strong>Balík</strong>:{' '}
+                            {historyItm.suppData.packName}
+                          </Typography>
+                          <DataPack
+                            packName={historyItm.suppData.packName}
+                            suppName={historyItm.suppData.name}
+                          />
+                        </Typography>
                         <Typography component={'p'} style={{ margin: '10px' }}>
                           <strong>Celková cena</strong>:{' '}
                           {historyItm.suppData.cost} Kč
@@ -182,7 +196,7 @@ export default function UserPage() {
                     }
                   ></CustomDialog>
                   <Typography component={'div'} margin={'auto'}>
-                    <strong>Označení</strong>
+                    <strong>Balik</strong>
                     <Typography style={{ textAlign: 'center' }} component={'p'}>
                       {historyItm.suppData.packName}
                     </Typography>
