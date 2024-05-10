@@ -41,7 +41,12 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
             transform: 'translate(-50%, -50%)',
           }}
         >
-          <Image src={'/loading.gif'} alt="loading"></Image>
+          <Image
+            width={400}
+            height={400}
+            src={'/loading.gif'}
+            alt="loading"
+          ></Image>
         </div>
       ) : (
         children

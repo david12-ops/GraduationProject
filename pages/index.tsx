@@ -24,6 +24,8 @@ export default function Home() {
         <div className={stylesM.body1}>
           <div className={stylesM.item1}>
             <Image
+              width={700}
+              height={700}
               className={stylesM.suppImg}
               src="/ImgSupp.png"
               alt="zásilková služba"
@@ -65,6 +67,8 @@ export default function Home() {
         <div className={stylesM.body4}>
           <div className={stylesM.item7}>
             <Image
+              width={550}
+              height={350}
               src="/confused.webp"
               alt="vhodná zásilková služba?"
               className={stylesM.itmImg2}
@@ -94,6 +98,8 @@ export default function Home() {
 
           <div className={stylesM.item10}>
             <Image
+              width={225}
+              height={225}
               src="/s2.png"
               alt="správa účtu"
               className={stylesM.itemImg}
@@ -101,6 +107,8 @@ export default function Home() {
           </div>
           <div className={stylesM.item11}>
             <Image
+              width={225}
+              height={225}
               src="/pngegg.png"
               alt="info"
               className={stylesM.itemImg}

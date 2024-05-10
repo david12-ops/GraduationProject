@@ -32,6 +32,8 @@ export const PacksCardBody: React.FC<Props> = ({
       <div style={stylingImgErr}>
         <div>
           <Image
+            width={400}
+            height={400}
             src={'/sorry-item-not-found-3328225-2809510.webp'}
             alt="not found"
           ></Image>

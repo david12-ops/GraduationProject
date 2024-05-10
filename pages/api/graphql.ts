@@ -453,7 +453,7 @@ const resolvers = {
     historyUserData: async (
       _parent: unknown,
       _args: unknown,
-      context: MyContext,
+      context?: MyContext,
     ) => {
       const data: Array<{
         dataForm: any;
@@ -462,21 +462,23 @@ const resolvers = {
         userId: string;
       }> = [];
       try {
-        const userData = await db
-          .collection('History')
-          .where('uId', '==', context.user?.uid)
-          .get();
+        if (context && context.user) {
+          const userData = await db
+            .collection('History')
+            .where('uId', '==', context.user.uid)
+            .get();
 
-        userData.forEach((doc) => {
-          const docData = doc.data();
+          userData.forEach((doc) => {
+            const docData = doc.data();
 
-          data.push({
-            dataForm: docData.dataForm,
-            historyId: docData.historyId,
-            suppData: docData.suppData,
-            userId: docData.uId,
+            data.push({
+              dataForm: docData.dataForm,
+              historyId: docData.historyId,
+              suppData: docData.suppData,
+              userId: docData.uId,
+            });
           });
-        });
+        }
 
         return data;
       } catch (error) {
