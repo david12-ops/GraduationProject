@@ -2,12 +2,11 @@ import {
   confirmPasswordReset,
   createUserWithEmailAndPassword,
   getAuth,
-  sendEmailVerification,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
-  updateEmail,
   updatePassword,
   User,
+  verifyBeforeUpdateEmail,
 } from 'firebase/auth';
 
 import firebase_app from './config';
@@ -23,9 +22,11 @@ export const authUtils = {
   changeUsPass: async (ActUs: User, newPass: string) => {
     await updatePassword(ActUs, newPass);
   },
-  channgeUsEmail: async (ActUs: User, newEmail: string) => {
-    await sendEmailVerification(ActUs);
-    await updateEmail(ActUs, newEmail);
+  channgeUsEmail: async (newEmail: string) => {
+    if (auth.currentUser) {
+      await verifyBeforeUpdateEmail(auth.currentUser, newEmail);
+      await auth.signOut();
+    }
   },
   register: async (email: string, password: string) => {
     await createUserWithEmailAndPassword(auth, email, password);

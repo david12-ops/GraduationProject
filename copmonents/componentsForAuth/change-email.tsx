@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { User } from 'firebase/auth';
 import { FirebaseError } from 'firebase-admin';
+import router from 'next/router';
 import React, { useState } from 'react';
 
 import { authUtils } from '@/firebase/auth-utils';
@@ -38,8 +39,8 @@ const Submit = async (
 ) => {
   try {
     if (user) {
-      await authUtils.channgeUsEmail(user, email);
-      SetAlert(MyAlert('Změna emailu byla úspěšná', 'success'));
+      await authUtils.channgeUsEmail(email);
+      await router.push(`/../../`);
     }
   } catch (error) {
     const err = error as FirebaseError;
