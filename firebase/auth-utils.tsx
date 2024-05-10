@@ -25,7 +25,6 @@ export const authUtils = {
   channgeUsEmail: async (newEmail: string) => {
     if (auth.currentUser) {
       await verifyBeforeUpdateEmail(auth.currentUser, newEmail);
-      await auth.signOut();
     }
   },
   register: async (email: string, password: string) => {
