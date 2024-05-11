@@ -40,6 +40,7 @@ const Submit = async (
   try {
     if (user) {
       await authUtils.channgeUsEmail(email);
+      await authUtils.logout();
       await router.push(`/../../`);
     }
   } catch (error) {
