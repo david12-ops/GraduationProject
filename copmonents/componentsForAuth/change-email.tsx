@@ -46,10 +46,6 @@ const Submit = async (
   } catch (error) {
     const err = error as FirebaseError;
     switch (err.code) {
-      case 'auth/user-not-found': {
-        SetAlert(MyAlert('E-mail neexistuje', 'error'));
-        break;
-      }
       case 'auth/invalid-email': {
         SetAlert(MyAlert('E-mail není validní', 'error'));
         break;
