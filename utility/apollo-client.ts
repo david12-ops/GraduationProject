@@ -1,5 +1,3 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable sonarjs/no-duplicate-string */
 import {
   ApolloClient,
   ApolloLink,
@@ -35,7 +33,7 @@ const logoutLink = (logout: VoidFunction) =>
       logout();
     }
   });
-//!
+
 const oAuthLink = () =>
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setContext(async ({ operationName }, { headers }) => {

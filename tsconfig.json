@@ -30,7 +30,6 @@
     "**/*.ts",
     "**/*.tsx",
     "./.eslintrc.js",
-    "pages/admpage"
   ],
   "exclude": [
     "node_modules"

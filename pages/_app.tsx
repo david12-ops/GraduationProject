@@ -33,7 +33,6 @@ const MyApp: React.FunctionComponent<MyAppProps> = (props) => {
         <CacheProvider value={emotionCache}>
           <ThemeProvider theme={lightTheme}>
             <CssBaseline />
-            {/* <Container maxWidth="sm"/> */}
             <Component {...pageProps} />
           </ThemeProvider>
         </CacheProvider>
@@ -44,12 +43,3 @@ const MyApp: React.FunctionComponent<MyAppProps> = (props) => {
 
 // eslint-disable-next-line import/no-default-export
 export default MyApp;
-
-// import '@/styles/globals.css'
-// import type { AppProps } from 'next/app'
-
-// export default function App({ Component, pageProps }: AppProps) {
-//   return <Component {...pageProps} />
-// }
-
-//
